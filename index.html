@@ -420,7 +420,6 @@ function renderHome(){
   const sections=mine.map((t,i)=>toolSection(t,i)).join('');
   root().innerHTML=`<div class="shell">${topbar()}
     <div class="hs-hero">
-      <div class="hs-eyebrow">${SUITE.wordmark[0]} Workspace \u00b7 ${mine.length} tool${mine.length!==1?'s':''}</div>
       <h1 class="hs-greet">${greet}, ${esc(friendlyName(u))}.</h1>
       <p class="hs-sub">${mine.length?'Pick a tool to jump in \u2014 each opens in its own tab.':'No tools assigned to your account yet.'}</p>
     </div>
@@ -438,7 +437,6 @@ function toolSection(t,i){
       <div class="tsec-frame" style="border-color:${t.accent};transform:translate(${off},28px)"></div>
       <div class="tsec-shot" style="${shot}"></div></div>`;
   const txt=`<div class="tsec-txt">
-      <div class="tsec-eyebrow" style="color:${t.accent}">${esc(t.tagline)}</div>
       <h2 class="tsec-h">${esc(head)} <span style="color:${t.accent}">${esc(tail)}</span></h2>
       <p class="tsec-p">${esc(t.desc)}</p>
       <button class="tsec-cta" style="background:${t.accent};box-shadow:0 8px 20px -6px ${t.accent}88" onclick="openTool('${t.id}')">
