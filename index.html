@@ -374,6 +374,7 @@ const IC={
   plus:'<path d="M12 5v14M5 12h14"/>', lock:'<rect x="4" y="10" width="16" height="11"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>', mail:'<rect x="3" y="5" width="18" height="14"/><path d="m3 7 9 6 9-6"/>',
   trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
 };
 function ic(n){ return `<svg class="ico" viewBox="0 0 24 24">${IC[n]||''}</svg>`; }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('on'),2200); }
@@ -479,7 +480,49 @@ function topbar(title, sub){
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
 }
-function acctMenu(e){ e.stopPropagation(); openMenu(e.currentTarget,[{label:'Sign out',icon:'logout',on:logout}]); }
+function acctMenu(e){ e.stopPropagation(); openMenu(e.currentTarget,[
+  {label:'Account settings', icon:'settings', on:openSettings},
+  {label:'Sign out', icon:'logout', on:logout},
+]); }
+function openSettings(){
+  const u=EHS.me(); const parts=(u.full_name||'').trim().split(/\s+/);
+  const first=parts[0]||''; const last=parts.slice(1).join(' ')||'';
+  $('modal').innerHTML=`
+    <div class="mhead">${ic('settings')}<h3>Account settings</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
+    <div class="mbody">
+      <div class="dsec-h">Your details</div>
+      <div class="frow2">
+        <div class="field"><label>First name <span style="color:var(--crit)">*</span></label><input id="st_first" type="text" value="${esc(first)}"></div>
+        <div class="field"><label>Last name <span style="color:var(--crit)">*</span></label><input id="st_last" type="text" value="${esc(last)}"></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" value="${esc(u.email)}" disabled style="opacity:.6">
+        <div class="hint">Contact a Master Admin to change your email.</div></div>
+      <div class="dsec-h" style="margin-top:20px">Change password</div>
+      <div class="field"><label>New password</label><input id="st_pw" type="password" placeholder="Leave blank to keep current" autocomplete="new-password"></div>
+      <div class="field"><label>Confirm new password</label><input id="st_pw2" type="password" placeholder="Re-enter new password" autocomplete="new-password">
+        <div class="hint">At least 6 characters.</div></div>
+    </div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn accent" id="st_save" onclick="saveSettings()">Save changes</button></div>`;
+  $('scrim').classList.add('on');
+}
+async function saveSettings(){
+  const first=($('st_first').value||'').trim(), last=($('st_last').value||'').trim();
+  const pw=($('st_pw').value||''), pw2=($('st_pw2').value||'');
+  if(!first){ toast('Enter a first name'); $('st_first').focus(); return; }
+  if(!last){ toast('Enter a last name'); $('st_last').focus(); return; }
+  if(pw){ if(pw.length<6){ toast('Password must be at least 6 characters'); $('st_pw').focus(); return; }
+          if(pw!==pw2){ toast('Passwords don\u2019t match'); $('st_pw2').focus(); return; } }
+  const name=(first+' '+last).trim();
+  const btn=$('st_save'); btn.disabled=true; btn.textContent='Saving\u2026';
+  try{
+    const me=EHS.me();
+    if(name!==(me.full_name||'')) await EHS.updateMyName(name);
+    if(pw) await EHS.changePassword(pw);
+    await EHS.loadMe(true);
+    closeModal(); toast('Settings saved'); route();
+  }catch(e){ btn.disabled=false; btn.textContent='Save changes'; toast('Couldn\u2019t save: '+e.message); }
+}
 
 /* ---------------- HOME (premium showcase) ---------------- */
 function friendlyName(u){
@@ -590,8 +633,7 @@ function openAccess(userId){
   const acc=(u.tool_access||[]);
   const rows=TOOLS.map(t=>{
     const cur=(acc.find(x=>x.tool_id===t.id)||{}).role||'none';
-    return `<div class="trow"><span class="tdot" style="background:${t.accent}"></span>
-      <div class="mid"><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
+    return `<div class="trow"><div class="mid"><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
       <select class="acc-sel" data-tool="${t.id}">
         <option value="none"${cur==='none'?' selected':''}>No access</option>
         <option value="user"${cur==='user'?' selected':''}>User</option>
@@ -640,7 +682,6 @@ async function saveAccess(userId){
 /* ---- add a new user ---- */
 function openInvite(){
   const rows=TOOLS.map(t=>`<div class="trow">
-    <span class="tdot" style="background:${t.accent}"></span>
     <div class="mid"><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
     <select class="acc-sel" data-tool="${t.id}">
       <option value="none">No access</option><option value="user">User</option><option value="admin">Admin</option>
