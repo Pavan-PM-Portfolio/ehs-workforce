@@ -120,20 +120,13 @@
   async function deleteUser(userId) {
     return adminUser('delete', { user_id: userId });
   }
-  // create a brand-new user via email invite (Edge Function; service role stays server-side)
-  async function inviteUser(email, fullName, grants) {
-    const s = await getSession();
-    const res = await fetch(cfg.url + '/functions/v1/invite-user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (s ? s.access_token : ''),
-      },
-      body: JSON.stringify({ email, full_name: fullName, grants: grants || [] }),
+  // create a brand-new user DIRECTLY (no email invite): master sets/omits a
+  // password; the account is created already-confirmed so they can sign in now.
+  // returns { ok, user_id, email, password, generated }
+  async function addUser(email, fullName, grants, password) {
+    return adminUser('create', {
+      email, full_name: fullName, grants: grants || [], password: password || '',
     });
-    const out = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(out.error || ('Invite failed (' + res.status + ')'));
-    return out;
   }
 
   /* ---------------- field permissions (server-resolved) ---------------- */
@@ -149,6 +142,6 @@
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, inviteUser, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, fieldPerms,
   };
 })(window);
