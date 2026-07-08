@@ -332,6 +332,7 @@ const IC={
   users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
   plus:'<path d="M12 5v14M5 12h14"/>', lock:'<rect x="4" y="10" width="16" height="11"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>', mail:'<rect x="3" y="5" width="18" height="14"/><path d="m3 7 9 6 9-6"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
 };
 function ic(n){ return `<svg class="ico" viewBox="0 0 24 24">${IC[n]||''}</svg>`; }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('on'),2200); }
@@ -519,8 +520,28 @@ function userRow(u){
       <div><div class="n">${esc(u.full_name||'\u2014')}</div><div class="e">${esc(u.email)}</div></div></div></td>
     <td>${u.is_master_admin?'<span class="chip master"><span class="dot"></span>Master Admin</span>':'<span class="chip">Member</span>'}</td>
     <td>${u.is_master_admin?'<span style="color:var(--muted);font-size:12px">All tools</span>':chips}</td>
-    <td style="text-align:right"><button class="btn sm" onclick="openAccess('${u.id}')">Manage</button></td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn sm" onclick="openAccess('${u.id}')">Manage</button>
+      <button class="btn sm ghost" title="More" onclick="userMenu('${u.id}',event)" style="padding:7px 10px">\u22ef</button></td>
   </tr>`;
+}
+function userMenu(id, e){
+  e.stopPropagation();
+  const u=_users.find(x=>x.id===id); if(!u) return;
+  const meId=EHS.me()&&EHS.me().id;
+  const items=[{label:u.is_master_admin?'Remove Master Admin':'Make Master Admin', icon:'users',
+      on:()=>doSetMaster(id, !u.is_master_admin)}];
+  if(id!==meId) items.push({label:'Delete user', icon:'trash', danger:true, on:()=>doDeleteUser(id)});
+  openMenu(e.currentTarget, items);
+}
+async function doSetMaster(id,val){
+  try{ await EHS.setMaster(id,val); toast(val?'Now a Master Admin':'Master Admin removed'); renderPeople(); }
+  catch(e){ toast(e.message); }
+}
+async function doDeleteUser(id){
+  const u=_users.find(x=>x.id===id); const who=u?(u.full_name||u.email):'this user';
+  if(!confirm('Delete '+who+'?\n\nThis permanently removes their account and all tool access. This cannot be undone.')) return;
+  try{ await EHS.deleteUser(id); toast('User deleted'); renderPeople(); }
+  catch(e){ toast('Delete failed: '+e.message); }
 }
 
 /* ---- edit one user's access ---- */
@@ -618,7 +639,7 @@ async function sendInvite(){
 
 /* ---------------- menu / global ---------------- */
 function openMenu(anchor,items){
-  const m=$('menu'); m.innerHTML=items.map((it,i)=>`<button data-i="${i}">${it.icon?ic(it.icon):''}${esc(it.label)}</button>`).join('');
+  const m=$('menu'); m.innerHTML=items.map((it,i)=>`<button data-i="${i}"${it.danger?' style="color:var(--crit)"':''}>${it.icon?ic(it.icon):''}${esc(it.label)}</button>`).join('');
   const r=anchor.getBoundingClientRect(); m.style.left=(r.right-180)+'px'; m.style.top=(r.bottom+6)+'px'; m.classList.add('on');
   m.querySelectorAll('button').forEach((b,i)=>b.onclick=(e)=>{ e.stopPropagation(); m.classList.remove('on'); items[i].on&&items[i].on(); });
 }
