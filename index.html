@@ -131,7 +131,11 @@ input,select{font-family:inherit}
 /* ===== premium home: hero + tool sections ===== */
 .hs-hero{position:relative;aspect-ratio:2/1;min-height:440px;max-height:720px;display:flex;align-items:center;overflow:hidden;background:#EEF2F8}
 .hs-hero-bg{position:absolute;inset:0;background:center/cover no-repeat;background-image:url('images/hero.webp')}
-.hs-hero-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,248,250,.94),rgba(247,248,250,.55) 42%,transparent 72%)}
+.hs-hero-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,248,250,.94),rgba(247,248,250,.5) 42%,transparent 72%),linear-gradient(180deg,transparent 56%,var(--bg))}
+.hs-hero-grid{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(rgba(16,26,51,.07) 1px,transparent 1px) 0 0/44px 44px,
+    linear-gradient(90deg,rgba(16,26,51,.07) 1px,transparent 1px) 0 0/44px 44px;
+  -webkit-mask-image:linear-gradient(180deg,transparent 42%,#000 94%);mask-image:linear-gradient(180deg,transparent 42%,#000 94%)}
 .hs-hero-in{position:relative;z-index:2;max-width:1140px;width:100%;margin:0 auto;padding:0 40px;color:var(--ink)}
 .hs-hero-h{font-size:54px;line-height:1.03;font-weight:800;letter-spacing:-.035em;max-width:15ch;color:var(--ink)}
 .hs-accent{color:var(--accent)}
@@ -144,6 +148,7 @@ input,select{font-family:inherit}
 .hs-footer{max-width:1140px;margin:20px auto 0;padding:26px 40px 70px;border-top:1px solid var(--line);
   font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
 .tsec{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center;max-width:1140px;margin:0 auto;padding:84px 40px;border-top:1px solid var(--line-2)}
+.tsec:first-of-type{border-top:0;padding-top:56px}
 .tsec-kicker{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 .tsec-status{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);
   display:inline-flex;align-items:center;gap:6px}
@@ -449,6 +454,7 @@ function renderHome(){
     <div class="hs-hero">
       <div class="hs-hero-bg"></div>
       <div class="hs-hero-scrim"></div>
+      <div class="hs-hero-grid"></div>
       <div class="hs-hero-in">
         <h1 class="hs-hero-h">Every tool the team <span class="hs-accent">runs on, in one place.</span></h1>
         <p class="hs-hero-p">${mine.length} connected ${mine.length===1?'tool':'tools'}, one sign-in \u2014 each opens in its own tab.</p>
