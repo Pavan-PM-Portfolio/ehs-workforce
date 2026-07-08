@@ -129,6 +129,19 @@
     });
   }
 
+  /* ---------------- account self-service ---------------- */
+  async function updateMyName(fullName) {
+    const s = await getSession(); if (!s) throw new Error('Not signed in');
+    const { error } = await client().from('profiles').update({ full_name: fullName }).eq('id', s.user.id);
+    if (error) throw error;
+    try { await client().auth.updateUser({ data: { full_name: fullName } }); } catch (e) {}
+    if (_me) _me.full_name = fullName;
+  }
+  async function changePassword(newPassword) {
+    const { error } = await client().auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
   /* ---------------- field permissions (server-resolved) ---------------- */
   // returns { field_key: {read:bool, write:bool}, ... } for the current user in a tool
   async function fieldPerms(toolId) {
@@ -142,6 +155,6 @@
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, updateMyName, changePassword, fieldPerms,
   };
 })(window);
