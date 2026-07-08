@@ -620,8 +620,16 @@ function openInvite(){
         </div>
         <div style="font-size:11px;color:var(--faint);margin-top:5px">The user signs in with this straight away and can change it later.</div>
       </div>
-      <div class="dsec-h" style="margin-top:8px">Tool access</div>
-      <div class="accgrid">${rows}</div>
+      <div class="field"><label>Role</label>
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;cursor:pointer;line-height:1.45">
+          <input type="checkbox" id="iv_master" onchange="toggleMasterCreate()" style="margin-top:3px;width:16px;height:16px;flex:none">
+          <span>Make this person a <b>Master Admin</b> — full access to every tool, plus People &amp; Access.</span></label>
+      </div>
+      <div id="iv_accsec">
+        <div class="dsec-h" style="margin-top:8px">Tool access</div>
+        <div class="accgrid">${rows}</div>
+      </div>
+      <div id="iv_masternote" style="display:none;font-size:12.5px;color:var(--muted);margin-top:8px">This person will have access to all tools as a Master Admin.</div>
     </div>
     <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn accent" id="iv_btn" onclick="sendInvite()">${ic('plus')} Create user</button></div>`;
@@ -632,6 +640,11 @@ function genPw(){
   const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
   let p=''; for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)];
   $('iv_pw').value=p+'!7';
+}
+function toggleMasterCreate(){
+  const on=$('iv_master').checked;
+  $('iv_accsec').style.display=on?'none':'';
+  $('iv_masternote').style.display=on?'':'none';
 }
 function showCreds(email,password){
   $('modal').innerHTML=`
@@ -659,9 +672,10 @@ async function sendInvite(){
   if(!email){ toast('Enter an email'); $('iv_email').focus(); return; }
   if(pw && pw.length<6){ toast('Password must be at least 6 characters'); $('iv_pw').focus(); return; }
   const grants=Object.entries(window._invite||{}).filter(([,r])=>r&&r!=='none').map(([tool_id,role])=>({tool_id,role}));
+  const isMaster=!!($('iv_master')&&$('iv_master').checked);
   const btn=$('iv_btn'); btn.disabled=true; btn.textContent='Creating\u2026';
   try{
-    const out=await EHS.addUser(email,name,grants,pw);
+    const out=await EHS.addUser(email,name,grants,pw,isMaster);
     renderPeople();
     showCreds(out.email||email, out.password||pw);
   }catch(e){ btn.disabled=false; btn.innerHTML=`${ic('plus')} Create user`; toast('Couldn\u2019t create user: '+e.message); }
