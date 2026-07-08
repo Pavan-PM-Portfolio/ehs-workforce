@@ -125,7 +125,7 @@ input,select{font-family:inherit}
   color:var(--muted);font-size:14px}
 
 /* ===== premium home: hero + tool sections ===== */
-.hs-hero{position:relative;min-height:490px;display:flex;align-items:center;overflow:hidden;background:var(--navy)}
+.hs-hero{position:relative;aspect-ratio:2/1;min-height:440px;max-height:720px;display:flex;align-items:center;overflow:hidden;background:var(--navy)}
 .hs-hero-bg{position:absolute;inset:0;background:center/cover no-repeat;background-image:url('images/hero.webp')}
 .hs-hero-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,26,51,.86),rgba(16,26,51,.55) 48%,rgba(16,26,51,.12))}
 .hs-hero-in{position:relative;z-index:2;max-width:1140px;width:100%;margin:0 auto;padding:0 40px;color:#fff}
@@ -160,7 +160,7 @@ input,select{font-family:inherit}
 .tsec-shot{width:90%;aspect-ratio:4/3;border-radius:18px;position:relative;z-index:2;
   background-size:cover,cover;background-position:center;box-shadow:0 20px 50px -16px rgba(16,26,51,.26)}
 @media(max-width:860px){.tsec{grid-template-columns:1fr;gap:34px;padding:52px 26px}
-  .tsec-media{min-height:280px;order:2}.hs-hero{padding:56px 26px 30px}.hs-hero-h{font-size:38px}.hs-hero-p{font-size:16px}.tsec-h{font-size:32px}}
+  .tsec-media{min-height:280px;order:2}.hs-hero{aspect-ratio:auto;min-height:420px}.hs-hero-h{font-size:34px}.hs-hero-p{font-size:15.5px}.tsec-h{font-size:32px}}
 
 /* tool page */
 .tool-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
