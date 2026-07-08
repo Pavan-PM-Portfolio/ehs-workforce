@@ -83,6 +83,8 @@ input,select{font-family:inherit}
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
 .tb-brand img{height:24px;filter:brightness(0)}
+.tb-div{width:1px;height:24px;background:var(--line);flex:none}
+.tb-wf{font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--ink)}
 .tb-id{display:flex;flex-direction:column;justify-content:center;padding-left:15px;margin-left:3px;border-left:1px solid var(--line);cursor:pointer}
 .tb-title{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.15}
 .tb-sub{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
@@ -473,7 +475,8 @@ function topbar(title, sub){
   const u=EHS.me();
   const dn=(u.full_name&&u.full_name.trim())?u.full_name.trim():friendlyName(u);
   return `<div class="topbar">
-    <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS"></div>
+    <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS">
+      <span class="tb-div"></span><span class="tb-wf">Workforce</span></div>
     <div class="tb-spacer"></div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
     <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(dn,30)}
