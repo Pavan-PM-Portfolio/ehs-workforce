@@ -123,9 +123,9 @@
   // create a brand-new user DIRECTLY (no email invite): master sets/omits a
   // password; the account is created already-confirmed so they can sign in now.
   // returns { ok, user_id, email, password, generated }
-  async function addUser(email, fullName, grants, password) {
+  async function addUser(email, fullName, grants, password, isMaster) {
     return adminUser('create', {
-      email, full_name: fullName, grants: grants || [], password: password || '',
+      email, full_name: fullName, grants: grants || [], password: password || '', is_master: !!isMaster,
     });
   }
 
