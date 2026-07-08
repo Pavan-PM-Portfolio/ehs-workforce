@@ -432,8 +432,8 @@ function topbar(title, sub){
     <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS"></div>
     <div class="tb-spacer"></div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} People & Access</div>`:''}
-    <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(u.full_name||u.email,30)}
-      <div><div class="who">${esc(u.full_name||u.email)}</div>
+    <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(friendlyName(u),30)}
+      <div><div class="who">${esc(friendlyName(u))}</div>
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
 }
@@ -590,8 +590,8 @@ function openInvite(){
   $('modal').innerHTML=`
     <div class="mhead">${ic('mail')}<h3>Invite user</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
     <div class="mbody">
-      <div class="field"><label>Email</label><input id="iv_email" type="email" placeholder="person@eduhubspot.com"></div>
-      <div class="field"><label>Full name</label><input id="iv_name" type="text" placeholder="First Last"></div>
+      <div class="field"><label>Full name <span style="color:var(--crit)">*</span></label><input id="iv_name" type="text" placeholder="First Last"></div>
+      <div class="field"><label>Email <span style="color:var(--crit)">*</span></label><input id="iv_email" type="email" placeholder="person@eduhubspot.com"></div>
       <div class="dsec-h" style="margin-top:8px">Tool access</div>
       <div class="accgrid">${rows}</div>
     </div>
@@ -606,7 +606,8 @@ function pickInvite(btn,toolId,role){
 }
 async function sendInvite(){
   const email=($('iv_email').value||'').trim(), name=($('iv_name').value||'').trim();
-  if(!email){ toast('Enter an email'); return; }
+  if(!name){ toast('Enter the person\u2019s full name'); $('iv_name').focus(); return; }
+  if(!email){ toast('Enter an email'); $('iv_email').focus(); return; }
   const grants=Object.entries(window._invite||{}).filter(([,r])=>r&&r!=='none').map(([tool_id,role])=>({tool_id,role}));
   const btn=$('iv_btn'); btn.disabled=true; btn.textContent='Sending\u2026';
   try{
