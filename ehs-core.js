@@ -99,10 +99,26 @@
       .from('tool_access').delete().eq('user_id', userId).eq('tool_id', toolId);
     if (error) throw error;
   }
+  // privileged Master-Admin actions go through the admin-user Edge Function
+  async function adminUser(action, payload) {
+    const s = await getSession();
+    const res = await fetch(cfg.url + '/functions/v1/admin-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (s ? s.access_token : ''),
+      },
+      body: JSON.stringify({ action, ...(payload || {}) }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(out.error || (action + ' failed (' + res.status + ')'));
+    return out;
+  }
   async function setMaster(userId, val) {
-    const { error } = await client()
-      .from('profiles').update({ is_master_admin: val }).eq('id', userId);
-    if (error) throw error;
+    return adminUser('set_master', { user_id: userId, value: !!val });
+  }
+  async function deleteUser(userId) {
+    return adminUser('delete', { user_id: userId });
   }
   // create a brand-new user via email invite (Edge Function; service role stays server-side)
   async function inviteUser(email, fullName, grants) {
@@ -133,6 +149,6 @@
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, inviteUser, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, inviteUser, fieldPerms,
   };
 })(window);
