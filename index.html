@@ -124,6 +124,29 @@ input,select{font-family:inherit}
 .emptytools{border:1px dashed var(--line);background:var(--surface-2);padding:48px 30px;text-align:center;
   color:var(--muted);font-size:14px}
 
+/* ===== premium home: hero + tool sections ===== */
+.hs-hero{max-width:1140px;margin:0 auto;padding:54px 40px 8px}
+.hs-hero .hs-eyebrow{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.hs-greet{font-size:36px;font-weight:800;letter-spacing:-.03em;margin-top:12px}
+.hs-sub{color:var(--muted);font-size:15.5px;margin-top:8px}
+.hs-footer{max-width:1140px;margin:20px auto 0;padding:26px 40px 60px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+.tsec{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;max-width:1140px;margin:0 auto;padding:64px 40px}
+.tsec-eyebrow{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:15px}
+.tsec-h{font-size:40px;line-height:1.07;font-weight:800;letter-spacing:-.03em}
+.tsec-p{color:var(--ink-2);font-size:16px;line-height:1.62;margin-top:16px;max-width:44ch}
+.tsec-cta{display:inline-flex;align-items:center;gap:9px;margin-top:26px;color:#fff;font-size:15px;font-weight:700;
+  padding:14px 24px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .12s}
+.tsec-cta:hover{transform:translateY(-1px)}
+.tsec-cta svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2;fill:none}
+.tsec-meta{margin-top:16px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.tsec-media{position:relative;min-height:330px;display:flex;align-items:center;justify-content:center}
+.tsec-frame{position:absolute;width:82%;aspect-ratio:4/3;border:3px solid;border-radius:18px;z-index:1}
+.tsec-shot{width:88%;aspect-ratio:4/3;border-radius:18px;position:relative;z-index:2;
+  background-size:cover,cover;background-position:center;box-shadow:0 16px 44px -14px rgba(16,26,51,.22)}
+@media(max-width:860px){.tsec{grid-template-columns:1fr;gap:30px;padding:40px 26px}
+  .tsec-media{min-height:260px;order:2}.hs-greet{font-size:28px}.tsec-h{font-size:30px}}
+
 /* tool page */
 .tool-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
 .tool-head .code-tile{width:44px;height:44px;font-size:15px;box-shadow:var(--shadow-sm)}
@@ -383,30 +406,46 @@ function topbar(title, sub){
 }
 function acctMenu(e){ e.stopPropagation(); openMenu(e.currentTarget,[{label:'Sign out',icon:'logout',on:logout}]); }
 
-/* ---------------- HOME ---------------- */
+/* ---------------- HOME (premium showcase) ---------------- */
+function friendlyName(u){
+  if(u.full_name && u.full_name.trim()) return u.full_name.trim().split(/\s+/)[0];
+  const lp=(u.email||'').split('@')[0].replace(/[._\-0-9]+/g,' ').trim().split(/\s+/)[0]||'there';
+  return lp.charAt(0).toUpperCase()+lp.slice(1);
+}
 function renderHome(){
   const u=EHS.me(); const hr=new Date().getHours();
   const greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
   const ids=EHS.myToolIds(ALL_IDS);
   const mine=TOOLS.filter(t=>ids.includes(t.id));
-  root().innerHTML=`<div class="shell">${topbar()}<div class="page">
-    <div class="home-head"><div class="eyebrow">${SUITE.wordmark[0]} \u00b7 ${mine.length} tool${mine.length!==1?'s':''} available</div>
-      <h1>${greet}, ${esc((u.full_name||u.email).split(' ')[0])}.</h1>
-      <p>${mine.length?'Pick a tool to jump in.':'You don\u2019t have access to any tools yet.'}</p></div>
-    ${mine.length?`<div class="tool-grid">${mine.map(cardHTML).join('')}</div>`
-      :`<div class="emptytools">No tools assigned to your account yet. Ask a workspace admin for access.</div>`}
-  </div></div>`;
-}
-function cardHTML(t){
-  const role=EHS.roleInTool(t.id); const live=t.status==='live';
-  return `<div class="tool-card" onclick="openTool('${t.id}')">
-    <div class="tc-top">${tileEl(t.code,t.accent)}
-      <div style="flex:1"><div class="tc-name">${esc(t.name)}</div><div class="tc-tag">${esc(t.tagline)}</div></div>
-      <span class="chip ${live?'live':'planned'}"><span class="dot"></span>${live?'Live':'Planned'}</span></div>
-    <div class="tc-desc">${esc(t.desc)}</div>
-    <div class="tc-foot"><span class="tc-open">${live?'Open tool':'View page'} ${ic('arrow')}</span>
-      <span class="tc-role">${role==='admin'?'Admin':'User'}</span></div>
+  const sections=mine.map((t,i)=>toolSection(t,i)).join('');
+  root().innerHTML=`<div class="shell">${topbar()}
+    <div class="hs-hero">
+      <div class="hs-eyebrow">${SUITE.wordmark[0]} Workspace \u00b7 ${mine.length} tool${mine.length!==1?'s':''}</div>
+      <h1 class="hs-greet">${greet}, ${esc(friendlyName(u))}.</h1>
+      <p class="hs-sub">${mine.length?'Pick a tool to jump in \u2014 each opens in its own tab.':'No tools assigned to your account yet.'}</p>
+    </div>
+    ${sections || `<div class="page"><div class="emptytools">Ask a workspace admin for access.</div></div>`}
+    <div class="hs-footer">${SUITE.wordmark[0]} ${SUITE.wordmark[1]} \u00b7 EduHubSpot internal</div>
   </div>`;
+}
+function toolSection(t,i){
+  const live=t.status==='live';
+  const imgRight=(i%2===0);              // zig-zag: 1st image right, 2nd left, ...
+  const off=imgRight?'28px':'-28px';
+  const parts=t.name.split(' '); const head=parts.slice(0,-1).join(' '); const tail=parts.slice(-1)[0];
+  const shot=`background-image:linear-gradient(145deg, ${t.accent}1f, ${t.accent}0d), url('images/tool-${t.id}.webp')`;
+  const media=`<div class="tsec-media">
+      <div class="tsec-frame" style="border-color:${t.accent};transform:translate(${off},28px)"></div>
+      <div class="tsec-shot" style="${shot}"></div></div>`;
+  const txt=`<div class="tsec-txt">
+      <div class="tsec-eyebrow" style="color:${t.accent}">${esc(t.tagline)}</div>
+      <h2 class="tsec-h">${esc(head)} <span style="color:${t.accent}">${esc(tail)}</span></h2>
+      <p class="tsec-p">${esc(t.desc)}</p>
+      <button class="tsec-cta" style="background:${t.accent};box-shadow:0 8px 20px -6px ${t.accent}88" onclick="openTool('${t.id}')">
+        ${live?'Open '+esc(t.name):'View page'} <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <div class="tsec-meta">${live?'Live':'Planned'} \u00b7 You\u2019re ${EHS.roleInTool(t.id)==='admin'?'an admin':'a user'}</div>
+    </div>`;
+  return `<section class="tsec">${imgRight ? txt+media : media+txt}</section>`;
 }
 
 
