@@ -296,9 +296,11 @@ function go(hash){ location.hash=hash; }
    BOOT + ROUTER
    ===================================================================== */
 async function boot(){
-  if(!window.EHS || !EHS.configured() || String(EHS_CONFIG.url).startsWith('PASTE')){
-    return renderConfigNotice();
-  }
+  const cfg = window.EHS_CONFIG || {};
+  const keysSet = cfg.url && cfg.anon
+    && !String(cfg.url).startsWith('PASTE') && !String(cfg.anon).startsWith('PASTE');
+  if(!keysSet) return renderConfigNotice('keys');
+  if(!window.supabase) return renderConfigNotice('lib');
   window.addEventListener('hashchange',route);
   root().innerHTML=`<div class="spin"></div>`;
   try{
@@ -311,16 +313,24 @@ async function route(){
   if(!EHS.me()){ return renderLogin(); }
   const h=location.hash.replace(/^#\/?/,'');
   if(h==='people'){ return EHS.isMaster()? renderPeople() : (go('#/'), renderHome()); }
-  const m=h.match(/^t\/(.+)$/);
-  if(m && tool(m[1])){
-    if(!EHS.canAccessTool(m[1])){ toast('You don\u2019t have access to that tool.'); return (go('#/'),renderHome()); }
-    return renderTool(m[1]);
-  }
   renderHome();
+}
+// open a tool in its own new tab (session is shared across tabs, same origin)
+function openTool(id){
+  const t=tool(id); if(!t) return;
+  if(!EHS.canAccessTool(id)){ toast('You don\u2019t have access to that tool.'); return; }
+  window.open(t.file, '_blank');
 }
 
 /* ---------------- config notice (before keys are set) ---------------- */
-function renderConfigNotice(){
+function renderConfigNotice(kind){
+  if(kind==='lib'){
+    root().innerHTML=`<div class="notice">
+      <h2>Couldn\u2019t load Supabase</h2>
+      <p>Your keys are set, but the Supabase library didn\u2019t load \u2014 usually a network block or an ad-blocker stopping <code>cdn.jsdelivr.net</code>.</p>
+      <p>Try a different network or disable the blocker for this site, then reload.</p>
+    </div>`; return;
+  }
   root().innerHTML=`<div class="notice">
     <h2>Almost there \u2014 add your Supabase keys</h2>
     <p>Open <code>index.html</code> and paste your new project\u2019s <code>url</code> and <code>anon</code> key into the <code>EHS_CONFIG</code> block near the top.</p>
@@ -403,7 +413,7 @@ function renderHome(){
 }
 function cardHTML(t){
   const role=EHS.roleInTool(t.id); const live=t.status==='live';
-  return `<div class="tool-card" onclick="go('#/t/${t.id}')">
+  return `<div class="tool-card" onclick="openTool('${t.id}')">
     <div class="tc-top">${tileEl(t.code,t.accent)}
       <div style="flex:1"><div class="tc-name">${esc(t.name)}</div><div class="tc-tag">${esc(t.tagline)}</div></div>
       <span class="chip ${live?'live':'planned'}"><span class="dot"></span>${live?'Live':'Planned'}</span></div>
@@ -413,23 +423,6 @@ function cardHTML(t){
   </div>`;
 }
 
-/* ---------------- TOOL PAGE ---------------- */
-function renderTool(id){
-  const t=tool(id);
-  const crumb=`<div class="tb-crumb"><span onclick="go('#/')" style="cursor:pointer">Workspace</span>
-    <span class="sep">/</span>${tileEl(t.code,t.accent)}<b>${esc(t.name)}</b></div>`;
-  const body=t.file?`
-    <div class="tool-frame"><iframe src="${esc(t.file)}" title="${esc(t.name)}"></iframe></div>
-    <div class="frame-note">${ic('lock')} Running inside Workspace \u00b7 <span class="mono">${esc(t.file)}</span></div>`
-    :`<div class="empty">${tileEl(t.code,t.accent)}<h3>${esc(t.name)} isn\u2019t wired up yet</h3>
-        <p>This page is routed and ready \u2014 the tool gets built here next.</p></div>`;
-  root().innerHTML=`<div class="shell">${topbar(crumb)}<div class="page">
-    <div class="tool-head">${tileEl(t.code,t.accent)}
-      <div><h1>${esc(t.name)}</h1><div class="th-tag">${esc(t.tagline)}</div></div>
-      <div class="th-actions"><button class="btn" onclick="go('#/')">${ic('grid')} All tools</button>
-        ${t.file?`<a class="btn accent" href="${esc(t.file)}" target="_blank">${ic('external')} Open full</a>`:''}</div></div>
-    ${body}</div></div>`;
-}
 
 /* =====================================================================
    PEOPLE & ACCESS  (Master Admin)
@@ -571,4 +564,3 @@ boot();
 </script>
 </body>
 </html>
-
