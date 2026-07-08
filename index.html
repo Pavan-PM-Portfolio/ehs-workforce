@@ -75,6 +75,10 @@ input,select{font-family:inherit}
 
 /* ---------- APP SHELL ---------- */
 .shell{min-height:100vh;display:flex;flex-direction:column}
+.home-grid{background:
+  linear-gradient(rgba(16,26,51,.06) 1px,transparent 1px) 0 0/44px 44px,
+  linear-gradient(90deg,rgba(16,26,51,.06) 1px,transparent 1px) 0 0/44px 44px,
+  var(--bg)}
 .topbar{height:60px;background:var(--surface);border-bottom:2px solid var(--ink);
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
@@ -441,7 +445,7 @@ function renderHome(){
   const ids=EHS.myToolIds(ALL_IDS);
   const mine=TOOLS.filter(t=>ids.includes(t.id));
   const sections=mine.map((t,i)=>toolSection(t,i)).join('');
-  root().innerHTML=`<div class="shell">${topbar()}
+  root().innerHTML=`<div class="shell home-grid">${topbar()}
     <div class="hs-hero">
       <div class="hs-hero-bg"></div>
       <div class="hs-hero-scrim"></div>
