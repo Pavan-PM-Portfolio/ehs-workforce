@@ -471,12 +471,13 @@ function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.
 
 function topbar(title, sub){
   const u=EHS.me();
+  const dn=(u.full_name&&u.full_name.trim())?u.full_name.trim():friendlyName(u);
   return `<div class="topbar">
     <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS"></div>
     <div class="tb-spacer"></div>
-    ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} People & Access</div>`:''}
-    <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(friendlyName(u),30)}
-      <div><div class="who">${esc(friendlyName(u))}</div>
+    ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
+    <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(dn,30)}
+      <div><div class="who">${esc(dn)}</div>
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
 }
