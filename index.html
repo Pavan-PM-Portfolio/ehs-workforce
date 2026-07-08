@@ -52,30 +52,13 @@ input,select{font-family:inherit}
 .eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint)}
 
-/* ---------- LOGIN ---------- */
-.login{display:grid;grid-template-columns:minmax(420px,1fr) minmax(440px,1fr);min-height:100vh}
-.brand{background:var(--navy);color:#fff;padding:56px 60px;display:flex;flex-direction:column;
-  position:relative;overflow:hidden}
-.brand::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(120deg,transparent 60%,rgba(59,111,224,.16)),
-    repeating-linear-gradient(0deg,transparent 0 38px,rgba(255,255,255,.022) 38px 39px),
-    repeating-linear-gradient(90deg,transparent 0 38px,rgba(255,255,255,.022) 38px 39px)}
-.brand>*{position:relative;z-index:1}
-.brand-logo{display:flex;align-items:center;gap:12px;margin-bottom:auto}
-.brand-logo img{height:26px;filter:brightness(0) invert(1)}
-.brand-logo .wm{font-weight:700;font-size:15px;letter-spacing:-.01em}
-.brand-logo .wm b{font-weight:800}
-.brand-hero{margin:40px 0 34px}
-.brand-hero .eyebrow{color:rgba(255,255,255,.42);margin-bottom:16px}
-.brand-hero h1{font-size:40px;line-height:1.05;font-weight:800;letter-spacing:-.03em;max-width:9ch}
-.brand-hero p{margin-top:16px;color:rgba(255,255,255,.62);font-size:15px;max-width:34ch}
-.brand-index{border-top:1px solid var(--navy-line);padding-top:6px}
-.bi-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--navy-line)}
-.bi-row .code-tile{width:34px;height:34px;font-size:12px}
-.bi-row .t{font-weight:600;font-size:13.5px}
-.bi-row .s{font-size:11.5px;color:rgba(255,255,255,.5);margin-top:1px}
-.formside{display:flex;align-items:center;justify-content:center;padding:40px}
-.formcard{width:100%;max-width:360px}
+/* ---------- LOGIN (full image, form in the open right space) ---------- */
+.login{position:relative;min-height:100vh;background:#FBF9FD;overflow:hidden}
+.brand{position:absolute;inset:0;background:#FBF9FD center/cover no-repeat;background-image:url('images/login-bg.webp')}
+.corner-logo{position:absolute;top:26px;right:40px;z-index:5;height:26px;filter:grayscale(1) brightness(.2)}
+.formside{position:absolute;right:0;top:0;bottom:0;width:42%;min-width:360px;
+  display:flex;align-items:center;justify-content:center;padding:0 5%;z-index:4}
+.formcard{width:100%;max-width:338px}
 .formcard h2{font-size:23px;font-weight:800;letter-spacing:-.02em}
 .formcard .sub{color:var(--muted);margin-top:6px;margin-bottom:26px;font-size:13.5px}
 .field{margin-bottom:14px}
@@ -87,15 +70,19 @@ input,select{font-family:inherit}
 .signin{width:100%;justify-content:center;padding:12px;margin-top:6px}
 .formfoot{margin-top:22px;font-size:12px;color:var(--faint);text-align:center}
 .err{background:#fdeceb;border:1px solid #f4c9c6;color:#9a2820;font-size:12.5px;padding:9px 12px;margin-bottom:14px}
+@media(max-width:820px){.formside{width:100%;min-width:0;background:rgba(251,249,253,.94);padding:0 24px}
+  .corner-logo{right:auto;left:24px}}
 
 /* ---------- APP SHELL ---------- */
 .shell{min-height:100vh;display:flex;flex-direction:column}
 .topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--line);
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
-.tb-brand img{height:22px}
-.tb-brand .wm{font-weight:700;font-size:14.5px;letter-spacing:-.01em}
-.tb-brand .wm b{font-weight:800}
+.tb-brand img{height:24px}
+.tb-id{display:flex;flex-direction:column;justify-content:center;padding-left:15px;margin-left:3px;border-left:1px solid var(--line);cursor:pointer}
+.tb-title{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.15}
+.tb-sub{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+.av-sq{display:grid;place-items:center;font-family:'Inter',sans-serif;font-weight:600;flex:none;box-sizing:border-box}
 .tb-crumb{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);
   padding-left:16px;margin-left:2px;border-left:1px solid var(--line)}
 .tb-crumb .code-tile{width:24px;height:24px;font-size:9.5px}
@@ -108,7 +95,7 @@ input,select{font-family:inherit}
 .tb-link.on{border-color:var(--accent);color:var(--accent)}
 .tb-acct{display:flex;align-items:center;gap:9px;padding:6px 8px;cursor:pointer;transition:background .12s}
 .tb-acct:hover{background:var(--surface-3)}
-.tb-acct .code-tile{width:30px;height:30px;font-size:11px;background:var(--navy)}
+.tb-acct .av-sq{width:30px;height:30px;font-size:11px}
 .tb-acct .who{font-weight:600;font-size:12.5px;line-height:1.2}
 .tb-acct .role{font-size:11px;color:var(--muted)}
 .page{flex:1;padding:34px 24px 60px;max-width:1080px;width:100%;margin:0 auto}
@@ -256,16 +243,16 @@ tr:last-child td{border-bottom:0}
    ===================================================================== */
 const SUITE = { wordmark:['EHS','Workspace'], tagline:'One door into every EduHubSpot tool.' };
 const TOOLS = [
-  { id:'pm',       code:'PM', name:'PM Tool',              tagline:'Cadence Tracker',
+  { id:'pm',       code:'PJ', name:'Project Hub',              tagline:'Cadence Tracker',
     desc:'Plan sprints, track work across boards, and log deployments.',
     accent:'#3B6FE0', status:'live',    file:'pm.html' },
-  { id:'delivery', code:'DD', name:'Delivery Desk',        tagline:'Concern intake & delivery',
+  { id:'delivery', code:'DH', name:'Delivery Hub',        tagline:'Concern intake & delivery',
     desc:'A public intake form feeding category-scoped dashboards and reports.',
     accent:'#0E8F5A', status:'live',    file:'delivery.html' },
-  { id:'products', code:'PL', name:'Products & Licences',  tagline:'Catalog & licensing',
+  { id:'products', code:'PD', name:'Product Hub',  tagline:'Catalog & licensing',
     desc:'Manage the course catalog and the licences, vouchers, and seats issued.',
     accent:'#C2410C', status:'planned', file:'products.html' },
-  { id:'ops',      code:'OM', name:'Operations Management',tagline:'Day-to-day ops',
+  { id:'ops',      code:'OH', name:'Operations Hub',tagline:'Day-to-day ops',
     desc:'Coordinate batches, trainers, and resources across delivery.',
     accent:'#7C3AED', status:'planned', file:'ops.html' },
 ];
@@ -342,19 +329,10 @@ function renderConfigNotice(kind){
    LOGIN
    ===================================================================== */
 function renderLogin(errMsg){
-  const idx=TOOLS.map(t=>`
-    <div class="bi-row">${tileEl(t.code,t.accent)}
-      <div><div class="t">${esc(t.name)}</div><div class="s">${esc(t.tagline)}</div></div></div>`).join('');
   root().innerHTML=`
   <div class="login">
-    <div class="brand">
-      <div class="brand-logo"><img src="${LOGO}" alt="EduHubSpot">
-        <span class="wm">${SUITE.wordmark[0]} <b>${SUITE.wordmark[1]}</b></span></div>
-      <div class="brand-hero"><div class="eyebrow">EduHubSpot \u00b7 Internal</div>
-        <h1>Everything the team runs on.</h1>
-        <p>${esc(SUITE.tagline)} Sign in once and jump straight into the tool you need.</p></div>
-      <div class="brand-index">${idx}</div>
-    </div>
+    <div class="brand"></div>
+    <img class="corner-logo" src="${LOGO}" alt="EduHubSpot">
     <div class="formside"><div class="formcard">
       <h2>Sign in</h2><div class="sub">Use your EduHubSpot workspace account.</div>
       ${errMsg?`<div class="err">${esc(errMsg)}</div>`:''}
@@ -383,14 +361,22 @@ async function logout(){ await EHS.signOut(); renderLogin(); }
 /* =====================================================================
    APP SHELL
    ===================================================================== */
-function topbar(crumb){
+/* PM-tool-style avatar: square, tinted bg, coloured border + initials */
+const AV_COLORS=['#C2410C','#3B6FE0','#0E8F5A','#7C3AED','#B96A00','#0891B2','#BE185D'];
+function avColor(s){ let h=0; for(const c of (s||'?')) h=(h*31+c.charCodeAt(0))>>>0; return AV_COLORS[h%AV_COLORS.length]; }
+function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.25;
+  return `<span class="av-sq" style="width:${size}px;height:${size}px;background:${c}20;border:${bw}px solid ${c};color:${c};font-size:${Math.max(10,Math.round(size*0.4))}px">${esc(initials(name))}</span>`; }
+
+function topbar(title, sub){
   const u=EHS.me();
+  title = title || 'EHS Workspace';
+  sub   = (sub===undefined) ? 'EduHubSpot' : sub;
   return `<div class="topbar">
-    <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS">
-      <span class="wm">${SUITE.wordmark[0]} <b>${SUITE.wordmark[1]}</b></span></div>
-    ${crumb||''}<div class="tb-spacer"></div>
+    <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS"></div>
+    <div class="tb-id" onclick="go('#/')"><div class="tb-title">${esc(title)}</div>${sub?`<div class="tb-sub">${esc(sub)}</div>`:''}</div>
+    <div class="tb-spacer"></div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} People & Access</div>`:''}
-    <div class="tb-acct" onclick="acctMenu(event)">${tileEl(initials(u.full_name||u.email),'var(--navy)')}
+    <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(u.full_name||u.email,30)}
       <div><div class="who">${esc(u.full_name||u.email)}</div>
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
