@@ -254,6 +254,29 @@ tr:last-child td{border-bottom:0}
 .acc-sel{border:1px solid var(--line);padding:9px 12px;font-size:13px;font-family:inherit;font-weight:600;
   color:var(--ink);background:#fff;min-width:132px}
 
+/* rounded buttons + avatar (premium) */
+.btn{border-radius:11px}
+.av-sq{border-radius:10px}
+/* People & Access — option D (grouped, rounded cards) */
+.p-sec{margin-bottom:22px}
+.p-sec-t{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:0 4px 10px}
+.p-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px -16px rgba(16,26,51,.14);overflow:hidden}
+.p-row{display:grid;grid-template-columns:2.4fr 2fr auto;gap:16px;align-items:center;padding:15px 22px;border-bottom:1px solid var(--line-2)}
+.p-row:last-child{border-bottom:0}
+.p-person{display:flex;align-items:center;gap:12px}
+.p-nm{font-weight:700;font-size:14.5px}
+.p-em{font-size:12.5px;color:var(--muted);margin-top:1px}
+.p-all{font-size:12.5px;color:var(--muted)}
+.p-none{font-size:12px;color:var(--faint)}
+.p-chips{display:flex;gap:6px;flex-wrap:wrap}
+.p-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2)}
+.p-chip .cd{width:7px;height:7px;border-radius:50%}
+.p-act{display:flex;align-items:center;gap:8px;justify-self:end}
+.p-mini{font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:0;cursor:pointer}
+.dots-btn{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line);background:#fff;cursor:pointer;font-size:16px}
+.dots-btn:hover{background:var(--surface-3)}
+.p-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
+
 /* menu + toast + notice */
 .menu{position:fixed;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);
   min-width:180px;z-index:80;display:none;padding:5px}
@@ -514,33 +537,32 @@ let _users=[];
 async function renderPeople(){
   root().innerHTML=`<div class="shell">${topbar()}<div class="page"><div class="spin"></div></div></div>`;
   try{ _users = await EHS.listUsers(); }catch(e){ _users=[]; toast('Couldn\u2019t load users: '+e.message); }
-  const rows=_users.map(userRow).join('');
+  const masters=_users.filter(u=>u.is_master_admin);
+  const members=_users.filter(u=>!u.is_master_admin);
+  const section=(title,list)=>`
+    <div class="p-sec"><div class="p-sec-t">${title} \u00b7 ${list.length}</div>
+      <div class="p-card">${list.length?list.map(userRow).join(''):`<div class="p-empty">No one here yet.</div>`}</div></div>`;
   root().innerHTML=`<div class="shell">${topbar()}<div class="page">
     <div class="people-head"><div><h1>People & Access</h1>
       <p>Add people, choose their tools, and set Admin or User per tool.</p></div>
       <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic("plus")} Add user</button></div>
-    <div class="tablewrap"><table><thead><tr>
-      <th>Person</th><th>Workspace</th><th>Tool access</th><th></th></tr></thead>
-      <tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:26px">No users yet.</td></tr>`}</tbody>
-    </table></div>
-    <p style="font-size:12px;color:var(--faint);margin-top:14px">Field-level read/write is set inside each tool by that tool\u2019s admin.</p>
+    ${section('Master Admins',masters)}
+    ${section('Members',members)}
   </div></div>`;
 }
 function userRow(u){
   const acc=(u.tool_access||[]);
-  const chips = ALL_IDS.map(id=>{
-    const a=acc.find(x=>x.tool_id===id); const t=tool(id);
-    const lvl=a?a.role:'none';
-    return `<span class="acccell ${lvl}">${t.code} \u00b7 ${lvl==='none'?'\u2014':lvl}</span>`;
-  }).join('');
-  return `<tr>
-    <td><div class="uname">${tileEl(initials(u.full_name||u.email),'var(--navy)')}
-      <div><div class="n">${esc(u.full_name||'\u2014')}</div><div class="e">${esc(u.email)}</div></div></div></td>
-    <td>${u.is_master_admin?'<span class="chip master"><span class="dot"></span>Master Admin</span>':'<span class="chip">Member</span>'}</td>
-    <td>${u.is_master_admin?'<span style="color:var(--muted);font-size:12px">All tools</span>':chips}</td>
-    <td style="text-align:right;white-space:nowrap"><button class="btn sm" onclick="openAccess('${u.id}')">Manage</button>
-      <button class="btn sm ghost" title="More" onclick="userMenu('${u.id}',event)" style="padding:7px 10px">\u22ef</button></td>
-  </tr>`;
+  const access=u.is_master_admin
+    ? '<span class="p-all">All tools</span>'
+    : `<div class="p-chips">${ALL_IDS.map(id=>{const a=acc.find(x=>x.tool_id===id); if(!a)return ''; const t=tool(id);
+        return `<span class="p-chip"><span class="cd" style="background:${t.accent}"></span>${t.code} \u00b7 ${a.role==='admin'?'Admin':'User'}</span>`;}).filter(Boolean).join('')||'<span class="p-none">No tools yet</span>'}</div>`;
+  return `<div class="p-row">
+    <div class="p-person">${avatarSq(u.full_name||u.email,40)}
+      <div><div class="p-nm">${esc(u.full_name||'\u2014')}</div><div class="p-em">${esc(u.email)}</div></div></div>
+    <div class="p-access">${access}</div>
+    <div class="p-act"><button class="p-mini" onclick="openAccess('${u.id}')">Manage</button>
+      <button class="dots-btn" title="More" onclick="userMenu('${u.id}',event)">\u22ef</button></div>
+  </div>`;
 }
 function userMenu(id, e){
   e.stopPropagation();
