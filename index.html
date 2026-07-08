@@ -500,7 +500,7 @@ async function renderPeople(){
   root().innerHTML=`<div class="shell">${topbar()}<div class="page">
     <div class="people-head"><div><h1>People & Access</h1>
       <p>Add people, choose their tools, and set Admin or User per tool.</p></div>
-      <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic('plus')} Invite user</button></div>
+      <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic("plus")} Add user</button></div>
     <div class="tablewrap"><table><thead><tr>
       <th>Person</th><th>Workspace</th><th>Tool access</th><th></th></tr></thead>
       <tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:26px">No users yet.</td></tr>`}</tbody>
@@ -609,32 +609,62 @@ function openInvite(){
       ${['none','user','admin'].map(r=>`<button class="${r==='none'?'on':''}" onclick="pickInvite(this,'${t.id}','${r}')">${r==='none'?'None':r==='user'?'User':'Admin'}</button>`).join('')}
     </div></div>`).join('');
   $('modal').innerHTML=`
-    <div class="mhead">${ic('mail')}<h3>Invite user</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
+    <div class="mhead">${ic('plus')}<h3>Add user</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
     <div class="mbody">
       <div class="field"><label>Full name <span style="color:var(--crit)">*</span></label><input id="iv_name" type="text" placeholder="First Last"></div>
       <div class="field"><label>Email <span style="color:var(--crit)">*</span></label><input id="iv_email" type="email" placeholder="person@eduhubspot.com"></div>
+      <div class="field"><label>Temporary password</label>
+        <div style="display:flex;gap:8px">
+          <input id="iv_pw" type="text" placeholder="Leave blank to auto-generate" style="flex:1">
+          <button class="btn sm" type="button" onclick="genPw()">Generate</button>
+        </div>
+        <div style="font-size:11px;color:var(--faint);margin-top:5px">The user signs in with this straight away and can change it later.</div>
+      </div>
       <div class="dsec-h" style="margin-top:8px">Tool access</div>
       <div class="accgrid">${rows}</div>
     </div>
     <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn accent" id="iv_btn" onclick="sendInvite()">${ic('mail')} Send invite</button></div>`;
+      <button class="btn accent" id="iv_btn" onclick="sendInvite()">${ic('plus')} Create user</button></div>`;
   window._invite={};
   $('scrim').classList.add('on');
+}
+function genPw(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let p=''; for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)];
+  $('iv_pw').value=p+'!7';
+}
+function showCreds(email,password){
+  $('modal').innerHTML=`
+    <div class="mhead">${ic('users')}<h3>User created</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
+    <div class="mbody">
+      <p style="font-size:13.5px;color:var(--ink-2);line-height:1.55">Share these sign-in details with the person. They can change the password after their first sign-in.</p>
+      <div class="field"><label>Email</label><input type="text" readonly value="${esc(email)}" onclick="this.select()"></div>
+      <div class="field"><label>Temporary password</label><input type="text" readonly value="${esc(password)}" onclick="this.select()"></div>
+    </div>
+    <div class="mfoot"><button class="btn accent" onclick="copyCreds('${esc(email)}','${esc(password)}')">Copy details</button>
+      <button class="btn" onclick="closeModal()">Done</button></div>`;
+  $('scrim').classList.add('on');
+}
+function copyCreds(email,password){
+  const txt='Email: '+email+'\nTemporary password: '+password;
+  navigator.clipboard&&navigator.clipboard.writeText(txt); toast('Copied');
 }
 function pickInvite(btn,toolId,role){
   btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on');
   window._invite[toolId]=role;
 }
 async function sendInvite(){
-  const email=($('iv_email').value||'').trim(), name=($('iv_name').value||'').trim();
+  const email=($('iv_email').value||'').trim(), name=($('iv_name').value||'').trim(), pw=($('iv_pw').value||'').trim();
   if(!name){ toast('Enter the person\u2019s full name'); $('iv_name').focus(); return; }
   if(!email){ toast('Enter an email'); $('iv_email').focus(); return; }
+  if(pw && pw.length<6){ toast('Password must be at least 6 characters'); $('iv_pw').focus(); return; }
   const grants=Object.entries(window._invite||{}).filter(([,r])=>r&&r!=='none').map(([tool_id,role])=>({tool_id,role}));
-  const btn=$('iv_btn'); btn.disabled=true; btn.textContent='Sending\u2026';
+  const btn=$('iv_btn'); btn.disabled=true; btn.textContent='Creating\u2026';
   try{
-    await EHS.inviteUser(email,name,grants);
-    closeModal(); toast('Invite sent to '+email); renderPeople();
-  }catch(e){ btn.disabled=false; btn.innerHTML=`${ic('mail')} Send invite`; toast('Invite failed: '+e.message); }
+    const out=await EHS.addUser(email,name,grants,pw);
+    renderPeople();
+    showCreds(out.email||email, out.password||pw);
+  }catch(e){ btn.disabled=false; btn.innerHTML=`${ic('plus')} Create user`; toast('Couldn\u2019t create user: '+e.message); }
 }
 
 /* ---------------- menu / global ---------------- */
