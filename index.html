@@ -75,7 +75,7 @@ input,select{font-family:inherit}
 
 /* ---------- APP SHELL ---------- */
 .shell{min-height:100vh;display:flex;flex-direction:column}
-.topbar{height:60px;background:var(--surface);border-bottom:1px solid var(--line);
+.topbar{height:60px;background:var(--surface);border-bottom:2px solid var(--ink);
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
 .tb-brand img{height:24px}
@@ -419,11 +419,8 @@ function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.
 
 function topbar(title, sub){
   const u=EHS.me();
-  title = title || 'EHS Workspace';
-  sub   = (sub===undefined) ? 'EduHubSpot' : sub;
   return `<div class="topbar">
     <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS"></div>
-    <div class="tb-id" onclick="go('#/')"><div class="tb-title">${esc(title)}</div>${sub?`<div class="tb-sub">${esc(sub)}</div>`:''}</div>
     <div class="tb-spacer"></div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} People & Access</div>`:''}
     <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(u.full_name||u.email,30)}
