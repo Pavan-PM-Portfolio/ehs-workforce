@@ -1134,6 +1134,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
       <button class="acct-btn" id="pkAvatar" title="Account"><span id="acctName">Account</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
       <div class="acct-menu" id="acctMenu">
         <div class="acct-email" id="acctEmail">Signed in</div>
+        <a class="acct-signout" id="wsLink" href="index.html" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Workspace</a>
         <button class="acct-signout" id="signOutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
       </div>
     </div>
@@ -1361,8 +1362,8 @@ input,select,textarea{font-family:inherit;font-size:13px}
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://xskzexadvvcpjsnldtga.supabase.co";
-const SUPABASE_ANON = "sb_publishable_ZHh7fy99zvHj_bm72KX8Cg_VbA7LrDu";
+const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
+const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3576,7 +3577,7 @@ document.getElementById('pkAvatar').onclick=e=>{ e.stopPropagation(); document.g
 document.addEventListener('click',()=>document.getElementById('acctMenu').classList.remove('on'));
 document.getElementById('signOutBtn').onclick=async()=>{
   const am=document.getElementById('acctMenu'); if(am) am.classList.remove('on');
-  if(sb && sb.auth){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); return; }
+  if(sb && sb.auth){ try{ await sb.auth.signOut(); }catch(e){} location.href='index.html'; return; }
   toast('This is the login-free preview — sign-out applies on the live app.');
 };
 document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#navAddBoard')) return; e.currentTarget.classList.toggle('open'); };
@@ -3687,8 +3688,22 @@ function subscribeRealtime(){
 // ---- load workspace from Supabase (seed on first run) ----
 async function loadWorkspace(){
   let mem=null;
-  for(let i=0;i<6 && !mem;i++){ const {data}=await sb.from('members').select('*').eq('user_id',ME.id).maybeSingle(); mem=data; if(!mem) await new Promise(r=>setTimeout(r,600)); }
-  if(!mem){ authError('Could not find your workspace. Refresh and try again.'); return; }
+  { const {data}=await sb.from('members').select('*').eq('user_id',ME.id).maybeSingle(); mem=data; }
+  if(!mem){
+    // First entry for a Workspace-authenticated user: join the shared workspace.
+    // First person in becomes admin (and seeds it); everyone after joins as member.
+    const WSID='ehs';
+    const {count}=await sb.from('members').select('workspace_id',{count:'exact',head:true}).eq('workspace_id',WSID);
+    const role=(count&&count>0)?'member':'admin';
+    const {error:me}=await sb.from('members').upsert({workspace_id:WSID,user_id:ME.id,email:ME.email,role},{onConflict:'user_id'});
+    if(me){ authError('Could not set up your workspace: '+me.message); return; }
+    WS=WSID; IS_ADMIN=(role==='admin');
+    if(role==='admin'){
+      const {data:s0}=await sb.from('settings').select('workspace_id').eq('workspace_id',WSID).maybeSingle();
+      if(!s0){ try{ await pushSeed(); }catch(e){ authError('Workspace seed failed: '+e.message); return; } }
+    }
+    mem={workspace_id:WSID, role};
+  }
   WS=mem.workspace_id; IS_ADMIN=(mem.role==='admin');
   await fetchAll();
   const empty = !(store.data.statuses&&store.data.statuses.length);
@@ -3817,7 +3832,7 @@ async function boot(){
     sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     wireAuth();
     const {data:{session}}=await sb.auth.getSession();
-    if(session){ ME=session.user; await loadWorkspace(); } else { showAuth(); }
+    if(session){ ME=session.user; await loadWorkspace(); } else { location.href='index.html'; }
   } else {
     store.load(); applyDefaults(); renderAll();
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account').split(' ')[0];
