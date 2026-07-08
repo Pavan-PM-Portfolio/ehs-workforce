@@ -236,6 +236,24 @@ tr:last-child td{border-bottom:0}
 .dsec-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);
   margin:6px 0 12px}
 
+/* rounded modal + Add/Manage user controls (no sharp edges) */
+.modal{border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(16,26,51,.5)}
+.modal input,.modal select,.modal .btn{border-radius:11px}
+.modal .seg{border-radius:10px}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pwrow{display:flex;gap:8px}.pwrow input{flex:1}
+.hint{font-size:11px;color:var(--faint);margin-top:5px}
+.master-callout{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border:1px solid var(--line);
+  border-radius:14px;background:var(--surface-2);font-size:13.5px;line-height:1.45;cursor:pointer;margin-top:4px}
+.master-callout input{width:16px;height:16px;margin-top:2px;flex:none}
+.tlist{display:flex;flex-direction:column}
+.trow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-2)}
+.trow:last-child{border-bottom:0}
+.trow .mid{flex:1}
+.tdot{width:9px;height:9px;border-radius:50%;flex:none}
+.acc-sel{border:1px solid var(--line);padding:9px 12px;font-size:13px;font-family:inherit;font-weight:600;
+  color:var(--ink);background:#fff;min-width:132px}
+
 /* menu + toast + notice */
 .menu{position:fixed;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);
   min-width:180px;z-index:80;display:none;padding:5px}
@@ -550,90 +568,79 @@ function openAccess(userId){
   const acc=(u.tool_access||[]);
   const rows=TOOLS.map(t=>{
     const cur=(acc.find(x=>x.tool_id===t.id)||{}).role||'none';
-    return `<div class="accrow">${tileEl(t.code,t.accent)}
-      <div><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
-      <div class="seg" data-tool="${t.id}">
-        ${['none','user','admin'].map(r=>`<button class="${cur===r?'on':''}" onclick="pickAccess(this,'${t.id}','${r}')">${r==='none'?'None':r==='user'?'User':'Admin'}</button>`).join('')}
-      </div></div>`;
+    return `<div class="trow"><span class="tdot" style="background:${t.accent}"></span>
+      <div class="mid"><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
+      <select class="acc-sel" data-tool="${t.id}">
+        <option value="none"${cur==='none'?' selected':''}>No access</option>
+        <option value="user"${cur==='user'?' selected':''}>User</option>
+        <option value="admin"${cur==='admin'?' selected':''}>Admin</option>
+      </select></div>`;
   }).join('');
   $('modal').innerHTML=`
-    <div class="mhead">${tileEl(initials(u.full_name||u.email),'var(--navy)')}
+    <div class="mhead">${avatarSq(u.full_name||u.email,30)}
       <h3>${esc(u.full_name||u.email)}</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
     <div class="mbody">
-      <div class="dsec-h">Master admin</div>
-      <div class="accrow" style="margin-bottom:18px"><div><div class="tn">Full access to everything</div>
-        <div class="tt">Manages all tools and all people</div></div>
-        <div class="seg" style="margin-left:auto"><button class="${u.is_master_admin?'':'on'}" onclick="pickMaster(this,false)">Off</button>
-          <button class="${u.is_master_admin?'on':''}" onclick="pickMaster(this,true)">On</button></div></div>
-      <div class="dsec-h">Per-tool access</div>
-      <div class="accgrid" ${u.is_master_admin?'style="opacity:.45;pointer-events:none"':''} id="accgrid">${rows}</div>
+      <label class="master-callout"><input type="checkbox" id="ac_master" ${u.is_master_admin?'checked':''} onchange="toggleMasterEdit()">
+        <span>Make this person a <b>Master Admin</b> \u2014 full access to every tool, plus People &amp; Access.</span></label>
+      <div id="ac_accsec"><div class="dsec-h" style="margin-top:18px">Tool access</div><div class="tlist">${rows}</div></div>
+      <div id="ac_masternote" class="hint" style="display:none;margin-top:12px">Master Admins have access to all tools.</div>
     </div>
     <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn accent" id="acc_save" onclick="saveAccess('${u.id}')">Save changes</button></div>`;
-  window._accEdits={ master:u.is_master_admin, tools:{} };
-  acc.forEach(a=>window._accEdits.tools[a.tool_id]=a.role);
+  toggleMasterEdit();
   $('scrim').classList.add('on');
 }
-function pickAccess(btn,toolId,role){
-  btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on');
-  window._accEdits.tools[toolId]=role;
-}
-function pickMaster(btn,val){
-  btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on');
-  window._accEdits.master=val;
-  const g=$('accgrid'); if(g){ g.style.opacity=val?'.45':'1'; g.style.pointerEvents=val?'none':'auto'; }
+function toggleMasterEdit(){
+  const on=$('ac_master').checked;
+  $('ac_accsec').style.display=on?'none':'';
+  $('ac_masternote').style.display=on?'':'none';
 }
 async function saveAccess(userId){
-  const u=_users.find(x=>x.id===userId); const e=window._accEdits;
+  const u=_users.find(x=>x.id===userId);
+  const master=$('ac_master').checked;
   const btn=$('acc_save'); btn.disabled=true; btn.textContent='Saving\u2026';
   try{
-    if(e.master!==u.is_master_admin) await EHS.setMaster(userId,e.master);
-    if(!e.master){
-      for(const t of TOOLS){
-        const want=e.tools[t.id]||'none';
-        const had=((u.tool_access||[]).find(x=>x.tool_id===t.id)||{}).role||'none';
+    if(master!==!!u.is_master_admin) await EHS.setMaster(userId,master);
+    if(!master){
+      const sels=Array.from(document.querySelectorAll('#modal .acc-sel'));
+      for(const s of sels){
+        const tid=s.dataset.tool, want=s.value;
+        const had=((u.tool_access||[]).find(x=>x.tool_id===tid)||{}).role||'none';
         if(want===had) continue;
-        if(want==='none') await EHS.revokeAccess(userId,t.id);
-        else await EHS.grantAccess(userId,t.id,want);
+        if(want==='none') await EHS.revokeAccess(userId,tid);
+        else await EHS.grantAccess(userId,tid,want);
       }
     }
     closeModal(); toast('Access updated'); renderPeople();
   }catch(err){ btn.disabled=false; btn.textContent='Save changes'; toast('Save failed: '+err.message); }
 }
 
-/* ---- invite a new user ---- */
+/* ---- add a new user ---- */
 function openInvite(){
-  const rows=TOOLS.map(t=>`<div class="accrow">${tileEl(t.code,t.accent)}
-    <div><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
-    <div class="seg" data-tool="${t.id}">
-      ${['none','user','admin'].map(r=>`<button class="${r==='none'?'on':''}" onclick="pickInvite(this,'${t.id}','${r}')">${r==='none'?'None':r==='user'?'User':'Admin'}</button>`).join('')}
-    </div></div>`).join('');
+  const rows=TOOLS.map(t=>`<div class="trow">
+    <span class="tdot" style="background:${t.accent}"></span>
+    <div class="mid"><div class="tn">${esc(t.name)}</div><div class="tt">${esc(t.tagline)}</div></div>
+    <select class="acc-sel" data-tool="${t.id}">
+      <option value="none">No access</option><option value="user">User</option><option value="admin">Admin</option>
+    </select></div>`).join('');
   $('modal').innerHTML=`
     <div class="mhead">${ic('plus')}<h3>Add user</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
     <div class="mbody">
-      <div class="field"><label>Full name <span style="color:var(--crit)">*</span></label><input id="iv_name" type="text" placeholder="First Last"></div>
+      <div class="frow2">
+        <div class="field"><label>First name <span style="color:var(--crit)">*</span></label><input id="iv_first" type="text" placeholder="First"></div>
+        <div class="field"><label>Last name <span style="color:var(--crit)">*</span></label><input id="iv_last" type="text" placeholder="Last"></div>
+      </div>
       <div class="field"><label>Email <span style="color:var(--crit)">*</span></label><input id="iv_email" type="email" placeholder="person@eduhubspot.com"></div>
       <div class="field"><label>Temporary password</label>
-        <div style="display:flex;gap:8px">
-          <input id="iv_pw" type="text" placeholder="Leave blank to auto-generate" style="flex:1">
-          <button class="btn sm" type="button" onclick="genPw()">Generate</button>
-        </div>
-        <div style="font-size:11px;color:var(--faint);margin-top:5px">The user signs in with this straight away and can change it later.</div>
-      </div>
-      <div class="field"><label>Role</label>
-        <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;cursor:pointer;line-height:1.45">
-          <input type="checkbox" id="iv_master" onchange="toggleMasterCreate()" style="margin-top:3px;width:16px;height:16px;flex:none">
-          <span>Make this person a <b>Master Admin</b> — full access to every tool, plus People &amp; Access.</span></label>
-      </div>
-      <div id="iv_accsec">
-        <div class="dsec-h" style="margin-top:8px">Tool access</div>
-        <div class="accgrid">${rows}</div>
-      </div>
-      <div id="iv_masternote" style="display:none;font-size:12.5px;color:var(--muted);margin-top:8px">This person will have access to all tools as a Master Admin.</div>
+        <div class="pwrow"><input id="iv_pw" type="text" placeholder="Leave blank to auto-generate"><button class="btn sm" type="button" onclick="genPw()">Generate</button></div>
+        <div class="hint">The user signs in with this straight away and can change it later.</div></div>
+      <label class="master-callout"><input type="checkbox" id="iv_master" onchange="toggleMasterCreate()">
+        <span>Make this person a <b>Master Admin</b> \u2014 full access to every tool, plus People &amp; Access.</span></label>
+      <div id="iv_accsec"><div class="dsec-h" style="margin-top:18px">Tool access</div><div class="tlist">${rows}</div></div>
+      <div id="iv_masternote" class="hint" style="display:none;margin-top:12px">This person will have access to all tools as a Master Admin.</div>
     </div>
     <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn accent" id="iv_btn" onclick="sendInvite()">${ic('plus')} Create user</button></div>`;
-  window._invite={};
   $('scrim').classList.add('on');
 }
 function genPw(){
@@ -667,12 +674,16 @@ function pickInvite(btn,toolId,role){
   window._invite[toolId]=role;
 }
 async function sendInvite(){
-  const email=($('iv_email').value||'').trim(), name=($('iv_name').value||'').trim(), pw=($('iv_pw').value||'').trim();
-  if(!name){ toast('Enter the person\u2019s full name'); $('iv_name').focus(); return; }
+  const first=($('iv_first').value||'').trim(), last=($('iv_last').value||'').trim();
+  const email=($('iv_email').value||'').trim(), pw=($('iv_pw').value||'').trim();
+  if(!first){ toast('Enter a first name'); $('iv_first').focus(); return; }
+  if(!last){ toast('Enter a last name'); $('iv_last').focus(); return; }
   if(!email){ toast('Enter an email'); $('iv_email').focus(); return; }
   if(pw && pw.length<6){ toast('Password must be at least 6 characters'); $('iv_pw').focus(); return; }
-  const grants=Object.entries(window._invite||{}).filter(([,r])=>r&&r!=='none').map(([tool_id,role])=>({tool_id,role}));
+  const name=(first+' '+last).trim();
   const isMaster=!!($('iv_master')&&$('iv_master').checked);
+  const grants=isMaster?[]:Array.from(document.querySelectorAll('#modal .acc-sel'))
+    .map(s=>({tool_id:s.dataset.tool, role:s.value})).filter(g=>g.role&&g.role!=='none');
   const btn=$('iv_btn'); btn.disabled=true; btn.textContent='Creating\u2026';
   try{
     const out=await EHS.addUser(email,name,grants,pw,isMaster);
