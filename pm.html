@@ -1203,7 +1203,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
       <div class="spacer"></div>
       <div class="search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
-        <input id="search" placeholder="Search tickets…" autocomplete="off" name="ticket-search-nofill"/>
+        <input id="search" placeholder="Search tickets…" autocomplete="off" name="ticket-search-nofill" readonly onfocus="this.removeAttribute('readonly')"/>
       </div>
       <button class="btn primary" id="newTaskBtn">Create ticket</button>
     </div>
@@ -1293,8 +1293,8 @@ input,select,textarea{font-family:inherit;font-size:13px}
     <div class="auth-brand">EHS Project Management</div>
     <div class="auth-sub" id="authSub">Sign in to your workspace</div>
     <div class="auth-err" id="authErr"></div>
-    <input type="email" id="authEmail" class="auth-in" placeholder="name@company.com" autocomplete="email"/>
-    <input type="password" id="authPass" class="auth-in" placeholder="Password" autocomplete="current-password"/>
+    <input type="text" id="authEmail" class="auth-in" placeholder="name@company.com" autocomplete="off"/>
+    <input type="password" id="authPass" class="auth-in" placeholder="Password" autocomplete="new-password"/>
     <button class="auth-btn" id="authGo">Sign in</button>
     <div class="auth-toggle">
       <span id="authToggleText">New here?</span> <button id="authToggle">Create an account</button>
