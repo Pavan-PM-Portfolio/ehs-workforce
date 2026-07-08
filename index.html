@@ -125,27 +125,34 @@ input,select{font-family:inherit}
   color:var(--muted);font-size:14px}
 
 /* ===== premium home: hero + tool sections ===== */
-.hs-hero{max-width:1140px;margin:0 auto;padding:54px 40px 8px}
-.hs-hero .hs-eyebrow{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
-.hs-greet{font-size:36px;font-weight:800;letter-spacing:-.03em;margin-top:12px}
-.hs-sub{color:var(--muted);font-size:15.5px;margin-top:8px}
-.hs-footer{max-width:1140px;margin:20px auto 0;padding:26px 40px 60px;border-top:1px solid var(--line);
+.hs-hero{max-width:1140px;margin:0 auto;padding:96px 40px 40px}
+.hs-hero-h{font-size:60px;line-height:1.02;font-weight:800;letter-spacing:-.035em}
+.hs-accent{color:var(--accent)}
+.hs-hero-p{color:var(--muted);font-size:19px;margin-top:22px;max-width:52ch;line-height:1.55}
+.hs-footer{max-width:1140px;margin:20px auto 0;padding:26px 40px 70px;border-top:1px solid var(--line);
   font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
-.tsec{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;max-width:1140px;margin:0 auto;padding:64px 40px}
-.tsec-eyebrow{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:15px}
-.tsec-h{font-size:40px;line-height:1.07;font-weight:800;letter-spacing:-.03em}
-.tsec-p{color:var(--ink-2);font-size:16px;line-height:1.62;margin-top:16px;max-width:44ch}
-.tsec-cta{display:inline-flex;align-items:center;gap:9px;margin-top:26px;color:#fff;font-size:15px;font-weight:700;
-  padding:14px 24px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .12s}
-.tsec-cta:hover{transform:translateY(-1px)}
+.tsec{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center;max-width:1140px;margin:0 auto;padding:84px 40px;border-top:1px solid var(--line-2)}
+.tsec-kicker{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.tsec-status{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);
+  display:inline-flex;align-items:center;gap:6px}
+.tsec-status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.tsec-tag{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.tsec-h{font-size:46px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
+.tsec-p{color:var(--ink-2);font-size:17px;line-height:1.66;margin-top:20px;max-width:46ch}
+.tsec-feat{list-style:none;margin:24px 0 0;display:flex;flex-direction:column;gap:13px}
+.tsec-feat li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--ink-2)}
+.tsec-feat .ck{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
+.tsec-feat .ck svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none}
+.tsec-cta{display:inline-flex;align-items:center;gap:9px;margin-top:30px;color:#fff;font-size:15.5px;font-weight:700;
+  padding:15px 28px;border:0;border-radius:13px;cursor:pointer;font-family:inherit;transition:transform .12s}
+.tsec-cta:hover{transform:translateY(-2px)}
 .tsec-cta svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2;fill:none}
-.tsec-meta{margin-top:16px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
-.tsec-media{position:relative;min-height:330px;display:flex;align-items:center;justify-content:center}
-.tsec-frame{position:absolute;width:82%;aspect-ratio:4/3;border:3px solid;border-radius:18px;z-index:1}
-.tsec-shot{width:88%;aspect-ratio:4/3;border-radius:18px;position:relative;z-index:2;
-  background-size:cover,cover;background-position:center;box-shadow:0 16px 44px -14px rgba(16,26,51,.22)}
-@media(max-width:860px){.tsec{grid-template-columns:1fr;gap:30px;padding:40px 26px}
-  .tsec-media{min-height:260px;order:2}.hs-greet{font-size:28px}.tsec-h{font-size:30px}}
+.tsec-media{position:relative;min-height:400px;display:flex;align-items:center;justify-content:center}
+.tsec-frame{position:absolute;width:84%;aspect-ratio:4/3;border:3px solid;border-radius:18px;z-index:1}
+.tsec-shot{width:90%;aspect-ratio:4/3;border-radius:18px;position:relative;z-index:2;
+  background-size:cover,cover;background-position:center;box-shadow:0 20px 50px -16px rgba(16,26,51,.26)}
+@media(max-width:860px){.tsec{grid-template-columns:1fr;gap:34px;padding:52px 26px}
+  .tsec-media{min-height:280px;order:2}.hs-hero{padding:56px 26px 30px}.hs-hero-h{font-size:38px}.hs-hero-p{font-size:16px}.tsec-h{font-size:32px}}
 
 /* tool page */
 .tool-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
@@ -266,17 +273,29 @@ tr:last-child td{border-bottom:0}
    ===================================================================== */
 const SUITE = { wordmark:['EHS','Workspace'], tagline:'One door into every EduHubSpot tool.' };
 const TOOLS = [
-  { id:'pm',       code:'PJ', name:'Project Hub',              tagline:'Cadence Tracker',
+  { id:'pm',       code:'PJ', name:'Project Hub',        tagline:'Cadence Tracker',
     desc:'Plan sprints, track work across boards, and log deployments.',
+    head:{a:'Plan the work,', b:'track the cadence.'},
+    body:'Project Hub is the delivery command centre — a fast, Jira-style tracker built for how EduHubSpot actually ships. Organise work into boards, break epics into tickets, and keep the whole team moving to the same beat.',
+    features:['Boards and sprints for every workstream','Epics that roll up their tickets','A built-in deployment tracker','Time logged against every ticket'],
     accent:'#3B6FE0', status:'live',    file:'pm.html' },
-  { id:'delivery', code:'DH', name:'Delivery Hub',        tagline:'Concern intake & delivery',
+  { id:'delivery', code:'DH', name:'Delivery Hub',       tagline:'Concern intake & delivery',
     desc:'A public intake form feeding category-scoped dashboards and reports.',
+    head:{a:'Every concern,', b:'handled with care.'},
+    body:'Delivery Hub turns scattered requests into a clean pipeline. A public intake form captures every concern, routes it to the right category, and feeds live dashboards — so nothing slips through the cracks.',
+    features:['A public intake form with zero friction','Category-scoped dashboards','Tabbed ticket detail and activity','Reports with live charts'],
     accent:'#0E8F5A', status:'live',    file:'delivery.html' },
-  { id:'products', code:'PD', name:'Product Hub',  tagline:'Catalog & licensing',
+  { id:'products', code:'PD', name:'Product Hub',        tagline:'Catalog & licensing',
     desc:'Manage the course catalog and the licences, vouchers, and seats issued.',
+    head:{a:'Your catalog,', b:'under control.'},
+    body:'Product Hub will be the single source of truth for what EduHubSpot sells — every course, licence, voucher, and seat in one place, with issuance and usage tracked end to end.',
+    features:['The full course catalog','Licences, vouchers and seats','Issuance tracking','Usage and renewals at a glance'],
     accent:'#C2410C', status:'planned', file:'products.html' },
-  { id:'ops',      code:'OH', name:'Operations Hub',tagline:'Day-to-day ops',
+  { id:'ops',      code:'OH', name:'Operations Hub',     tagline:'Day-to-day ops',
     desc:'Coordinate batches, trainers, and resources across delivery.',
+    head:{a:'Operations,', b:'running like clockwork.'},
+    body:'Operations Hub will coordinate the moving parts of delivery — batches, trainers, and resources — so every session is staffed, scheduled, and on track, without the spreadsheet scramble.',
+    features:['Batch and schedule coordination','Trainer allocation','Resource planning','A day-to-day operations dashboard'],
     accent:'#7C3AED', status:'planned', file:'ops.html' },
 ];
 const ALL_IDS = TOOLS.map(t=>t.id);
@@ -413,15 +432,14 @@ function friendlyName(u){
   return lp.charAt(0).toUpperCase()+lp.slice(1);
 }
 function renderHome(){
-  const u=EHS.me(); const hr=new Date().getHours();
-  const greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+  const u=EHS.me();
   const ids=EHS.myToolIds(ALL_IDS);
   const mine=TOOLS.filter(t=>ids.includes(t.id));
   const sections=mine.map((t,i)=>toolSection(t,i)).join('');
   root().innerHTML=`<div class="shell">${topbar()}
     <div class="hs-hero">
-      <h1 class="hs-greet">${greet}, ${esc(friendlyName(u))}.</h1>
-      <p class="hs-sub">${mine.length?'Pick a tool to jump in \u2014 each opens in its own tab.':'No tools assigned to your account yet.'}</p>
+      <h1 class="hs-hero-h">Every tool the team<br><span class="hs-accent">runs on, in one place.</span></h1>
+      <p class="hs-hero-p">${mine.length} connected ${mine.length===1?'tool':'tools'}, one sign-in. Pick one below \u2014 each opens in its own tab.</p>
     </div>
     ${sections || `<div class="page"><div class="emptytools">Ask a workspace admin for access.</div></div>`}
     <div class="hs-footer">${SUITE.wordmark[0]} ${SUITE.wordmark[1]} \u00b7 EduHubSpot internal</div>
@@ -429,19 +447,22 @@ function renderHome(){
 }
 function toolSection(t,i){
   const live=t.status==='live';
-  const imgRight=(i%2===0);              // zig-zag: 1st image right, 2nd left, ...
+  const imgRight=(i%2===0);
   const off=imgRight?'28px':'-28px';
-  const parts=t.name.split(' '); const head=parts.slice(0,-1).join(' '); const tail=parts.slice(-1)[0];
   const shot=`background-image:linear-gradient(145deg, ${t.accent}1f, ${t.accent}0d), url('images/tool-${t.id}.webp')`;
   const media=`<div class="tsec-media">
       <div class="tsec-frame" style="border-color:${t.accent};transform:translate(${off},28px)"></div>
       <div class="tsec-shot" style="${shot}"></div></div>`;
+  const feats=(t.features||[]).map(f=>`<li><span class="ck" style="background:${t.accent}1f;color:${t.accent}">
+      <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>${esc(f)}</li>`).join('');
   const txt=`<div class="tsec-txt">
-      <h2 class="tsec-h">${esc(head)} <span style="color:${t.accent}">${esc(tail)}</span></h2>
-      <p class="tsec-p">${esc(t.desc)}</p>
-      <button class="tsec-cta" style="background:${t.accent};box-shadow:0 8px 20px -6px ${t.accent}88" onclick="openTool('${t.id}')">
+      <div class="tsec-kicker"><span class="tsec-status ${live?'live':''}" style="${live?'color:'+t.accent:''}">${live?'Live':'Planned'}</span>
+        <span class="tsec-tag">${esc(t.name)} \u00b7 ${esc(t.tagline)}</span></div>
+      <h2 class="tsec-h">${esc(t.head.a)} <span style="color:${t.accent}">${esc(t.head.b)}</span></h2>
+      <p class="tsec-p">${esc(t.body)}</p>
+      <ul class="tsec-feat">${feats}</ul>
+      <button class="tsec-cta" style="background:${t.accent};box-shadow:0 10px 24px -8px ${t.accent}99" onclick="openTool('${t.id}')">
         ${live?'Open '+esc(t.name):'View page'} <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      <div class="tsec-meta">${live?'Live':'Planned'} \u00b7 You\u2019re ${EHS.roleInTool(t.id)==='admin'?'an admin':'a user'}</div>
     </div>`;
   return `<section class="tsec">${imgRight ? txt+media : media+txt}</section>`;
 }
