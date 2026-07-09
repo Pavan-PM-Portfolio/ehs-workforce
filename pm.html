@@ -1841,7 +1841,6 @@ function cardHTML(t){
   const stOpts=STATUSES.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
   const asgOpts=`<option value="">Unassigned</option>`+store.users().map(x=>`<option value="${x.id}" ${t.assignee===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
   return `<div class="card" draggable="true" data-id="${t.id}">
-    <div class="card-strip" style="background:${priColor}"></div>
     <div class="card-body">
       <div class="card-toprow">
         <span class="card-num">${t.flagged?'<svg class="flag-ic" width="11" height="11" viewBox="0 0 24 24" fill="#CE2F26" stroke="#CE2F26" stroke-width="1.5" stroke-linejoin="round"><path d="M4 21V4h13l-2 5 2 5H4"/></svg>':''}${t.key}</span>
@@ -1851,6 +1850,7 @@ function cardHTML(t){
       <div class="card-title">${esc(t.title)}</div>
       ${ep?`<div class="epic-tag"><span class="epic-lbl">Epic:</span><span class="tx">${esc(ep.title)}</span></div>`:''}
       <div class="card-kv">
+        <div class="kvrow"><span class="kvl">Priority</span><span class="kvv"><select class="cedit cedit-pri" data-f="priority" style="color:${priColor}">${priOpts}</select></span></div>
         <div class="kvrow"><span class="kvl">Due date</span><span class="kvv"><button class="cdate ${overdue?'over':''}" data-id="${t.id}" data-field="due">${t.due?fdate(t.due):'<span class="cf-muted">Set date</span>'}<svg class="cfchev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button></span></div>
         <div class="kvrow"><span class="kvl">Status</span><span class="kvv"><select class="cedit" data-f="status">${stOpts}</select></span></div>
         <div class="kvrow"><span class="kvl">Logged</span><span class="kvv"><button class="clog" data-id="${t.id}">${tot.total?hm(tot.total):'Log time'}<svg class="cfchev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button></span></div>
