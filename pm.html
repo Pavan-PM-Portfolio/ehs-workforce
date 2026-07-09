@@ -1160,6 +1160,8 @@ input,select,textarea{font-family:inherit;font-size:13px}
       <button class="nav-item" data-view="projects"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projects</button>
       <button class="nav-item" data-view="backlog"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M3 12h18M3 19h18"/><rect x="1" y="3" width="4" height="4" rx="1"/></svg>Backlog</button>
       <button class="nav-item" data-view="releases"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Releases</button>
+      <button class="nav-item" data-view="timeline"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h9M3 6h.01M3 12h.01M3 18h.01"/></svg>Timeline</button>
+      <button class="nav-item" data-view="calendar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</button>
       <div class="nav-item nav-parent open" id="navBoardsToggle">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>
         <span class="np-label">Boards</span>
@@ -1251,6 +1253,8 @@ input,select,textarea{font-family:inherit;font-size:13px}
       <div class="pagewrap" id="projectswrap" style="display:none"></div>
       <div class="pagewrap" id="backlogwrap" style="display:none"></div>
       <div class="pagewrap" id="releaseswrap" style="display:none"></div>
+      <div class="pagewrap" id="timelinewrap" style="display:none"></div>
+      <div class="pagewrap" id="calendarwrap" style="display:none"></div>
       <div class="pagewrap" id="settingswrap" style="display:none"></div>
       <div class="pagewrap" id="teamwrap" style="display:none"></div>
       <div class="pagewrap" id="soonwrap" style="display:none"></div>
@@ -2865,7 +2869,7 @@ function refreshViews(){ const v=ui.view;
   renderProjectSwitch(); renderSideCard(); updateCount(); }
 function updateCount(){ return; }
 
-const VIEW_TITLE={overview:'Overview',projects:'Projects',backlog:'Backlog',releases:'Releases',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
+const VIEW_TITLE={overview:'Overview',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
   analytics:'Analytics',reports:'Reports',operations:'Operations',settings:'Settings'};
 const SOON_VIEWS={};
 function setHeadHeight(){ const h=document.querySelector('.stickyhead'); if(h) document.documentElement.style.setProperty('--head-h', h.offsetHeight+'px'); }
@@ -2892,6 +2896,8 @@ function renderAll(){ renderProjectSwitch(); fillFilters(); renderSideCard(); ap
   show('projectswrap', v==='projects');
   show('backlogwrap', v==='backlog');
   show('releaseswrap', v==='releases');
+  show('timelinewrap', v==='timeline');
+  show('calendarwrap', v==='calendar');
   show('settingswrap', v==='settings');
   show('teamwrap', v==='team');
   show('soonwrap', !!SOON_VIEWS[v]);
@@ -2907,6 +2913,8 @@ function renderAll(){ renderProjectSwitch(); fillFilters(); renderSideCard(); ap
   else if(v==='projects') renderProjects();
   else if(v==='backlog') renderBacklog();
   else if(v==='releases') renderReleases();
+  else if(v==='timeline') renderTimeline();
+  else if(v==='calendar') renderCalendar();
   else if(v==='settings') renderSettings();
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); }
@@ -3194,6 +3202,91 @@ function renderSettings(){
   el.querySelectorAll('.role-bulk').forEach(a=>a.onclick=()=>{ if(editRole==='Admin') return; rolePerms[editRole]=a.dataset.all==='1'?_setOf(ALL_CAPS):{}; store.updateSettings({rolePerms}); renderSettings(); });
   el.querySelectorAll('.perm-cb').forEach(cb=>cb.onchange=()=>{ if(editRole==='Admin') return; if(!rolePerms[editRole]) rolePerms[editRole]={}; rolePerms[editRole][cb.dataset.cap]=cb.checked; store.updateSettings({rolePerms}); });
   if(umLastMsg){ const o=document.getElementById('umResult'); if(o){ o.className='um-result '+(umLastMsg.ok?'ok':'bad'); o.innerHTML=umLastMsg.html; } }
+}
+
+/* ---------- Calendar (by due date) ---------- */
+let _calRef=null;
+function _calInit(){ if(document.getElementById('calCss')) return; const st=document.createElement('style'); st.id='calCss'; st.textContent=`
+.cal-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.cal-mlbl{font-weight:700;font-size:15px;min-width:170px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);overflow:hidden}
+.cal-head{border-radius:10px 10px 0 0;border-bottom:0}
+.cal-body{border-radius:0 0 10px 10px;border-top:0}
+.cal-dow{background:var(--surface-2);padding:8px;text-align:center;font-size:11px;font-weight:600;color:var(--muted)}
+.cal-cell{background:var(--surface);min-height:106px;padding:6px;display:flex;flex-direction:column;gap:3px}
+.cal-cell.empty{background:var(--surface-2)}
+.cal-cell.today{background:rgba(39,67,224,.06)}
+.cal-dnum{font-size:11px;font-weight:600;color:var(--muted)}
+.cal-cell.today .cal-dnum{color:#2743E0}
+.cal-chip{font-size:10px;padding:2px 5px;background:var(--surface-2);border-radius:4px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-chip:hover{background:var(--surface-3)}
+.cal-more{font-size:10px;color:var(--muted);padding-left:3px}`; document.head.appendChild(st); }
+function renderCalendar(){
+  _calInit();
+  const el=document.getElementById('calendarwrap');
+  if(!_calRef){ _calRef=new Date(); _calRef.setDate(1); }
+  const ref=new Date(_calRef); ref.setDate(1);
+  const y=ref.getFullYear(), m=ref.getMonth();
+  const last=new Date(y,m+1,0); const startPad=new Date(y,m,1).getDay(); const days=last.getDate();
+  const scope=ui.project==='all'?store.tasks():store.tasks().filter(t=>t.project===ui.project);
+  const byDay={}; scope.forEach(t=>{ if(t.due){ (byDay[t.due]=byDay[t.due]||[]).push(t); } });
+  const todayISO=new Date().toISOString().slice(0,10);
+  const cells=[];
+  for(let i=0;i<startPad;i++) cells.push('<div class="cal-cell empty"></div>');
+  for(let d=1; d<=days; d++){ const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const items=byDay[iso]||[];
+    const chips=items.slice(0,4).map(t=>{ const stt=store.status(t.status); return `<div class="cal-chip" style="border-left:3px solid ${stt?stt.color:'#8A8F98'}" onclick="openPanel('${t.id}')" title="${esc(t.title)}">${esc(t.key)} ${esc(t.title)}</div>`; }).join('');
+    const more=items.length>4?`<div class="cal-more">+${items.length-4} more</div>`:'';
+    cells.push(`<div class="cal-cell ${iso===todayISO?'today':''}"><div class="cal-dnum">${d}</div>${chips}${more}</div>`);
+  }
+  const dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="cal-dow">${x}</div>`).join('');
+  el.innerHTML=`<div class="ov-h"><h2>Calendar</h2><span class="range">Tickets by due date</span></div>
+    <div class="cal-bar"><button class="btn sm" id="calPrev">\u2039</button><div class="cal-mlbl">${ref.toLocaleString('en-US',{month:'long',year:'numeric'})}</div><button class="btn sm" id="calNext">\u203a</button><button class="btn sm" id="calToday">Today</button></div>
+    <div class="cal-grid cal-head">${dow}</div>
+    <div class="cal-grid cal-body">${cells.join('')}</div>`;
+  document.getElementById('calPrev').onclick=()=>{ _calRef=new Date(y,m-1,1); renderCalendar(); };
+  document.getElementById('calNext').onclick=()=>{ _calRef=new Date(y,m+1,1); renderCalendar(); };
+  document.getElementById('calToday').onclick=()=>{ _calRef=new Date(); _calRef.setDate(1); renderCalendar(); };
+}
+
+/* ---------- Timeline / Roadmap ---------- */
+function _tlInit(){ if(document.getElementById('tlCss')) return; const st=document.createElement('style'); st.id='tlCss'; st.textContent=`
+.tl-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto;background:var(--surface)}
+.tl-row{display:flex;align-items:stretch;min-height:34px;border-bottom:1px solid var(--surface-2)}
+.tl-row.tl-head{position:sticky;top:0;background:var(--surface-2);z-index:2;font-size:10px;color:var(--muted)}
+.tl-lbl{width:270px;min-width:270px;padding:8px 12px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;border-right:1px solid var(--line);display:flex;align-items:center;gap:6px}
+.tl-key{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted)}
+.tl-track{position:relative;flex:1;min-width:680px}
+.tl-head .tl-track{display:flex}
+.tl-wk{border-left:1px solid var(--line);padding:6px 4px;box-sizing:border-box;white-space:nowrap;overflow:hidden;font-size:10px}
+.tl-bar{position:absolute;top:7px;height:20px;border-radius:5px;cursor:pointer;color:#fff;font-size:10px;font-weight:600;padding:0 6px;line-height:20px;overflow:hidden;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.tl-bar.epic{top:5px;height:24px;line-height:24px;font-weight:700}
+.tl-sec{padding:8px 12px;font-weight:700;font-size:12px;background:var(--surface-2);border-bottom:1px solid var(--line)}`; document.head.appendChild(st); }
+function renderTimeline(){
+  _tlInit();
+  const el=document.getElementById('timelinewrap');
+  const scope=ui.project==='all'?store.tasks():store.tasks().filter(t=>t.project===ui.project);
+  const endOf=(t)=>{ if(t.due) return new Date(t.due); const s=new Date(t.start); const days=t.estimate?Math.max(1,Math.round(t.estimate/480)):2; s.setDate(s.getDate()+days); return s; };
+  const all=scope.filter(t=>t.start);
+  if(!all.length){ el.innerHTML=`<div class="ov-h"><h2>Timeline</h2><span class="range">Roadmap of epics and dated tickets</span></div><div class="bl-empty" style="padding:20px">No dated tickets. Add a start date to a ticket to see it here.</div>`; return; }
+  const dts=[]; all.forEach(t=>{ dts.push(new Date(t.start)); dts.push(endOf(t)); });
+  let min=new Date(Math.min(...dts)), max=new Date(Math.max(...dts));
+  min.setDate(min.getDate()-min.getDay()); max.setDate(max.getDate()+(7-max.getDay()));
+  const totalMs=max-min||1;
+  const weeks=[]; for(let d=new Date(min); d<max; d.setDate(d.getDate()+7)) weeks.push(new Date(d));
+  const pos=(s,e)=>({l:(new Date(s)-min)/totalMs*100, w:Math.max((e-new Date(s))/totalMs*100,1.3)});
+  const bar=(t)=>{ const stt=store.status(t.status); const p=pos(t.start,endOf(t));
+    const c=t.type==='Epic'?(t.color||'#2743E0'):(stt?stt.color:'#8A8F98');
+    return `<div class="tl-row"><div class="tl-lbl" onclick="openPanel('${t.id}')"><span class="tl-key">${esc(t.key)}</span>${esc(t.title)}</div>
+      <div class="tl-track"><div class="tl-bar ${t.type==='Epic'?'epic':''}" style="left:${p.l}%;width:${p.w}%;background:${c}" onclick="openPanel('${t.id}')" title="${esc(t.title)}">${t.type==='Epic'?esc(t.title):''}</div></div></div>`; };
+  const epics=all.filter(t=>t.type==='Epic');
+  const grouped=new Set(); const rows=[];
+  epics.forEach(e=>{ grouped.add(e.id); rows.push(bar(e)); scope.filter(t=>t.parent===e.id&&t.start).forEach(ch=>{ grouped.add(ch.id); rows.push(bar(ch)); }); });
+  const orphans=all.filter(t=>!grouped.has(t.id)&&t.type!=='Epic');
+  const wcolW=100/weeks.length;
+  const header=`<div class="tl-row tl-head"><div class="tl-lbl">${epics.length} epics \u00b7 ${all.length} dated</div><div class="tl-track">${weeks.map(w=>`<div class="tl-wk" style="width:${wcolW}%">${fdate(w.toISOString().slice(0,10))}</div>`).join('')}</div></div>`;
+  el.innerHTML=`<div class="ov-h"><h2>Timeline</h2><span class="range">Roadmap of epics and dated tickets</span></div>
+    <div class="tl-wrap">${header}${rows.join('')}${orphans.length?`<div class="tl-sec">Other dated tickets</div>`+orphans.map(bar).join(''):''}</div>`;
 }
 
 /* ---------- Releases / Versions ---------- */
@@ -4021,4 +4114,3 @@ boot();
 </script>
 </body>
 </html>
-
