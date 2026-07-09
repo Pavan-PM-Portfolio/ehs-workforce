@@ -145,6 +145,16 @@ input,select{font-family:inherit}
 .hs-hero-h{font-size:54px;line-height:1.03;font-weight:800;letter-spacing:-.035em;max-width:15ch;color:var(--ink)}
 .hs-accent{color:var(--accent)}
 .hs-hero-p{color:var(--muted);font-size:18px;margin-top:18px;max-width:44ch;line-height:1.55}
+.hs-rotator{height:1.3em;overflow:hidden;margin-top:16px;font-size:31px;font-weight:800;letter-spacing:-.02em;color:var(--accent)}
+.hs-rot-list{display:flex;flex-direction:column;animation:rotWords 9s cubic-bezier(.72,0,.28,1) infinite}
+.hs-rot-list span{height:1.3em;line-height:1.3em;display:block;white-space:nowrap}
+@keyframes rotWords{
+  0%,20%{transform:translateY(0)}
+  25%,45%{transform:translateY(-20%)}
+  50%,70%{transform:translateY(-40%)}
+  75%,95%{transform:translateY(-60%)}
+  100%{transform:translateY(-80%)}
+}
 .hs-hero-cta{display:inline-flex;align-items:center;gap:9px;margin-top:26px;background:#fff;color:var(--ink);
   font-size:15px;font-weight:700;padding:14px 26px;border:1.7px solid var(--ink);border-radius:12px;cursor:pointer;font-family:inherit;
   box-shadow:4px 4px 0 var(--accent);transition:transform .1s,box-shadow .1s}
@@ -551,8 +561,15 @@ function renderHome(){
       <div class="hs-hero-scrim"></div>
       <div class="hs-hero-grid"></div>
       <div class="hs-hero-in">
-        <h1 class="hs-hero-h">Every tool the team <span class="hs-accent">runs on, in one place.</span></h1>
-        <p class="hs-hero-p">${mine.length} connected ${mine.length===1?'tool':'tools'}, one sign-in \u2014 each opens in its own tab.</p>
+        <h1 class="hs-hero-h">The modern workspace for modern teams</h1>
+        <p class="hs-hero-p">Everything your team needs to plan, build, test, and deliver\u2014organized in one place.</p>
+        <div class="hs-rotator"><div class="hs-rot-list">
+          <span>Project Management</span>
+          <span>Delivery Management</span>
+          <span>Operations Management</span>
+          <span>Products &amp; Licenses</span>
+          <span>Project Management</span>
+        </div></div>
         <button class="hs-hero-cta" onclick="document.querySelector('.tsec')&&document.querySelector('.tsec').scrollIntoView({behavior:'smooth'})">Explore your tools <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg></button>
       </div>
     </div>
