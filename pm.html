@@ -241,7 +241,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .col.dragover{border-color:var(--accent);background:var(--accent-soft)}
 .col.drop-ok{border-color:#0E8F5A;border-style:dashed}
 .col.drop-no{opacity:.45}
-.col-h{display:flex;align-items:center;gap:8px;padding:12px 14px 10px}
+.col-h{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px 10px}
 .col-dot{width:8px;height:8px;border-radius:50%;flex:none}
 .col-h .t{font-size:12.5px;font-weight:600;letter-spacing:-.01em}
 .col-h .c{font-size:11px;color:var(--muted);font-weight:600;background:var(--surface);
@@ -1870,8 +1870,7 @@ function boardColsHTML(cols, tasks){
     const mins=col.reduce((a,t)=>a+taskTotals(t.id).total,0);
     return `<div class="col" data-status="${s.id}">
       <div class="col-h">
-        <span class="t">${esc(s.name)}</span><span class="c">${col.length}</span>
-        ${mins?`<span class="time">${hm(mins)}</span>`:''}</div>
+        <span class="t">${esc(s.name)}</span><span class="c">${col.length}</span></div>
       <div class="col-body">${col.map(cardHTML).join('')||'<div style="padding:8px 4px;font-size:11.5px;color:var(--faint)">No tickets</div>'}</div>
     </div>`;
   }).join('');
