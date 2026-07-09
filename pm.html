@@ -260,6 +260,9 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .cardmenu{position:fixed;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
   box-shadow:var(--shadow-md);padding:5px;z-index:320;display:none}
 .cardmenu.on{display:block}
+.cm-swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:10px 12px}
+.cm-sw{width:100%;height:24px;border:2px solid transparent;border-radius:6px !important;cursor:pointer;padding:0}
+.cm-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
 .cm-item{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;font-family:inherit;font-size:13px;
   color:var(--ink);text-align:left;padding:8px 10px;border-radius:7px;cursor:pointer}
 .cm-item:hover{background:var(--surface-2)}
@@ -1841,6 +1844,7 @@ function cardHTML(t){
   const stOpts=STATUSES.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
   const asgOpts=`<option value="">Unassigned</option>`+store.users().map(x=>`<option value="${x.id}" ${t.assignee===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
   return `<div class="card" draggable="true" data-id="${t.id}">
+    ${t.color?`<div class="card-strip" style="background:${t.color}"></div>`:''}
     <div class="card-body">
       <div class="card-toprow">
         <span class="card-num">${t.flagged?'<svg class="flag-ic" width="11" height="11" viewBox="0 0 24 24" fill="#CE2F26" stroke="#CE2F26" stroke-width="1.5" stroke-linejoin="round"><path d="M4 21V4h13l-2 5 2 5H4"/></svg>':''}${t.key}</span>
@@ -2077,11 +2081,13 @@ function openCardMenu(anchor, id){
       <button class="cm-item" data-a="copykey">Copy key</button>
       <button class="cm-item" data-a="copylink">Copy link</button>
       <button class="cm-item" data-a="flag">${t.flagged?'Remove flag':'Add flag'}</button>
+      <button class="cm-item" data-a="colour">Card colour ${arrow}</button>
       <div class="cm-sep"></div>
       <button class="cm-item" data-a="archive">Archive</button>
       <button class="cm-item cm-danger" data-a="delete">Delete</button>`;
     menu.querySelectorAll('.cm-item').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=b.dataset.a;
       if(a==='status'){ statusMenu(); return; }
+      if(a==='colour'){ colourMenu(); return; }
       if(a==='copykey'){ copyText(t.key); toast('Key copied'); }
       else if(a==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
       else if(a==='flag'){ store.updateTask(id,{flagged:!t.flagged}); refreshViews(); }
@@ -2092,8 +2098,12 @@ function openCardMenu(anchor, id){
       STATUSES.map(s=>`<button class="cm-item" data-s="${s.id}">${t.status===s.id?'<span class="cm-dot"></span>':'<span class="cm-dot cm-dot-off"></span>'}${esc(s.name)}</button>`).join('');
     menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
     menu.querySelectorAll('[data-s]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); store.moveTask(id,b.dataset.s); closeCardMenu(); refreshViews(); toast(`${t.key} → ${store.status(b.dataset.s).name}`); }); };
+  const colourMenu=()=>{ menu.innerHTML=`<button class="cm-item cm-back" data-back="1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back</button><div class="cm-sep"></div>`+
+      `<div class="cm-swatches">${SWATCHES.map(c=>`<button class="cm-sw${t.color===c?' on':''}" style="background:${c}" data-c="${c}" title="${c}"></button>`).join('')}</div>`+
+      `<div class="cm-sep"></div><button class="cm-item" data-c="">${t.color?'Remove colour':'No colour'}</button>`;
+    menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
+    menu.querySelectorAll('[data-c]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); store.updateTask(id,{color:b.dataset.c||null}); closeCardMenu(); refreshViews(); }); };
   main();
-  const r=anchor.getBoundingClientRect(); const w=210;
   posMenu(menu, r, 4, w, true);
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('#cardMenu')&&!e.target.closest('.card-kebab')) closeCardMenu(); });
