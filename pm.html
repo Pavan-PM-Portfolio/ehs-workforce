@@ -263,6 +263,14 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .cardmenu{position:fixed;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
   box-shadow:var(--shadow-md);padding:5px;z-index:320;display:none}
 .cardmenu.on{display:block}
+.selx{display:inline-flex;position:relative;max-width:100%}
+.selx-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;font-family:inherit;font-size:inherit;color:inherit;font-weight:inherit;cursor:pointer;padding:0;max-width:100%}
+.selx-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selx-chev{color:var(--faint);flex:none}
+.selx-menu{background:#fff;border:1px solid var(--line);border-radius:10px !important;box-shadow:0 10px 30px -8px rgba(0,0,0,.28);padding:5px;z-index:9999;max-height:340px;overflow:auto}
+.selx-opt{display:block;width:100%;text-align:left;border:0;background:none;font-family:inherit;font-size:13px;color:var(--ink);padding:8px 12px;border-radius:7px !important;cursor:pointer;white-space:nowrap}
+.selx-opt:hover{background:var(--surface-3)}
+.selx-opt.on{color:var(--accent);font-weight:600}
 .cm-swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:10px 12px}
 .cm-sw{width:100%;height:24px;border:2px solid transparent;border-radius:6px !important;cursor:pointer;padding:0}
 .cm-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
@@ -2110,6 +2118,42 @@ function openCardMenu(anchor, id){
   posMenu(menu, r, 4, w, true);
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('#cardMenu')&&!e.target.closest('.card-kebab')) closeCardMenu(); });
+
+/* ---- Custom light dropdowns: replace native <select> across the page ---- */
+function _selxLabel(sel,btn){ const o=sel.options[sel.selectedIndex]; btn.querySelector('.selx-t').textContent=o?o.textContent:''; }
+function enhanceSelects(root){
+  (root||document).querySelectorAll('select:not([data-enh])').forEach(sel=>{
+    sel.setAttribute('data-enh','1'); sel.style.display='none';
+    const wrap=document.createElement('span'); wrap.className='selx';
+    const btn=document.createElement('button'); btn.type='button'; btn.className='selx-btn';
+    if(sel.style.color) btn.style.color=sel.style.color;
+    btn.innerHTML='<span class="selx-t"></span><svg class="selx-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+    sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel); wrap.appendChild(btn);
+    _selxLabel(sel,btn); sel._selxBtn=btn;
+    sel.addEventListener('change',()=>{ _selxLabel(sel,btn); if(sel.style.color) btn.style.color=sel.style.color; });
+    btn.onclick=e=>{ e.stopPropagation(); openSelxMenu(sel,btn); };
+  });
+}
+function closeSelx(){ const m=document.getElementById('selxMenu'); if(m) m.remove(); }
+function openSelxMenu(sel,btn){
+  if(document.getElementById('selxMenu')){ closeSelx(); return; }
+  const menu=document.createElement('div'); menu.className='selx-menu'; menu.id='selxMenu';
+  menu.innerHTML=[...sel.options].map((o,i)=>`<button class="selx-opt${i===sel.selectedIndex?' on':''}" data-i="${i}">${esc(o.textContent)}</button>`).join('');
+  document.body.appendChild(menu);
+  const r=btn.getBoundingClientRect(); menu.style.position='fixed'; menu.style.minWidth=Math.max(r.width,150)+'px';
+  let top=r.bottom+4, left=r.left; const mh=menu.offsetHeight, mw=menu.offsetWidth;
+  if(top+mh>window.innerHeight-8) top=Math.max(8, r.top-4-mh);
+  if(left+mw>window.innerWidth-8) left=Math.max(8, window.innerWidth-mw-8);
+  menu.style.top=top+'px'; menu.style.left=left+'px';
+  menu.querySelectorAll('.selx-opt').forEach(o=>o.onclick=ev=>{ ev.stopPropagation(); sel.selectedIndex=+o.dataset.i; sel.dispatchEvent(new Event('change',{bubbles:true})); closeSelx(); });
+}
+document.addEventListener('click',closeSelx);
+window.addEventListener('resize',closeSelx);
+document.getElementById('scroll')&&document.getElementById('scroll').addEventListener('scroll',closeSelx,true);
+let _selxRaf=null;
+function _scheduleEnhance(){ if(_selxRaf) return; _selxRaf=requestAnimationFrame(()=>{ _selxRaf=null; enhanceSelects(document); }); }
+new MutationObserver(_scheduleEnhance).observe(document.body,{childList:true,subtree:true});
+enhanceSelects(document);
 function openDateMenu(anchor, taskId, cur, field){
   field = field||'due';
   const menu=document.getElementById('cfMenu');
