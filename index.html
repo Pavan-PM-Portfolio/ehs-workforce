@@ -145,10 +145,11 @@ input,select{font-family:inherit}
 .hs-hero-h{font-size:54px;line-height:1.03;font-weight:800;letter-spacing:-.035em;max-width:15ch;color:var(--ink)}
 .hs-accent{color:var(--accent)}
 .hs-hero-p{color:var(--muted);font-size:18px;margin-top:18px;max-width:44ch;line-height:1.55}
-.hs-hero-cta{display:inline-flex;align-items:center;gap:9px;margin-top:26px;background:var(--accent);color:#fff;
-  font-size:15px;font-weight:700;padding:14px 26px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;
-  box-shadow:0 12px 26px -8px rgba(0,0,0,.5);transition:transform .12s}
-.hs-hero-cta:hover{transform:translateY(-2px)}
+.hs-hero-cta{display:inline-flex;align-items:center;gap:9px;margin-top:26px;background:#fff;color:var(--ink);
+  font-size:15px;font-weight:700;padding:14px 26px;border:1.7px solid var(--ink);border-radius:12px;cursor:pointer;font-family:inherit;
+  box-shadow:4px 4px 0 var(--accent);transition:transform .1s,box-shadow .1s}
+.hs-hero-cta:hover{transform:translate(1px,1px);box-shadow:3px 3px 0 var(--accent)}
+.hs-hero-cta:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--accent)}
 .hs-hero-cta svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.3;fill:none}
 .hs-footer{max-width:1140px;margin:20px auto 0;padding:26px 40px 70px;border-top:1px solid var(--line);
   font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
@@ -165,9 +166,11 @@ input,select{font-family:inherit}
 .tsec-feat li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--ink-2)}
 .tsec-feat .ck{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
 .tsec-feat .ck svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none}
-.tsec-cta{display:inline-flex;align-items:center;gap:9px;margin-top:30px;color:#fff;font-size:15.5px;font-weight:700;
-  padding:15px 28px;border:0;border-radius:13px;cursor:pointer;font-family:inherit;transition:transform .12s}
-.tsec-cta:hover{transform:translateY(-2px)}
+.tsec-cta{display:inline-flex;align-items:center;gap:9px;margin-top:30px;background:#fff;color:var(--ink);font-size:15.5px;font-weight:700;
+  padding:15px 28px;border:1.7px solid var(--ink);border-radius:13px;cursor:pointer;font-family:inherit;
+  box-shadow:4px 4px 0 var(--accent);transition:transform .1s,box-shadow .1s}
+.tsec-cta:hover{transform:translate(1px,1px);box-shadow:3px 3px 0 var(--accent)}
+.tsec-cta:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--accent)}
 .tsec-cta svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2;fill:none}
 .tsec-media{position:relative;min-height:400px;display:flex;align-items:center;justify-content:center}
 .tsec-frame{position:absolute;width:84%;aspect-ratio:4/3;border:3px solid;border-radius:18px;z-index:1}
@@ -574,7 +577,7 @@ function toolSection(t,i){
       <h2 class="tsec-h">${esc(t.head.a)} <span style="color:${c}">${esc(t.head.b)}</span></h2>
       <p class="tsec-p">${esc(t.body)}</p>
       <ul class="tsec-feat">${feats}</ul>
-      <button class="tsec-cta" style="background:${c};box-shadow:0 10px 24px -8px ${c}99" onclick="openTool('${t.id}')">
+      <button class="tsec-cta" onclick="openTool('${t.id}')">
         ${live?'Open '+esc(t.name):'View page'} <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>`;
   return `<section class="tsec">${imgRight ? txt+media : media+txt}</section>`;
