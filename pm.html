@@ -2103,6 +2103,7 @@ function openCardMenu(anchor, id){
     menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
     menu.querySelectorAll('[data-c]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); store.updateTask(id,{color:b.dataset.c||null}); closeCardMenu(); refreshViews(); }); };
   main();
+  const r=anchor.getBoundingClientRect(); const w=210;
   posMenu(menu, r, 4, w, true);
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('#cardMenu')&&!e.target.closest('.card-kebab')) closeCardMenu(); });
