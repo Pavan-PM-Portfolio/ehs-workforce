@@ -2153,7 +2153,9 @@ document.getElementById('scroll')&&document.getElementById('scroll').addEventLis
 let _selxRaf=null;
 function _scheduleEnhance(){ if(_selxRaf) return; _selxRaf=requestAnimationFrame(()=>{ _selxRaf=null; enhanceSelects(document); }); }
 new MutationObserver(_scheduleEnhance).observe(document.body,{childList:true,subtree:true});
+window.enhanceSelects=enhanceSelects;
 enhanceSelects(document);
+setTimeout(()=>{ try{ console.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
 function openDateMenu(anchor, taskId, cur, field){
   field = field||'due';
   const menu=document.getElementById('cfMenu');
@@ -2986,7 +2988,7 @@ function renderAll(){ renderProjectSwitch(); fillFilters(); renderSideCard(); ap
   else if(v==='velocity') renderVelocity();
   else if(v==='settings') renderSettings();
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
-  updateCount(); setHeadHeight(); openTicketFromURL(); }
+  updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
 
 function setView(v){ ui.view=v; renderAll(); document.getElementById('scroll').scrollTop=0; }
 
