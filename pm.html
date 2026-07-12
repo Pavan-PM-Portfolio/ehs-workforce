@@ -1095,6 +1095,13 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .sb-kpi .sb-sub{font-size:11px;color:var(--muted)}
 .sb-dl{font-size:10.5px;font-weight:700}.sb-dl.up{color:var(--ok)}.sb-dl.dn{color:var(--crit)}
 .sb-2{display:grid;grid-template-columns:1.7fr 1fr;gap:12px;margin-bottom:12px}
+.age-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px}
+.age-row:last-child{border-bottom:0}
+.age-nm{flex:1;color:var(--accent);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.age-nm:hover{text-decoration:underline}
+.age-as{flex:none}
+.age-un{font-size:11px;color:var(--faint)}
+.age-badge{flex:none;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px !important;font-variant-numeric:tabular-nums}
 .sb-eq{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .ov-gh{font-weight:700;font-size:14px}
 .ov-cap{font-size:11.5px;color:var(--muted);margin:2px 0 12px}
@@ -3192,7 +3199,8 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   show('settingswrap', v==='settings');
   show('teamwrap', v==='team');
   show('soonwrap', !!SOON_VIEWS[v]);
-  document.getElementById('filterbar').style.display = (v==='board'||v==='list')?'flex':'none';
+  document.getElementById('filterbar').style.display = (v==='board'||v==='list'||v==='overview')?'flex':'none';
+  if(v==='overview'){ try{ renderFilterChips(); fillFilters(); }catch(e){} }
   document.querySelector('.search').style.display = (v==='board'||v==='list'||v==='epics')?'block':'none';
   document.getElementById('boardSwitch').style.display = v==='board'?'flex':'none';
   renderBoardSwitch();
@@ -3232,10 +3240,29 @@ function renderSideCard(){
 /* ---------- Overview dashboard ---------- */
 function ovWindow(){
   const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
-  if(ui.ovRange==='today') return {from:to,to,label:'Today'};
-  if(ui.ovRange==='week'){ const d=new Date(today); d.setDate(d.getDate()-6); return {from:iso(d),to,label:'Last 7 days'}; }
-  if(ui.ovRange==='custom'){ const f=ui.ovFrom||to, t=ui.ovTo||to; return {from:f<t?f:t,to:f<t?t:f,label:fdate(f<t?f:t)+' – '+fdate(f<t?t:f)}; }
-  const d=new Date(today); d.setDate(d.getDate()-29); return {from:iso(d),to,label:'Last 30 days'};
+  const per=(ui.filters&&ui.filters.period)||'all';
+  if(per==='today') return {from:to,to,label:'Today'};
+  if(per==='week'){ const d=new Date(today); d.setDate(d.getDate()-6); return {from:iso(d),to,label:'Last 7 days'}; }
+  if(per==='month'){ const d=new Date(today); d.setDate(d.getDate()-29); return {from:iso(d),to,label:'Last 30 days'}; }
+  if(per==='custom'){ const f=ui.filters.from||to, t=ui.filters.to||to; return {from:f<t?f:t,to:f<t?t:f,label:fdate(f<t?f:t)+' – '+fdate(f<t?t:f)}; }
+  const ds=[]; (store.data.tasks||[]).forEach(t=>{ if(t.createdAt)ds.push(t.createdAt); }); (store.data.worklogs||[]).forEach(w=>{ if(w.date)ds.push(w.date); }); ds.sort();
+  const from=ds.length?ds[0]:iso(new Date(today.getTime()-29*86400000));
+  return {from, to, label:'All time'};
+}
+function ovTasks(){
+  const f=ui.filters||{};
+  return store.standardTasks().filter(t=>{
+    if(t.archived) return false;
+    if(ui.project!=='all' && t.project!==ui.project) return false;
+    if(f.epic&&f.epic!=='all'){ if(f.epic==='none'){ if(t.parent) return false; } else if(t.parent!==f.epic) return false; }
+    if(f.assignee&&f.assignee!=='all' && t.assignee!==f.assignee) return false;
+    if(f.status&&f.status!=='all' && t.status!==f.status) return false;
+    if(f.priority&&f.priority!=='all' && t.priority!==f.priority) return false;
+    if(f.type&&f.type!=='all' && t.type!==f.type) return false;
+    if(f.time&&f.time!=='all'){ const has=store.worklogs(t.id).length>0; if(f.time==='yes'&&!has) return false; if(f.time==='no'&&has) return false; }
+    if(f.search){ const q=f.search.toLowerCase(); if(!((t.title||'').toLowerCase().includes(q)||(t.key||'').toLowerCase().includes(q))) return false; }
+    return true;
+  });
 }
 function ovSpark(vals,color){ if(!vals||!vals.length) vals=[0,0]; const w=120,h=26,max=Math.max(...vals,1),min=Math.min(...vals,0),rng=(max-min)||1;
   const pts=vals.map((v,i)=>`${(vals.length>1?i/(vals.length-1)*w:0).toFixed(1)},${(h-3-((v-min)/rng)*(h-7)).toFixed(1)}`).join(' ');
@@ -3254,7 +3281,7 @@ function renderOverview(){
   const lenDays=Math.max(1,Math.round((new Date(win.to)-new Date(win.from))/86400000)+1);
   const pf=new Date(win.from); pf.setDate(pf.getDate()-lenDays); const pt=new Date(win.from); pt.setDate(pt.getDate()-1);
   const pFrom=pf.toISOString().slice(0,10), pTo=pt.toISOString().slice(0,10); const inPrev=d=>!!d && d>=pFrom && d<=pTo;
-  const all = ui.project==='all' ? store.standardTasks() : store.standardTasks().filter(t=>t.project===ui.project);
+  const all = ovTasks();
   const created=all.filter(t=>inWin(t.createdAt)).length, pCreated=all.filter(t=>inPrev(t.createdAt)).length;
   const solved=all.filter(t=>inWin(t.resolvedAt)).length, pSolved=all.filter(t=>inPrev(t.resolvedAt)).length;
   const ids=all.map(t=>t.id);
@@ -3272,7 +3299,7 @@ function renderOverview(){
   const byProj=projScope.map(p=>({p, n:all.filter(t=>t.project===p.id).length})).sort((a,b)=>b.n-a.n);
   const pmax=Math.max(...byProj.map(x=>x.n),1);
   const byCat={}; logs.forEach(w=>byCat[w.cat]=(byCat[w.cat]||0)+w.min);
-  const days=[]; { let d=new Date(win.from); const end=new Date(win.to); let g=0; while(d<=end && g<400){ days.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); g++; } }
+  const days=[]; { let d=new Date(win.from); const end=new Date(win.to); let g=0; while(d<=end && g<800){ days.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); g++; } }
   const dHours=days.map(day=>logs.filter(w=>w.date===day).reduce((a,w)=>a+w.min,0)/60);
   const dCreated=days.map(day=>all.filter(t=>t.createdAt===day).length);
   const dSolved=days.map(day=>all.filter(t=>t.resolvedAt===day).length);
@@ -3280,18 +3307,22 @@ function renderOverview(){
   const RANGES=[['today','Today'],['week','Week'],['month','Month'],['custom','Custom']];
   const CATCLR={Development:'#3B6FE0','Code Review':'#B96A00',QA:'#CE2F26',Deployment:'#0E8F5A',Other:'#71717A'};
   const dH=ovDelta(totalMin,pMin), dC=ovDelta(created,pCreated), dS=ovDelta(solved,pSolved), dR=ovDelta(resPct,pResPct);
+  const _today=new Date();
+  const openTix=all.filter(t=>{const s=store.status(t.status); return s && s.cat!=='done';})
+    .map(t=>({t, age: t.createdAt? Math.max(0,Math.floor((_today-new Date(t.createdAt))/86400000)):0}))
+    .sort((a,b)=>b.age-a.age);
+  const oldest=openTix.slice(0,6);
+  const ageColor=a=> a>=14?'#CE2F26' : a>=7?'#B96A00' : '#0E8F5A';
+  let workDays=0; { let d=new Date(win.from); const end=new Date(win.to); let g=0; while(d<=end && g<800){ const dw=d.getDay(); if(dw!==0&&dw!==6) workDays++; d.setDate(d.getDate()+1); g++; } }
+  const capMin=Math.max(1, workDays*8*60);
+  const capRows=topUsers.map(x=>{ const u=store.user(x.u); const util=x.m/capMin; const pct=Math.min(100,Math.round(util*100)); const c= util>1.05?'#CE2F26' : util>=.7?'#0E8F5A' : '#B96A00'; return {u,m:x.m,util,pct,c}; });
   const engBars=topUsers.length?topUsers.map(x=>{const u=store.user(x.u);const c=u?u.color:'#999';return `<div class="hbar-row"><span class="nm">${avatar(u,20)}${u?esc(u.name):'—'}</span><span class="track"><span class="fill" style="width:${x.m/umax*100}%;background:linear-gradient(90deg,${c}99,${c})"></span></span><span class="val">${hm(x.m)}</span></div>`;}).join(''):'<p class="ov-cap">No time logged in this period.</p>';
 
   el.innerHTML=`
-    <div class="ov-filter">
-      <div class="ov-seg">${RANGES.map(([r,l])=>`<button class="${ui.ovRange===r?'on':''}" data-r="${r}">${l}</button>`).join('')}</div>
-      ${ui.ovRange==='custom'?`<input type="date" class="ov-date" id="ovFrom" value="${ui.ovFrom||win.from}"/><span class="ov-dash">–</span><input type="date" class="ov-date" id="ovTo" value="${ui.ovTo||win.to}"/>`:''}
-      <span class="ov-rangelbl">${win.label}</span>
-    </div>
     <div class="sb-hero">
       <div class="sb-lbl">Hours logged · ${win.label.toLowerCase()}</div>
       <div class="sb-big">${(totalMin/60).toFixed(0)}<span class="u">h</span></div>
-      ${dH.t!=='—'?`<span class="sb-pill">${dH.t}${dH.c==='up'||dH.c==='dn'?' vs last '+(ui.ovRange==='today'?'day':ui.ovRange==='week'?'week':ui.ovRange==='custom'?'period':'month'):''}</span>`:''}
+      ${(dH.t!=='—'&&(ui.filters.period&&ui.filters.period!=='all'))?`<span class="sb-pill">${dH.t}${(dH.c==='up'||dH.c==='dn')?' vs prev '+((ui.filters.period)==='today'?'day':(ui.filters.period)==='week'?'week':(ui.filters.period)==='month'?'month':'period'):''}</span>`:''}
       <div class="sb-hero-chart">${ovArea(dHours,AC,84)}</div>
     </div>
     <div class="sb-kpis">
@@ -3301,14 +3332,18 @@ function renderOverview(){
       <div class="sb-kpi"><div class="top"><span class="l">In progress</span></div><div class="v">${inprog}</div><div class="sb-sub">being worked now</div></div>
     </div>
     <div class="sb-2">
-      <div class="ov-tile"><div class="ov-gh">Hours logged over time</div><p class="ov-cap">Daily effort · ${win.label.toLowerCase()}</p>${ovArea(dHours,AC,150)}</div>
+      <div class="ov-tile"><div class="ov-gh">Aging tickets</div><p class="ov-cap">Oldest open · needs attention</p>
+        ${oldest.length?oldest.map(o=>{const u=store.user(o.t.assignee);const ac=ageColor(o.age);return `<div class="age-row"><a class="age-nm" onclick="openPanel('${o.t.id}')">${esc(o.t.title)}</a><span class="age-as">${u?avatar(u,18):'<span class="age-un">Unassigned</span>'}</span><span class="age-badge" style="background:${ac}18;color:${ac}">${o.age}d</span></div>`;}).join(''):'<p class="ov-cap">No open tickets.</p>'}
+      </div>
       <div class="ov-tile"><div class="ov-gh">Ticket status</div><p class="ov-cap">${all.length} tickets</p>
         <div class="ov-donut-row">${ovDonut([{v:doneNow,color:'#0E8F5A'},{v:inprog,color:'#3B6FE0'},{v:openNow,color:'#EAE7E2'}],all.length,'tickets',108)}
           <div class="ov-legs"><div class="ov-leg"><span class="d" style="background:#0E8F5A"></span>Solved<span class="v">${doneNow}</span></div><div class="ov-leg"><span class="d" style="background:#3B6FE0"></span>Active<span class="v">${inprog}</span></div><div class="ov-leg"><span class="d" style="background:#EAE7E2"></span>Open<span class="v">${openNow}</span></div></div></div>
       </div>
     </div>
     <div class="sb-eq">
-      <div class="ov-tile"><div class="ov-gh">Hours by engineer</div><p class="ov-cap">This period</p>${engBars}</div>
+      <div class="ov-tile"><div class="ov-gh">Capacity</div><p class="ov-cap">Logged vs available · ${workDays} working day${workDays!==1?'s':''}</p>
+        ${capRows.length?capRows.map(r=>`<div class="hbar-row" title="${hm(r.m)} of ${hm(capMin)}"><span class="nm">${avatar(r.u,20)}${r.u?esc(r.u.name):'—'}</span><span class="track"><span class="fill" style="width:${r.pct}%;background:${r.c}"></span></span><span class="val" style="color:${r.c}">${Math.round(r.util*100)}%</span></div>`).join(''):'<p class="ov-cap">No time logged in this period.</p>'}
+      </div>
       <div class="ov-tile"><div class="ov-gh">Hours by category</div><p class="ov-cap">Where effort is going</p>
         <div class="ov-donut-row">${ovDonut(CATS.map(c=>({v:byCat[c.id]||0,color:CATCLR[c.id]||'#71717A'})),(totalMin/60).toFixed(0)+'h','logged',108)}
           <div class="ov-legs">${CATS.map(c=>`<div class="ov-leg"><span class="d" style="background:${CATCLR[c.id]||'#71717A'}"></span>${c.id}<span class="v">${hm(byCat[c.id]||0)}</span></div>`).join('')}</div></div>
@@ -3317,9 +3352,7 @@ function renderOverview(){
     <div class="ov-tile"><div class="ov-gh">Tickets by project</div><p class="ov-cap">Volume in scope</p>
       ${byProj.map(x=>`<div class="hbar-row"><span class="nm">${esc(x.p.name)}</span><span class="track"><span class="fill" style="width:${x.n/pmax*100}%;background:linear-gradient(90deg,${(x.p.color||'#3B6FE0')}99,${x.p.color||'#3B6FE0'})"></span></span><span class="val">${x.n}</span></div>`).join('')||'<p class="ov-cap">No projects in scope.</p>'}
     </div>`;
-  el.querySelectorAll('.ov-seg button').forEach(b=>b.onclick=()=>{ ui.ovRange=b.dataset.r; renderOverview(); });
-  const of=document.getElementById('ovFrom'); if(of) of.onchange=e=>{ ui.ovFrom=e.target.value; renderOverview(); };
-  const ot=document.getElementById('ovTo'); if(ot) ot.onchange=e=>{ ui.ovTo=e.target.value; renderOverview(); };
+  el.querySelectorAll('#periodSeg button').forEach(()=>{});
 }
 
 /* ---------- Team ---------- */
