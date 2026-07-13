@@ -1629,8 +1629,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
-const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
+const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
+const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3489,16 +3489,44 @@ function renderSettings(){
   umUsers.forEach(u=>{ if(!userPerms[u.id]){ userPerms[u.id]=JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS[permOf(u)]||{})); _dirtyUP=true; } });
   if(_dirtyUP) store.updateSettings({userPerms});
   if(!editUser || !umUsers.some(u=>u.id===editUser)) editUser=(umUsers.find(u=>permOf(u)!=='Admin')||umUsers[0]||{}).id;
-  const boardOpts=store.boards().map(b=>`<option value="${b.id}" ${s.defaultBoard===b.id?'selected':''}>${esc(b.name)}</option>`).join('');
-  const viewOpts=[['board','Board'],['overview','Overview'],['list','List'],['epics','Epics'],['analytics','Analytics'],['reports','Reports']].map(([v,l])=>`<option value="${v}" ${s.defaultView===v?'selected':''}>${l}</option>`).join('');
-  el.innerHTML=`<div class="ov-h"><h2>Settings</h2><span class="range">Workspace preferences and data</span></div>
+  const muser=meUser()||{};
+  const myColor=(muser.color&&/^#[0-9a-fA-F]{6}$/.test(muser.color))?muser.color:'#3B6FE0';
+  const myDefView=(muser.prefs&&muser.prefs.defaultView)||s.defaultView||'board';
+  const myDefBoard=(muser.prefs&&muser.prefs.defaultBoard)||s.defaultBoard||'';
+  const boardOpts=store.boards().map(b=>`<option value="${b.id}" ${myDefBoard===b.id?'selected':''}>${esc(b.name)}</option>`).join('');
+  const viewOpts=[['board','Board'],['overview','Overview'],['list','List'],['epics','Epics'],['analytics','Analytics'],['reports','Reports']].map(([v,l])=>`<option value="${v}" ${myDefView===v?'selected':''}>${l}</option>`).join('');
+  const dtOpts=[['dmy','31 Jul 2026'],['mdy','Jul 31, 2026'],['iso','2026-07-31']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.dateFmt)||'dmy')===v?'selected':''}>${l}</option>`).join('');
+  const denseOpts=[['comfortable','Comfortable'],['compact','Compact']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.density)||'comfortable')===v?'selected':''}>${l}</option>`).join('');
+  el.innerHTML=`<div class="ov-h"><h2>Settings</h2><span class="range">Your preferences${IS_ADMIN?' · workspace admin':''}</span></div>
     <div class="op-sec">
-      <div class="op-sec-h"><h3>Workspace</h3></div>
+      <div class="op-sec-h"><h3>My profile</h3></div>
       <div class="set-grid">
-        <label class="repf"><span>Workspace name</span><input id="setWsName" value="${esc(s.workspaceName)}"/></label>
-        <label class="repf"><span>Default view on open</span><select id="setDefView">${viewOpts}</select></label>
-        <label class="repf"><span>Default board</span><select id="setDefBoard">${boardOpts}</select></label>
+        <label class="repf"><span>Full name</span><input id="myName" value="${esc(muser.name||'')}"/></label>
+        <label class="repf"><span>Email</span><input value="${esc(muser.email||'—')}" disabled/></label>
+        <label class="repf"><span>Avatar colour</span><input type="color" id="myColor" value="${myColor}" style="height:38px;padding:2px"/></label>
       </div>
+    </div>
+    <div class="op-sec">
+      <div class="op-sec-h"><h3>My preferences</h3><span class="range">Only affects your account</span></div>
+      <div class="set-grid">
+        <label class="repf"><span>Default view on open</span><select id="myDefView">${viewOpts}</select></label>
+        <label class="repf"><span>Default board on open</span><select id="myDefBoard">${boardOpts}</select></label>
+        <label class="repf"><span>Date format</span><select id="myDateFmt">${dtOpts}</select></label>
+        <label class="repf"><span>Density</span><select id="myDensity">${denseOpts}</select></label>
+      </div>
+    </div>
+    <div class="op-sec">
+      <div class="op-sec-h"><h3>Password</h3></div>
+      <div class="set-grid">
+        <label class="repf"><span>New password</span><input id="myPw" type="password" placeholder="Enter a new password" autocomplete="new-password"/></label>
+        <div class="repf" style="align-self:flex-end"><button class="btn primary" id="myPwBtn" style="padding:9px 16px">Update password</button></div>
+      </div>
+      <div class="set-note">${(typeof sb!=='undefined'&&sb)?'Updates your sign-in password immediately.':'Sign-in is managed by your workspace admin.'}</div>
+    </div>
+    ${IS_ADMIN?`
+    <div class="op-sec">
+      <div class="op-sec-h"><h3>Workspace</h3><span class="range">Admin</span></div>
+      <div class="set-grid"><label class="repf"><span>Workspace name</span><input id="setWsName" value="${esc(s.workspaceName)}"/></label></div>
     </div>
     <div class="op-sec">
       <div class="op-sec-h"><h3>Members</h3><span class="range">${umUsers.length} people · read-only</span></div>
@@ -3507,39 +3535,46 @@ function renderSettings(){
         <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
         <span class="um-rolebadge ${r.cls}">${r.label}</span>
       </div>`; }).join('')}</div>
-      <div class="set-note">Members, roles, and access are managed centrally in the EHS admin settings. This is a read-only view of who can use this tool.</div>
+      <div class="set-note">Members, roles, and access are managed centrally in the EHS admin settings. Read-only here.</div>
     </div>
     <div class="op-sec">
       <div class="op-sec-h"><h3>Data</h3></div>
       <div class="set-actions">
-        <button class="btn" id="setExport"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export data (JSON)</button>
-        <button class="btn" id="setExportCsv"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Export tickets (CSV)</button>
-        <button class="btn" id="setImport"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import data (JSON)</button>
+        <button class="btn" id="setExport">Export data (JSON)</button>
+        <button class="btn" id="setExportCsv">Export tickets (CSV)</button>
+        <button class="btn" id="setImport">Import data (JSON)</button>
         <input type="file" id="setImportFile" accept="application/json" style="display:none"/>
       </div>
-      <div class="set-note">Your data lives in this browser only. Export regularly, or connect a shared database to work as a team.</div>
     </div>
     <div class="op-sec">
       <div class="op-sec-h"><h3 style="color:var(--crit)">Danger zone</h3></div>
       <div class="set-danger">
         <div class="sd-row"><div><div class="sd-t">Clear all tickets</div><div class="sd-d">Removes every ticket and worklog. Keeps projects, statuses, boards and teams.</div></div><button class="btn danger" id="setClear">Clear tickets</button></div>
         <div class="sd-row"><div><div class="sd-t">Reset to sample data</div><div class="sd-d">Restores the original demo dataset. Everything you changed is lost.</div></div><button class="btn danger" id="setReset">Reset</button></div>
-        ${(typeof sb!=='undefined' && sb && (typeof IS_ADMIN==='undefined'||IS_ADMIN))?`<div class="sd-row"><div><div class="sd-t">Wipe workspace (server)</div><div class="sd-d">Permanently deletes every ticket, worklog, project, team and user from the database, then rebuilds an empty workspace with just you. Cannot be undone.</div></div><button class="btn danger" id="setWipe">Wipe all</button></div>`:''}
+        ${(typeof sb!=='undefined' && sb)?`<div class="sd-row"><div><div class="sd-t">Wipe workspace (server)</div><div class="sd-d">Permanently deletes every ticket, worklog, project, team and user from the database, then rebuilds an empty workspace with just you. Cannot be undone.</div></div><button class="btn danger" id="setWipe">Wipe all</button></div>`:''}
       </div>
-    </div>`;
-  document.getElementById('setWsName').onchange=e=>{ store.updateSettings({workspaceName:e.target.value.trim()||'Workspace'}); applyBrand(); };
-  document.getElementById('setDefView').onchange=e=>store.updateSettings({defaultView:e.target.value});
-  document.getElementById('setDefBoard').onchange=e=>store.updateSettings({defaultBoard:e.target.value});
-  document.getElementById('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
-  document.getElementById('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
+    </div>`:''}`;
+  const _uid=CURRENT_UID; const _g=id=>document.getElementById(id);
+  if(_g('myName')) _g('myName').onchange=e=>{ store.updateUser(_uid,{name:e.target.value.trim()||muser.name}); renderAll(); renderSettings(); };
+  if(_g('myColor')) _g('myColor').onchange=e=>{ store.updateUser(_uid,{color:e.target.value}); renderAll(); };
+  if(_g('myDefView')) _g('myDefView').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.defaultView=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
+  if(_g('myDefBoard')) _g('myDefBoard').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.defaultBoard=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
+  if(_g('myDateFmt')) _g('myDateFmt').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.dateFmt=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
+  if(_g('myDensity')) _g('myDensity').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.density=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); document.body.dataset.density=e.target.value; toast('Saved'); };
+  if(_g('myPwBtn')) _g('myPwBtn').onclick=async()=>{ const pw=_g('myPw').value; if(!pw||pw.length<6){ toast('Password must be at least 6 characters'); return; }
+    if(typeof sb!=='undefined'&&sb){ try{ const {error}=await sb.auth.updateUser({password:pw}); if(error){ toast('Could not update: '+error.message); return; } _g('myPw').value=''; toast('Password updated'); }catch(e){ toast('Could not update password'); } }
+    else { toast('Sign-in is managed by your workspace admin.'); } };
+  if(_g('setWsName')) _g('setWsName').onchange=e=>{ store.updateSettings({workspaceName:e.target.value.trim()||'Workspace'}); applyBrand(); };
+  if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
+  if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
     downloadCSV('all-tickets.csv', flds.map(f=>REPORT_FIELDS[f]), store.standardTasks().map(t=>flds.map(f=>reportFieldVal(t,f)))); };
-  document.getElementById('setImport').onclick=()=>document.getElementById('setImportFile').click();
-  document.getElementById('setImportFile').onchange=ev=>{ const f=ev.target.files[0]; if(!f) return; const r=new FileReader();
+  if(_g('setImport')) _g('setImport').onclick=()=>_g('setImportFile').click();
+  if(_g('setImportFile')) _g('setImportFile').onchange=ev=>{ const f=ev.target.files[0]; if(!f) return; const r=new FileReader();
     r.onload=()=>{ try{ store.importData(r.result); ui.project='all'; if(!store.board(ui.board)) ui.board=store.boards()[0].id; toast('Data imported'); renderAll(); renderSettings(); applyBrand(); }
       catch(err){ toast('That file is not a valid export'); } }; r.readAsText(f); ev.target.value=''; };
-  document.getElementById('setClear').onclick=e=>armDanger(e.currentTarget,()=>{ store.clearTickets(); toast('All tickets cleared'); renderAll(); renderSettings(); });
-  document.getElementById('setReset').onclick=e=>armDanger(e.currentTarget,()=>{ store.reset(); ui.project='all'; ui.board='main'; toast('Reset to sample data'); renderAll(); renderSettings(); applyBrand(); });
-  { const wb=document.getElementById('setWipe'); if(wb) wb.onclick=e=>armDanger(e.currentTarget, wipeWorkspace); }
+  if(_g('setClear')) _g('setClear').onclick=e=>armDanger(e.currentTarget,()=>{ store.clearTickets(); toast('All tickets cleared'); renderAll(); renderSettings(); });
+  if(_g('setReset')) _g('setReset').onclick=e=>armDanger(e.currentTarget,()=>{ store.reset(); ui.project='all'; ui.board='main'; toast('Reset to sample data'); renderAll(); renderSettings(); applyBrand(); });
+  { const wb=_g('setWipe'); if(wb) wb.onclick=e=>armDanger(e.currentTarget, wipeWorkspace); }
 }
 
 /* ---------- Velocity & Burndown ---------- */
@@ -4368,10 +4403,14 @@ let sb=null, WS=null, IS_ADMIN=true, ME=null;
 const TBL={users:'people', projects:'projects', statuses:'statuses', boards:'boards', teams:'teams', tasks:'tasks', worklogs:'worklogs'};
 let snap={}, syncTimer=null, rerenderTimer=null;
 
+function meUser(){ return store.user(CURRENT_UID) || store.users()[0] || null; }
 function applyDefaults(){
-  if(store.settings().defaultBoard && store.board(store.settings().defaultBoard)) ui.board=store.settings().defaultBoard;
-  if(store.settings().defaultView) ui.view=store.settings().defaultView;
-  CURRENT_UID=(store.users()[0]||{}).id||null;
+  CURRENT_UID=((typeof ME!=='undefined' && ME && store.users().find(u=>u.authId===ME.id))||store.users()[0]||{}).id||null;
+  const mu=store.user(CURRENT_UID);
+  const db=(mu&&mu.prefs&&mu.prefs.defaultBoard)||store.settings().defaultBoard;
+  const dv=(mu&&mu.prefs&&mu.prefs.defaultView)||store.settings().defaultView;
+  if(db && store.board(db)) ui.board=db;
+  if(dv) ui.view=dv;
   if(!store.data.chatChannels){ const ids=store.users().map(u=>u.id);
     store.data.chatChannels=[
       {id:'ch_general', name:'General', type:'group', members:ids.slice()},
