@@ -708,6 +708,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .um-add input:focus{border-color:var(--accent)}
 .um-add select{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13px}
 .um-del{border:0;background:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px;flex:none;display:grid;place-items:center}
+.um-edit{border:0;background:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px;flex:none;display:grid;place-items:center}
+.um-edit:hover{background:var(--soft);color:var(--accent)}
 .um-del:hover{background:var(--crit);color:#fff}
 .role-tabs{display:inline-flex;background:var(--surface-3);border-radius:9px;padding:3px;gap:2px;margin-bottom:12px}
 .pu-panel{display:grid;grid-template-columns:240px 1fr;border:1px solid var(--line);border-radius:14px !important;overflow:hidden}
@@ -1577,6 +1579,23 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
       <div class="loghint">Use the format <b>2w 4d 6h 45m</b> &nbsp;·&nbsp; w = weeks, d = days, h = hours, m = minutes</div>
     </div>
     <div class="modal-f"><button class="btn" id="logCancel">Cancel</button><button class="btn primary" id="logSave">Save</button></div>
+  </div>
+</div>
+
+<!-- Edit member modal -->
+<div class="modal-wrap" id="umEditWrap">
+  <div class="modal" style="width:460px">
+    <div class="modal-h">Edit member</div>
+    <div class="modal-b">
+      <div class="field"><label>Full name</label><input id="ueName" autocomplete="off"/></div>
+      <div class="field"><label>Email address</label><input id="ueEmail" type="email" autocomplete="off"/></div>
+      <div class="field-row">
+        <div class="field"><label>Designation</label><select id="ueDesig"></select></div>
+        <div class="field"><label>Avatar colour</label><input id="ueColor" type="color" style="height:38px;padding:2px"/></div>
+      </div>
+      <div class="loghint">Changes sync to your workspace. This updates the member's profile email — not their Supabase login email (that must be changed in Supabase → Authentication).</div>
+    </div>
+    <div class="modal-f"><button class="btn" id="ueCancel">Cancel</button><button class="btn primary" id="ueSave">Save changes</button></div>
   </div>
 </div>
 
@@ -3491,6 +3510,7 @@ function renderSettings(){
         <select class="um-perm um-row-desig" title="Designation (job label — for assignment only)">${DESIGNATIONS.map(d=>`<option ${u.role===d?'selected':''}>${d}</option>`).join('')}</select>
         <select class="um-perm um-row-profile" title="Permission profile">${getProfiles().map(pf=>`<option value="${pf.id}" ${userProfileId(u)===pf.id?'selected':''}>${esc(pf.name)}</option>`).join('')}</select>
         <button class="btn um-reset" data-email="${esc(u.email||'')}" data-user="${u.id}" style="padding:6px 10px;font-size:12px">Reset password</button>
+        <button class="um-edit" title="Edit details"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
         <button class="um-del" title="Remove member"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
       </div>`; }).join('')}</div>
       <div class="set-note">Set a temporary password when adding a member — they'll be asked to choose their own password on first sign-in. "Reset password" flags a member to set a new password the next time they log in (they'll need their current one). No reset emails are sent.</div>
@@ -3571,11 +3591,17 @@ function renderSettings(){
     const dsel=row.querySelector('.um-row-desig'); if(dsel) dsel.onchange=e=>{ store.updateUser(uid,{role:e.target.value}); toast('Designation updated'); };
     const psel=row.querySelector('.um-row-profile'); if(psel) psel.onchange=e=>{ store.updateUser(uid,{profile:e.target.value}); toast('Profile updated'); renderSettings(); };
     row.querySelector('.um-reset').onclick=e=>{ const em=e.currentTarget.dataset.email; if(!em){ toast('No email on file for this member'); return; } store.flagPwPending(em); toast('They will set a new password on next sign-in'); };
+    const ed=row.querySelector('.um-edit'); if(ed) ed.onclick=()=>openMemberEdit(uid);
     row.querySelector('.um-del').onclick=async()=>{ if(!confirm('Remove this member? Their assignments will be unassigned, and their access to this workspace will be revoked.')) return;
-      const person=store.user(uid); const authId=person&&person.authId;
-      if(sb && authId && typeof WS!=='undefined' && WS){ try{ await sb.from('members').delete().eq('workspace_id',WS).eq('user_id',authId); }catch(e){} }
+      const person=store.user(uid); const authId=person&&person.authId; let remoteErr=null;
+      if(sb && typeof WS!=='undefined' && WS){
+        try{ const r1=await sb.from('people').delete().eq('workspace_id',WS).eq('id',uid); if(r1&&r1.error) remoteErr=r1.error.message;
+          if(authId){ const r2=await sb.from('members').delete().eq('workspace_id',WS).eq('user_id',authId); if(r2&&r2.error && !remoteErr) remoteErr=r2.error.message; }
+        }catch(e){ remoteErr=(e&&e.message)||'delete failed'; }
+      }
+      if(remoteErr){ toast('Could not remove on server: '+remoteErr+' — check the DELETE row-level-security policy in Supabase.', 8000); return; }
       store.removeUser(uid); renderSettings(); renderAll();
-      toast(sb ? 'Member removed. To fully delete their login, delete them in Supabase → Authentication → Users.' : 'Member removed', 6000);
+      toast(sb ? 'Member removed. To delete their login entirely, remove them in Supabase → Authentication → Users.' : 'Member removed', 6000);
     }; });
   el.querySelectorAll('.perm-seg button').forEach(b=>b.onclick=()=>{ permView=b.dataset.pv; renderSettings(); });
   el.querySelectorAll('.role-tab[data-prof]').forEach(t=>t.onclick=()=>{ editProfile=t.dataset.prof; renderSettings(); });
@@ -4362,6 +4388,29 @@ wsSwitch.onclick=e=>{ e.stopPropagation(); wsMenu.classList.toggle('on'); };
 document.addEventListener('click',()=>wsMenu.classList.remove('on'));
 document.getElementById('search').oninput=e=>{ ui.filters.search=e.target.value; refreshViews(); };
 document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ ui.filters.period=btn.dataset.p; fillFilters(); refreshViews(); });
+let umEditId=null;
+function openMemberEdit(uid){ const u=store.user(uid); if(!u) return; umEditId=uid;
+  document.getElementById('ueName').value=u.name||'';
+  document.getElementById('ueEmail').value=u.email||'';
+  document.getElementById('ueDesig').innerHTML=DESIGNATIONS.map(d=>`<option ${u.role===d?'selected':''}>${d}</option>`).join('');
+  document.getElementById('ueColor').value=(u.color&&/^#[0-9a-fA-F]{6}$/.test(u.color))?u.color:'#3B6FE0';
+  document.getElementById('umEditWrap').classList.add('on'); setTimeout(()=>document.getElementById('ueName').focus(),50);
+}
+function closeMemberEdit(){ umEditId=null; document.getElementById('umEditWrap').classList.remove('on'); }
+async function saveMemberEdit(){ if(!umEditId){ closeMemberEdit(); return; } const u=store.user(umEditId); if(!u){ closeMemberEdit(); return; }
+  const name=(document.getElementById('ueName').value||'').trim()||u.name;
+  const email=(document.getElementById('ueEmail').value||'').trim();
+  const role=document.getElementById('ueDesig').value;
+  const color=document.getElementById('ueColor').value;
+  const emailChanged=email!==(u.email||'');
+  store.updateUser(umEditId,{name,email,role,color});
+  if(sb && emailChanged && u.authId && typeof WS!=='undefined' && WS){ try{ await sb.from('members').update({email}).eq('workspace_id',WS).eq('user_id',u.authId); }catch(e){} }
+  closeMemberEdit(); renderSettings(); renderAll();
+  toast(sb ? 'Details updated & synced' : 'Details updated');
+}
+document.getElementById('ueCancel').onclick=closeMemberEdit;
+document.getElementById('ueSave').onclick=saveMemberEdit;
+document.getElementById('umEditWrap').addEventListener('click',e=>{ if(e.target.id==='umEditWrap') closeMemberEdit(); });
 document.getElementById('clearFilters').onclick=()=>{ ui.filters={search:'',assignee:'all',status:'all',priority:'all',type:'all',time:'all',epic:'all',period:'all',from:'',to:''};
   document.getElementById('search').value=''; fillFilters(); renderFilterChips(); refreshViews(); };
 const _ntb=document.getElementById('newTaskBtn'); if(_ntb) _ntb.onclick=openModal;
@@ -4598,6 +4647,11 @@ function wireAuth(){
 
 // ---- boot ----
 const CONFIGURED = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE'));
+const EMAIL_FIX={'Ritesh Singh':'ritesh.singh@eduhubspot.com','Prapti Wamre':'prapti.w@eduhubspot.com','Amit Debnath':'amit.debnath@eduhubspot.com','Tanay Singh':'tanay.singh@eduhubspot.com','Chirag Shah':'chirag.shah@eduhubspot.com','Sumeet Sharma':'sumeet.sharma@eduhubspot.com','Pavan Kumar':'pavan.k@eduhubspot.com','Saniya Salim Mujawar':'saniya.m@eduhubspot.com','Debabrata Dhar':'deba.dhar@eduhubspot.com'};
+function applyEmailFixes(){ if(!store.data||!store.data.users) return; let changed=false;
+  store.data.users.forEach(u=>{ const e=EMAIL_FIX[u.name]; if(e && u.email!==e){ u.email=e; changed=true; } });
+  if(changed && store._persist) store._persist();
+}
 async function boot(){
   wireChat();
   if(CONFIGURED && !window.supabase){
@@ -4609,9 +4663,9 @@ async function boot(){
     sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     wireAuth();
     const {data:{session}}=await sb.auth.getSession();
-    if(session){ ME=session.user; await loadWorkspace(); } else { location.href='index.html'; }
+    if(session){ ME=session.user; await loadWorkspace(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
-    store.load(); applyDefaults(); renderAll();
+    store.load(); applyDefaults(); applyEmailFixes(); renderAll();
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
