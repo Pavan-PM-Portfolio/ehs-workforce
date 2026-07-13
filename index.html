@@ -511,6 +511,7 @@ async function boot(){
     && !String(cfg.url).startsWith('PASTE') && !String(cfg.anon).startsWith('PASTE');
   if(!keysSet) return renderConfigNotice('keys');
   if(!window.supabase) return renderConfigNotice('lib');
+  if(EHS.onSignedOut) EHS.onSignedOut(function(){ renderLogin(); });
   window.addEventListener('hashchange',route);
   root().innerHTML=`<div class="spin"></div>`;
   try{
