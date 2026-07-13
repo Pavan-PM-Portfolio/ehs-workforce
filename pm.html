@@ -2984,7 +2984,7 @@ function openLogModal(taskId, presetCat){
     ? `The original estimate for this work item was <b>${jiraDur(est)}</b>.`
     : `No original estimate set — you can enter time remaining below to set one.`;
   document.getElementById('logCat').innerHTML=CATS.map(c=>`<option value="${c.id}" ${c.id===presetCat?'selected':''}>${c.id}</option>`).join('');
-  document.getElementById('logWho').innerHTML=store.users().map(u=>`<option value="${u.id}" ${u.id===t.assignee?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
+  document.getElementById('logWho').innerHTML=store.users().map(u=>`<option value="${u.id}" ${u.id===(CURRENT_UID||t.assignee)?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
   document.getElementById('logSpent').value='';
   document.getElementById('logRem').value= est? jiraDur(remaining) : '';
   document.getElementById('logDate').value=today();
