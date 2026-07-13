@@ -251,6 +251,55 @@ tr:last-child td{border-bottom:0}
 .mhead .x:hover{background:var(--surface-3)}
 .mbody{padding:22px}
 .mfoot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
+/* ---- People & Access — master-detail ---- */
+.pa-page{max-width:1180px;margin:0 auto}
+.pa-split{display:grid;grid-template-columns:400px 1fr;gap:16px;margin-top:8px;align-items:start}
+.pa-list-pane,.pa-detail-pane{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pa-list-h{padding:14px 16px 12px;border-bottom:1px solid var(--line-2)}
+.pa-count{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px}
+.pa-search{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.pa-search input{border:0;background:none;outline:none;font-family:inherit;font-size:13px;width:100%;color:var(--ink)}
+.pa-search svg{width:15px;height:15px;color:var(--faint);flex:none}
+.pa-list{max-height:640px;overflow-y:auto}
+.pa-row{display:block;width:100%;text-align:left;padding:14px 16px;border:0;border-bottom:1px solid var(--line-2);background:none;cursor:pointer;position:relative}
+.pa-row:hover{background:var(--surface-2)}
+.pa-row.on{background:#F3F7FF}
+.pa-row.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.pa-nm{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.pa-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.pa-sub .dim{color:var(--faint)}
+.pa-sub.master{color:#BA7517;font-weight:600}
+.pa-em{font-size:12px;color:var(--faint);margin-top:3px}
+.pa-detail{padding:24px 28px}
+.pa-empty,.pa-empty2{padding:40px 20px;text-align:center;color:var(--faint);font-size:13px}
+.pa-dh-nm{font-size:20px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.pa-role{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;background:var(--surface-3);color:var(--muted)}
+.pa-role.master{background:rgba(186,117,23,.13);color:#BA7517}
+.pa-dh-em{font-size:12.5px;color:var(--muted);margin-top:5px}
+.pa-drule{height:1px;background:var(--line-2);margin:22px -28px}
+.pa-dlbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.pa-rolerow{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.pa-rolecopy{font-size:12.5px;color:var(--muted);line-height:1.45;max-width:420px}
+.pa-rolecopy b{color:var(--ink-2)}
+.pa-accrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-2)}
+.pa-accrow:last-child{border-bottom:0}
+.pa-accnm{font-size:13px;font-weight:600}
+.pa-accnm .s{display:block;font-size:11px;color:var(--faint);font-weight:400;margin-top:2px}
+.pa-seg{display:inline-flex;gap:2px;background:var(--surface-3);border-radius:10px;padding:3px;flex:none}
+.pa-seg button{border:0;background:none;padding:6px 15px;font-size:12px;font-weight:600;border-radius:7px;color:var(--muted);cursor:pointer}
+.pa-seg button:hover:not(.on){background:rgba(0,0,0,.05)}
+.pa-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.pa-seg.role button{padding:7px 16px}
+.pa-allnote{font-size:13px;color:var(--muted)}
+.pa-pwline{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.pa-fld{flex:1;min-width:220px}
+.pa-fld label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-bottom:6px}
+.pa-fld input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px}
+.pa-fld input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,111,224,.13)}
+.pa-chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.pa-delete{border:1px solid #E4B8B4;color:#CE2F26;background:#fff;padding:9px 14px;border-radius:9px;font-weight:700;font-size:12.5px;cursor:pointer}
+.pa-delete:hover{background:#FDF3F2}
+@media(max-width:820px){.pa-split{grid-template-columns:1fr}}
 .dsec-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);
   margin:6px 0 12px}
 /* ---- account drawer (identical to PM tool) ---- */
@@ -738,23 +787,86 @@ function toolSection(t,i){
    PEOPLE & ACCESS  (Master Admin)
    ===================================================================== */
 let _users=[];
+let _selPerson=null;
 async function renderPeople(){
   if(!EHS.isMaster()){ go('#/'); return renderHome(); }
   root().innerHTML=`<div class="shell">${topbar()}<div class="page"><div class="spin"></div></div></div>`;
   try{ _users = await EHS.listUsers(); }catch(e){ _users=[]; toast('Couldn\u2019t load users: '+e.message); }
-  const masters=_users.filter(u=>u.is_master_admin);
-  const members=_users.filter(u=>!u.is_master_admin);
-  const section=(title,list)=>`
-    <div class="p-sec"><div class="p-sec-t">${title} \u00b7 ${list.length}</div>
-      <div class="p-card">${list.length?list.map(userRow).join(''):`<div class="p-empty">No one here yet.</div>`}</div></div>`;
-  root().innerHTML=`<div class="shell">${topbar()}<div class="page">
-    <div class="people-head"><div><h1>People & Access</h1>
-      <p>Add people, choose their tools, and set Admin or User per tool.</p></div>
-      <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic("plus")} Add user</button></div>
-    ${section('Master Admins',masters)}
-    ${section('Members',members)}
+  if(!_selPerson || !_users.find(u=>u.id===_selPerson)) _selPerson=(_users[0]||{}).id||null;
+  const searchSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
+  root().innerHTML=`<div class="shell">${topbar()}<div class="page pa-page">
+    <div class="people-head"><div><h1>People &amp; Access</h1>
+      <p>Pick a person to manage their role, tool access, and password.</p></div>
+      <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic('plus')} Add user</button></div>
+    <div class="pa-split">
+      <div class="pa-list-pane">
+        <div class="pa-list-h"><div class="pa-count">${_users.length} ${_users.length===1?'person':'people'}</div>
+          <div class="pa-search">${searchSvg}<input id="pa_q" placeholder="Search people" oninput="paFilter(this.value)"></div></div>
+        <div class="pa-list" id="pa_list">${_users.map(paRow).join('')}</div>
+      </div>
+      <div class="pa-detail-pane"><div class="pa-detail" id="pa_detail">${paDetail(_selPerson)}</div></div>
+    </div>
   </div></div>`;
 }
+function paSub(u){
+  if(u.is_master_admin) return '<div class="pa-sub master">Master Admin \u00b7 all tools</div>';
+  const acc=(u.tool_access||[]);
+  if(!acc.length) return '<div class="pa-sub">Operator \u00b7 <span class="dim">no tool access</span></div>';
+  const parts=acc.map(a=>{const t=tool(a.tool_id); return t?`${esc(t.name.replace(' Hub',''))} <span class="dim">${a.role==='admin'?'Admin':'User'}</span>`:'';}).filter(Boolean).join(',  ');
+  return `<div class="pa-sub">Operator \u00b7 ${parts}</div>`;
+}
+function paRow(u){ return `<button class="pa-row ${u.id===_selPerson?'on':''}" onclick="paPick('${u.id}')">
+  <div class="pa-nm">${esc(u.full_name||'\u2014')}</div>${paSub(u)}<div class="pa-em">${esc(u.email)}</div></button>`; }
+function paDetail(id){
+  const u=_users.find(x=>x.id===id); if(!u) return '<div class="pa-empty">Select a person to manage.</div>';
+  const master=!!u.is_master_admin; const acc=(u.tool_access||[]); const meId=EHS.me()&&EHS.me().id;
+  const modules = master
+    ? `<div class="pa-allnote">Master Admins have full access to every tool.</div>`
+    : TOOLS.map(t=>{ const cur=(acc.find(x=>x.tool_id===t.id)||{}).role||'none';
+        return `<div class="pa-accrow"><div class="pa-accnm">${esc(t.name)}<span class="s">${esc(t.tagline||'')}</span></div>
+          <div class="pa-seg" data-tool="${t.id}">
+            <button class="${cur==='none'?'on':''}" onclick="paSetAccess('${u.id}','${t.id}','none')">None</button>
+            <button class="${cur==='user'?'on':''}" onclick="paSetAccess('${u.id}','${t.id}','user')">User</button>
+            <button class="${cur==='admin'?'on':''}" onclick="paSetAccess('${u.id}','${t.id}','admin')">Admin</button>
+          </div></div>`;
+      }).join('');
+  return `<div class="pa-dh"><div class="pa-dh-id">
+      <div class="pa-dh-nm">${esc(u.full_name||'\u2014')} <span class="pa-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div>
+      <div class="pa-dh-em">${esc(u.email)}</div></div></div>
+    <div class="pa-drule"></div>
+    <div class="pa-dsec"><div class="pa-dlbl">Role</div>
+      <div class="pa-rolerow"><div class="pa-rolecopy">Master Admins get <b>full access to every tool</b>, plus People &amp; Access. Operators only see the tools you grant below.</div>
+        <div class="pa-seg role"><button class="${master?'':'on'}" onclick="paSetMaster('${u.id}',false)">Operator</button><button class="${master?'on':''}" onclick="paSetMaster('${u.id}',true)">Master Admin</button></div>
+      </div></div>
+    <div class="pa-drule"></div>
+    <div class="pa-dsec"><div class="pa-dlbl">Tool access</div>${modules}</div>
+    <div class="pa-drule"></div>
+    <div class="pa-dsec"><div class="pa-dlbl">Reset password</div>
+      <div class="pa-pwline"><div class="pa-fld"><label>New temporary password</label><input id="pa_pw" placeholder="Leave blank to auto-generate"></div>
+        <button class="btn" onclick="paGenPw()">Generate</button><button class="btn accent" onclick="paDoReset('${u.id}')">Reset password</button></div>
+      <label class="pa-chk"><input type="checkbox" id="pa_req" checked> Require them to set their own password on next sign-in</label>
+    </div>
+    ${id!==meId?`<div class="pa-drule"></div><div class="pa-dsec"><button class="pa-delete" onclick="doDeleteUser('${u.id}')">Delete user</button></div>`:''}`;
+}
+function paRefresh(){ const l=document.getElementById('pa_list'); if(l) l.innerHTML=_users.map(paRow).join(''); const d=document.getElementById('pa_detail'); if(d) d.innerHTML=paDetail(_selPerson); }
+function paPick(id){ _selPerson=id; paRefresh(); }
+function paFilter(q){ q=(q||'').toLowerCase().trim(); const list=_users.filter(u=>!q||(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
+  document.getElementById('pa_list').innerHTML=list.length?list.map(paRow).join(''):'<div class="pa-empty2">No matches</div>'; }
+async function paSetMaster(id,val){ const u=_users.find(x=>x.id===id); if(!u||!!u.is_master_admin===val) return;
+  try{ await EHS.setMaster(id,val); u.is_master_admin=val; toast(val?'Now a Master Admin':'Master Admin removed'); paRefresh(); }
+  catch(e){ toast('Failed: '+e.message); } }
+async function paSetAccess(id,tid,role){ const u=_users.find(x=>x.id===id); if(!u) return;
+  u.tool_access=u.tool_access||[]; const had=(u.tool_access.find(x=>x.tool_id===tid)||{}).role||'none';
+  if(had===role) return;
+  try{ if(role==='none'){ await EHS.revokeAccess(id,tid); u.tool_access=u.tool_access.filter(x=>x.tool_id!==tid); }
+       else { await EHS.grantAccess(id,tid,role); const e=u.tool_access.find(x=>x.tool_id===tid); if(e) e.role=role; else u.tool_access.push({tool_id:tid,role}); }
+       paRefresh(); }
+  catch(e){ toast('Failed: '+e.message); } }
+function paGenPw(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; let p=''; for(let i=0;i<12;i++)p+=c[Math.floor(Math.random()*c.length)]; const el=document.getElementById('pa_pw'); if(el) el.value=p+'!7'; }
+async function paDoReset(id){ const el=document.getElementById('pa_pw'); const pw=(el&&el.value||'').trim(); const req=!!(document.getElementById('pa_req')&&document.getElementById('pa_req').checked);
+  if(pw&&pw.length<6){ toast('Password must be at least 6 characters'); return; }
+  try{ const out=await EHS.resetPassword(id,pw,req); const u=_users.find(x=>x.id===id); if(el) el.value=''; showCreds((u&&u.email)||'', (out&&out.password)||pw); toast('Password reset'); }
+  catch(e){ toast('Couldn\u2019t reset: '+e.message); } }
 function userRow(u){
   const acc=(u.tool_access||[]);
   const access=u.is_master_admin
