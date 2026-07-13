@@ -420,6 +420,7 @@ async function route(){
   if(!EHS.me()){ return renderLogin(); }
   const h=location.hash.replace(/^#\/?/,'');
   if(h==='people'){ return EHS.isMaster()? renderPeople() : (go('#/'), renderHome()); }
+  if(h==='settings'){ return renderSettings(); }
   renderHome();
 }
 // open a tool in its own new tab (session is shared across tabs, same origin)
@@ -476,7 +477,7 @@ async function doLogin(){
     await EHS.loadMe(true); go('#/'); route();
   }catch(e){ renderLogin(e.message); }
 }
-async function logout(){ await EHS.signOut(); renderLogin(); }
+async function logout(){ await EHS.signOut(); try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){} renderLogin(); }
 
 /* =====================================================================
    APP SHELL
@@ -497,13 +498,52 @@ function topbar(title, sub){
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
     <div class="tb-acct" onclick="acctMenu(event)">${avatarSq(dn,30)}
       <div><div class="who">${esc(dn)}</div>
-        <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
+        <div class="role">${EHS.isMaster()?'Master Admin':'Operator'}</div></div>${ic('chevron')}</div>
   </div>`;
 }
 function acctMenu(e){ e.stopPropagation(); openMenu(e.currentTarget,[
-  {label:'Account settings', icon:'settings', on:openSettings},
+  {label:'Settings', icon:'settings', on:()=>go('#/settings')},
   {label:'Sign out', icon:'logout', on:logout},
 ]); }
+function renderSettings(){
+  const u=EHS.me(); if(!u) return renderLogin(); const parts=(u.full_name||'').trim().split(/\s+/); const first=parts[0]||''; const last=parts.slice(1).join(' ')||'';
+  const card='style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:16px"';
+  root().innerHTML=`<div class="shell">${topbar()}<div class="page" style="max-width:720px;margin:0 auto">
+    <div class="people-head"><div><h1>Settings</h1><p>Your Workforce account — this applies everywhere you sign in.</p></div></div>
+    <div ${card}>
+      <div class="dsec-h">Your details</div>
+      <div class="frow2">
+        <div class="field"><label>First name <span style="color:var(--crit)">*</span></label><input id="st_first" type="text" value="${esc(first)}"></div>
+        <div class="field"><label>Last name <span style="color:var(--crit)">*</span></label><input id="st_last" type="text" value="${esc(last)}"></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" value="${esc(u.email)}" disabled style="opacity:.6"><div class="hint">Contact a Master Admin to change your email.</div></div>
+      <div class="field" style="margin-bottom:0"><label>Role</label><input type="text" value="${u.is_master_admin?'Master Admin':'Operator'}" disabled style="opacity:.6"></div>
+      <div style="margin-top:16px"><button class="btn accent" id="st_saveProfile" onclick="saveProfile()">Save profile</button></div>
+    </div>
+    <div ${card}>
+      <div class="dsec-h">Change password</div>
+      <div class="field"><label>New password</label><input id="st_pw" type="password" autocomplete="new-password" placeholder="Enter a new password"></div>
+      <div class="field" style="margin-bottom:0"><label>Confirm new password</label><input id="st_pw2" type="password" autocomplete="new-password" placeholder="Re-enter new password"><div class="hint">At least 6 characters.</div></div>
+      <div style="margin-top:16px"><button class="btn accent" id="st_savePw" onclick="savePassword()">Update password</button></div>
+    </div>
+  </div></div>`;
+}
+async function saveProfile(){
+  const first=($('st_first').value||'').trim(), last=($('st_last').value||'').trim();
+  if(!first){ toast('Enter a first name'); $('st_first').focus(); return; }
+  if(!last){ toast('Enter a last name'); $('st_last').focus(); return; }
+  const name=(first+' '+last).trim(); const btn=$('st_saveProfile'); btn.disabled=true; btn.textContent='Saving\u2026';
+  try{ const me=EHS.me(); if(name!==(me.full_name||'')) await EHS.updateMyName(name); await EHS.loadMe(true); toast('Profile saved'); renderSettings(); }
+  catch(e){ btn.disabled=false; btn.textContent='Save profile'; toast('Couldn\u2019t save: '+e.message); }
+}
+async function savePassword(){
+  const pw=($('st_pw').value||''), pw2=($('st_pw2').value||'');
+  if(pw.length<6){ toast('Password must be at least 6 characters'); $('st_pw').focus(); return; }
+  if(pw!==pw2){ toast('Passwords don\u2019t match'); $('st_pw2').focus(); return; }
+  const btn=$('st_savePw'); btn.disabled=true; btn.textContent='Updating\u2026';
+  try{ await EHS.changePassword(pw); $('st_pw').value=''; $('st_pw2').value=''; btn.disabled=false; btn.textContent='Update password'; toast('Password updated'); }
+  catch(e){ btn.disabled=false; btn.textContent='Update password'; toast('Couldn\u2019t update: '+e.message); }
+}
 function openSettings(){
   const u=EHS.me(); const parts=(u.full_name||'').trim().split(/\s+/);
   const first=parts[0]||''; const last=parts.slice(1).join(' ')||'';
@@ -790,6 +830,7 @@ function openMenu(anchor,items){
   m.querySelectorAll('button').forEach((b,i)=>b.onclick=(e)=>{ e.stopPropagation(); m.classList.remove('on'); items[i].on&&items[i].on(); });
 }
 document.addEventListener('click',()=>$('menu').classList.remove('on'));
+window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ location.reload(); } });
 $('scrim').addEventListener('click',e=>{ if(e.target===$('scrim')) closeModal(); });
 
 boot();
