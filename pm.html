@@ -1629,8 +1629,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
-const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
+const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
+const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3524,6 +3524,7 @@ function renderSettings(){
       <div class="set-danger">
         <div class="sd-row"><div><div class="sd-t">Clear all tickets</div><div class="sd-d">Removes every ticket and worklog. Keeps projects, statuses, boards and teams.</div></div><button class="btn danger" id="setClear">Clear tickets</button></div>
         <div class="sd-row"><div><div class="sd-t">Reset to sample data</div><div class="sd-d">Restores the original demo dataset. Everything you changed is lost.</div></div><button class="btn danger" id="setReset">Reset</button></div>
+        ${(typeof sb!=='undefined' && sb && (typeof IS_ADMIN==='undefined'||IS_ADMIN))?`<div class="sd-row"><div><div class="sd-t">Wipe workspace (server)</div><div class="sd-d">Permanently deletes every ticket, worklog, project, team and user from the database, then rebuilds an empty workspace with just you. Cannot be undone.</div></div><button class="btn danger" id="setWipe">Wipe all</button></div>`:''}
       </div>
     </div>`;
   document.getElementById('setWsName').onchange=e=>{ store.updateSettings({workspaceName:e.target.value.trim()||'Workspace'}); applyBrand(); };
@@ -3538,6 +3539,7 @@ function renderSettings(){
       catch(err){ toast('That file is not a valid export'); } }; r.readAsText(f); ev.target.value=''; };
   document.getElementById('setClear').onclick=e=>armDanger(e.currentTarget,()=>{ store.clearTickets(); toast('All tickets cleared'); renderAll(); renderSettings(); });
   document.getElementById('setReset').onclick=e=>armDanger(e.currentTarget,()=>{ store.reset(); ui.project='all'; ui.board='main'; toast('Reset to sample data'); renderAll(); renderSettings(); applyBrand(); });
+  { const wb=document.getElementById('setWipe'); if(wb) wb.onclick=e=>armDanger(e.currentTarget, wipeWorkspace); }
 }
 
 /* ---------- Velocity & Burndown ---------- */
@@ -4518,10 +4520,19 @@ async function fetchAll(){
   const {data:s}=await sb.from('settings').select('doc').eq('workspace_id',WS).maybeSingle();
   store.data.settings = (s&&s.doc) || JSON.parse(JSON.stringify(SEED.settings));
 }
+async function wipeWorkspace(){
+  if(!(typeof sb!=='undefined' && sb && typeof WS!=='undefined' && WS)){ toast('Not connected to the server.'); return; }
+  const tables=['tasks','worklogs','people','projects','teams','statuses','boards','settings'];
+  let err=null;
+  for(const t of tables){ try{ const r=await sb.from(t).delete().eq('workspace_id',WS); if(r&&r.error){ err=t+' — '+r.error.message; break; } }catch(e){ err=t+' — '+((e&&e.message)||'failed'); break; } }
+  if(err){ toast('Wipe blocked by the database: '+err+'. Run the SQL in Supabase → SQL Editor instead.', 10000); return; }
+  try{ await pushSeed(); }catch(e){ toast('Cleared, but rebuild failed: '+((e&&e.message)||e)+'. Open Supabase and run seed if needed.', 9000); }
+  try{ localStorage.removeItem(store._k); }catch(e){}
+  toast('Workspace wiped. Reloading…'); setTimeout(()=>location.reload(), 1000);
+}
 async function pushSeed(){
   const S=JSON.parse(JSON.stringify(SEED));
   // Fresh workspace: seed only the workflow scaffolding + the first user (master admin).
-  // No dummy projects, teams, tickets, worklogs, or users.
   const nm=((ME&&ME.user_metadata&&ME.user_metadata.full_name)|| (ME&&ME.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) ||'Admin').trim();
   const meDoc={ id:'u_'+ME.id.slice(0,8), name:nm, email:(ME&&ME.email)||'', role:'PM', profile:'pf_admin', authId:ME.id, master:true, color:'#3B6FE0' };
   const steps=[
