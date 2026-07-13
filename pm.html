@@ -46,32 +46,47 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .tn-acct-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
 .tn-acct-name{font-weight:600;font-size:12.5px;color:var(--ink)}
 .tn-acct-role{font-size:11px;color:var(--muted)}
-/* ---- account dialog (identical to index) ---- */
-.ad-scrim{position:fixed;inset:0;background:rgba(16,26,51,.34);display:none;z-index:400;align-items:flex-start;justify-content:center}
-.ad-scrim.on{display:flex}
-.ad-modal{background:var(--surface);border:1px solid var(--line);border-radius:18px !important;overflow:hidden;width:380px;max-width:92vw;margin-top:66px;box-shadow:0 30px 80px -30px rgba(16,26,51,.5);align-self:flex-start}
-.ad{position:relative}
-.ad-x{position:absolute;top:12px;right:12px;color:var(--faint);cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:8px !important;font-size:14px}
-.ad-x:hover{background:var(--surface-3)}
-.ad-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 22px 20px;border-bottom:1px solid var(--line)}
-.ad-av{width:58px;height:58px;border-radius:16px !important;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:23px;font-weight:800;margin-bottom:13px}
-.ad-nm{font-size:17px;font-weight:800;letter-spacing:-.01em}
-.ad-em{font-size:12.5px;color:var(--muted);margin-top:3px}
-.ad-role{margin-top:11px;font-size:11px;font-weight:700;padding:4px 11px;border-radius:8px !important;background:var(--surface-3);color:var(--muted)}
-.ad-role.master{background:rgba(185,106,0,.13);color:#B96A00}
-.ad-sec{padding:18px 22px;border-bottom:1px solid var(--line)}
-.ad-lbl{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:13px}
-.ad-mods{display:flex;flex-direction:column;gap:11px}
-.ad-mod{display:flex;align-items:center;justify-content:space-between;font-size:13px}
-.ad-mn{font-weight:600}
-.ad-lvl{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px !important;background:var(--surface-3);color:var(--ink)}
-.ad-lvl.no{background:none;color:var(--faint)}
-.ad-all{font-size:13px;font-weight:600;color:var(--ink)}
-.ad-actions{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
-.ad-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-radius:9px !important;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
-.ad-btn:hover{background:var(--surface-2)}
-.ad-btn svg{width:16px;height:16px;color:var(--muted);flex:none}
-.ad-btn.danger{color:var(--crit)}.ad-btn.danger svg{color:var(--crit)}
+/* ---- account drawer (identical to index) ---- */
+.acd-scrim{position:fixed;inset:0;background:rgba(16,26,51,.34);display:none;justify-content:flex-end;z-index:400}
+.acd-scrim.on{display:flex}
+.acd{width:410px;max-width:94vw;height:100vh;background:var(--surface);border-left:1px solid var(--line);box-shadow:-26px 0 64px -30px rgba(0,0,0,.34);display:flex;flex-direction:column;animation:acdIn .22s ease}
+@keyframes acdIn{from{transform:translateX(28px);opacity:.4}to{transform:none;opacity:1}}
+.acd-top{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.acd-top .t{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.acd-x{width:30px;height:30px;display:grid;place-items:center;color:var(--faint);cursor:pointer;border:0;background:none;border-radius:8px !important;font-size:14px}
+.acd-x:hover{background:var(--surface-3)}
+.acd-head{display:flex;gap:14px;align-items:center;padding:22px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.acd-av{width:54px;height:54px;border-radius:15px !important;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:21px;font-weight:800;flex:none}
+.acd-id{min-width:0}
+.acd-id .nm{font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acd-id .em{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acd-role{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 9px;border-radius:7px !important;background:var(--surface-3);color:var(--muted)}
+.acd-role.master{background:rgba(185,106,0,.14);color:#B96A00}
+.acd-body{flex:1;overflow-y:auto}
+.acd-sec{padding:18px 20px;border-bottom:1px solid var(--line-2)}
+.acd-lbl{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.acd-mods{display:flex;flex-direction:column;gap:13px}
+.acd-mod{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acd-mn{font-size:13px;font-weight:600}
+.acd-mn .s{display:block;font-size:11px;color:var(--faint);font-weight:400;margin-top:2px}
+.acd-lvl{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:6px !important;background:var(--surface-3);color:var(--ink);flex:none}
+.acd-lvl.no{background:none;color:var(--faint)}
+.acd-all{font-size:13px;font-weight:600;color:var(--ink)}
+.acd-card{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2)}
+.acd-card .ic{width:36px;height:36px;border-radius:9px !important;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);flex:none}
+.acd-card .ic svg{width:18px;height:18px}
+.acd-card .t{flex:1;min-width:0}
+.acd-card .t .a{font-weight:700;font-size:13.5px}
+.acd-card .t .b{font-size:11.5px;color:var(--muted);margin-top:1px}
+.acd-links{display:flex;flex-direction:column;gap:2px}
+.acd-link{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px !important;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;border:0;background:none;font-family:inherit;text-align:left;text-decoration:none;width:100%}
+.acd-link:hover{background:var(--surface-2)}
+.acd-link svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.9;flex:none}
+.acd-link .chev{margin-left:auto;color:var(--faint)}
+.acd-foot{padding:14px 18px;border-top:1px solid var(--line-2);flex:none}
+.acd-signout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border:1px solid var(--line);border-radius:11px !important;background:#fff;font-family:inherit;font-size:13px;font-weight:700;color:var(--crit);cursor:pointer}
+.acd-signout:hover{background:#FDF3F2;border-color:#E4B8B4}
+.acd-signout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .tn-links{display:flex;gap:30px;align-items:center;height:100%;flex:1;justify-content:center}
 .tn-item{display:inline-flex;align-items:center;gap:7px;border:0;background:none;font-family:inherit;font-size:15px;
   font-weight:500;color:var(--muted);cursor:pointer;height:100%;padding:0;line-height:1}
@@ -1527,7 +1542,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 <!-- Slide-over -->
 <div class="overlay" id="overlay"></div>
 <div class="panel" id="panel"></div>
-<div id="acctScrim" class="ad-scrim"><div id="acctModal" class="ad-modal"></div></div>
+<div id="acctScrim" class="acd-scrim"></div>
 <button class="chat-fab" id="chatFab" title="Tech-Talk" aria-label="Open Tech-Talk"><svg class="chat-fab-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg><span class="chat-fab-label">Tech-Talk</span><span class="chat-fab-badge" id="chatFabBadge" style="display:none"></span></button>
 <div class="chat-win" id="chatWin"></div>
 
@@ -4325,10 +4340,14 @@ document.querySelectorAll('#groupMenu button').forEach(b=>b.onclick=()=>{ const 
   document.getElementById('groupMenu').classList.remove('on'); renderBoard(); });
 document.addEventListener('click',()=>document.getElementById('groupMenu').classList.remove('on'));
 document.getElementById('navAddBoard').onclick=e=>{ e.stopPropagation(); document.getElementById('navBoardsToggle').classList.add('open'); addBoardFromSide(); };
-const ACCT_TOOLS=[{id:'pm',name:'Project Hub'},{id:'delivery',name:'Delivery Hub'},{id:'products',name:'Product Hub'},{id:'ops',name:'Operations Hub'}];
+const ACCT_TOOLS=[{id:'pm',name:'Project Hub',sub:'Cadence Tracker'},{id:'delivery',name:'Delivery Hub',sub:'Concern intake & delivery'},{id:'products',name:'Product Hub',sub:'Catalog & licensing'},{id:'ops',name:'Operations Hub',sub:'Day-to-day ops'}];
 const AD_IC={
-  set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+  set:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+  chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
   out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>'};
 async function acctSignOut(){ try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
   if(typeof sb!=='undefined' && sb && sb.auth){ try{ await sb.auth.signOut(); }catch(e){} location.href='index.html'; return; }
@@ -4341,28 +4360,38 @@ async function openAccountPM(){
   let master=isMasterUser(mu)||(email&&MASTER_EMAILS.indexOf(email.toLowerCase())!==-1);
   const accessMap={};
   if(typeof sb!=='undefined' && sb && typeof ME!=='undefined' && ME){
-    try{
-      const [pr,ac]=await Promise.all([
+    try{ const [pr,ac]=await Promise.all([
         sb.from('profiles').select('is_master_admin').eq('id',ME.id).maybeSingle(),
-        sb.from('tool_access').select('tool_id, role').eq('user_id',ME.id)
-      ]);
+        sb.from('tool_access').select('tool_id, role').eq('user_id',ME.id)]);
       if(pr&&pr.data&&pr.data.is_master_admin) master=true;
       ((ac&&ac.data)||[]).forEach(a=>accessMap[a.tool_id]=a.role);
     }catch(e){}
   } else { accessMap['pm']=(mu.profile==='pf_admin'||(typeof IS_ADMIN!=='undefined'&&IS_ADMIN))?'admin':'user'; }
   const initial=((name||'?').trim()[0]||'?').toUpperCase();
-  const access=master?`<div class="ad-all">Full access to every module</div>`
-    :ACCT_TOOLS.map(t=>{const r=accessMap[t.id];return `<div class="ad-mod"><span class="ad-mn">${esc(t.name)}</span><span class="ad-lvl ${r?'':'no'}">${r?(r==='admin'?'Admin':'User'):'No access'}</span></div>`;}).join('');
-  document.getElementById('acctModal').innerHTML=`<div class="ad">
-    <div class="ad-x" onclick="closeAccountPM()">✕</div>
-    <div class="ad-head"><div class="ad-av">${esc(initial)}</div><div class="ad-nm">${esc(name)}</div><div class="ad-em">${esc(email||'—')}</div><span class="ad-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div>
-    <div class="ad-sec"><div class="ad-lbl">Your access</div><div class="ad-mods">${access}</div></div>
-    <div class="ad-actions">
-      <button class="ad-btn" onclick="location.href='index.html#/settings'">${AD_IC.set} Account settings</button>
-      ${master?`<button class="ad-btn" onclick="location.href='index.html#/people'">${AD_IC.users} Admin panel</button>`:''}
-      <button class="ad-btn danger" onclick="acctSignOut()">${AD_IC.out} Sign out</button>
-    </div></div>`;
+  const grantedCount=Object.keys(accessMap).length;
+  const access=master?`<div class="acd-all">Full access to every module</div>`
+    :ACCT_TOOLS.map(t=>{const r=accessMap[t.id];return `<div class="acd-mod"><div class="acd-mn">${esc(t.name)}<span class="s">${esc(t.sub)}</span></div><span class="acd-lvl ${r?'':'no'}">${r?(r==='admin'?'Admin':'User'):'No access'}</span></div>`;}).join('');
+  document.getElementById('acctScrim').innerHTML=`<div class="acd">
+    <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccountPM()">✕</button></div>
+    <div class="acd-head">${avatar({name:name}, 52)}
+      <div class="acd-id"><div class="nm">${esc(name)}</div><div class="em">${esc(email||'—')}</div>
+        <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div></div>
+    <div class="acd-body">
+      <div class="acd-sec"><div class="acd-lbl">Your access</div><div class="acd-mods">${access}</div></div>
+      <div class="acd-sec"><div class="acd-lbl">Workspace</div>
+        <div class="acd-card"><div class="ic">${AD_IC.grid}</div><div class="t"><div class="a">EduHubSpot Workspace</div><div class="b">${master?'Full access to all modules':(grantedCount+' module'+(grantedCount===1?'':'s')+' · Project Hub')}</div></div></div></div>
+      <div class="acd-sec"><div class="acd-lbl">Quick links</div>
+        <div class="acd-links">
+          <button class="acd-link" onclick="location.href='index.html#/settings'">${AD_IC.set} Account settings ${AD_IC.chev}</button>
+          ${master?`<button class="acd-link" onclick="location.href='index.html#/people'">${AD_IC.users} Admin panel ${AD_IC.chev}</button>`:''}
+          <a class="acd-link" href="index.html">${AD_IC.home} Open workspace ${AD_IC.chev}</a>
+          <button class="acd-link" onclick="closeAccountPM();toast('Docs coming soon')">${AD_IC.help} Help &amp; docs ${AD_IC.chev}</button>
+        </div></div>
+    </div>
+    <div class="acd-foot"><button class="acd-signout" onclick="acctSignOut()">${AD_IC.out} Sign out</button></div>
+  </div>`;
   document.getElementById('acctScrim').classList.add('on');
+  const sc=document.getElementById('acctScrim'); sc.onclick=e=>{ if(e.target===sc) closeAccountPM(); };
 }
 document.getElementById('pkAvatar').onclick=e=>{ e.stopPropagation(); openAccountPM(); };
 document.getElementById('acctScrim').addEventListener('click',e=>{ if(e.target.id==='acctScrim') closeAccountPM(); });
