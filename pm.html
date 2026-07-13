@@ -4350,7 +4350,7 @@ const AD_IC={
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
   out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>'};
 async function acctSignOut(){ try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
-  if(typeof sb!=='undefined' && sb && sb.auth){ try{ await sb.auth.signOut(); }catch(e){} location.href='index.html'; return; }
+  if(typeof sb!=='undefined' && sb && sb.auth){ try{ await sb.auth.signOut({scope:'global'}); }catch(e){ try{ await sb.auth.signOut(); }catch(_){} } location.href='index.html'; return; }
   toast('This is the login-free preview — sign-out applies on the live app.'); }
 function closeAccountPM(){ const s=document.getElementById('acctScrim'); if(s) s.classList.remove('on'); }
 async function openAccountPM(){
@@ -4407,7 +4407,7 @@ document.addEventListener('click',()=>document.getElementById('acctMenu').classL
 document.getElementById('signOutBtn').onclick=async()=>{
   const am=document.getElementById('acctMenu'); if(am) am.classList.remove('on');
   try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
-  if(sb && sb.auth){ try{ await sb.auth.signOut(); }catch(e){} location.href='index.html'; return; }
+  if(sb && sb.auth){ try{ await sb.auth.signOut({scope:'global'}); }catch(e){ try{ await sb.auth.signOut(); }catch(_){} } location.href='index.html'; return; }
   toast('This is the login-free preview — sign-out applies on the live app.');
 };
 window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ location.href='index.html'; } });
@@ -4752,6 +4752,7 @@ async function boot(){
   }
   if(REMOTE){
     sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    try{ sb.auth.onAuthStateChange(function(event){ if(event==='SIGNED_OUT'){ location.href='index.html'; } }); }catch(e){}
     wireAuth();
     const {data:{session}}=await sb.auth.getSession();
     if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
