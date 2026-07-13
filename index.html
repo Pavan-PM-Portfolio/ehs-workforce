@@ -253,30 +253,47 @@ tr:last-child td{border-bottom:0}
 .mfoot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
 .dsec-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);
   margin:6px 0 12px}
-/* ---- account dialog (shared look with PM tool) ---- */
-.ad{position:relative}
-.ad-x{position:absolute;top:12px;right:12px;color:var(--faint);cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:8px}
-.ad-x:hover{background:var(--surface-3)}
-.ad-x svg{width:16px;height:16px}
-.ad-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 22px 20px;border-bottom:1px solid var(--line-2)}
-.ad-av{width:58px;height:58px;border-radius:16px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:23px;font-weight:800;margin-bottom:13px}
-.ad-nm{font-size:17px;font-weight:800;letter-spacing:-.01em}
-.ad-em{font-size:12.5px;color:var(--muted);margin-top:3px}
-.ad-role{margin-top:11px;font-size:11px;font-weight:700;padding:4px 11px;border-radius:8px;background:var(--surface-3);color:var(--muted)}
-.ad-role.master{background:rgba(186,117,23,.12);color:#BA7517}
-.ad-sec{padding:18px 22px;border-bottom:1px solid var(--line-2)}
-.ad-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:13px}
-.ad-mods{display:flex;flex-direction:column;gap:11px}
-.ad-mod{display:flex;align-items:center;justify-content:space-between;font-size:13px}
-.ad-mn{font-weight:600}
-.ad-lvl{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--surface-3);color:var(--ink-2)}
-.ad-lvl.no{background:none;color:var(--faint)}
-.ad-all{font-size:13px;font-weight:600;color:var(--ink-2)}
-.ad-actions{padding:12px 14px;display:flex;flex-direction:column;gap:2px}
-.ad-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
-.ad-btn:hover{background:var(--surface-2)}
-.ad-btn svg{width:16px;height:16px;color:var(--muted);flex:none}
-.ad-btn.danger{color:#CE2F26}.ad-btn.danger svg{color:#CE2F26}
+/* ---- account drawer (identical to PM tool) ---- */
+.acd-scrim{position:fixed;inset:0;background:rgba(16,26,51,.34);display:none;justify-content:flex-end;z-index:80}
+.acd-scrim.on{display:flex}
+.acd{width:410px;max-width:94vw;height:100vh;background:var(--surface);border-left:1px solid var(--line);box-shadow:-26px 0 64px -30px rgba(0,0,0,.34);display:flex;flex-direction:column;animation:acdIn .22s ease}
+@keyframes acdIn{from{transform:translateX(28px);opacity:.4}to{transform:none;opacity:1}}
+.acd-top{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.acd-top .t{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.acd-x{width:30px;height:30px;display:grid;place-items:center;color:var(--faint);cursor:pointer;border:0;background:none;border-radius:8px;font-size:14px}
+.acd-x:hover{background:var(--surface-3)}
+.acd-head{display:flex;gap:14px;align-items:center;padding:22px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.acd-av{width:54px;height:54px;border-radius:15px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:21px;font-weight:800;flex:none}
+.acd-id{min-width:0}
+.acd-id .nm{font-size:17px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acd-id .em{font-size:12.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acd-role{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 9px;border-radius:7px;background:var(--surface-3);color:var(--muted)}
+.acd-role.master{background:rgba(186,117,23,.13);color:#BA7517}
+.acd-body{flex:1;overflow-y:auto}
+.acd-sec{padding:18px 20px;border-bottom:1px solid var(--line-2)}
+.acd-lbl{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.acd-mods{display:flex;flex-direction:column;gap:13px}
+.acd-mod{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.acd-mn{font-size:13px;font-weight:600}
+.acd-mn .s{display:block;font-size:11px;color:var(--faint);font-weight:400;margin-top:2px}
+.acd-lvl{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:6px;background:var(--surface-3);color:var(--ink);flex:none}
+.acd-lvl.no{background:none;color:var(--faint)}
+.acd-all{font-size:13px;font-weight:600;color:var(--ink)}
+.acd-card{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.acd-card .ic{width:36px;height:36px;border-radius:9px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);flex:none}
+.acd-card .ic svg{width:18px;height:18px}
+.acd-card .t{flex:1;min-width:0}
+.acd-card .t .a{font-weight:700;font-size:13.5px}
+.acd-card .t .b{font-size:11.5px;color:var(--muted);margin-top:1px}
+.acd-links{display:flex;flex-direction:column;gap:2px}
+.acd-link{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;border:0;background:none;font-family:inherit;text-align:left;text-decoration:none;width:100%}
+.acd-link:hover{background:var(--surface-2)}
+.acd-link svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.9;flex:none}
+.acd-link .chev{margin-left:auto;color:var(--faint)}
+.acd-foot{padding:14px 18px;border-top:1px solid var(--line-2);flex:none}
+.acd-signout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;font-family:inherit;font-size:13px;font-weight:700;color:#CE2F26;cursor:pointer}
+.acd-signout:hover{background:#FDF3F2;border-color:#E4B8B4}
+.acd-signout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 
 /* rounded modal + Add/Manage user controls (no sharp edges) */
 .modal{border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(16,26,51,.5)}
@@ -363,6 +380,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <div id="root"></div>
 <div id="scrim" class="scrim"><div id="modal" class="modal"></div></div>
+<div id="acctDrawer" class="acd-scrim"></div>
 <div id="menu" class="menu"></div>
 <div id="toast" class="toast"></div>
 
@@ -547,28 +565,38 @@ function topbar(title, sub){
   </div>`;
 }
 function acctMenu(e){ openAccount(e); }
+function closeAccount(){ const d=$('acctDrawer'); if(d) d.classList.remove('on'); }
 function openAccount(e){ if(e) e.stopPropagation(); const u=EHS.me(); if(!u) return;
   const initial=((u.full_name||u.email||'?').trim()[0]||'?').toUpperCase();
-  const access = u.is_master_admin
-    ? `<div class="ad-all">Full access to every module</div>`
+  const master=!!u.is_master_admin; const granted=(u.access||[]).length;
+  const gridSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>';
+  const homeSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>';
+  const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
+  const access = master ? `<div class="acd-all">Full access to every module</div>`
     : TOOLS.map(t=>{ const a=(u.access||[]).find(x=>x.tool_id===t.id);
-        return `<div class="ad-mod"><span class="ad-mn">${esc(t.name)}</span><span class="ad-lvl ${a?'':'no'}">${a?(a.role==='admin'?'Admin':'User'):'No access'}</span></div>`;
+        return `<div class="acd-mod"><div class="acd-mn">${esc(t.name)}<span class="s">${esc(t.tagline||'')}</span></div><span class="acd-lvl ${a?'':'no'}">${a?(a.role==='admin'?'Admin':'User'):'No access'}</span></div>`;
       }).join('');
-  $('modal').style.maxWidth='380px';
-  $('modal').innerHTML=`<div class="ad">
-    <div class="ad-x" onclick="closeModal()">${ic('x')}</div>
-    <div class="ad-head"><div class="ad-av">${initial}</div>
-      <div class="ad-nm">${esc(u.full_name||'—')}</div>
-      <div class="ad-em">${esc(u.email)}</div>
-      <span class="ad-role ${u.is_master_admin?'master':''}">${u.is_master_admin?'Master Admin':'Operator'}</span></div>
-    <div class="ad-sec"><div class="ad-lbl">Your access</div><div class="ad-mods">${access}</div></div>
-    <div class="ad-actions">
-      <button class="ad-btn" onclick="closeModal();go('#/settings')">${ic('settings')} Account settings</button>
-      ${u.is_master_admin?`<button class="ad-btn" onclick="closeModal();go('#/people')">${ic('users')} Admin panel</button>`:''}
-      <button class="ad-btn danger" onclick="logout()">${ic('logout')} Sign out</button>
+  const dr=$('acctDrawer');
+  dr.innerHTML=`<div class="acd">
+    <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccount()">${ic('x')}</button></div>
+    <div class="acd-head">${avatarSq(u.full_name||u.email, 52)}
+      <div class="acd-id"><div class="nm">${esc(u.full_name||'—')}</div><div class="em">${esc(u.email)}</div>
+        <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div></div>
+    <div class="acd-body">
+      <div class="acd-sec"><div class="acd-lbl">Your access</div><div class="acd-mods">${access}</div></div>
+      <div class="acd-sec"><div class="acd-lbl">Workspace</div>
+        <div class="acd-card"><div class="ic">${gridSvg}</div><div class="t"><div class="a">EduHubSpot Workspace</div><div class="b">${master?'Full access to all modules':(granted+' module'+(granted===1?'':'s')+' granted')}</div></div></div></div>
+      <div class="acd-sec"><div class="acd-lbl">Quick links</div>
+        <div class="acd-links">
+          <button class="acd-link" onclick="closeAccount();go('#/settings')">${ic('settings')} Account settings ${chev}</button>
+          ${master?`<button class="acd-link" onclick="closeAccount();go('#/people')">${ic('users')} Admin panel ${chev}</button>`:''}
+          <button class="acd-link" onclick="closeAccount();go('#/')">${homeSvg} Home ${chev}</button>
+        </div></div>
     </div>
+    <div class="acd-foot"><button class="acd-signout" onclick="logout()">${ic('logout')} Sign out</button></div>
   </div>`;
-  $('scrim').classList.add('on');
+  dr.classList.add('on');
+  dr.onclick=ev=>{ if(ev.target===dr) closeAccount(); };
 }
 function renderSettings(){
   const u=EHS.me(); if(!u) return renderLogin(); const parts=(u.full_name||'').trim().split(/\s+/); const first=parts[0]||''; const last=parts.slice(1).join(' ')||'';
