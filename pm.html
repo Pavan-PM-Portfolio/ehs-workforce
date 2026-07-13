@@ -693,6 +693,10 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .um-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .um-em{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .um-perm{border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:6px 8px;font-size:12.5px;color:var(--ink-2);font-family:inherit;flex:none}
+.um-rolebadge{margin-left:auto;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px !important;flex:none}
+.um-rolebadge.r-master{background:rgba(124,58,237,.12);color:#7C3AED}
+.um-rolebadge.r-admin{background:var(--soft);color:var(--accent)}
+.um-rolebadge.r-user{background:var(--surface-3);color:var(--muted)}
 .um-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .pw-field{margin-bottom:12px}
 .pw-field label{display:block;font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
@@ -1625,8 +1629,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
-const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
+const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
+const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3459,15 +3463,14 @@ const DEFAULT_ROLE_PERMS={
 let editRole='Developer';
 const DEFAULT_PROFILES=[
   {id:'pf_admin', name:'Admin', perms:_setOf(ALL_CAPS)},
-  {id:'pf_editor', name:'Editor', perms:JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS.Developer))},
-  {id:'pf_viewer', name:'Viewer', perms:JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS.Viewer))}
+  {id:'pf_users', name:'Users', perms:JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS.Developer))}
 ];
 const DESIGNATIONS=['Developer','QA','Designer','Lead','Analyst','PM'];
 function getProfiles(){ const s=store.settings(); if(!s.profiles){ s.profiles=JSON.parse(JSON.stringify(DEFAULT_PROFILES)); store.updateSettings({profiles:s.profiles}); } return s.profiles; }
 function getProfile(id){ return getProfiles().find(p=>p.id===id); }
-function userProfileId(u){ if(u&&u.profile&&getProfile(u.profile)) return u.profile; return (permOf(u)==='Admin')?'pf_admin':(permOf(u)==='Viewer')?'pf_viewer':'pf_editor'; }
+function userProfileId(u){ if(u&&u.profile&&getProfile(u.profile)) return u.profile; return (permOf(u)==='Admin')?'pf_admin':'pf_users'; }
 let permView='people';
-let editProfile='pf_editor';
+let editProfile='pf_users';
 let editUser=null;
 let settingsTab='general';
 let umLastMsg=null;
@@ -3476,6 +3479,9 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
   else { toast('Password reset link sent to '+email); } }
+const MASTER_EMAILS=['pavan.k@eduhubspot.com','reachpavan02@gmail.com'];
+function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
+function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
 function renderSettings(){
   const el=document.getElementById('settingswrap'); const s=store.settings();
   const reqs=store.accessRequests(); const umUsers=store.users();
@@ -3495,44 +3501,13 @@ function renderSettings(){
       </div>
     </div>
     <div class="op-sec">
-      <div class="op-sec-h"><h3>Members &amp; permissions</h3><span class="range">${umUsers.length} people</span></div>
-      <div class="um-add">
-        <input id="umName" placeholder="Full name"/>
-        <input id="umEmail" type="email" placeholder="Email address"/>
-        <input id="umPass" type="text" placeholder="Set a temporary password"/>
-        <select id="umPerm" title="Permission profile">${getProfiles().map(pf=>`<option value="${pf.id}" ${pf.id==='pf_editor'?'selected':''}>${esc(pf.name)}</option>`).join('')}</select>
-        <button class="btn primary" id="umAdd" style="padding:8px 14px">Add member</button>
-      </div>
-      <div id="umResult" class="um-result"></div>
-      <div class="um-list">${umUsers.map(u=>{ const perm=permOf(u); return `<div class="um-row" data-user="${u.id}">
+      <div class="op-sec-h"><h3>Members</h3><span class="range">${umUsers.length} people · read-only</span></div>
+      <div class="um-list">${umUsers.map(u=>{ const r=pmRole(u); return `<div class="um-row" data-user="${u.id}">
         <div class="um-ava" style="background:${avatarColor(u)}20;border:1.5px solid ${avatarColor(u)};color:${avatarColor(u)}">${initials(u.name)}</div>
         <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
-        <select class="um-perm um-row-desig" title="Designation (job label — for assignment only)">${DESIGNATIONS.map(d=>`<option ${u.role===d?'selected':''}>${d}</option>`).join('')}</select>
-        <select class="um-perm um-row-profile" title="Permission profile">${getProfiles().map(pf=>`<option value="${pf.id}" ${userProfileId(u)===pf.id?'selected':''}>${esc(pf.name)}</option>`).join('')}</select>
-        <button class="btn um-reset" data-email="${esc(u.email||'')}" data-user="${u.id}" style="padding:6px 10px;font-size:12px">Reset password</button>
-        <button class="um-edit" title="Edit details"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-        <button class="um-del" title="Remove member"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        <span class="um-rolebadge ${r.cls}">${r.label}</span>
       </div>`; }).join('')}</div>
-      <div class="set-note">Set a temporary password when adding a member — they'll be asked to choose their own password on first sign-in. "Reset password" flags a member to set a new password the next time they log in (they'll need their current one). No reset emails are sent.</div>
-    </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Permissions</h3><span class="range">Profiles (reusable) &amp; per-person overrides</span></div>
-      <div class="perm-seg"><button class="${permView==='people'?'on':''}" data-pv="people">Per person</button><button class="${permView==='profiles'?'on':''}" data-pv="profiles">Profiles</button></div>
-      ${permView==='profiles' ? (()=>{ const profs=getProfiles(); if(!profs.some(p=>p.id===editProfile)) editProfile=profs[0].id; const pf=getProfile(editProfile);
-        const tabs=`<div class="role-tabs">${profs.map(p=>`<button class="role-tab ${p.id===editProfile?'on':''}" data-prof="${p.id}">${esc(p.name)}</button>`).join('')}<button class="role-tab pf-add" data-add="1">+ Add profile</button></div>`;
-        const dh=`<div class="pu-dhead"><input class="pf-name" value="${esc(pf.name)}" ${pf.id==='pf_admin'?'disabled':''}/>${pf.id==='pf_admin'?'<span class="pu-badge">Built-in · full access</span>':`<div class="pu-bulk"><a data-all="1">Enable all</a> &nbsp;·&nbsp; <a data-all="0">Disable all</a> &nbsp;·&nbsp; <a class="pf-del">Delete</a></div>`}</div>`;
-        const body=pf.id==='pf_admin'?'<div class="pu-note">The Admin profile always has full access and can’t be edited.</div>':`<div class="pu-groups">${CAP_GROUPS.map(grp=>`<div class="pu-group"><div class="pu-g-h">${grp.g}</div>${grp.items.map(([cid,clabel])=>{const on=!!pf.perms[cid];return `<label class="pu-item"><span class="pu-lbl">${clabel}</span><input type="checkbox" class="pf-cb" data-cap="${cid}" ${on?'checked':''}/><span class="pu-sw"></span></label>`;}).join('')}</div>`).join('')}</div>`;
-        return tabs+`<div class="pu-detail" style="border:1px solid var(--line);border-radius:12px">${dh}${body}</div>`; })()
-      : `<div class="pu-panel">
-        <div class="pu-list">${umUsers.map(u=>{const cust=!!(userPerms[u.id]&&userPerms[u.id].__custom);return `<button class="pu-user${u.id===editUser?' on':''}" data-uid="${u.id}">${avatar(u,30)}<span class="pu-ub"><span class="pu-un">${esc(u.name)}</span><span class="pu-ur">${esc(getProfile(userProfileId(u)).name)}${cust?' · custom':''}</span></span></button>`;}).join('')}</div>
-        <div class="pu-detail">${(()=>{ const u=store.user(editUser); if(!u) return '<div class="pu-note">Select a member.</div>'; const pid=userProfileId(u); const custom=!!(userPerms[editUser]&&userPerms[editUser].__custom);
-          const dh=`<div class="pu-dhead">${avatar(u,40)}<div class="pu-dx"><div class="pu-dn">${esc(u.name)}</div><div class="pu-de">${esc(u.email||u.role||'Member')}</div></div><select class="pu-profsel">${getProfiles().map(p=>`<option value="${p.id}" ${pid===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`;
-          const custRow=`<label class="pu-item pu-custom"><span class="pu-lbl"><b>Customize for this person</b> — override the profile</span><input type="checkbox" class="pu-customcb" ${custom?'checked':''}/><span class="pu-sw"></span></label>`;
-          if(!custom) return dh+custRow+`<div class="pu-note">Inherits all permissions from the <b>${esc(getProfile(pid).name)}</b> profile.</div>`;
-          const eff=Object.assign({}, getProfile(pid).perms, userPerms[editUser]||{});
-          const groups=CAP_GROUPS.map(grp=>`<div class="pu-group"><div class="pu-g-h">${grp.g}</div>${grp.items.map(([cid,clabel])=>{const on=!!eff[cid];return `<label class="pu-item"><span class="pu-lbl">${clabel}</span><input type="checkbox" class="pu-cb" data-cap="${cid}" ${on?'checked':''}/><span class="pu-sw"></span></label>`;}).join('')}</div>`).join('');
-          return dh+custRow+`<div class="pu-groups">${groups}</div>`; })()}</div>
-      </div>`}
+      <div class="set-note">Members, roles, and access are managed centrally in the EHS admin settings. This is a read-only view of who can use this tool.</div>
     </div>
     <div class="op-sec">
       <div class="op-sec-h"><h3>Data</h3></div>
@@ -3563,58 +3538,6 @@ function renderSettings(){
       catch(err){ toast('That file is not a valid export'); } }; r.readAsText(f); ev.target.value=''; };
   document.getElementById('setClear').onclick=e=>armDanger(e.currentTarget,()=>{ store.clearTickets(); toast('All tickets cleared'); renderAll(); renderSettings(); });
   document.getElementById('setReset').onclick=e=>armDanger(e.currentTarget,()=>{ store.reset(); ui.project='all'; ui.board='main'; toast('Reset to sample data'); renderAll(); renderSettings(); applyBrand(); });
-  // ---- Members & Access ----
-  document.getElementById('umAdd').onclick=async()=>{ const nm=document.getElementById('umName').value.trim(); const em=document.getElementById('umEmail').value.trim().toLowerCase(); const pw=document.getElementById('umPass').value; const pm=document.getElementById('umPerm').value;
-    const setMsg=(html,ok)=>{ umLastMsg={html,ok}; const o=document.getElementById('umResult'); if(o){ o.className='um-result '+(ok?'ok':'bad'); o.innerHTML=html; } };
-    if(!nm){ toast('Enter a name'); return; }
-    if(!em){ toast('Enter an email — it is their login'); return; }
-    if(sb && sb.auth){ if(!pw || pw.length<6){ toast('Set a temporary password (min 6 characters)'); return; }
-      const btn=document.getElementById('umAdd'); btn.disabled=true; btn.textContent='Adding…';
-      const {data, error}=await adminCreateAuthUser(em, pw);
-      console.log('[add member] signUp result:', {data, error});
-      btn.disabled=false; btn.textContent='Add member';
-      if(error){ setMsg('Could not create login: <b>'+esc(error.message||'unknown error')+'</b>', false); return; }
-      const newId=data&&data.user&&data.user.id; const hasSession=!!(data&&data.session);
-      const existed = !!(data && data.user && Array.isArray(data.user.identities) && data.user.identities.length===0);
-      if(!newId){ setMsg('Supabase returned no user. In Auth → Sign In / Providers, enable <b>Allow new users to sign up</b>.', false); return; }
-      let memErr='';
-      if(typeof WS!=='undefined' && WS){ try{ const {error:me}=await sb.from('members').upsert({workspace_id:WS, user_id:newId, email:em, role:(pm==='Admin'?'admin':'member')}, {onConflict:'user_id'}); if(me) memErr=me.message; }catch(e){ memErr=(e&&e.message)||'insert failed'; } }
-      store.addMember(nm, em, pm, newId);
-      if(existed){ setMsg('This email <b>already had a login</b>, so the temporary password was <b>not</b> changed. To set a fresh password: delete this user in Supabase → Authentication → Users, then add them again.', false); }
-      else if(!hasSession){ setMsg(esc(nm)+' created, but Supabase returned no session — <b>“Confirm email” is still ON</b>. Turn it OFF at Auth → Providers → Email, delete this user in Auth → Users, then add again.', false); }
-      else if(memErr){ setMsg('Login created for <b>'+esc(em)+'</b>, but adding to the workspace failed: <b>'+esc(memErr)+'</b> (members-table RLS). They can sign in but won’t see data until this is fixed.', false); }
-      else { setMsg('✓ <b>'+esc(nm)+'</b> is ready. They sign in with <b>'+esc(em)+'</b> + the temporary password, then set their own.', true); }
-      renderSettings(); renderAll();
-    } else { store.addMember(nm, em, pm); if(em) store.flagPwPending(em); setMsg('Added in preview mode — real logins are created only on the live app.', true); renderSettings(); renderAll(); }
-  };
-  el.querySelectorAll('.um-row').forEach(row=>{ const uid=row.dataset.user;
-    const dsel=row.querySelector('.um-row-desig'); if(dsel) dsel.onchange=e=>{ store.updateUser(uid,{role:e.target.value}); toast('Designation updated'); };
-    const psel=row.querySelector('.um-row-profile'); if(psel) psel.onchange=e=>{ store.updateUser(uid,{profile:e.target.value}); toast('Profile updated'); renderSettings(); };
-    row.querySelector('.um-reset').onclick=e=>{ const em=e.currentTarget.dataset.email; if(!em){ toast('No email on file for this member'); return; } store.flagPwPending(em); toast('They will set a new password on next sign-in'); };
-    const ed=row.querySelector('.um-edit'); if(ed) ed.onclick=()=>openMemberEdit(uid);
-    row.querySelector('.um-del').onclick=async()=>{ if(!confirm('Remove this member? Their assignments will be unassigned, and their access to this workspace will be revoked.')) return;
-      const person=store.user(uid); const authId=person&&person.authId; let remoteErr=null;
-      if(sb && typeof WS!=='undefined' && WS){
-        try{ const r1=await sb.from('people').delete().eq('workspace_id',WS).eq('id',uid); if(r1&&r1.error) remoteErr=r1.error.message;
-          if(authId){ const r2=await sb.from('members').delete().eq('workspace_id',WS).eq('user_id',authId); if(r2&&r2.error && !remoteErr) remoteErr=r2.error.message; }
-        }catch(e){ remoteErr=(e&&e.message)||'delete failed'; }
-      }
-      if(remoteErr){ toast('Could not remove on server: '+remoteErr+' — check the DELETE row-level-security policy in Supabase.', 8000); return; }
-      store.removeUser(uid); renderSettings(); renderAll();
-      toast(sb ? 'Member removed. To delete their login entirely, remove them in Supabase → Authentication → Users.' : 'Member removed', 6000);
-    }; });
-  el.querySelectorAll('.perm-seg button').forEach(b=>b.onclick=()=>{ permView=b.dataset.pv; renderSettings(); });
-  el.querySelectorAll('.role-tab[data-prof]').forEach(t=>t.onclick=()=>{ editProfile=t.dataset.prof; renderSettings(); });
-  const pfAdd=el.querySelector('.pf-add'); if(pfAdd) pfAdd.onclick=()=>{ const id='pf_'+Date.now().toString(36); const profs=getProfiles(); profs.push({id,name:'New profile',perms:{}}); store.updateSettings({profiles:profs}); editProfile=id; permView='profiles'; renderSettings(); };
-  const pfName=el.querySelector('.pf-name'); if(pfName) pfName.onchange=e=>{ const pf=getProfile(editProfile); if(pf){ pf.name=e.target.value.trim()||'Profile'; store.updateSettings({profiles:getProfiles()}); renderSettings(); } };
-  const pfDel=el.querySelector('.pf-del'); if(pfDel) pfDel.onclick=()=>{ if(!confirm('Delete this profile? People on it will move to the Editor profile.')) return; const profs=getProfiles().filter(p=>p.id!==editProfile); store.users().forEach(u=>{ if(userProfileId(u)===editProfile) store.updateUser(u.id,{profile:'pf_editor'}); }); store.updateSettings({profiles:profs}); editProfile='pf_editor'; renderSettings(); };
-  el.querySelectorAll('.pf-cb').forEach(cb=>cb.onchange=()=>{ const pf=getProfile(editProfile); if(pf){ pf.perms[cb.dataset.cap]=cb.checked; store.updateSettings({profiles:getProfiles()}); } });
-  el.querySelectorAll('.pu-bulk a[data-all]').forEach(a=>a.onclick=()=>{ if(permView==='profiles'){ const pf=getProfile(editProfile); if(pf&&pf.id!=='pf_admin'){ pf.perms=a.dataset.all==='1'?_setOf(ALL_CAPS):{}; store.updateSettings({profiles:getProfiles()}); renderSettings(); } } });
-  el.querySelectorAll('.pu-user').forEach(b=>b.onclick=()=>{ editUser=b.dataset.uid; renderSettings(); });
-  const puProf=el.querySelector('.pu-profsel'); if(puProf) puProf.onchange=e=>{ store.updateUser(editUser,{profile:e.target.value}); renderSettings(); };
-  const puCust=el.querySelector('.pu-customcb'); if(puCust) puCust.onchange=e=>{ if(e.target.checked){ const base=getProfile(userProfileId(store.user(editUser))).perms; userPerms[editUser]=Object.assign({}, base, {__custom:true}); } else { delete userPerms[editUser]; } store.updateSettings({userPerms}); renderSettings(); };
-  el.querySelectorAll('.pu-cb').forEach(cb=>cb.onchange=()=>{ if(!userPerms[editUser]) userPerms[editUser]={__custom:true}; userPerms[editUser][cb.dataset.cap]=cb.checked; store.updateSettings({userPerms}); });
-  if(umLastMsg){ const o=document.getElementById('umResult'); if(o){ o.className='um-result '+(umLastMsg.ok?'ok':'bad'); o.innerHTML=umLastMsg.html; } }
 }
 
 /* ---------- Velocity & Burndown ---------- */
@@ -4597,14 +4520,14 @@ async function fetchAll(){
 }
 async function pushSeed(){
   const S=JSON.parse(JSON.stringify(SEED));
+  // Fresh workspace: seed only the workflow scaffolding + the first user (master admin).
+  // No dummy projects, teams, tickets, worklogs, or users.
+  const nm=((ME&&ME.user_metadata&&ME.user_metadata.full_name)|| (ME&&ME.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) ||'Admin').trim();
+  const meDoc={ id:'u_'+ME.id.slice(0,8), name:nm, email:(ME&&ME.email)||'', role:'PM', profile:'pf_admin', authId:ME.id, master:true, color:'#3B6FE0' };
   const steps=[
-    ['projects', S.projects.map(d=>({workspace_id:WS,id:d.id,doc:d}))],
     ['statuses', S.statuses.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
     ['boards',   S.boards.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
-    ['teams',    S.teams.map(d=>({workspace_id:WS,id:d.id,doc:d}))],
-    ['people',   S.users.map(d=>({workspace_id:WS,id:d.id,doc:d}))],
-    ['tasks',    S.tasks.map(d=>({workspace_id:WS,id:d.id,doc:d}))],
-    ['worklogs', S.worklogs.map(d=>({workspace_id:WS,id:d.id,doc:d}))],
+    ['people',   [{workspace_id:WS,id:meDoc.id,doc:meDoc}]],
   ];
   for(const [t,rows] of steps){ const {error}=await sb.from(t).upsert(rows); if(error){ console.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
   const {error:se}=await sb.from('settings').upsert({workspace_id:WS,doc:S.settings}); if(se){ console.error('SEED FAILED on settings', se); throw new Error('settings — '+se.message); }
@@ -4648,6 +4571,18 @@ function wireAuth(){
 // ---- boot ----
 const CONFIGURED = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE'));
 const EMAIL_FIX={'Ritesh Singh':'ritesh.singh@eduhubspot.com','Prapti Wamre':'prapti.w@eduhubspot.com','Amit Debnath':'amit.debnath@eduhubspot.com','Tanay Singh':'tanay.singh@eduhubspot.com','Chirag Shah':'chirag.shah@eduhubspot.com','Sumeet Sharma':'sumeet.sharma@eduhubspot.com','Pavan Kumar':'pavan.k@eduhubspot.com','Saniya Salim Mujawar':'saniya.m@eduhubspot.com','Debabrata Dhar':'deba.dhar@eduhubspot.com'};
+function migrateProfiles(){ if(!store.data) return; const s=store.settings(); let changed=false;
+  const cur=s.profiles||[];
+  const adminP=cur.find(p=>p.id==='pf_admin'); const stdSrc=cur.find(p=>p.id==='pf_users')||cur.find(p=>p.id==='pf_editor');
+  const need = !s.profiles || cur.length!==2 || !cur.find(p=>p.id==='pf_users') || cur.find(p=>p.id==='pf_editor'||p.id==='pf_viewer');
+  if(need){
+    s.profiles=[ {id:'pf_admin', name:'Admin', perms:(adminP&&adminP.perms)||_setOf(ALL_CAPS)},
+                 {id:'pf_users', name:'Users', perms:(stdSrc&&stdSrc.perms)||JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS.Developer))} ];
+    changed=true;
+  }
+  (store.data.users||[]).forEach(u=>{ if(u.profile==='pf_editor'||u.profile==='pf_viewer'){ u.profile='pf_users'; changed=true; } });
+  if(changed) store._persist();
+}
 function applyEmailFixes(){ if(!store.data||!store.data.users) return; let changed=false;
   store.data.users.forEach(u=>{ const e=EMAIL_FIX[u.name]; if(e && u.email!==e){ u.email=e; changed=true; } });
   if(changed && store._persist) store._persist();
@@ -4663,9 +4598,9 @@ async function boot(){
     sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     wireAuth();
     const {data:{session}}=await sb.auth.getSession();
-    if(session){ ME=session.user; await loadWorkspace(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
+    if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
-    store.load(); applyDefaults(); applyEmailFixes(); renderAll();
+    store.load(); applyDefaults(); migrateProfiles(); applyEmailFixes(); renderAll();
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
