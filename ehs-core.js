@@ -13,6 +13,8 @@
   const cfg = global.EHS_CONFIG || {};
   let sb = null;
   let _me = null;
+  let _signedOutCb = null;
+  function onSignedOut(cb){ _signedOutCb = cb; }
 
   function configured() { return !!(global.supabase && cfg.url && cfg.anon); }
 
@@ -22,6 +24,15 @@
       throw new Error('EHS not configured — set window.EHS_CONFIG {url, anon} and include supabase-js before ehs-core.js.');
     }
     sb = global.supabase.createClient(cfg.url, cfg.anon);
+    // Immediately react to sign-out from any tab/device (fires cross-tab).
+    try {
+      sb.auth.onAuthStateChange(function (event) {
+        if (event === 'SIGNED_OUT') {
+          _me = null;
+          if (typeof _signedOutCb === 'function') { try { _signedOutCb(); } catch (e) {} }
+        }
+      });
+    } catch (e) {}
     return sb;
   }
 
@@ -35,8 +46,11 @@
     return client().auth.signInWithPassword({ email, password });
   }
   async function signOut() {
-    try { await client().auth.signOut(); } catch (e) {}
+    // 'global' revokes every session for this user (all tabs & devices).
+    try { await client().auth.signOut({ scope: 'global' }); }
+    catch (e) { try { await client().auth.signOut(); } catch (_) {} }
     _me = null;
+    try { global.localStorage.setItem('ehs:signout', String(Date.now())); } catch (e) {}
   }
   // For tools (Phase 5): bounce to the shell login if there's no session.
   async function requireSession(loginUrl) {
@@ -159,7 +173,7 @@
   }
 
   global.EHS = {
-    configured, client, getSession, signIn, signOut, requireSession,
+    configured, client, getSession, signIn, signOut, requireSession, onSignedOut,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
     listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, resetPassword, updateMyName, changePassword, fieldPerms,
   };
