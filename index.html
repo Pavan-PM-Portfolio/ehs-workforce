@@ -256,7 +256,9 @@ tr:last-child td{border-bottom:0}
 .pa-split{display:grid;grid-template-columns:400px 1fr;gap:16px;margin-top:8px;align-items:start}
 .pa-list-pane,.pa-detail-pane{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .pa-list-h{padding:14px 16px 12px;border-bottom:1px solid var(--line-2)}
-.pa-count{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px}
+.pa-list-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pa-count{font-size:12px;font-weight:700;color:var(--muted)}
+.btn.sm{padding:7px 12px;font-size:12.5px}
 .pa-search{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
 .pa-search input{border:0;background:none;outline:none;font-family:inherit;font-size:13px;width:100%;color:var(--ink)}
 .pa-search svg{width:15px;height:15px;color:var(--faint);flex:none}
@@ -276,6 +278,16 @@ tr:last-child td{border-bottom:0}
 .pa-role{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;background:var(--surface-3);color:var(--muted)}
 .pa-role.master{background:rgba(186,117,23,.13);color:#BA7517}
 .pa-dh-em{font-size:12.5px;color:var(--muted);margin-top:5px}
+.pa-subline{font-size:12.5px;color:var(--muted);margin-top:5px}
+.pa-contact{margin-top:13px}
+.pa-ci{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.pa-ci svg{width:15px;height:15px;color:var(--faint);flex:none}
+.pa-dsec-t{font-size:12.5px;font-weight:700;letter-spacing:-.01em;margin:0 0 16px;display:flex;align-items:center;justify-content:space-between}
+.pa-hint{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.pa-igrid{display:grid;grid-template-columns:120px 1fr;row-gap:13px;column-gap:18px;align-items:center}
+.pa-igrid .k{font-size:12.5px;color:var(--muted);text-align:right}
+.pa-igrid .v{font-size:13.5px;font-weight:600}
+.pa-igrid .v.link{color:var(--accent)}
 .pa-drule{height:1px;background:var(--line-2);margin:22px -28px}
 .pa-dlbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
 .pa-rolerow{display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -796,11 +808,12 @@ async function renderPeople(){
   const searchSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
   root().innerHTML=`<div class="shell">${topbar()}<div class="page pa-page">
     <div class="people-head"><div><h1>People &amp; Access</h1>
-      <p>Pick a person to manage their role, tool access, and password.</p></div>
-      <div class="spacer"></div><button class="btn accent" onclick="openInvite()">${ic('plus')} Add user</button></div>
+      <p>Pick a person to manage their role, tool access, and password.</p></div></div>
     <div class="pa-split">
       <div class="pa-list-pane">
-        <div class="pa-list-h"><div class="pa-count">${_users.length} ${_users.length===1?'person':'people'}</div>
+        <div class="pa-list-h">
+          <div class="pa-list-top"><div class="pa-count">${_users.length} ${_users.length===1?'person':'people'}</div>
+            <button class="btn accent sm" onclick="openInvite()">${ic('plus')} New user</button></div>
           <div class="pa-search">${searchSvg}<input id="pa_q" placeholder="Search people" oninput="paFilter(this.value)"></div></div>
         <div class="pa-list" id="pa_list">${_users.map(paRow).join('')}</div>
       </div>
@@ -809,17 +822,18 @@ async function renderPeople(){
   </div></div>`;
 }
 function paSub(u){
-  if(u.is_master_admin) return '<div class="pa-sub master">Master Admin \u00b7 all tools</div>';
-  const acc=(u.tool_access||[]);
-  if(!acc.length) return '<div class="pa-sub">Operator \u00b7 <span class="dim">no tool access</span></div>';
-  const parts=acc.map(a=>{const t=tool(a.tool_id); return t?`${esc(t.name.replace(' Hub',''))} <span class="dim">${a.role==='admin'?'Admin':'User'}</span>`:'';}).filter(Boolean).join(',  ');
-  return `<div class="pa-sub">Operator \u00b7 ${parts}</div>`;
+  return u.is_master_admin
+    ? '<div class="pa-sub master">Master Admin</div>'
+    : '<div class="pa-sub">Operator</div>';
 }
 function paRow(u){ return `<button class="pa-row ${u.id===_selPerson?'on':''}" onclick="paPick('${u.id}')">
   <div class="pa-nm">${esc(u.full_name||'\u2014')}</div>${paSub(u)}<div class="pa-em">${esc(u.email)}</div></button>`; }
 function paDetail(id){
   const u=_users.find(x=>x.id===id); if(!u) return '<div class="pa-empty">Select a person to manage.</div>';
   const master=!!u.is_master_admin; const acc=(u.tool_access||[]); const meId=EHS.me()&&EHS.me().id;
+  const parts=(u.full_name||'').trim().split(/\s+/); const first=parts[0]||'\u2014'; const last=parts.slice(1).join(' ')||'\u2014';
+  const status=(u.status||'active'); const statusLabel=status.charAt(0).toUpperCase()+status.slice(1);
+  const mailSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>';
   const modules = master
     ? `<div class="pa-allnote">Master Admins have full access to every tool.</div>`
     : TOOLS.map(t=>{ const cur=(acc.find(x=>x.tool_id===t.id)||{}).role||'none';
@@ -832,16 +846,27 @@ function paDetail(id){
       }).join('');
   return `<div class="pa-dh"><div class="pa-dh-id">
       <div class="pa-dh-nm">${esc(u.full_name||'\u2014')} <span class="pa-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div>
-      <div class="pa-dh-em">${esc(u.email)}</div></div></div>
+      <div class="pa-subline">${master?'Master Admin':'Operator'} at EduHubSpot</div>
+      <div class="pa-contact"><span class="pa-ci">${mailSvg}${esc(u.email)}</span></div>
+    </div></div>
     <div class="pa-drule"></div>
-    <div class="pa-dsec"><div class="pa-dlbl">Role</div>
+    <div class="pa-dsec"><div class="pa-dsec-t">User information <span class="pa-hint">Read-only</span></div>
+      <div class="pa-igrid">
+        <div class="k">First name</div><div class="v">${esc(first)}</div>
+        <div class="k">Last name</div><div class="v">${esc(last)}</div>
+        <div class="k">Email</div><div class="v link">${esc(u.email)}</div>
+        <div class="k">Role</div><div class="v">${master?'Master Admin':'Operator'}</div>
+        <div class="k">Status</div><div class="v">${esc(statusLabel)}</div>
+      </div></div>
+    <div class="pa-drule"></div>
+    <div class="pa-dsec"><div class="pa-dsec-t">Role</div>
       <div class="pa-rolerow"><div class="pa-rolecopy">Master Admins get <b>full access to every tool</b>, plus People &amp; Access. Operators only see the tools you grant below.</div>
         <div class="pa-seg role"><button class="${master?'':'on'}" onclick="paSetMaster('${u.id}',false)">Operator</button><button class="${master?'on':''}" onclick="paSetMaster('${u.id}',true)">Master Admin</button></div>
       </div></div>
     <div class="pa-drule"></div>
-    <div class="pa-dsec"><div class="pa-dlbl">Tool access</div>${modules}</div>
+    <div class="pa-dsec"><div class="pa-dsec-t">Tool access <span class="pa-hint">${master?'Managed by role':'Editable'}</span></div>${modules}</div>
     <div class="pa-drule"></div>
-    <div class="pa-dsec"><div class="pa-dlbl">Reset password</div>
+    <div class="pa-dsec"><div class="pa-dsec-t">Reset password</div>
       <div class="pa-pwline"><div class="pa-fld"><label>New temporary password</label><input id="pa_pw" placeholder="Leave blank to auto-generate"></div>
         <button class="btn" onclick="paGenPw()">Generate</button><button class="btn accent" onclick="paDoReset('${u.id}')">Reset password</button></div>
       <label class="pa-chk"><input type="checkbox" id="pa_req" checked> Require them to set their own password on next sign-in</label>
