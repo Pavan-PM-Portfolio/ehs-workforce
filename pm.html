@@ -3501,15 +3501,7 @@ function renderSettings(){
   const viewOpts=[['board','Board'],['overview','Overview'],['list','List'],['epics','Epics'],['analytics','Analytics'],['reports','Reports']].map(([v,l])=>`<option value="${v}" ${myDefView===v?'selected':''}>${l}</option>`).join('');
   const dtOpts=[['dmy','31 Jul 2026'],['mdy','Jul 31, 2026'],['iso','2026-07-31']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.dateFmt)||'dmy')===v?'selected':''}>${l}</option>`).join('');
   const denseOpts=[['comfortable','Comfortable'],['compact','Compact']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.density)||'comfortable')===v?'selected':''}>${l}</option>`).join('');
-  el.innerHTML=`<div class="ov-h"><h2>Settings</h2><span class="range">Your preferences${IS_ADMIN?' · workspace admin':''}</span></div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>My profile</h3></div>
-      <div class="set-grid">
-        <label class="repf"><span>Full name</span><input id="myName" value="${esc(muser.name||'')}"/></label>
-        <label class="repf"><span>Email</span><input value="${esc(muser.email||'—')}" disabled/></label>
-        <label class="repf"><span>Avatar colour</span><input type="color" id="myColor" value="${myColor}" style="height:38px;padding:2px"/></label>
-      </div>
-    </div>
+  el.innerHTML=`<div class="ov-h"><h2>Settings</h2><span class="range">Your Project Hub preferences${IS_ADMIN?' · workspace admin':''}</span></div>
     <div class="op-sec">
       <div class="op-sec-h"><h3>My preferences</h3><span class="range">Only affects your account</span></div>
       <div class="set-grid">
@@ -3518,14 +3510,7 @@ function renderSettings(){
         <label class="repf"><span>Date format</span><select id="myDateFmt">${dtOpts}</select></label>
         <label class="repf"><span>Density</span><select id="myDensity">${denseOpts}</select></label>
       </div>
-    </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Password</h3></div>
-      <div class="set-grid">
-        <label class="repf"><span>New password</span><input id="myPw" type="password" placeholder="Enter a new password" autocomplete="new-password"/></label>
-        <div class="repf" style="align-self:flex-end"><button class="btn primary" id="myPwBtn" style="padding:9px 16px">Update password</button></div>
-      </div>
-      <div class="set-note">${(typeof sb!=='undefined'&&sb)?'Updates your sign-in password immediately.':'Sign-in is managed by your workspace admin.'}</div>
+      <div class="set-note">Your name, email and password are managed in your <b>Workforce account settings</b> (top-right menu on the home screen).</div>
     </div>
     ${IS_ADMIN?`
     <div class="op-sec">
