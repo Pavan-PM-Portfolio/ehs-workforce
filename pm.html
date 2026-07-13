@@ -228,6 +228,43 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ep-card[data-tab="todo"] .ep-trow:not([data-cat="todo"]){display:none}
 .ep-card[data-tab="inprogress"] .ep-trow:not([data-cat="inprogress"]){display:none}
 .ep-card[data-tab="done"] .ep-trow:not([data-cat="done"]){display:none}
+/* projects: overview-only cards + ticket popup */
+.ep-card.pc-only{cursor:pointer;transition:border-color .12s, box-shadow .12s}
+.ep-card.pc-only .ep-left{border-bottom:0}
+.ep-card.pc-only:hover{border-color:var(--accent);box-shadow:0 14px 34px -16px rgba(16,26,51,.22)}
+.ep-view{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted);margin-left:auto;white-space:nowrap;flex:none}
+.ep-view svg{width:15px;height:15px}
+.ep-card.pc-only:hover .ep-view{color:var(--accent)}
+.pp-scrim{position:fixed;inset:0;background:rgba(16,26,51,.34);display:none;align-items:center;justify-content:center;z-index:400;padding:24px}
+.pp-scrim.on{display:flex}
+.pp{background:#fff;border:1px solid var(--line);border-radius:16px !important;width:680px;max-width:100%;max-height:84vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px -30px rgba(16,26,51,.5)}
+.pp-h{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.pp-h .ti{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.pp-h .k{font-size:11px;color:var(--muted);margin-top:2px}
+.pp-openboard{margin-left:auto;border:1.3px solid var(--ink);background:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:8px !important;cursor:pointer;font-family:inherit}
+.pp-openboard:hover{background:var(--surface-2)}
+.pp-x{width:30px;height:30px;display:grid;place-items:center;border:0;background:none;color:var(--faint);cursor:pointer;border-radius:8px !important;font-size:14px}
+.pp-x:hover{background:var(--surface-3)}
+.pp-body{padding:6px 22px 18px;overflow-y:auto}
+.pp-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:16px 22px 2px}
+.pp-tile{border:1px solid var(--line-2);border-radius:12px !important;padding:11px 13px;background:var(--surface-2)}
+.pp-tile .v{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.pp-tile .l{font-size:10px;color:var(--muted);margin-top:5px;font-weight:600}
+.pp-filters{display:flex;align-items:center;gap:9px;padding:16px 22px 14px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.pp-filter{border:1px solid var(--line);background:#fff;border-radius:9px !important;padding:7px 11px;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.pp-filter:focus{outline:none;border-color:var(--accent)}
+.pp-filters .pp-add{margin-left:auto}
+.pp-add{border:1.3px solid var(--ink);background:#fff;font-weight:700;font-size:12px;padding:6px 12px;border-radius:8px !important;cursor:pointer;font-family:inherit;color:var(--ink);white-space:nowrap}
+.pp-add:hover{background:var(--surface-2)}
+.pp-list{display:flex;flex-direction:column}
+.pp-row{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;padding:13px 0;border-bottom:1px solid var(--line-2);cursor:pointer}
+.pp-row:last-child{border-bottom:0}
+.pp-rmid{flex:0 1 60%;min-width:0;max-width:60%}
+.pp-tnm{font-weight:600;font-size:13px;line-height:1.4;color:var(--accent);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pp-row:hover .pp-tnm{text-decoration:underline}
+.pp-tasg{font-size:11.5px;color:var(--muted);margin-top:5px}
+.pp-stat{font-size:12px;font-weight:700;white-space:nowrap;flex:none;margin-top:2px;color:var(--ink)}
+.pp-empty{padding:26px 0;text-align:center;color:var(--faint);font-size:12.5px}
 /* --- Project PC2 ring tiles --- */
 .pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .pc-tile{background:#fff;border:1px solid var(--line);border-radius:14px !important;padding:16px;display:flex;gap:14px;align-items:center;cursor:pointer;position:relative;transition:.12s}
@@ -864,7 +901,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .contrib-row .tot{font-family:"Inter";font-size:12.5px;font-weight:600;min-width:52px;text-align:right}
 
 /* ---------- Modal ---------- */
-.modal-wrap{position:fixed;inset:0;background:rgba(16,20,30,.4);display:none;place-items:center;z-index:60;padding:20px}
+.modal-wrap{position:fixed;inset:0;background:rgba(16,20,30,.4);display:none;place-items:center;z-index:600;padding:20px}
 .modal-wrap.on{display:grid}
 .modal{background:var(--surface);border-radius:13px;width:480px;max-width:100%;box-shadow:var(--shadow);overflow:hidden}
 .modal-h{padding:18px 22px;border-bottom:1px solid var(--line);font-size:16px;font-weight:600;letter-spacing:-.01em}
@@ -1543,6 +1580,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 <div class="overlay" id="overlay"></div>
 <div class="panel" id="panel"></div>
 <div id="acctScrim" class="acd-scrim"></div>
+<div id="projPopScrim" class="pp-scrim"><div id="projPop" class="pp"></div></div>
 <button class="chat-fab" id="chatFab" title="Tech-Talk" aria-label="Open Tech-Talk"><svg class="chat-fab-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg><span class="chat-fab-label">Tech-Talk</span><span class="chat-fab-badge" id="chatFabBadge" style="display:none"></span></button>
 <div class="chat-win" id="chatWin"></div>
 
@@ -3890,37 +3928,99 @@ function doCompleteSprint(id){ if(!confirm('Complete this sprint? Unfinished tic
 function doRemoveSprint(id){ if(!confirm('Delete this sprint? Its tickets return to the backlog.')) return; store.removeSprint(id); renderBacklog(); }
 
 /* ---------- Projects (dedicated tab) ---------- */
+function projectStats(pid){
+  const kids=store.standardTasks().filter(t=>t.project===pid);
+  const done=kids.filter(k=>{const st=store.status(k.status);return st&&st.cat==='done';}).length;
+  const minutes=kids.reduce((a,k)=>a+taskTotals(k.id).total,0);
+  const pct=kids.length?Math.round(done/kids.length*100):0;
+  let cat='todo';
+  if(kids.length){ if(done===kids.length) cat='done'; else if(kids.some(k=>{const st=store.status(k.status);return st&&(st.cat==='inprogress'||st.cat==='done');})) cat='inprogress'; }
+  return {total:kids.length, done, pct, minutes, cat, kids};
+}
+function projectHealth(st){
+  if(!st.total) return {k:'ok', t:'Not started'};
+  if(st.done===st.total) return {k:'ok', t:'Complete'};
+  return {k:'ok', t:'On track'};
+}
 function renderProjects(){
   const el=document.getElementById('projectswrap');
-  const catOf=t=>{ const s=store.status(t.status); return s?s.cat:'todo'; };
-  const tiles=store.projects().map(p=>{ const n=store.ticketsInProject(p.id); const c=p.color||'#8A8F98';
-    const tks=store.standardTasks().filter(t=>t.project===p.id);
-    const dn=tks.filter(t=>catOf(t)==='done').length; const pct=tks.length?Math.round(dn/tks.length*100):0;
-    const members=[...new Set(tks.map(t=>t.assignee).filter(Boolean))].map(id=>store.user(id)).filter(Boolean);
-    const shown=members.slice(0,3); const extra=members.length-shown.length;
-    return `<div class="pc-tile" data-proj="${p.id}">
-      <div class="pc-ring" style="background:conic-gradient(${c} ${pct}%, var(--surface-3) 0)"><b>${pct}%</b></div>
-      <div class="pc-tx"><input class="pc-nm pc-name" value="${esc(p.name)}"/><div class="pc-sub">${esc(p.key)} \u00b7 ${n} ticket${n!==1?'s':''}${dn?' \u00b7 '+dn+' done':''}</div>
-        ${members.length?`<div class="pc-avs">${shown.map(u=>`<span class="pc-av" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span>`).join('')}${extra>0?`<span class="pc-av" style="background:var(--surface-3);color:var(--muted)">+${extra}</span>`:''}</div>`:'<div class="pc-none">No team yet</div>'}</div>
-      <button class="pc-del" title="Delete project"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+  const projects=store.projects();
+  const head=`<div class="ov-h"><h2>Projects</h2><button class="btn primary" id="prAddProj" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add project</button></div>`;
+  if(!projects.length){ el.innerHTML=head+`<div class="pl-card"><div class="pl-empty">No projects yet. Click \u201cAdd project\u201d to create one.</div></div>`;
+    document.getElementById('prAddProj').onclick=()=>{ const id=store.addProject('New project'); renderProjects(); renderProjectSwitch&&renderProjectSwitch(); }; return; }
+  const catOf=k=>{ const s=store.status(k.status); return s?s.cat:'todo'; };
+  const cards=projects.map(p=>{
+    const st=projectStats(p.id); const kids=st.kids; const c=p.color||'#3B6FE0';
+    const inprog=kids.filter(k=>catOf(k)==='inprogress').length; const todo=st.total-st.done-inprog;
+    return `<div class="ep-card pc-only" data-proj="${p.id}">
+      <div class="ep-left">
+        <div class="ep-head"><div class="ep-ti">${esc(p.name)}</div><div class="ep-sub">${esc(p.key)} \u00b7 ${st.total} ticket${st.total!==1?'s':''}</div></div>
+        <div class="ep-mid"><div class="ep-ring" style="background:conic-gradient(${c} ${st.pct}%, var(--surface-3) 0)"><b>${st.pct}%</b></div>
+          <div><div class="ep-state">${st.total?(st.done===st.total?'Complete':'On the way'):'Not started'}</div><div class="ep-statesub">${st.done} of ${st.total} tickets \u00b7 ${hm(st.minutes)} logged</div><span class="ep-health ${projectHealth(st).k}">${projectHealth(st).t}</span></div></div>
+        <div class="ep-cards"><div class="ep-sc"><div class="v">${st.done}</div><div class="l">Done</div></div><div class="ep-sc"><div class="v">${inprog}</div><div class="l">In progress</div></div><div class="ep-sc"><div class="v">${todo}</div><div class="l">To do</div></div></div>
+        <div class="ep-view">View tickets <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></div>
+      </div>
     </div>`;
-  }).join('')||'<div class="pl-empty">No projects yet.</div>';
-  el.innerHTML=`<div class="ov-h"><h2>Projects</h2>
-      <button class="btn primary" id="prAddProj" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add project</button></div>
-    <div class="pc-grid">${tiles}</div>`;
-  document.getElementById('prAddProj').onclick=()=>{ const id=store.addProject('New project'); renderProjects(); renderProjectSwitch&&renderProjectSwitch();
-    const inp=document.querySelector(`#projectswrap .pc-tile[data-proj="${id}"] .pc-name`); if(inp){ inp.focus(); inp.select(); } };
-  el.querySelectorAll('.pc-tile[data-proj]').forEach(tile=>{ const id=tile.dataset.proj;
-    tile.onclick=e=>{ if(e.target.closest('.pc-del')||e.target.closest('.pc-name')) return; ui.project=id; if(window.renderProjectSwitch) renderProjectSwitch(); setView('board'); };
-    const nm=tile.querySelector('.pc-name');
-    nm.onclick=e=>e.stopPropagation();
-    nm.onchange=e=>{ const v=e.target.value.trim(); if(v){ store.updateProject(id,{name:v}); renderProjectSwitch(); } else e.target.value=store.project(id).name; };
-    tile.querySelector('.pc-del').onclick=ev=>{ ev.stopPropagation(); const n=store.ticketsInProject(id);
-      if(n){ toast('Move its '+n+' ticket'+(n>1?'s':'')+' out first'); return; }
-      if(store.projects().length<=1){ toast('Keep at least one project'); return; }
-      if(!confirm('Delete this project?')) return; store.removeProject(id); if(ui.project===id) ui.project='all'; renderProjects(); renderProjectSwitch(); };
-  });
+  }).join('');
+  el.innerHTML=head+`<div class="ep-wrap">${cards}</div>`;
+  el.querySelectorAll('.ep-card[data-proj]').forEach(card=>{ card.onclick=()=>openProjectPop(card.dataset.proj); });
+  document.getElementById('prAddProj').onclick=()=>{ const id=store.addProject('New project'); renderProjects(); renderProjectSwitch&&renderProjectSwitch(); };
 }
+function projRowsHtml(pid){
+  const st=projectStats(pid);
+  return st.kids.map(k=>{ const s=store.status(k.status); const u=store.user(k.assignee);
+    return `<div class="pp-row" data-st="${esc(k.status)}" data-asg="${esc(k.assignee||'')}" data-pri="${esc(k.priority||'')}" onclick="closeProjectPop();openPanel('${k.id}')">
+      <div class="pp-rmid"><div class="pp-tnm">${esc(k.title)}</div><div class="pp-tasg">${u?esc(u.name):'Unassigned'}</div></div>
+      <span class="pp-stat">${s?esc(s.name):esc(k.status)}</span>
+    </div>`; }).join('')||'<div class="pp-empty">No tickets yet. Add one to start.</div>';
+}
+function openProjectPop(pid){
+  const p=store.project(pid); if(!p) return; const st=projectStats(pid); const kids=st.kids;
+  const nIndev=kids.filter(k=>k.status==='indev').length;
+  const nBlocked=kids.filter(k=>k.status==='blocked').length;
+  const nDone=kids.filter(k=>k.status==='done').length;
+  const asgIds=[...new Set(kids.map(k=>k.assignee).filter(Boolean))];
+  const stIds=[...new Set(kids.map(k=>k.status))];
+  const priVals=[...new Set(kids.map(k=>k.priority).filter(Boolean))];
+  const priOrder=['Highest','High','Medium','Low','Lowest'];
+  const asgOpts='<option value="">All assignees</option>'+asgIds.map(id=>{const u=store.user(id);return u?`<option value="${id}">${esc(u.name)}</option>`:'';}).join('');
+  const stOpts='<option value="">All statuses</option>'+stIds.map(id=>{const s=store.status(id);return s?`<option value="${id}">${esc(s.name)}</option>`:'';}).join('');
+  const priOpts='<option value="">All priorities</option>'+priOrder.filter(x=>priVals.includes(x)).map(x=>`<option value="${x}">${esc(x)}</option>`).join('');
+  const pop=document.getElementById('projPop');
+  pop.innerHTML=`
+    <div class="pp-h"><div><div class="ti">${esc(p.name)}</div><div class="k">${esc(p.key)}</div></div>
+      <button class="pp-openboard" onclick="ui.project='${pid}';if(window.renderProjectSwitch)renderProjectSwitch();closeProjectPop();setView('board')">Open board</button>
+      <button class="pp-x" onclick="closeProjectPop()">\u2715</button></div>
+    <div class="pp-tiles">
+      <div class="pp-tile"><div class="v">${st.total}</div><div class="l">Total</div></div>
+      <div class="pp-tile"><div class="v">${nIndev}</div><div class="l">In Dev</div></div>
+      <div class="pp-tile"><div class="v">${nBlocked}</div><div class="l">Blocked</div></div>
+      <div class="pp-tile"><div class="v">${nDone}</div><div class="l">Done</div></div>
+    </div>
+    <div class="pp-filters">
+      <select class="pp-filter" id="ppfAsg">${asgOpts}</select>
+      <select class="pp-filter" id="ppfSt">${stOpts}</select>
+      <select class="pp-filter" id="ppfPri">${priOpts}</select>
+      <button class="pp-add" onclick="closeProjectPop();openModal(null,null,'${pid}')">Add Ticket</button>
+    </div>
+    <div class="pp-body"><div class="pp-list">${projRowsHtml(pid)}</div></div>`;
+  ['ppfAsg','ppfSt','ppfPri'].forEach(id=>{ const el=pop.querySelector('#'+id); if(el) el.onchange=()=>applyProjFilters(pop); });
+  const sc=document.getElementById('projPopScrim'); sc.classList.add('on'); sc.onclick=e=>{ if(e.target===sc) closeProjectPop(); };
+}
+function applyProjFilters(pop){
+  const a=(pop.querySelector('#ppfAsg')||{}).value||'';
+  const s=(pop.querySelector('#ppfSt')||{}).value||'';
+  const pr=(pop.querySelector('#ppfPri')||{}).value||'';
+  let shown=0;
+  pop.querySelectorAll('.pp-row').forEach(row=>{
+    const ok=(!a||row.dataset.asg===a)&&(!s||row.dataset.st===s)&&(!pr||row.dataset.pri===pr);
+    row.style.display=ok?'':'none'; if(ok) shown++;
+  });
+  let empty=pop.querySelector('.pp-nomatch');
+  if(!shown){ if(!empty){ empty=document.createElement('div'); empty.className='pp-empty pp-nomatch'; empty.textContent='No tickets match these filters.'; pop.querySelector('.pp-list').appendChild(empty); } empty.style.display=''; }
+  else if(empty){ empty.style.display='none'; }
+}
+function closeProjectPop(){ const s=document.getElementById('projPopScrim'); if(s) s.classList.remove('on'); }
 
 /* ---------- Operations (workspace admin) ---------- */
 const OP_ROLES=['PM','Developer','QA','Designer','Lead','Analyst'];
