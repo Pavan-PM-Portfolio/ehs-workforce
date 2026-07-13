@@ -9,9 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#FBFAF8;--surface-3:#F0EEEA;
+  --bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F6F7F9;--surface-3:#ECEEF1;
   --ink:#14161A;--ink-2:#3A3F47;--muted:#6B7280;--faint:#9AA1AC;
-  --line:#E4E1DB;--line-2:#EEECE7;
+  --line:#E6E7EB;--line-2:#EFF0F3;
   --accent:#3B6FE0;--accent-ink:#2743E0;
   --navy:#101A33;--navy-2:#1B294B;--navy-line:#2C3B60;
   --good:#0E8F5A;--warn:#B96A00;--crit:#CE2F26;
@@ -58,7 +58,8 @@ input,select{font-family:inherit}
 /* ---------- LOGIN (full image, form in the open right space) ---------- */
 .login{position:relative;min-height:100vh;background:#FBF9FD;overflow:hidden}
 .brand{position:absolute;inset:0;background:#FBF9FD center/cover no-repeat;background-image:url('images/login-bg.webp')}
-.corner-logo{position:absolute;top:26px;right:40px;z-index:5;height:26px;filter:grayscale(1) brightness(.2)}
+.corner-logo{position:absolute;top:26px;right:40px;z-index:5;height:30px;width:190px;background:var(--accent);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:right center;mask-position:right center;-webkit-mask-size:contain;mask-size:contain}
 .formside{position:absolute;right:0;top:0;bottom:0;width:42%;min-width:360px;
   display:flex;align-items:center;justify-content:center;padding:0 5%;z-index:4}
 .formcard{width:100%;max-width:338px}
@@ -85,7 +86,11 @@ input,select{font-family:inherit}
 .topbar{height:60px;background:var(--surface);border-bottom:2px solid var(--ink);
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
-.tb-brand img{height:24px;filter:brightness(0)}
+.ehs-logo{display:inline-block;height:34px;width:216px;background:var(--accent);flex:none;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:left center;mask-position:left center;
+  -webkit-mask-size:contain;mask-size:contain}
+.tb-brand .ehs-logo{height:34px;width:216px}
 .tb-div{width:1px;height:24px;background:var(--line);flex:none}
 .tb-wf{font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--ink)}
 .tb-id{display:flex;flex-direction:column;justify-content:center;padding-left:15px;margin-left:3px;border-left:1px solid var(--line);cursor:pointer}
@@ -577,7 +582,7 @@ function renderLogin(errMsg){
   root().innerHTML=`
   <div class="login">
     <div class="brand"></div>
-    <img class="corner-logo" src="${LOGO}" alt="EduHubSpot">
+    <span class="corner-logo" style="-webkit-mask-image:url('${LOGO}');mask-image:url('${LOGO}')"></span>
     <div class="formside"><div class="formcard">
       <h2>Sign in</h2><div class="sub">Use your EduHubSpot workspace account.</div>
       ${errMsg?`<div class="err">${esc(errMsg)}</div>`:''}
@@ -616,7 +621,7 @@ function topbar(title, sub){
   const u=EHS.me();
   const dn=(u.full_name&&u.full_name.trim())?u.full_name.trim():friendlyName(u);
   return `<div class="topbar">
-    <div class="tb-brand" onclick="go('#/')"><img src="${LOGO}" alt="EHS">
+    <div class="tb-brand" onclick="go('#/')"><span class="ehs-logo" style="-webkit-mask-image:url('${LOGO}');mask-image:url('${LOGO}')"></span>
       <span class="tb-div"></span><span class="tb-wf">Workforce</span></div>
     <div class="tb-spacer"></div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
