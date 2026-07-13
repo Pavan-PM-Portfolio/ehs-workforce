@@ -61,6 +61,7 @@
       full_name: (profile && profile.full_name) || '',
       is_master_admin: !!(profile && profile.is_master_admin),
       status: (profile && profile.status) || 'active',
+      must_change: !!(s.user.user_metadata && s.user.user_metadata.must_change_pw),
       access: access || [],
     };
     return _me;
@@ -123,10 +124,14 @@
   // create a brand-new user DIRECTLY (no email invite): master sets/omits a
   // password; the account is created already-confirmed so they can sign in now.
   // returns { ok, user_id, email, password, generated }
-  async function addUser(email, fullName, grants, password, isMaster) {
+  async function addUser(email, fullName, grants, password, isMaster, requireChange) {
     return adminUser('create', {
-      email, full_name: fullName, grants: grants || [], password: password || '', is_master: !!isMaster,
+      email, full_name: fullName, grants: grants || [], password: password || '', is_master: !!isMaster, require_change: !!requireChange,
     });
+  }
+  // Master Admin: reset another user's password (and optionally force reset on next sign-in)
+  async function resetPassword(userId, password, requireChange) {
+    return adminUser('reset', { user_id: userId, password: password || '', require_change: !!requireChange });
   }
 
   /* ---------------- account self-service ---------------- */
@@ -138,8 +143,9 @@
     if (_me) _me.full_name = fullName;
   }
   async function changePassword(newPassword) {
-    const { error } = await client().auth.updateUser({ password: newPassword });
+    const { error } = await client().auth.updateUser({ password: newPassword, data: { must_change_pw: false } });
     if (error) throw error;
+    if (_me) _me.must_change = false;
   }
 
   /* ---------------- field permissions (server-resolved) ---------------- */
@@ -155,6 +161,6 @@
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, updateMyName, changePassword, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, resetPassword, updateMyName, changePassword, fieldPerms,
   };
 })(window);
