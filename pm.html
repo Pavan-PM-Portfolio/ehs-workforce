@@ -1416,6 +1416,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
       <button class="nav-item" data-view="reports"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Reports</button>
       <div class="np-sec">Manage</div>
       <button class="nav-item" data-view="team"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Team</button>
+      <button class="nav-item" data-view="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</button>
       <button class="nav-item" data-view="operations"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Operations</button>
       <button class="nav-item" id="navColumns"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>Board settings</button>
       <button class="nav-item" data-view="settings"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
@@ -1488,6 +1489,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
       <div class="pagewrap" id="calendarwrap" style="display:none"></div>
       <div class="pagewrap" id="dashboardwrap" style="display:none"></div>
       <div class="pagewrap" id="velocitywrap" style="display:none"></div>
+      <div class="pagewrap" id="usersedwrap" style="display:none"></div>
       <div class="pagewrap" id="settingswrap" style="display:none"></div>
       <div class="pagewrap" id="teamwrap" style="display:none"></div>
       <div class="pagewrap" id="soonwrap" style="display:none"></div>
@@ -1629,8 +1631,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
-const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
+const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
+const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3221,6 +3223,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   show('velocitywrap', v==='velocity');
   show('settingswrap', v==='settings');
   show('teamwrap', v==='team');
+  show('usersedwrap', v==='users');
   show('soonwrap', !!SOON_VIEWS[v]);
   document.getElementById('filterbar').style.display = (v==='board'||v==='list'||v==='overview')?'flex':'none';
   if(v==='overview'){ try{ renderFilterChips(); fillFilters(); }catch(e){} }
@@ -3240,6 +3243,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(v==='dashboard') renderDashboard();
   else if(v==='velocity') renderVelocity();
   else if(v==='settings') renderSettings();
+  else if(v==='users') renderUsers();
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
 
@@ -3527,15 +3531,6 @@ function renderSettings(){
     <div class="op-sec">
       <div class="op-sec-h"><h3>Workspace</h3><span class="range">Admin</span></div>
       <div class="set-grid"><label class="repf"><span>Workspace name</span><input id="setWsName" value="${esc(s.workspaceName)}"/></label></div>
-    </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Members</h3><span class="range">${umUsers.length} people · read-only</span></div>
-      <div class="um-list">${umUsers.map(u=>{ const r=pmRole(u); return `<div class="um-row" data-user="${u.id}">
-        <div class="um-ava" style="background:${avatarColor(u)}20;border:1.5px solid ${avatarColor(u)};color:${avatarColor(u)}">${initials(u.name)}</div>
-        <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
-        <span class="um-rolebadge ${r.cls}">${r.label}</span>
-      </div>`; }).join('')}</div>
-      <div class="set-note">Members, roles, and access are managed centrally in the EHS admin settings. Read-only here.</div>
     </div>
     <div class="op-sec">
       <div class="op-sec-h"><h3>Data</h3></div>
@@ -4404,6 +4399,36 @@ const TBL={users:'people', projects:'projects', statuses:'statuses', boards:'boa
 let snap={}, syncTimer=null, rerenderTimer=null;
 
 function meUser(){ return store.user(CURRENT_UID) || store.users()[0] || null; }
+async function renderUsers(){
+  const el=document.getElementById('usersedwrap');
+  el.innerHTML=`<div class="ov-h"><h2>Users</h2><span class="range" id="usersCount">People with access to Project Hub</span></div><div class="um-list" id="usersRoster"><p class="ov-cap">Loading…</p></div>`;
+  const _in=(n)=>((n||'?').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
+  const bcls=(r)=> r==='Master Admin'?'r-master':r==='Admin'?'r-admin':'r-user';
+  const rank={'Master Admin':0,'Admin':1,'User':2};
+  let rows=[];
+  if(typeof sb!=='undefined' && sb){
+    try{
+      const [pr, ac] = await Promise.all([
+        sb.from('profiles').select('id, full_name, email, is_master_admin'),
+        sb.from('tool_access').select('user_id, role').eq('tool_id','pm')
+      ]);
+      if(pr.error) throw pr.error; if(ac.error) throw ac.error;
+      const accMap={}; (ac.data||[]).forEach(a=>accMap[a.user_id]=a.role);
+      (pr.data||[]).forEach(p=>{ const master=!!p.is_master_admin; const r=accMap[p.id];
+        if(!master && !r) return;
+        rows.push({ name:p.full_name||(p.email||'').split('@')[0]||'—', email:p.email||'', role: master?'Master Admin':(r==='admin'?'Admin':'User') }); });
+      rows.sort((a,b)=>(rank[a.role]-rank[b.role]) || a.name.localeCompare(b.name));
+    }catch(e){ const box=document.getElementById('usersRoster'); if(box) box.innerHTML='<p class="ov-cap">Couldn’t load users: '+esc(e.message||'error')+'</p>'; return; }
+  } else {
+    rows=store.users().map(u=>({name:u.name, email:u.email||'', role:pmRole(u).label})).sort((a,b)=>(rank[a.role]-rank[b.role])||a.name.localeCompare(b.name));
+  }
+  const cnt=document.getElementById('usersCount'); if(cnt) cnt.textContent=rows.length+' '+(rows.length===1?'person has':'people have')+' access';
+  const box=document.getElementById('usersRoster'); if(box) box.innerHTML = rows.length ? rows.map(u=>`<div class="um-row">
+    <div class="um-ava" style="background:${avColor(u.name)}20;border:1.5px solid ${avColor(u.name)};color:${avColor(u.name)}">${_in(u.name)}</div>
+    <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
+    <span class="um-rolebadge ${bcls(u.role)}">${u.role}</span>
+  </div>`).join('') : '<p class="ov-cap">No one has Project Hub access yet.</p>';
+}
 function applyDefaults(){
   CURRENT_UID=((typeof ME!=='undefined' && ME && store.users().find(u=>u.authId===ME.id))||store.users()[0]||{}).id||null;
   const mu=store.user(CURRENT_UID);
