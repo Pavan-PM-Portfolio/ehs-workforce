@@ -13,8 +13,6 @@
   const cfg = global.EHS_CONFIG || {};
   let sb = null;
   let _me = null;
-  let _signedOutCb = null;
-  function onSignedOut(cb){ _signedOutCb = cb; }
 
   function configured() { return !!(global.supabase && cfg.url && cfg.anon); }
 
@@ -24,15 +22,6 @@
       throw new Error('EHS not configured — set window.EHS_CONFIG {url, anon} and include supabase-js before ehs-core.js.');
     }
     sb = global.supabase.createClient(cfg.url, cfg.anon);
-    // Immediately react to sign-out from any tab/device (fires cross-tab).
-    try {
-      sb.auth.onAuthStateChange(function (event) {
-        if (event === 'SIGNED_OUT') {
-          _me = null;
-          if (typeof _signedOutCb === 'function') { try { _signedOutCb(); } catch (e) {} }
-        }
-      });
-    } catch (e) {}
     return sb;
   }
 
@@ -46,11 +35,8 @@
     return client().auth.signInWithPassword({ email, password });
   }
   async function signOut() {
-    // 'global' revokes every session for this user (all tabs & devices).
-    try { await client().auth.signOut({ scope: 'global' }); }
-    catch (e) { try { await client().auth.signOut(); } catch (_) {} }
+    try { await client().auth.signOut(); } catch (e) {}
     _me = null;
-    try { global.localStorage.setItem('ehs:signout', String(Date.now())); } catch (e) {}
   }
   // For tools (Phase 5): bounce to the shell login if there's no session.
   async function requireSession(loginUrl) {
@@ -75,7 +61,6 @@
       full_name: (profile && profile.full_name) || '',
       is_master_admin: !!(profile && profile.is_master_admin),
       status: (profile && profile.status) || 'active',
-      must_change: !!(s.user.user_metadata && s.user.user_metadata.must_change_pw),
       access: access || [],
     };
     return _me;
@@ -114,52 +99,58 @@
       .from('tool_access').delete().eq('user_id', userId).eq('tool_id', toolId);
     if (error) throw error;
   }
-  // privileged Master-Admin actions go through the admin-user Edge Function
+  async function setMaster(userId, val) {
+    const { error } = await client()
+      .from('profiles').update({ is_master_admin: val }).eq('id', userId);
+    if (error) throw error;
+  }
+  // ---- admin-user Edge Function (service role stays server-side) ----
+  // Actions: create | reset | set_master | delete  (caller must be Master Admin)
   async function adminUser(action, payload) {
     const s = await getSession();
     const res = await fetch(cfg.url + '/functions/v1/admin-user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'apikey': cfg.anon,
         'Authorization': 'Bearer ' + (s ? s.access_token : ''),
       },
-      body: JSON.stringify({ action, ...(payload || {}) }),
+      body: JSON.stringify(Object.assign({ action }, payload || {})),
     });
     const out = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(out.error || (action + ' failed (' + res.status + ')'));
     return out;
   }
-  async function setMaster(userId, val) {
-    return adminUser('set_master', { user_id: userId, value: !!val });
-  }
-  async function deleteUser(userId) {
-    return adminUser('delete', { user_id: userId });
-  }
-  // create a brand-new user DIRECTLY (no email invite): master sets/omits a
-  // password; the account is created already-confirmed so they can sign in now.
-  // returns { ok, user_id, email, password, generated }
-  async function addUser(email, fullName, grants, password, isMaster, requireChange) {
+  // create a brand-new user (returns { user_id, email, password, generated })
+  async function addUser(email, fullName, grants, password, isMaster) {
     return adminUser('create', {
-      email, full_name: fullName, grants: grants || [], password: password || '', is_master: !!isMaster, require_change: !!requireChange,
+      email, full_name: fullName, grants: grants || [],
+      password: password || undefined,
+      is_master: !!isMaster,
+      require_change: !password,           // force a change only when we auto-generate the pw
     });
   }
-  // Master Admin: reset another user's password (and optionally force reset on next sign-in)
-  async function resetPassword(userId, password, requireChange) {
-    return adminUser('reset', { user_id: userId, password: password || '', require_change: !!requireChange });
+  // back-compat: invite == create with a forced password change
+  async function inviteUser(email, fullName, grants) {
+    return adminUser('create', { email, full_name: fullName, grants: grants || [], require_change: true });
+  }
+  async function deleteUser(userId) { return adminUser('delete', { user_id: userId }); }
+  async function resetPassword(userId, password) {
+    return adminUser('reset', { user_id: userId, password: password || undefined, require_change: !password });
   }
 
-  /* ---------------- account self-service ---------------- */
-  async function updateMyName(fullName) {
-    const s = await getSession(); if (!s) throw new Error('Not signed in');
-    const { error } = await client().from('profiles').update({ full_name: fullName }).eq('id', s.user.id);
+  // ---- self-service (signed-in user, no service role needed) ----
+  async function updateMyName(name) {
+    const m = await loadMe();
+    if (!m) throw new Error('Not signed in');
+    const { error } = await client().from('profiles').update({ full_name: name }).eq('id', m.id);
     if (error) throw error;
-    try { await client().auth.updateUser({ data: { full_name: fullName } }); } catch (e) {}
-    if (_me) _me.full_name = fullName;
+    try { await client().auth.updateUser({ data: { full_name: name } }); } catch (e) {}
+    _me = null;                            // force a fresh loadMe next call
   }
   async function changePassword(newPassword) {
-    const { error } = await client().auth.updateUser({ password: newPassword, data: { must_change_pw: false } });
+    const { error } = await client().auth.updateUser({ password: newPassword });
     if (error) throw error;
-    if (_me) _me.must_change = false;
   }
 
   /* ---------------- field permissions (server-resolved) ---------------- */
@@ -173,8 +164,10 @@
   }
 
   global.EHS = {
-    configured, client, getSession, signIn, signOut, requireSession, onSignedOut,
+    configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, deleteUser, addUser, resetPassword, updateMyName, changePassword, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, fieldPerms,
+    adminUser, addUser, inviteUser, deleteUser, resetPassword,
+    updateMyName, changePassword,
   };
 })(window);
