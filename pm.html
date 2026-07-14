@@ -3006,7 +3006,7 @@ function openPanel(id, keepScroll){
           `:''}
           ${panelTab==='worklog'?`
             <div class="tt-strip">
-              <div class="tsi"><span class="tsl">Estimate</span><span class="tsv">${t.estimate?hm(t.estimate):'—'}</span></div>
+              <div class="tsi"><span class="tsl">Original estimate</span><span class="tsv">${t.estimate?hm(t.estimate):'—'}</span></div>
               <div class="tsi"><span class="tsl">Logged</span><span class="tsv">${hm(tot.total)}</span></div>
               <div class="tsi"><span class="tsl">Remaining</span><span class="tsv" style="color:${remaining<0?'var(--crit)':'var(--ink)'}">${t.estimate?hm(Math.abs(remaining)):'—'}${remaining<0?' over':''}</span></div>
             </div>
@@ -3393,7 +3393,7 @@ function saveLog(){
   const date=document.getElementById('logDate').value||today();
   const note=document.getElementById('logNote').value.trim();
   const _preLogged=taskTotals(id).total; const _hadEst=(store.task(id).estimate||0)>0;
-  store.addWorklog({id:'w'+Date.now(), task:id, user:uid, cat, min:spent, date, note, loggedAt:new Date().toISOString()});
+  store.addWorklog({id:'w'+Date.now().toString(36)+Math.random().toString(36).slice(2,7), task:id, user:uid, cat, min:spent, date, note, loggedAt:new Date().toISOString()});
   // Jira behaviour: entered "time remaining" resets the estimate relative to new logged total
   const remStr=document.getElementById('logRem').value.trim();
   // original estimate is only settable on the very first log of a ticket that has none; it never changes afterwards
