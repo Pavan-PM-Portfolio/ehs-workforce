@@ -1443,6 +1443,59 @@ body[data-density="compact"] .board{padding:12px 16px}
 .lmore{display:flex;align-items:center;gap:12px;padding:10px 4px;justify-content:center}
 .lmore-c{font-size:12px;color:var(--muted);margin-right:6px}
 .lmore-row td{background:var(--surface-2)}
+/* ===== Notifications ===== */
+.notif-wrap{position:relative}
+.bell-btn{position:relative;border:0;background:none;cursor:pointer;padding:0;margin-right:6px}
+.bell-av{width:34px;height:34px;border-radius:10px !important;display:grid;place-items:center;background:#3B6FE020;border:1.5px solid #3B6FE0;color:#3B6FE0;transition:.14s;box-sizing:border-box}
+.bell-btn:hover .bell-av{background:#3B6FE030}
+.bell-av svg{width:17px;height:17px}
+.bell-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px !important;background:var(--crit);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid #fff}
+.nd-scrim{position:fixed;inset:0;background:rgba(16,20,30,.28);z-index:120;display:none}
+.nd-scrim.on{display:block}
+.ndrawer{position:fixed;top:0;right:0;bottom:0;width:414px;max-width:94vw;background:var(--surface);border-left:1px solid var(--line);box-shadow:-26px 0 64px -30px rgba(0,0,0,.34);display:flex;flex-direction:column;z-index:121;transform:translateX(100%);transition:transform .22s ease}
+.nd-scrim.on .ndrawer{transform:none}
+.nd-top{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;border-bottom:1px solid var(--line-2);flex:none}
+.nd-top .l{display:flex;align-items:center;gap:10px}
+.nd-top h2{font-size:16px;font-weight:800;letter-spacing:-.01em;margin:0}
+.nd-cpill{font-size:11px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px !important;padding:2px 9px}
+.nd-x{width:30px;height:30px;border-radius:8px !important;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+.nd-x:hover{background:var(--surface-2)}
+.nd-sub{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 0;flex:none}
+.nd-tabs{display:flex;gap:2px;background:var(--surface-3);border-radius:10px !important;padding:3px;flex:1}
+.nd-tabs button{flex:1;border:0;background:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);padding:7px 4px;border-radius:8px !important;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.nd-tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.nd-tabs .cnt{font-size:10px;font-weight:800;background:var(--accent);color:#fff;border-radius:8px !important;padding:0 5px;min-width:15px;text-align:center}
+.nd-tabs button:not(.on) .cnt{background:var(--faint)}
+.nd-mk{margin-left:12px;font-size:12px;font-weight:600;color:var(--accent);border:0;background:none;cursor:pointer;white-space:nowrap;flex:none}
+.nd-body{flex:1;overflow:auto;padding-bottom:8px}
+.nd-sep{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);padding:15px 20px 6px}
+.nd-empty{text-align:center;color:var(--muted);font-size:13px;padding:60px 24px}
+.nd-empty .ic{width:52px;height:52px;border-radius:14px !important;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;color:var(--faint);margin:0 auto 14px}
+.ni{display:flex;gap:12px;padding:13px 20px;position:relative;cursor:pointer;transition:.1s}
+.ni:hover{background:var(--surface-2)}
+.ni .undot{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50% !important;background:var(--accent)}
+.ni.rd{opacity:.6}.ni.rd .undot{display:none}
+.ni-av{position:relative;flex:none}
+.ni-av .avatar{width:38px !important;height:38px !important;border-radius:10px !important;font-size:13px}
+.ni-tic{width:38px;height:38px;border-radius:10px !important;display:grid;place-items:center}
+.ni-tic svg{width:17px;height:17px}
+.ni-badge{position:absolute;right:-5px;bottom:-5px;width:18px;height:18px;border-radius:6px !important;display:grid;place-items:center;border:2px solid #fff;color:#fff}
+.ni-badge svg{width:10px;height:10px}
+.ni .bd{min-width:0;flex:1}
+.ni .top{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+.ni .nm{font-size:13px;font-weight:700}
+.ni .key{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:5px !important}
+.ni .txt{font-size:12.7px;color:var(--ink-2);line-height:1.5}
+.ni .txt b{color:var(--ink);font-weight:700}
+.ni .tm{font-size:11.5px;color:var(--faint);margin-top:4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ni .tm .exact{color:var(--faint)}
+.ni .tm .dot{width:3px;height:3px;border-radius:50%;background:var(--faint);flex:none}
+.nd-foot{flex:none;border-top:1px solid var(--line-2);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.nd-foot .set{font-size:12.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:7px;cursor:pointer;border:0;background:none;font-family:inherit}
+.nd-foot .set svg{width:15px;height:15px}
+.nd-foot .clr{font-size:12px;font-weight:600;color:var(--muted);border:0;background:none;cursor:pointer;font-family:inherit}
+.stx-time{border:1px solid var(--line);border-radius:8px !important;padding:6px 9px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);width:92px}
+.stx-warnpill{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);border-radius:6px !important;padding:2px 7px;margin-left:7px;vertical-align:middle}
 /* auth */
 .auth-screen{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:500}
 /* ===== Workspaces gallery (Option A) ===== */
@@ -1758,6 +1811,12 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="tn-sub">EHS Workspace</div>
     </div>
     <span style="flex:1"></span>
+    <div class="notif-wrap">
+      <button class="bell-btn" id="notifBell" title="Notifications">
+        <span class="bell-av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
+        <span class="bell-badge" id="notifBadge" style="display:none">0</span>
+      </button>
+    </div>
     <div class="acct-wrap">
       <button class="acct-btn" id="pkAvatar" title="Account">
         <span class="tn-av" id="acctAv">–</span>
@@ -1790,6 +1849,15 @@ body[data-density="compact"] .board{padding:12px 16px}
       </div>
     </div>
   </nav>
+  <div class="nd-scrim" id="notifScrim">
+    <aside class="ndrawer" id="notifDrawer">
+      <div class="nd-top"><div class="l"><h2>Notifications</h2><span class="nd-cpill" id="ndCount" style="display:none">0 new</span></div>
+        <button class="nd-x" id="notifClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+      <div class="nd-sub"><div class="nd-tabs" id="ndTabs"><button class="on" data-tab="all">All <span class="cnt" id="ndcAll">0</span></button><button data-tab="unread">Unread <span class="cnt" id="ndcUnread">0</span></button><button data-tab="mentions">Mentions <span class="cnt" id="ndcMentions">0</span></button></div><button class="nd-mk" id="ndMarkAll">Mark all read</button></div>
+      <div class="nd-body" id="ndBody"></div>
+      <div class="nd-foot"><button class="set" id="ndSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>Notification settings</button><button class="clr" id="ndClear">Clear all</button></div>
+    </aside>
+  </div>
 <div class="app">
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -3039,6 +3107,7 @@ function openEpicPanel(e){
 let panelTab='comments';
 let CURRENT_UID=null;
 function openPanel(id, keepScroll){
+  try{ if(typeof nset==='function' && nset().autoRead && typeof loadNotifs==='function'){ const a=loadNotifs(); let ch=false; a.forEach(n=>{ if(n.taskId===id && !n.read){ n.read=true; ch=true; } }); if(ch){ saveNotifs(a); updateBell(); if(document.getElementById('notifScrim')&&document.getElementById('notifScrim').classList.contains('on')) renderNotifDrawer(); } } }catch(e){}
   ui.openTask=id;
   const t=store.task(id); if(!t) return;
   if(t.type==='Epic'){ return openEpicPanel(t); }
@@ -4070,12 +4139,14 @@ function stxSeg(fk, st){ const b=(v,cls,ic,l)=>`<button class="${st===v?'on '+cl
 
 function renderSettings(){
   const el=document.getElementById('settingswrap'); const s=store.settings();
-  const umUsers=store.users(); const muser=meUser()||{}; const pr=muser.prefs||{}; const notif=pr.notify||{};
+  const umUsers=store.users(); const muser=meUser()||{}; const pr=muser.prefs||{}; const notif=pr.notify||{}; const N=Object.assign({},NOTIF_DEFAULTS,notif);
   if(editUser && !umUsers.some(u=>u.id===editUser)) editUser=null;   // start on None; never auto-select
 
   const opt=(v,l,cur)=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${esc(l)}</option>`;
   const psel=(id,label,pairs,cur)=>`<div class="stx-row"><div class="fn">${esc(label)}</div><select class="stx-sel" data-pref="${id}">${pairs.map(([v,l])=>opt(v,l,cur)).join('')}</select></div>`;
   const ptgl=(id,label,on)=>`<div class="stx-row"><div class="fn">${esc(label)}</div><button class="stx-tgl ${on?'on':''}" data-pref="${id}"></button></div>`;
+  const ptglS=(id,label,sub,on)=>`<div class="stx-row"><div><div class="fn">${esc(label)}</div>${sub?`<div class="fs">${esc(sub)}</div>`:''}</div><button class="stx-tgl ${on?'on':''}" data-pref="${id}"></button></div>`;
+  const ptime=(id,cur)=>`<input type="time" class="stx-time" data-pref="${id}" value="${esc(cur||'')}"/>`;
   const boardPairs=store.boards().map(b=>[b.id,b.name]);
   const projPairs=[['all','All projects']].concat(store.projects().map(p=>[p.id,p.name]));
   const catPairs=CATS.map(c=>[c.id,c.id]);
@@ -4100,13 +4171,43 @@ function renderSettings(){
         ${ptgl('showWeekends','Show weekends on calendar', pr.showWeekends!==false)}
         ${ptgl('hlOverdue','Highlight overdue tickets', pr.hlOverdue!==false)}
       </div>
-      <div class="stx-card"><div class="stx-card-h">Notifications</div>
-        ${ptgl('notify.assigned','Assigned to me', notif.assigned!==false)}
-        ${ptgl('notify.mentions','Mentions', notif.mentions!==false)}
-        ${ptgl('notify.status','Status changes on my tickets', notif.status!==false)}
-        ${ptgl('notify.dueSoon','Due-soon reminders', notif.dueSoon!==false)}
-        ${ptgl('notify.replies','Comment replies', !!notif.replies)}
-        ${ptgl('notify.digest','Daily digest email', !!notif.digest)}
+      <div id="notifPrefAnchor" class="stx-card"><div class="stx-card-h">Notifications · General</div>
+        ${ptglS('notify.enabled','Enable notifications','Master switch for the bell and all alerts below', N.enabled!==false)}
+        ${ptgl('notify.badge','Show unread count on bell', N.badge!==false)}
+        ${ptglS('notify.sound','Play a sound for new alerts','Only while the app is open', !!N.sound)}
+        ${ptgl('notify.desktop','Desktop pop-up (browser)', !!N.desktop)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Notify me about</div>
+        ${ptgl('notify.assigned','Assigned to me', N.assigned!==false)}
+        ${ptgl('notify.unassigned','Unassigned / reassigned from me', N.unassigned!==false)}
+        ${ptgl('notify.roles','Added as QA / Reviewer / Deployer', N.roles!==false)}
+        ${ptgl('notify.mentions','Mentions (@me)', N.mentions!==false)}
+        ${ptglS('notify.replies','Comment replies',"On tickets I'm on or reported", N.replies!==false)}
+        ${ptglS('notify.status','Status changes',"On tickets I'm involved in", N.status!==false)}
+        ${ptgl('notify.priority','Priority changes', !!N.priority)}
+        ${ptgl('notify.flagged','Ticket flagged / blocked', N.flagged!==false)}
+        ${ptgl('notify.resolved','My ticket resolved / closed', N.resolved!==false)}
+        ${ptgl('notify.newInProject','New ticket in my project', !!N.newInProject)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Due dates</div>
+        ${ptgl('notify.dueSoon','Due-soon reminders', N.dueSoon!==false)}
+        ${psel('notify.remindBefore','Remind me',[['1','1 day before'],['2','2 days before'],['3','3 days before'],['7','1 week before']], String(N.remindBefore||2))}
+        ${ptgl('notify.overdue','Overdue alerts', N.overdue!==false)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Scope</div>
+        ${ptglS('notify.onlyAssigned','Only tickets assigned to me',"Off = anything I'm involved in", !!N.onlyAssigned)}
+        ${ptgl('notify.onlyMyProjects','Only my projects', !!N.onlyMyProjects)}
+        ${ptglS('notify.quiet','Quiet hours','Mute alerts during this window', !!N.quiet)}
+        <div class="stx-row"><div class="fn">Quiet from → to</div><div style="display:flex;align-items:center;gap:8px">${ptime('notify.quietFrom',N.quietFrom)}<span style="color:var(--faint)">→</span>${ptime('notify.quietTo',N.quietTo)}</div></div>
+        ${ptgl('notify.weekends','Notify on weekends', N.weekends!==false)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Housekeeping</div>
+        ${ptglS('notify.autoRead','Auto-mark read on open','Clear a notification when I open its ticket', N.autoRead!==false)}
+        ${ptgl('notify.group','Group into New / Earlier', N.group!==false)}
+        ${psel('notify.keepDays','Keep notifications for',[['7','7 days'],['30','30 days'],['90','90 days']], String(N.keepDays||30))}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Email</div>
+        ${ptglS('notify.digest','Daily digest email','Saved only — no email backend to send it', !!N.digest)}
       </div>
       <div class="stx-card"><div class="stx-card-h">Time &amp; tracking</div>
         ${psel('logCat','Default log category', catPairs, pr.logCat||'Development')}
@@ -4188,6 +4289,7 @@ function renderSettings(){
     const setVal=v=>{ const u=meUser(); if(!u) return; u.prefs=u.prefs||{}; const parts=path.split('.'); let o=u.prefs; for(let i=0;i<parts.length-1;i++){ o[parts[i]]=o[parts[i]]||{}; o=o[parts[i]]; } o[parts[parts.length-1]]=v; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
     if(node.classList.contains('stx-tgl')){ node.onclick=()=>{ node.classList.toggle('on'); setVal(node.classList.contains('on')); applyPrefs(); renderAll(); }; }
     else if(node.tagName==='SELECT'){ node.onchange=()=>{ setVal(node.value); applyPrefs(); renderAll(); }; }
+    else if(node.tagName==='INPUT'){ node.onchange=()=>{ setVal(node.value); applyPrefs(); if(typeof updateBell==='function') updateBell(); }; }
   });
   // teammate picker
   if(_g('stxUser')) _g('stxUser').onchange=e=>{ editUser=e.target.value||null; renderSettings(); };
@@ -5287,7 +5389,7 @@ async function diffPush(){
   for(const [k,t] of Object.entries(TBL)){
     const arr=store.data[k]||[]; const cur=new Map(); const ups=[];
     arr.forEach((d,i)=>{ const js=JSON.stringify(d); cur.set(d.id, js);
-      if((snap[t]||new Map()).get(d.id)!==js){ const row={workspace_id:WS, id:d.id, doc:d}; if(t==='statuses'||t==='boards') row.sort=i; ups.push(row); } });
+      if((snap[t]||new Map()).get(d.id)!==js){ const row={workspace_id:WS, id:d.id, doc:d}; if(t==='statuses'||t==='boards') row.sort=i; ups.push(row); if(t==='tasks'){ try{ markSelfPushed(d.id); }catch(e){} } } });
     if(ups.length) jobs.push(sb.from(t).upsert(ups));
     const del=[...(snap[t]||new Map()).keys()].filter(id=>!cur.has(id));
     if(del.length) jobs.push(sb.from(t).delete().eq('workspace_id',WS).in('id',del));
@@ -5305,7 +5407,9 @@ function subscribeRealtime(){
   Object.entries(TBL).forEach(([k,t])=>{ ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'workspace_id=eq.'+WS},p=>{
     const arr=store.data[k];
     if(p.eventType==='DELETE'){ const id=p.old&&p.old.id; if(id) store.data[k]=arr.filter(x=>x.id!==id); }
-    else if(p.new&&p.new.doc){ const doc=p.new.doc; const i=arr.findIndex(x=>x.id===doc.id); if(i>=0) arr[i]=doc; else arr.push(doc); }
+    else if(p.new&&p.new.doc){ const doc=p.new.doc; const i=arr.findIndex(x=>x.id===doc.id);
+      if(k==='tasks'){ try{ notifyTaskChange(i>=0?arr[i]:null, doc); }catch(e){} }
+      if(i>=0) arr[i]=doc; else arr.push(doc); }
     const m=new Map(); store.data[k].forEach(d=>m.set(d.id, JSON.stringify(d))); snap[t]=m;
     scheduleRerender();
   }); });
@@ -5670,6 +5774,166 @@ function wireSpaces(){
 function ensureSpaces(){
   if(!store.data.spaces) store.data.spaces=[];
 }
+
+/* ============================ NOTIFICATIONS ============================ */
+const NTYPE={
+  assign:   {c:'#3B6FE0', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M19 8v6M22 11h-6"/><circle cx="9" cy="8" r="3.2"/></svg>', flag:'assigned',    tabMention:false},
+  unassign: {c:'#71717A', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M17 11h5"/><circle cx="9" cy="8" r="3.2"/></svg>', flag:'unassigned', tabMention:false},
+  role:     {c:'#3B6FE0', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>', flag:'roles', tabMention:false},
+  mention:  {c:'#7C3AED', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="4.4"/></svg>', flag:'mentions', tabMention:true},
+  reply:    {c:'#3F3F3F', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>', flag:'replies', tabMention:false},
+  status:   {c:'#0E8F5A', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h13M13 6l6 6-6 6"/></svg>', flag:'status', tabMention:false},
+  priority: {c:'#B96A00', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 20V10M6 20v-6M18 20V4"/></svg>', flag:'priority', tabMention:false},
+  flag:     {c:'#CE2F26', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1Z"/><path d="M4 22V4"/></svg>', flag:'flagged', tabMention:false},
+  resolved: {c:'#0E8F5A', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>', flag:'resolved', tabMention:false},
+  due:      {c:'#B96A00', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>', flag:'dueSoon', tabMention:false},
+  overdue:  {c:'#CE2F26', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>', flag:'overdue', tabMention:false},
+  newticket:{c:'#3B6FE0', ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>', flag:'newInProject', tabMention:false},
+};
+const NOTIF_DEFAULTS={enabled:true, badge:true, sound:false, desktop:false,
+  assigned:true, unassigned:true, roles:true, mentions:true, replies:true, status:true, priority:false, flagged:true, resolved:true, newInProject:false,
+  dueSoon:true, remindBefore:2, overdue:true, onlyAssigned:false, onlyMyProjects:false,
+  quiet:false, quietFrom:'20:00', quietTo:'08:00', weekends:true, autoRead:true, group:true, keepDays:30, digest:false};
+function nset(){ return Object.assign({}, NOTIF_DEFAULTS, (curPrefs().notify)||{}); }
+function notifKey(){ return 'ehs_notifs_'+(myUid()||'anon'); }
+function loadNotifs(){ try{ const a=JSON.parse(localStorage.getItem(notifKey())||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function saveNotifs(a){ try{ const keep=(nset().keepDays)||30; const cut=Date.now()-keep*864e5;
+  a=a.filter(n=>Date.parse(n.at)>=cut).slice(0,80); localStorage.setItem(notifKey(), JSON.stringify(a)); }catch(e){} }
+let NOTIF_TAB='all', _selfPushed={};
+function markSelfPushed(id){ _selfPushed[id]=Date.now(); }
+function myProjectSet(){ const me=myUid(); const s=new Set(); store.tasks().forEach(t=>{ if([t.assignee,t.reporter,t.qa,t.reviewer,t.deployer].includes(me) && t.project) s.add(t.project); }); return s; }
+function involvesMe(t, onlyAssigned){ const me=myUid(); if(!me||!t) return false; if(onlyAssigned) return t.assignee===me; return [t.assignee,t.reporter,t.qa,t.reviewer,t.deployer].includes(me); }
+function inQuietHours(s){ if(!s.quiet) return false; const now=new Date(); const cur=now.getHours()*60+now.getMinutes();
+  const p=x=>{ const m=/^(\d{1,2}):(\d{2})$/.exec(x||''); return m?(+m[1]*60+ +m[2]):null; };
+  const a=p(s.quietFrom), b=p(s.quietTo); if(a==null||b==null) return false;
+  return a<=b ? (cur>=a&&cur<b) : (cur>=a||cur<b); }
+function isWeekendNow(){ const d=new Date().getDay(); return d===0||d===6; }
+function notifOn(type){ const s=nset(); if(!s.enabled) return false; const meta=NTYPE[type]; if(!meta) return false;
+  if(s[meta.flag]===false) return false; if(inQuietHours(s)) return false; if(!s.weekends && isWeekendNow()) return false; return true; }
+function addNotif(o){ // {type,taskId,actorId?,text,at?,dedup?}
+  if(!notifOn(o.type)) return;
+  const arr=loadNotifs();
+  const at=o.at||new Date().toISOString();
+  if(o.dedup && arr.some(n=>n.dedup===o.dedup)) return;
+  const id='n'+Date.now().toString(36)+Math.floor(Math.random()*999);
+  arr.unshift({id, type:o.type, taskId:o.taskId||null, actorId:o.actorId||null, text:o.text||'', at, read:false, dedup:o.dedup||null});
+  saveNotifs(arr); updateBell();
+  if(document.getElementById('notifScrim').classList.contains('on')) renderNotifDrawer();
+  if(nset().sound){ try{ notifBeep(); }catch(e){} }
+}
+function notifBeep(){ try{ const A=window.AudioContext||window.webkitAudioContext; if(!A) return; const ctx=new A(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=660; g.gain.value=.05; o.start(); setTimeout(()=>{o.stop();ctx.close();},120); }catch(e){} }
+function unreadCount(){ return loadNotifs().filter(n=>!n.read).length; }
+function updateBell(){ const s=nset(); const c=unreadCount(); const b=document.getElementById('notifBadge');
+  if(b){ if(s.badge && s.enabled && c>0){ b.textContent=c>99?'99+':c; b.style.display=''; } else b.style.display='none'; } }
+
+// diff a task change (old vs new) into notifications for the current user
+function notifyTaskChange(oldDoc, newDoc){
+  try{
+    const s=nset(); if(!s.enabled) return; const me=myUid(); if(!me) return;
+    const id=newDoc.id; if(_selfPushed[id] && Date.now()-_selfPushed[id]<5000) return;   // I made this change
+    if(s.onlyMyProjects){ const mp=myProjectSet(); if(newDoc.project && !mp.has(newDoc.project)) { /* still allow direct assign to me */ } }
+    const key=newDoc.key||''; const title=newDoc.title||'';
+    if(!oldDoc){ // brand new ticket
+      if(involvesMe(newDoc, s.onlyAssigned)) addNotif({type:'assign', taskId:id, text:`assigned you · ${title}`, dedup:'assign:'+id});
+      else if(s.newInProject && newDoc.project && myProjectSet().has(newDoc.project)) addNotif({type:'newticket', taskId:id, text:`New ticket in your project · ${title}`, dedup:'new:'+id});
+      return;
+    }
+    const inv=involvesMe(newDoc, s.onlyAssigned) || involvesMe(oldDoc, s.onlyAssigned);
+    // role/assignee changes
+    if(oldDoc.assignee!==newDoc.assignee){
+      if(newDoc.assignee===me) addNotif({type:'assign', taskId:id, text:`assigned you · ${title}`, dedup:'assign:'+id+':'+newDoc.assignee});
+      else if(oldDoc.assignee===me) addNotif({type:'unassign', taskId:id, text:`unassigned you from ${key}`});
+    }
+    [['qa','Quality Analyst'],['reviewer','Code Reviewer'],['deployer','Deployer']].forEach(([f,lbl])=>{
+      if(oldDoc[f]!==newDoc[f] && newDoc[f]===me) addNotif({type:'role', taskId:id, text:`added you as ${lbl} · ${key}`});
+    });
+    if(!inv) return;   // remaining events only if I'm involved
+    if(oldDoc.status!==newDoc.status){ const st=store.status(newDoc.status);
+      if(st && (store.status(newDoc.status)||{}).cat==='done') addNotif({type:'resolved', taskId:id, text:`${key} was marked ${esc(st.name)}`});
+      else addNotif({type:'status', taskId:id, text:`${key} moved to ${st?esc(st.name):newDoc.status}`}); }
+    if(oldDoc.priority!==newDoc.priority) addNotif({type:'priority', taskId:id, text:`${key} priority set to ${newDoc.priority||'—'}`});
+    if(!oldDoc.flagged && newDoc.flagged) addNotif({type:'flag', taskId:id, text:`${key} was flagged`});
+    // comments (mentions / replies)
+    const oc=(oldDoc.comments||[]).length, nc=(newDoc.comments||[]).length;
+    if(nc>oc){ const last=newDoc.comments[nc-1]; const actor=last&&last.user; if(actor!==me){
+      const meU=store.user(me); const nm=meU?meU.name:''; const txt=(last&&last.text)||'';
+      const mentioned = nm && new RegExp('@\\s*'+nm.split(/\s+/)[0], 'i').test(txt);
+      const snip = txt.length>70?txt.slice(0,70)+'…':txt;
+      if(mentioned) addNotif({type:'mention', taskId:id, actorId:actor, text:`mentioned you: "${esc(snip)}"`});
+      else addNotif({type:'reply', taskId:id, actorId:actor, text:`commented on ${key}: "${esc(snip)}"`});
+    }}
+  }catch(e){ console.warn('notif', e); }
+}
+
+// due-soon / overdue scan (runs on load)
+function scanDueSoon(){
+  try{ const s=nset(); if(!s.enabled) return; const me=myUid(); if(!me) return;
+    const todayISO=new Date().toISOString().slice(0,10);
+    const days=Number(s.remindBefore)||2; const soon=new Date(); soon.setDate(soon.getDate()+days); const soonISO=soon.toISOString().slice(0,10);
+    store.tasks().forEach(t=>{ if(!t.due) return; if((store.status(t.status)||{}).cat==='done') return;
+      if(!involvesMe(t, s.onlyAssigned)) return;
+      if(s.onlyMyProjects && t.project && !myProjectSet().has(t.project)) return;
+      if(t.due < todayISO){ if(s.overdue) addNotif({type:'overdue', taskId:t.id, text:`${t.key} is overdue · was due ${fdate(t.due)}`, dedup:'overdue:'+t.id+':'+t.due, at:t.due+'T09:00:00'}); }
+      else if(t.due<=soonISO){ if(s.dueSoon) addNotif({type:'due', taskId:t.id, text:`${t.key} is due ${t.due===todayISO?'today':fdate(t.due)}`, dedup:'due:'+t.id+':'+t.due, at:new Date().toISOString()}); }
+    });
+  }catch(e){}
+}
+
+function niAvatar(n){ const meta=NTYPE[n.type]||NTYPE.status; const u=n.actorId?store.user(n.actorId):null;
+  const badge=`<span class="ni-badge" style="background:${meta.c}">${meta.ic}</span>`;
+  if(u) return `<span class="ni-av">${avatar(u,38)}${badge}</span>`;
+  return `<span class="ni-av"><span class="ni-tic" style="background:${meta.c}1a;color:${meta.c}">${meta.ic}</span>${badge}</span>`;
+}
+function niName(n){ if(n.actorId){ const u=store.user(n.actorId); if(u) return esc(u.name); }
+  return {assign:'Assigned to you',unassign:'Unassigned',role:'Role added',status:'Status update',priority:'Priority changed',flag:'Flagged',resolved:'Resolved',due:'Due soon',overdue:'Overdue',newticket:'New ticket'}[n.type]||'Update'; }
+function renderNotifDrawer(){
+  const body=document.getElementById('ndBody'); if(!body) return;
+  const all=loadNotifs();
+  const unread=all.filter(n=>!n.read).length;
+  const mentions=all.filter(n=>n.type==='mention').length;
+  document.getElementById('ndcAll').textContent=all.length;
+  document.getElementById('ndcUnread').textContent=unread;
+  document.getElementById('ndcMentions').textContent=mentions;
+  const cp=document.getElementById('ndCount'); if(cp){ if(unread>0){ cp.textContent=unread+' new'; cp.style.display=''; } else cp.style.display='none'; }
+  let list=all;
+  if(NOTIF_TAB==='unread') list=all.filter(n=>!n.read);
+  else if(NOTIF_TAB==='mentions') list=all.filter(n=>n.type==='mention');
+  if(!list.length){ body.innerHTML=`<div class="nd-empty"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>${NOTIF_TAB==='all'?'No notifications yet.':'Nothing here.'}<br><span style="font-size:12px">You’ll see updates on your tickets here.</span></div>`; return; }
+  const now=Date.now(); const dayMs=864e5;
+  const rows=n=>{ const grp=nset().group;
+    return `<div class="ni ${n.read?'rd':''}" data-nid="${n.id}" data-task="${n.taskId||''}"><span class="undot"></span>${niAvatar(n)}
+      <div class="bd"><div class="top"><span class="nm">${niName(n)}</span>${n.taskId&&store.task(n.taskId)?`<span class="key">${store.task(n.taskId).key}</span>`:''}</div>
+      <div class="txt">${n.text}</div>
+      <div class="tm"><span>${timeAgo(n.at)}</span><span class="dot"></span><span class="exact">${fdatetime(n.at)}</span></div></div></div>`; };
+  const newer=list.filter(n=>!n.read || (now-Date.parse(n.at))<dayMs);
+  const older=list.filter(n=>!(!n.read || (now-Date.parse(n.at))<dayMs));
+  let html='';
+  if(newer.length) html+=`<div class="nd-sep">New</div>`+newer.map(rows).join('');
+  if(older.length) html+=`<div class="nd-sep">Earlier</div>`+older.map(rows).join('');
+  body.innerHTML=html;
+  body.querySelectorAll('.ni').forEach(el=>el.onclick=()=>{ const nid=el.dataset.nid, tid=el.dataset.task;
+    const arr=loadNotifs(); const n=arr.find(x=>x.id===nid); if(n){ n.read=true; saveNotifs(arr); }
+    updateBell();
+    if(tid && store.task(tid)){ closeNotifs(); const t=store.task(tid); if(!IS_ADMIN && !canView(ui.view)){} ui.openTask=tid; setTimeout(()=>openPanel(tid),80); }
+    else renderNotifDrawer();
+  });
+}
+function openNotifs(){ NOTIF_TAB='all'; document.querySelectorAll('#ndTabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab==='all'));
+  renderNotifDrawer(); document.getElementById('notifScrim').classList.add('on'); }
+function closeNotifs(){ document.getElementById('notifScrim').classList.remove('on'); }
+function markAllNotifsRead(){ const arr=loadNotifs(); arr.forEach(n=>n.read=true); saveNotifs(arr); updateBell(); renderNotifDrawer(); }
+function clearAllNotifs(){ localStorage.setItem(notifKey(),'[]'); updateBell(); renderNotifDrawer(); }
+function wireNotifs(){
+  const bell=document.getElementById('notifBell'); if(bell) bell.onclick=openNotifs;
+  const x=document.getElementById('notifClose'); if(x) x.onclick=closeNotifs;
+  const scrim=document.getElementById('notifScrim'); if(scrim) scrim.onclick=e=>{ if(e.target===scrim) closeNotifs(); };
+  const mk=document.getElementById('ndMarkAll'); if(mk) mk.onclick=markAllNotifsRead;
+  const cl=document.getElementById('ndClear'); if(cl) cl.onclick=clearAllNotifs;
+  document.querySelectorAll('#ndTabs button').forEach(b=>b.onclick=()=>{ NOTIF_TAB=b.dataset.tab;
+    document.querySelectorAll('#ndTabs button').forEach(x=>x.classList.toggle('on', x===b)); renderNotifDrawer(); });
+  const set=document.getElementById('ndSettings'); if(set) set.onclick=()=>{ closeNotifs(); if(IS_ADMIN||true){ setView('settings'); setTimeout(()=>{ const el=document.getElementById('notifPrefAnchor'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },120); } };
+}
+
 async function boot(){
   wireChat();
   if(CONFIGURED && !window.supabase){
@@ -5693,6 +5957,7 @@ async function boot(){
       setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent='Master Admin');
       setEl('apAv',e=>{e.textContent=pini;e.style.background=cc+'20';e.style.border='1.6px solid '+cc;e.style.color=cc;}); }
   }
+  try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ console.warn('notif init', e); }
 }
 boot();
 </script>
