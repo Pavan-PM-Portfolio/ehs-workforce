@@ -538,6 +538,13 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
   border:1px solid var(--line);border-radius:20px;padding:1px 7px;min-width:20px;text-align:center}
 .col-h .time{margin-left:auto;font-size:10.5px;color:var(--muted);font-family:"Inter";font-weight:600}
 .col-body{padding:0 10px 10px;display:flex;flex-direction:column;gap:9px;flex:1}
+/* Ungrouped board: fill the viewport, equal-height columns, scroll cards inside each column */
+.board:not(.grouped){height:100%;box-sizing:border-box;align-items:stretch}
+.board:not(.grouped) .col{max-height:100%}
+.board:not(.grouped) .col-body{overflow-y:auto;min-height:0;padding-bottom:12px}
+.board:not(.grouped) .col-body::-webkit-scrollbar{width:8px}
+.board:not(.grouped) .col-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.board:not(.grouped) .col-body::-webkit-scrollbar-track{background:transparent}
 .card{background:var(--surface);border:1px solid var(--line-2);border-radius:10px !important;box-shadow:0 2px 8px -3px rgba(0,0,0,.14);overflow:hidden;flex:none;
   cursor:pointer;transition:.12s;position:relative}
 .card:hover{border-color:var(--line);box-shadow:0 5px 14px -4px rgba(0,0,0,.2);transform:translateY(-1px)}
