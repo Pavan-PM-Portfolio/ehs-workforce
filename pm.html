@@ -1628,6 +1628,12 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .prow-agent:hover{transform:none;box-shadow:none;border-color:var(--line)}
 .prow-agent .prow-nm{color:var(--ink)}
 .prow-agent:hover .prow-nm{text-decoration:none}
+.fp-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;max-width:820px}
+.fp-block{border:1px solid var(--line);border-radius:12px !important;padding:14px 16px;background:var(--surface)}
+.fp-h{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:9px}
+.fp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0;font-size:13px;color:var(--ink-2)}
+.fp-row input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none}
+.fp-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -2901,6 +2907,7 @@ function openPanel(id, keepScroll){
   const t=store.task(id); if(!t) return;
   if(t.type==='Epic'){ return openEpicPanel(t); }
   const tot=taskTotals(id);
+  const estLocked = tot.total>0;   // original estimate freezes once time is logged
   const proj=store.project(t.project);
   const stObj=store.status(t.status); const stCat=stObj?stObj.cat:'todo';
   const remaining = (t.estimate||0) - tot.total;
@@ -2921,6 +2928,7 @@ function openPanel(id, keepScroll){
   const fvBtn=(fid,html)=>`<button class="fval" id="${fid}">${html}</button>`;
   const cdVal=(field)=>`<button class="fval p-cd${field==='due'&&pOver?' over':''}" data-id="${id}" data-field="${field}">${t[field]?fdate(t[field]):'<span class="fv-none">None</span>'}</button>`;
   const dtRow=(label,val,ed=true)=>`<div class="dt-row"><span class="dt-l">${label}</span><div class="dt-v">${val}</div><span class="dt-ind ${ed?'ed':'lk'}" title="${ed?'Editable':'Read-only'}">${ed?EDIT_ICO:LOCK_ICO}</span></div>`;
+  const dtField=(seeCap,editCap,label,val)=>{ if(seeCap && !can(seeCap)) return ''; const ed = editCap ? can(editCap) : false; return dtRow(label, val, ed); };
   const tlEvents=[];
   if(t.createdAt) tlEvents.push({by:t.reporter, text:'created this ticket', at:t.createdTs||t.createdAt});
   (t.activity||[]).forEach(a=>tlEvents.push({by:a.by, text:a.text, at:a.at}));
@@ -3024,39 +3032,40 @@ function openPanel(id, keepScroll){
       <div class="pnl-side">
         <div class="dt-title">Details</div>
         <div class="dt-list">
-          ${dtRow('Status', fvBtn('pStatus', `<span class="fv-status" style="background:${CATCOLOR[stCat]}1f;color:${CATCOLOR[stCat]}">${esc(pLbl(statusSel,t.status))}</span>`))}
-          ${dtRow('Priority', fvBtn('pPriority', `<span style="color:${PRIORITIES[t.priority]||'var(--ink)'};font-weight:600">${esc(t.priority||'—')}</span>`))}
-          ${dtRow('Developer', fvBtn('pAssignee', personVal(t.assignee)))}
-          ${dtRow('Quality Analyst', fvBtn('pQa', personVal(t.qa)))}
-          ${dtRow('Code Reviewer', fvBtn('pReviewer', personVal(t.reviewer)))}
-          ${dtRow('Deployer', fvBtn('pDeployer', personVal(t.deployer)))}
-          ${dtRow('Reporter', fvBtn('pReporter', personVal(t.reporter)))}
-          ${dtRow('Project', fvBtn('pProject', `<span class="${t.project?'':'fv-none'}">${esc(pLbl(projSel,t.project))}</span>`))}
-          ${dtRow('Start date', cdVal('start'))}
-          ${dtRow('Due date', cdVal('due'))}
-          ${dtRow('Estimate', `<input id="pEstimate" class="fv-input" type="number" step="0.25" min="0" placeholder="None" value="${t.estimate?(t.estimate/60):''}"/>`)}
-          ${dtRow('Epic', fvBtn('pParent', `<span class="${t.parent?'':'fv-none'}">${esc(pLbl(epicSel,t.parent))}</span>`))}
+          ${dtField(null,'field_status','Status', fvBtn('pStatus', `<span class="fv-status" style="background:${CATCOLOR[stCat]}1f;color:${CATCOLOR[stCat]}">${esc(pLbl(statusSel,t.status))}</span>`))}
+          ${dtField(null,'field_priority','Priority', fvBtn('pPriority', `<span style="color:${PRIORITIES[t.priority]||'var(--ink)'};font-weight:600">${esc(t.priority||'—')}</span>`))}
+          ${dtField(null,'role_developer','Developer', fvBtn('pAssignee', personVal(t.assignee)))}
+          ${dtField('see_contributors','role_qa','Quality Analyst', fvBtn('pQa', personVal(t.qa)))}
+          ${dtField('see_contributors','role_reviewer','Code Reviewer', fvBtn('pReviewer', personVal(t.reviewer)))}
+          ${dtField('see_contributors','role_deployer','Deployer', fvBtn('pDeployer', personVal(t.deployer)))}
+          ${dtField('see_reporter','role_reporter','Reporter', fvBtn('pReporter', personVal(t.reporter)))}
+          ${dtField(null,'field_project','Project', fvBtn('pProject', `<span class="${t.project?'':'fv-none'}">${esc(pLbl(projSel,t.project))}</span>`))}
+          ${dtField('see_dates','field_start','Start date', cdVal('start'))}
+          ${dtField('see_dates','field_due','Due date', cdVal('due'))}
+          ${dtField('see_estimate', estLocked?null:'field_estimate', 'Original estimate', estLocked ? `<span class="fv-input" style="opacity:.7" title="Locked — time has been logged">${t.estimate?hm(t.estimate):'None'}</span>` : `<input id="pEstimate" class="fv-input" type="number" step="0.25" min="0" placeholder="None" value="${t.estimate?(t.estimate/60):''}"/>`)}
+          ${dtField(null,'field_epic','Epic', fvBtn('pParent', `<span class="${t.parent?'':'fv-none'}">${esc(pLbl(epicSel,t.parent))}</span>`))}
           ${dtRow('Resolution', `<span class="tag" style="background:${t.resolution==='Done'?'var(--good-soft,#E4F3EC)':'var(--surface-3)'};color:${t.resolution==='Done'?'var(--good)':'var(--muted)'}">${t.resolution||'Unresolved'}</span>`, false)}
           ${dtRow('Category', `<span class="tag" style="background:var(--surface-3);color:${CATCOLOR[stCat]}"><span class="col-dot" style="background:${CATCOLOR[stCat]}"></span>${CATLABEL[stCat]}</span>`, false)}
-          ${dtRow('Time logged', `<b style="font-size:13px">${hm(tot.total)}</b>`, false)}
+          ${dtField('see_logged',null,'Time logged', `<b style="font-size:13px">${hm(tot.total)}</b>`, false)}
         </div>
       </div>
     </div>`;
 
   // wire panel
+  const F=(elid,cap)=>{ const el=document.getElementById(elid); return (el && can(cap)) ? el : {set onclick(v){}, set onchange(v){}}; };
   document.getElementById('panelClose').onclick=closePanel;
-  document.getElementById('pStatus').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, statusSel, t.status, v=>{ store.updateTask(id,{status:v}); refreshViews(); openPanel(id,true); toast('Status updated'); }); };
-  document.getElementById('pPriority').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, prioSel, t.priority, v=>{ store.updateTask(id,{priority:v}); refreshViews(); openPanel(id,true); }); };
-  document.getElementById('pAssignee').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.assignee||'', v=>{ store.updateTask(id,{assignee:v||null}); refreshViews(); openPanel(id,true); }); };
-  document.getElementById('pQa').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.qa||'', v=>{ store.updateTask(id,{qa:v||null}); openPanel(id,true); }); };
-  document.getElementById('pReviewer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.reviewer||'', v=>{ store.updateTask(id,{reviewer:v||null}); openPanel(id,true); }); };
-  document.getElementById('pDeployer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.deployer||'', v=>{ store.updateTask(id,{deployer:v||null}); openPanel(id,true); }); };
-  document.getElementById('pReporter').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, reporterSel, t.reporter||'', v=>{ store.updateTask(id,{reporter:v||null}); openPanel(id,true); }); };
-  document.getElementById('pProject').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, projSel, t.project||'', v=>{ store.updateTask(id,{project:v||null}); refreshViews(); openPanel(id,true); }); };
-  document.getElementById('pParent').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, epicSel, t.parent||'', v=>{ store.updateTask(id,{parent:v||null}); openPanel(id,true); }); };
-  panel.querySelectorAll('.p-cd').forEach(el=>{ el.onclick=e=>{ e.stopPropagation(); const f=el.dataset.field||'due'; openDateMenu(el, el.dataset.id, (store.task(el.dataset.id)||{})[f], f); }; });
-  document.getElementById('pEstimate').onchange=e=>{ const h=parseFloat(e.target.value); store.updateTask(id,{estimate:h>0?Math.round(h*60):null}); openPanel(id,true); };
-  const pDesc=document.getElementById('pDesc'); if(pDesc) pDesc.onchange=()=>{ store.updateTask(id,{desc:pDesc.value}); refreshViews(); };
+  F('pStatus','field_status').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, statusSel, t.status, v=>{ store.updateTask(id,{status:v}); refreshViews(); openPanel(id,true); toast('Status updated'); }); };
+  F('pPriority','field_priority').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, prioSel, t.priority, v=>{ store.updateTask(id,{priority:v}); refreshViews(); openPanel(id,true); }); };
+  F('pAssignee','role_developer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.assignee||'', v=>{ store.updateTask(id,{assignee:v||null}); refreshViews(); openPanel(id,true); }); };
+  F('pQa','role_qa').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.qa||'', v=>{ store.updateTask(id,{qa:v||null}); openPanel(id,true); }); };
+  F('pReviewer','role_reviewer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.reviewer||'', v=>{ store.updateTask(id,{reviewer:v||null}); openPanel(id,true); }); };
+  F('pDeployer','role_deployer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.deployer||'', v=>{ store.updateTask(id,{deployer:v||null}); openPanel(id,true); }); };
+  F('pReporter','role_reporter').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, reporterSel, t.reporter||'', v=>{ store.updateTask(id,{reporter:v||null}); openPanel(id,true); }); };
+  F('pProject','field_project').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, projSel, t.project||'', v=>{ store.updateTask(id,{project:v||null}); refreshViews(); openPanel(id,true); }); };
+  F('pParent','field_epic').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, epicSel, t.parent||'', v=>{ store.updateTask(id,{parent:v||null}); openPanel(id,true); }); };
+  panel.querySelectorAll('.p-cd').forEach(el=>{ const _f=el.dataset.field||'due'; if(!can(_f==='start'?'field_start':'field_due')) return; el.onclick=e=>{ e.stopPropagation(); const f=el.dataset.field||'due'; openDateMenu(el, el.dataset.id, (store.task(el.dataset.id)||{})[f], f); }; });
+  F('pEstimate','field_estimate').onchange=e=>{ const h=parseFloat(e.target.value); store.updateTask(id,{estimate:h>0?Math.round(h*60):null}); openPanel(id,true); };
+  const pDesc=document.getElementById('pDesc'); if(pDesc){ if(!can('see_desc')){ pDesc.value=''; pDesc.placeholder='— hidden —'; pDesc.disabled=true; } else if(!can('field_desc')){ pDesc.readOnly=true; } else { pDesc.onchange=()=>{ store.updateTask(id,{desc:pDesc.value}); refreshViews(); }; } }
   panel.querySelectorAll('.act-tab').forEach(tb=>tb.onclick=()=>{ panelTab=tb.dataset.tab; openPanel(id,true); });
   const cmtPost=document.getElementById('cmtPost'); if(cmtPost) cmtPost.onclick=()=>{ const el=document.getElementById('cmtInput'); const v=(el.value||'').trim(); if(!v){ el.focus(); return; } store.addComment(id, meU?meU.id:null, v); toast('Comment added'); openPanel(id,true); };
   panel.querySelectorAll('.cmt-del').forEach(b=>b.onclick=()=>{ store.removeComment(id, b.dataset.cid); openPanel(id,true); });
@@ -3366,7 +3375,7 @@ function openLogModal(taskId, presetCat){
     ? `The original estimate for this work item was <b>${jiraDur(est)}</b>.`
     : `No original estimate set — you can enter time remaining below to set one.`;
   document.getElementById('logCat').innerHTML=CATS.map(c=>`<option value="${c.id}" ${c.id===presetCat?'selected':''}>${c.id}</option>`).join('');
-  document.getElementById('logWho').innerHTML=store.users().map(u=>`<option value="${u.id}" ${u.id===(CURRENT_UID||t.assignee)?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
+  document.getElementById('logWho').innerHTML=store.users().map(u=>`<option value="${u.id}" ${u.id===(t.assignee||CURRENT_UID)?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
   document.getElementById('logSpent').value='';
   document.getElementById('logRem').value= est? jiraDur(remaining) : '';
   document.getElementById('logDate').value=today();
@@ -3383,10 +3392,12 @@ function saveLog(){
   const uid=document.getElementById('logWho').value;
   const date=document.getElementById('logDate').value||today();
   const note=document.getElementById('logNote').value.trim();
+  const _preLogged=taskTotals(id).total; const _hadEst=(store.task(id).estimate||0)>0;
   store.addWorklog({id:'w'+Date.now(), task:id, user:uid, cat, min:spent, date, note, loggedAt:new Date().toISOString()});
   // Jira behaviour: entered "time remaining" resets the estimate relative to new logged total
   const remStr=document.getElementById('logRem').value.trim();
-  if(remStr!==''){ const rem=parseDur(remStr); if(rem!=null){ const newLogged=taskTotals(id).total; store.updateTask(id,{estimate:newLogged+rem}); } }
+  // original estimate is only settable on the very first log of a ticket that has none; it never changes afterwards
+  if(remStr!=='' && _preLogged===0 && !_hadEst){ const rem=parseDur(remStr); if(rem!=null){ store.updateTask(id,{estimate:taskTotals(id).total+rem}); } }
   closeLogModal(); openPanel(id,true); refreshViews(); toast(`Logged ${hm(spent)} · ${cat}`);
 }
 function createTask(){
@@ -3898,6 +3909,23 @@ function renderSettings(){
       <div class="set-grid"><label class="repf"><span>Workspace name</span><input id="setWsName" value="${esc(s.workspaceName)}"/></label></div>
     </div>
     <div class="op-sec">
+      <div class="op-sec-h"><h3>Access &amp; permissions</h3><span class="range">Admin · per teammate</span></div>
+      <div class="set-grid"><label class="repf"><span>Teammate</span><select id="apUser">${umUsers.filter(u=>u.id!==CURRENT_UID).map(u=>`<option value="${u.id}" ${editUser===u.id?'selected':''}>${esc(u.name)} — ${permOf(u)}</option>`).join('')||'<option>No teammates</option>'}</select></label></div>
+      ${(()=>{ const eu=store.user(editUser)||{}; const isAdm=permOf(eu)==='Admin'; const up=userPerms[editUser]||{}; const sps=store.spaces();
+        const capBlock=(title,items)=>`<div class="fp-block"><div class="fp-h">${title}</div>${items.map(([c,l])=>`<label class="fp-row"><span>${l}</span><input type="checkbox" class="ap-cap" data-cap="${c}" ${up[c]?'checked':''} ${isAdm?'disabled':''}></label>`).join('')}</div>`;
+        const editItems=((CAP_GROUPS.find(g=>g.g==='Edit ticket fields')||{}).items||[]).concat((CAP_GROUPS.find(g=>g.g==='Assign people')||{}).items||[]);
+        const seeItems=(CAP_GROUPS.find(g=>g.g==='View sensitive fields')||{}).items||[];
+        return `<div class="fp-wrap">
+          <div class="fp-block"><div class="fp-h">Access level</div>
+            <label class="fp-row"><span><b>Full admin</b> — sees &amp; manages every workspace</span><input type="checkbox" id="apAdmin" ${isAdm?'checked':''}></label>
+            <div class="fp-note">Admins bypass every field and workspace limit below.</div></div>
+          <div class="fp-block" ${isAdm?'style="opacity:.45;pointer-events:none"':''}><div class="fp-h">Visible workspaces</div>
+            ${sps.length?sps.map(sp=>`<label class="fp-row"><span>${esc(sp.name)}</span><input type="checkbox" class="ap-ws" data-ws="${sp.id}" ${(sp.members||[]).includes(editUser)?'checked':''}></label>`).join(''):'<div class="fp-note">No workspaces yet.</div>'}</div>
+          <div ${isAdm?'style="opacity:.45;pointer-events:none"':''}>${capBlock('Editable fields', editItems)}</div>
+          <div ${isAdm?'style="opacity:.45;pointer-events:none"':''}>${capBlock('Visible fields', seeItems)}</div>
+        </div>`; })()}
+    </div>
+    <div class="op-sec">
       <div class="op-sec-h"><h3>Data</h3></div>
       <div class="set-actions">
         <button class="btn" id="setExport">Export data (JSON)</button>
@@ -3925,6 +3953,10 @@ function renderSettings(){
     if(typeof sb!=='undefined'&&sb){ try{ const {error}=await sb.auth.updateUser({password:pw}); if(error){ toast('Could not update: '+error.message); return; } _g('myPw').value=''; toast('Password updated'); }catch(e){ toast('Could not update password'); } }
     else { toast('Sign-in is managed by your workspace admin.'); } };
   if(_g('setWsName')) _g('setWsName').onchange=e=>{ store.updateSettings({workspaceName:e.target.value.trim()||'Workspace'}); applyBrand(); };
+  if(_g('apUser')) _g('apUser').onchange=e=>{ editUser=e.target.value; renderSettings(); };
+  if(_g('apAdmin')) _g('apAdmin').onchange=()=>{ const on=!!_g('apAdmin').checked; store.updateUser(editUser,{perm:on?'Admin':''}); toast(on?'Granted full admin access':'Admin access removed'); renderAll(); renderSettings(); };
+  el.querySelectorAll('.ap-ws').forEach(cb=>cb.onchange=()=>{ const sp=store.space(cb.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); cb.checked?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); toast('Workspace access updated'); });
+  el.querySelectorAll('.ap-cap').forEach(cb=>cb.onchange=()=>{ const base=Object.assign({}, s.userPerms||{}); const rec=Object.assign({}, base[editUser]||userPerms[editUser]||{}); rec[cb.dataset.cap]=cb.checked; base[editUser]=rec; store.updateSettings({userPerms:base}); });
   if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
   if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
     downloadCSV('all-tickets.csv', flds.map(f=>REPORT_FIELDS[f]), store.standardTasks().map(t=>flds.map(f=>reportFieldVal(t,f)))); };
@@ -4963,7 +4995,7 @@ async function renderUsers(){
   </div>`).join('') : '<p class="ov-cap">No one has Project Hub access yet.</p>';
 }
 function applyDefaults(){
-  CURRENT_UID=((typeof ME!=='undefined' && ME && store.users().find(u=>u.authId===ME.id))||store.users()[0]||{}).id||null;
+  CURRENT_UID=((typeof ME!=='undefined' && ME && (store.users().find(u=>u.authId===ME.id) || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase())))||store.users()[0]||{}).id||null;
   const mu=store.user(CURRENT_UID);
   const db=(mu&&mu.prefs&&mu.prefs.defaultBoard)||store.settings().defaultBoard;
   const dv=(mu&&mu.prefs&&mu.prefs.defaultView)||store.settings().defaultView;
@@ -5051,11 +5083,24 @@ async function loadWorkspace(){
     mem={workspace_id:WSID, role};
   }
   WS=mem.workspace_id; IS_ADMIN=(mem.role==='admin');
+  // A master admin, or an admin of THIS tool (tool_access role=admin for 'pm'),
+  // gets full access here too — including seeing every workspace/space.
+  if(!IS_ADMIN && sb && ME){ try{
+    const [pr,ac]=await Promise.all([
+      sb.from('profiles').select('is_master_admin').eq('id',ME.id).maybeSingle(),
+      sb.from('tool_access').select('role').eq('user_id',ME.id).eq('tool_id','pm').maybeSingle()
+    ]);
+    if((pr&&pr.data&&pr.data.is_master_admin)||(ac&&ac.data&&ac.data.role==='admin')) IS_ADMIN=true;
+  }catch(e){} }
+  const _meEmail=((ME&&ME.email)||'').toLowerCase();
+  if(!IS_ADMIN && ['pavan.k@eduhubspot.com','reachpavan02@gmail.com'].includes(_meEmail)) IS_ADMIN=true;
   await fetchAll();
   const empty = !(store.data.statuses&&store.data.statuses.length);
   if(empty){ setTimeout(()=>toast('This workspace has no data yet — an admin needs to run seed.sql.'),400); }
   STATUSES=store.data.statuses||[];
-  buildSnap(); applyDefaults(); applyRole();
+  buildSnap(); applyDefaults();
+  try{ const _me=meUser(); if(_me && permOf(_me)==='Admin') IS_ADMIN=true; }catch(e){}
+  applyRole();
   document.getElementById('authScreen').style.display='none';
   const em=(ME&&ME.email)||''; const ae=document.getElementById('acctEmail'); if(ae) ae.textContent=em||'Signed in';
   if(em){ const meta=(ME&&ME.user_metadata&&ME.user_metadata.full_name||'').trim(); const full=meta||em.split('@')[0].replace(/[._-]+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase()); const first=full.split(/\s+/)[0]; const an=document.getElementById('acctName'); if(an) an.textContent=full||'Account';
@@ -5204,7 +5249,9 @@ function applyEmailFixes(){ if(!store.data||!store.data.users) return; let chang
 }
 const SP_COLORS=['#3B6FE0','#0E8FA8','#7A3FF2','#0E8F5A','#B96A00','#CE2F26','#C026D3','#2743E0'];
 let _spEdit=null;
-function myUid(){ try{ if(ME && ME.uid) return ME.uid; }catch(e){} const u=store.users&&store.users()[0]; return u?u.id:'u7'; }
+function effPerms(uid){ try{ const s=store.settings(); if(s.userPerms && s.userPerms[uid]) return s.userPerms[uid]; const u=store.user&&store.user(uid); return DEFAULT_ROLE_PERMS[permOf(u||{})]||{}; }catch(e){ return {}; } }
+function can(cap){ if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return true; try{ return !!effPerms(myUid())[cap]; }catch(e){ return true; } }
+function myUid(){ try{ if(typeof CURRENT_UID!=='undefined' && CURRENT_UID) return CURRENT_UID; }catch(e){} try{ if(typeof ME!=='undefined' && ME && ME.id && store.users){ const pp=store.users().find(u=>u.authId===ME.id) || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase()); if(pp) return pp.id; } }catch(e){} const u=store.users&&store.users()[0]; return u?u.id:'u7'; }
 function canAccessSpace(sp){ if(typeof IS_ADMIN!=='undefined'&&IS_ADMIN) return true; return (sp.members||[]).includes(myUid()); }
 function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); saveSpot(); }
 function saveSpot(){ try{ localStorage.setItem('ehs_spot', JSON.stringify({space:ui.space||null, view:ui.view||'overview', board:ui.board||null})); }catch(e){} }
@@ -5245,7 +5292,7 @@ function renderSpaces(){
     const ini=(sp.name||'?').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
     return `<div class="sp-card" data-space="${sp.id}">
       <div class="sp-card-top"><div class="sp-ic" style="background:linear-gradient(135deg, ${c}, ${c}22)">${ini}</div>
-        <button class="sp-manage" data-space="${sp.id}" title="Manage workspace">${DOTS}</button></div>
+        ${(typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?`<button class="sp-manage" data-space="${sp.id}" title="Manage workspace">${DOTS}</button>`:''}</div>
       <div class="sp-nm">${esc(sp.name||'')}</div>
       <div class="sp-desc">${esc(sp.desc||'')}</div>
       <div class="sp-foot"><span class="sp-cnt">${mem} member${mem!==1?'s':''}</span>${CHV}</div>
