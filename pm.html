@@ -1163,7 +1163,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 ::-webkit-scrollbar-thumb:hover{background:#C4BFB7;background-clip:padding-box}
 
 /* ---------- Pages (Overview / Team / Soon) ---------- */
-.pagewrap{padding:22px 26px 60px;max-width:1180px}
+.pagewrap{padding:22px 26px 60px}
 .ov-summary{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 22px;
   display:flex;gap:44px;flex-wrap:wrap;margin-bottom:24px}
 .ov-si .l{font-size:12px;color:var(--muted);margin-bottom:6px}
@@ -1185,6 +1185,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
 /* overview hover popover */
 body[data-view="overview"] #newTaskBtn{display:none !important}
+body[data-view="overview"] #periodSeg button[data-p="today"],body[data-view="overview"] #periodSeg button[data-p="week"]{display:none}
 [data-pop]{cursor:pointer}
 .sb-kpi[data-pop]:hover,.ov-leg[data-pop]:hover,.hbar-row[data-pop]:hover{background:var(--surface-2)}
 .ovpop{position:fixed;width:322px;background:#fff;border:1px solid var(--line);border-radius:13px !important;box-shadow:0 26px 60px -22px rgba(16,26,51,.42);z-index:400;overflow:hidden;display:none}
@@ -2599,10 +2600,15 @@ document.addEventListener('click',e=>{ if(fmOpen && !e.target.closest('#filterMe
 window.addEventListener('scroll',(e)=>{ const t=e&&e.target; if(fmOpen && !(t && t.closest && t.closest('#filterMenu'))) closeFilterMenu(); }, true);
 function fillFilters(){
   renderFilterChips();
-  const seg=document.getElementById('periodSeg'); if(seg){ seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.p===ui.filters.period));
+  const seg=document.getElementById('periodSeg'); if(seg){
+    const isOv=ui.view==='overview';
+    const curP=isOv?((ui.ovRange==='custom')?'custom':'month'):ui.filters.period;
+    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.p===curP));
     const cw=document.getElementById('fPeriodCustom');
-    if(ui.filters.period==='custom'){ cw.style.display='block'; cw.innerHTML=periodCustomRow('f', ui.filters.from, ui.filters.to);
-      wirePeriodCustom('f', ui.filters.from, ui.filters.to, v=>{ ui.filters.from=v; fillFilters(); refreshViews(); }, v=>{ ui.filters.to=v; fillFilters(); refreshViews(); });
+    if(curP==='custom'){ cw.style.display='block';
+      const cf=isOv?ui.ovFrom:ui.filters.from, ct=isOv?ui.ovTo:ui.filters.to;
+      cw.innerHTML=periodCustomRow('f', cf, ct);
+      wirePeriodCustom('f', cf, ct, v=>{ if(isOv) ui.ovFrom=v; else ui.filters.from=v; fillFilters(); refreshViews(); }, v=>{ if(isOv) ui.ovTo=v; else ui.filters.to=v; fillFilters(); refreshViews(); });
     } else cw.style.display='none'; }
 }
 
@@ -3915,6 +3921,12 @@ function renderSideCard(){
 /* ---------- Overview dashboard ---------- */
 function ovWindow(){
   const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
+  const per=(ui.ovRange==='custom')?'custom':'month';
+  if(per==='custom'){ const f=ui.ovFrom||to, t=ui.ovTo||to; return {from:f<t?f:t,to:f<t?t:f,label:fdate(f<t?f:t)+' – '+fdate(f<t?t:f)}; }
+  const d=new Date(today); d.setDate(d.getDate()-29); return {from:iso(d),to,label:'Last 30 days'};
+}
+function _ovWindowOld(){
+  const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
   const per=(ui.filters&&ui.filters.period)||'all';
   if(per==='today') return {from:to,to,label:'Today'};
   if(per==='week'){ const d=new Date(today); d.setDate(d.getDate()-6); return {from:iso(d),to,label:'Last 7 days'}; }
@@ -4042,7 +4054,7 @@ function renderOverview(){
     <div class="sb-hero">
       <div class="sb-lbl">Hours logged · ${win.label.toLowerCase()}</div>
       <div class="sb-big">${(totalMin/60).toFixed(0)}<span class="u">h</span></div>
-      ${(dH.t!=='—'&&(ui.filters.period&&ui.filters.period!=='all'))?`<span class="sb-pill">${dH.t}${(dH.c==='up'||dH.c==='dn')?' vs prev '+((ui.filters.period)==='today'?'day':(ui.filters.period)==='week'?'week':(ui.filters.period)==='month'?'month':'period'):''}</span>`:''}
+      ${(dH.t!=='—')?`<span class="sb-pill">${dH.t}${(dH.c==='up'||dH.c==='dn')?' vs prev '+((ui.ovRange==='custom')?'period':'month'):''}</span>`:''}
       <div class="sb-hero-chart">${ovArea(dHours,AC,84)}</div>
     </div>
     <div class="sb-kpis">
@@ -5340,7 +5352,7 @@ document.addEventListener('click',()=>document.getElementById('boardMenu').class
 document.querySelectorAll('#bsTabs button').forEach(b=>b.onclick=()=>{ bsTab=b.dataset.bt; renderBoardSettings(); });
 (function(){ const sw=document.getElementById('spSwitch'); if(sw) sw.onclick=()=>backToSpaces(); })();
 document.getElementById('search').oninput=e=>{ ui.filters.search=e.target.value; refreshViews(); };
-document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ ui.filters.period=btn.dataset.p; fillFilters(); refreshViews(); });
+document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ if(ui.view==='overview'){ ui.ovRange=btn.dataset.p; } else { ui.filters.period=btn.dataset.p; } fillFilters(); refreshViews(); });
 let umEditId=null;
 function openMemberEdit(uid){ const u=store.user(uid); if(!u) return; umEditId=uid;
   document.getElementById('ueName').value=u.name||'';
