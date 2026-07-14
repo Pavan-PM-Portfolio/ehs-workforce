@@ -241,19 +241,21 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pj-ov-hero{padding-right:28px;border-right:1px solid var(--ink)}
 .pj-ov-hero .v{font-size:44px;font-weight:900;letter-spacing:-.04em;line-height:.9}
 .pj-ov-hero .l{font-size:11px;color:var(--muted);margin-top:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.pj-ov-rest{display:flex;gap:40px;align-items:center;flex:1}
+.pj-ov-rest{display:flex;gap:30px;row-gap:16px;align-items:center;flex-wrap:wrap;flex:1}
 .pj-ov-s .v{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1}
-.pj-ov-s .v.hp{color:#CE2F26}
+.pj-ov-s .v.hp,.pj-ov-s .v.blk{color:#CE2F26}
+.pj-ov-s .v.done{color:#0E8F5A}
 .pj-ov-s .l{font-size:10.5px;color:var(--muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 .pj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:36px}
 .pj-list{display:flex;flex-direction:column;gap:12px;margin-top:36px}
 .prow{display:flex;align-items:center;gap:26px;border:1px solid var(--line);border-radius:14px !important;background:#fff;padding:18px 22px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;font-family:inherit;text-align:left;width:100%}
 .prow:hover{border-color:#CFD3DA;box-shadow:0 16px 34px -24px rgba(16,24,45,.4);transform:translateY(-2px)}
-.prow-main{width:230px;flex:none;min-width:0}
+.prow-main{flex:1;min-width:0}
 .prow-nm{font-weight:700;font-size:16px;letter-spacing:-.015em;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prow:hover .prow-nm{text-decoration:underline}
 .prow-k{font-size:11px;color:var(--faint);margin-top:3px}
-.prow-ring{display:flex;align-items:center;gap:13px;flex:1;justify-content:center}
+.prow-ring{display:flex;align-items:center;gap:12px;flex:none;padding-left:24px;border-left:1px solid var(--line-2)}
+.prow-ring-l{text-align:right}
 .prow-ringc{position:relative;width:58px;height:58px;flex:none}
 .prow-ringc svg{transform:rotate(-90deg)}
 .prow-ringc .prow-rc{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;font-weight:800;letter-spacing:-.03em}
@@ -282,6 +284,16 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pp-del{border:1px solid #E7C3C0;background:#fff;color:#CE2F26;font-family:inherit;font-weight:600;font-size:12.5px;padding:7px 13px;cursor:pointer;border-radius:8px !important}
 .pp-del:hover{background:rgba(206,47,38,.06)}
 .pp-del.armed{background:#CE2F26;border-color:#CE2F26;color:#fff}
+.pp-htitle .ti{font-size:17px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-menu-wrap{position:relative;flex:none}
+.pp-kebab{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:9px !important;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+.pp-kebab:hover{background:var(--surface-2);color:var(--ink)}
+.pp-menu{position:absolute;top:40px;right:0;min-width:180px;background:#fff;border:1px solid var(--line);border-radius:11px !important;box-shadow:0 20px 44px -18px rgba(16,24,45,.42);padding:5px;z-index:30;display:none}
+.pp-menu.on{display:block}
+.pp-menu button{display:block;width:100%;text-align:left;border:0;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);padding:9px 11px;border-radius:8px !important;cursor:pointer}
+.pp-menu button:hover{background:var(--surface-2)}
+.pp-menu button.danger{color:#CE2F26}
+.pp-menu button.danger:hover{background:rgba(206,47,38,.08)}
 .pj-card{background:#fff;border:1px solid var(--ink);border-radius:15px !important;padding:20px;text-align:left;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;display:flex;flex-direction:column;min-height:172px;font-family:inherit}
 .pj-card:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(16,24,45,.4)}
 .pj-card:hover .pj-chev{opacity:1}
@@ -4107,13 +4119,19 @@ function renderProjects(){
   const addFn=()=>{ store.addProject('New project'); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); };
   const allK=store.standardTasks();
   const ovIndev=allK.filter(k=>k.status==='indev').length;
+  const ovDone=allK.filter(k=>k.status==='done').length;
+  const ovBlocked=allK.filter(k=>k.status==='blocked').length;
   const ovHp=allK.filter(k=>k.priority==='Highest').length;
+  const ovPct=allK.length?Math.round(ovDone/allK.length*100):0;
   const ov=`<div class="pj-ov">
     <div class="pj-ov-hero"><div class="v">${projects.length}</div><div class="l">Total projects</div></div>
     <div class="pj-ov-rest">
       <div class="pj-ov-s"><div class="v">${allK.length}</div><div class="l">Total tickets</div></div>
       <div class="pj-ov-s"><div class="v">${ovIndev}</div><div class="l">In development</div></div>
+      <div class="pj-ov-s"><div class="v done">${ovDone}</div><div class="l">Completed</div></div>
+      <div class="pj-ov-s"><div class="v blk">${ovBlocked}</div><div class="l">Blocked</div></div>
       <div class="pj-ov-s"><div class="v hp">${ovHp}</div><div class="l">High priority</div></div>
+      <div class="pj-ov-s"><div class="v">${ovPct}%</div><div class="l">Completion</div></div>
     </div>
   </div>`;
   if(!projects.length){ el.innerHTML=head+`<div class="pj-sep"></div>`+ov+`<div class="pj-empty2">No projects yet. Click \u201cAdd project\u201d to create one.</div>`;
@@ -4130,8 +4148,8 @@ function renderProjects(){
     const hp=kids.filter(k=>k.priority==='Highest').length; const hot=hp>0;
     return `<div class="prow" data-proj="${p.id}">
       <div class="prow-main"><div class="prow-nm">${esc(p.name)}</div><div class="prow-k">${esc(p.key)} \u00b7 ${total} ticket${total!==1?'s':''}</div></div>
-      <div class="prow-ring ${hot?'hot':'clear'}">${ring(hp,total)}<div class="prow-ring-l">Priority tasks</div></div>
-      <div class="prow-stats"><div class="prow-st"><div class="v">${backlog}</div><div class="l">Backlog</div></div><div class="prow-st"><div class="v">${indev}</div><div class="l">In Dev</div></div><div class="prow-st blk"><div class="v">${blocked}</div><div class="l">Blocked</div></div></div>${CHV}
+      <div class="prow-stats"><div class="prow-st"><div class="v">${backlog}</div><div class="l">Backlog</div></div><div class="prow-st"><div class="v">${indev}</div><div class="l">In Dev</div></div><div class="prow-st blk"><div class="v">${blocked}</div><div class="l">Blocked</div></div></div>
+      <div class="prow-ring ${hot?'hot':'clear'}"><div class="prow-ring-l">Priority tasks</div>${ring(hp,total)}</div>${CHV}
     </div>`;
   }).join('') + `<button class="prow prow-add" id="prAddCard"><span class="prow-add-plus">+</span>Add project</button>`;
   el.innerHTML=head+`<div class="pj-sep"></div>`+ov+`<div class="pj-list">${cards}</div>`;
@@ -4147,6 +4165,16 @@ function projRowsHtml(pid){
       <span class="pp-stat">${s?esc(s.name):esc(k.status)}</span>
     </div>`; }).join('')||'<div class="pp-empty">No tickets yet. Add one to start.</div>';
 }
+function renameProjectInline(pid){
+  const t=document.getElementById('ppTitle'); const p=store.project(pid); if(!t||!p) return;
+  const inp=document.createElement('input'); inp.className='pp-name-inp'; inp.id='ppTitle'; inp.value=p.name; inp.spellcheck=false;
+  t.replaceWith(inp); inp.focus(); inp.select(); let done=false;
+  const save=commit=>{ if(done) return; done=true; const v=inp.value.trim();
+    if(commit&&v&&v!==p.name){ store.updateProject(pid,{name:v}); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); }
+    const nd=document.createElement('div'); nd.className='ti'; nd.id='ppTitle'; nd.textContent=(commit&&v)?v:p.name; inp.replaceWith(nd); };
+  inp.onkeydown=e=>{ if(e.key==='Enter') save(true); else if(e.key==='Escape') save(false); };
+  inp.onblur=()=>save(true);
+}
 function openProjectPop(pid){
   const p=store.project(pid); if(!p) return; const st=projectStats(pid); const kids=st.kids;
   const nIndev=kids.filter(k=>k.status==='indev').length;
@@ -4161,10 +4189,10 @@ function openProjectPop(pid){
   const priOpts='<option value="">All priorities</option>'+priOrder.filter(x=>priVals.includes(x)).map(x=>`<option value="${x}">${esc(x)}</option>`).join('');
   const pop=document.getElementById('projPop');
   pop.innerHTML=`
-    <div class="pp-h"><div class="pp-htitle"><input class="pp-name-inp" id="ppName" value="${esc(p.name).replace(/"/g,'&quot;')}" spellcheck="false"><div class="k">${esc(p.key)}</div></div>
+    <div class="pp-h"><div class="pp-htitle"><div class="ti" id="ppTitle">${esc(p.name)}</div><div class="k">${esc(p.key)}</div></div>
+      <div class="pp-menu-wrap"><button class="pp-kebab" id="ppKebab" title="Project options"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button><div class="pp-menu" id="ppMenu"><button data-act="rename">Rename project</button><button data-act="delete" class="danger">Delete project</button></div></div>
       <button class="pp-openboard" onclick="ui.project='${pid}';if(window.renderProjectSwitch)renderProjectSwitch();closeProjectPop();setView('board')">Open board</button>
       <button class="pp-x" onclick="closeProjectPop()">\u2715</button></div>
-    <div class="pp-edit"><span class="pp-edit-l">Colour</span><div class="pp-colors" id="ppColors">${SP_COLORS.map(c=>`<button type="button" class="pp-color ${c===(p.color||SP_COLORS[0])?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div><div class="pp-edit-sp"></div><button class="pp-del" id="ppDel">Delete project</button></div>
     <div class="pp-tiles">
       <div class="pp-tile"><div class="v">${st.total}</div><div class="l">Total</div></div>
       <div class="pp-tile"><div class="v">${nIndev}</div><div class="l">In Dev</div></div>
@@ -4179,10 +4207,13 @@ function openProjectPop(pid){
     </div>
     <div class="pp-body"><div class="pp-list">${projRowsHtml(pid)}</div></div>`;
   ['ppfAsg','ppfSt','ppfPri'].forEach(id=>{ const el=pop.querySelector('#'+id); if(el) el.onchange=()=>applyProjFilters(pop); });
-  const nameInp=pop.querySelector('#ppName'); if(nameInp) nameInp.onchange=()=>{ const v=nameInp.value.trim(); if(v){ store.updateProject(pid,{name:v}); if(window.renderProjectSwitch) renderProjectSwitch(); if(ui.view==='projects') renderProjects(); } else nameInp.value=p.name; };
-  pop.querySelectorAll('#ppColors .pp-color').forEach(bb=>bb.onclick=()=>{ pop.querySelectorAll('#ppColors .pp-color').forEach(x=>x.classList.remove('on')); bb.classList.add('on'); store.updateProject(pid,{color:bb.dataset.c}); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); });
-  let _ppDelArm=false,_ppDelT=null; const _delB=pop.querySelector('#ppDel');
-  if(_delB) _delB.onclick=()=>{ if(!_ppDelArm){ _ppDelArm=true; _delB.textContent='Click again to delete'; _delB.classList.add('armed'); _ppDelT=setTimeout(()=>{ _ppDelArm=false; _delB.textContent='Delete project'; _delB.classList.remove('armed'); },3000); return; } clearTimeout(_ppDelT); store.removeProject(pid); if(ui.project===pid) ui.project='all'; toast('Project deleted'); closeProjectPop(); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); };
+  const _kb=pop.querySelector('#ppKebab'), _mn=pop.querySelector('#ppMenu');
+  if(_kb&&_mn){ _kb.onclick=e=>{ e.stopPropagation(); _mn.classList.toggle('on'); };
+    pop.addEventListener('click',e=>{ if(!e.target.closest('.pp-menu-wrap')) _mn.classList.remove('on'); });
+    _mn.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ _mn.classList.remove('on'); const act=btn.dataset.act;
+      if(act==='rename'){ renameProjectInline(pid); }
+      else if(act==='delete'){ const pr=store.project(pid); if(confirm('Delete project \u201c'+(pr?pr.name:'')+'\u201d? This cannot be undone.')){ store.removeProject(pid); if(ui.project===pid) ui.project='all'; toast('Project deleted'); closeProjectPop(); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); } }
+    }); }
   const sc=document.getElementById('projPopScrim'); sc.classList.add('on'); sc.onclick=e=>{ if(e.target===sc) closeProjectPop(); };
 }
 function applyProjFilters(pop){
