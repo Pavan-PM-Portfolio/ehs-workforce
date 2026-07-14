@@ -1183,6 +1183,34 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-card{background:#fff;border:1px solid var(--line);border-radius:16px !important;box-shadow:0 12px 32px -24px rgba(16,26,51,.18);padding:18px 20px;overflow:hidden}
 .ov-card h3{font-size:13.5px;font-weight:600;margin:0 0 3px}
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
+/* overview hover popover */
+body[data-view="overview"] #newTaskBtn{display:none !important}
+[data-pop]{cursor:pointer}
+.sb-kpi[data-pop]:hover,.ov-leg[data-pop]:hover,.hbar-row[data-pop]:hover{background:var(--surface-2)}
+.ovpop{position:fixed;width:322px;background:#fff;border:1px solid var(--line);border-radius:13px !important;box-shadow:0 26px 60px -22px rgba(16,26,51,.42);z-index:400;overflow:hidden;display:none}
+.ovpop.on{display:block}
+.ovpop-h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line-2)}
+.ovpop-h .t{font-size:12.5px;font-weight:800;color:var(--ink)}
+.ovpop-h .c{font-size:11px;font-weight:700;color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:1px 8px}
+.ovpop-list{max-height:270px;overflow:auto}
+.ovpr{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line-2);cursor:pointer}
+.ovpr:last-child{border-bottom:0}
+.ovpr:hover{background:var(--surface-2)}
+.ovkey{font-family:ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 5px;border-radius:5px !important;flex:none}
+.ovti{font-size:12.3px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ovrt{font-size:11px;font-weight:600;white-space:nowrap;flex:none}
+.ovrt.crit{color:var(--crit)}.ovrt.warn{color:var(--warn)}.ovrt.mut{color:var(--faint)}
+.ovpop .avatar{width:22px !important;height:22px !important;border-radius:7px !important;font-size:9px}
+.ovpop-f{padding:8px 14px;text-align:center;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line-2)}
+.ov-un{font-size:10.5px;color:var(--faint);font-weight:600}
+/* upcoming due tile */
+.ov-due-day{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:14px 0 5px}
+.ov-due-day:first-of-type{margin-top:2px}
+.ov-due-row{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line-2);cursor:pointer}
+.ov-due-row:last-child{border-bottom:0}
+.ov-due-row:hover .ov-due-t{color:var(--accent)}
+.ov-due-t{font-size:13px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-due-pri{font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px !important;flex:none}
 .hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
 .hbar-row:last-child{margin-bottom:0}
 .hbar-row .nm{font-size:12.5px;color:var(--ink-2);min-width:130px;display:flex;align-items:center;gap:8px}
@@ -1887,14 +1915,13 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="np-sec">Insights</div>
       <div class="nav-item nav-parent open" id="navAnalyticsToggle">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l3-4 3 3 4-6"/></svg>
-        <span class="np-label">Analytics</span>
+        <span class="np-label">Dashboards</span>
       </div>
       <div id="navAnalytics" class="board-sublist">
         <button class="nav-item sub-item" data-atab="delivery"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Delivery</button>
         <button class="nav-item sub-item" data-atab="priority"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Priority</button>
         <button class="nav-item sub-item" data-atab="productivity"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Productivity</button>
       </div>
-      <button class="nav-item" data-view="dashboard"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</button>
       <button class="nav-item" data-view="reports"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Reports</button>
       <div class="np-sec">Manage</div>
       <button class="nav-item" data-view="team"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Team</button>
@@ -1936,11 +1963,9 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="filterbar" id="filterbar">
       <div class="chips" id="filterChips"></div>
       <div class="fbar-right">
-      <button class="fb-refresh" id="boardRefresh" title="Refresh data"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>Refresh</button>
       <div class="period-box">
         <div class="period-seg" id="periodSeg">
-          <button data-p="all" class="on">All</button>
-          <button data-p="today">Today</button>
+          <button data-p="today" class="on">Today</button>
           <button data-p="week">Week</button>
           <button data-p="month">Month</button>
           <button data-p="custom">Custom</button>
@@ -1948,12 +1973,14 @@ body[data-density="compact"] .board{padding:12px 16px}
         <div class="pcustom-wrap" id="fPeriodCustom" style="display:none"></div>
       </div>
       <button class="filter-clear" id="clearFilters">Clear all</button>
+      <button class="fb-refresh" id="boardRefresh" title="Refresh data"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg></button>
       </div>
     </div>
     </div>
     <div class="fmenu" id="filterMenu"></div>
     <div class="fmenu" id="cfMenu"></div>
     <div class="cardmenu" id="cardMenu"></div>
+    <div class="ovpop" id="ovPop"></div>
 
     <div class="scroll" id="scroll">
       <div class="board" id="board"></div>
@@ -2451,14 +2478,14 @@ function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charC
 /* ============================================================
    VIEW STATE + RENDER
 ============================================================ */
-const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'all', anFrom:'', anTo:'', ovRange:'month', ovFrom:'', ovTo:'',
+const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'', anFrom:'', anTo:'', ovRange:'month', ovFrom:'', ovTo:'',
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
-  depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
+  depFilter:{ mode:'', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
   listBoard:'all', listGroup:'none',
   report:{ kind:'summary', groupBy:'assignee', measure:'count',
     fields:['key','title','status','priority','assignee','due','logged'],
     f:{ project:'all', assignee:'all', status:'all', priority:'all', type:'all', epic:'all', hasTime:'any', overdue:'any', dateField:'none', from:'', to:'' } },
-  filters:{search:'', assignee:'all', status:'all', priority:'all', type:'all', time:'all', epic:'all', period:'all', from:'', to:''} };
+  filters:{search:'', assignee:'all', status:'all', priority:'all', type:'all', time:'all', epic:'all', period:'today', from:'', to:''} };
 function activeBoard(){ return store.board(ui.board) || (store.boards()&&store.boards()[0]) || null; }
 function allowedTargets(b, from){ return (b.transitions&&b.transitions[from])||[]; }
 function canMove(b, from, to){ if(from===to) return true; if(!b.enforce) return true; return allowedTargets(b, from).includes(to); }
@@ -2572,7 +2599,7 @@ document.addEventListener('click',e=>{ if(fmOpen && !e.target.closest('#filterMe
 window.addEventListener('scroll',(e)=>{ const t=e&&e.target; if(fmOpen && !(t && t.closest && t.closest('#filterMenu'))) closeFilterMenu(); }, true);
 function fillFilters(){
   renderFilterChips();
-  const seg=document.getElementById('periodSeg'); if(seg){ seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.p===(ui.filters.period||'all')));
+  const seg=document.getElementById('periodSeg'); if(seg){ seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.p===ui.filters.period));
     const cw=document.getElementById('fPeriodCustom');
     if(ui.filters.period==='custom'){ cw.style.display='block'; cw.innerHTML=periodCustomRow('f', ui.filters.from, ui.filters.to);
       wirePeriodCustom('f', ui.filters.from, ui.filters.to, v=>{ ui.filters.from=v; fillFilters(); refreshViews(); }, v=>{ ui.filters.to=v; fillFilters(); refreshViews(); });
@@ -3309,7 +3336,7 @@ function openPanel(id, keepScroll){
 function closePanel(){ ui.openTask=null; document.getElementById('panel').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); }
 
 /* ---------- Deployment tracker ---------- */
-function depInRange(t){ const f=ui.depFilter; if(f.mode==='all') return true; if(!t.deployedAt) return false; const d=new Date(t.deployedAt); const now=new Date();
+function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; if(!t.deployedAt) return false; const d=new Date(t.deployedAt); const now=new Date();
   if(f.mode==='today') return d.toDateString()===now.toDateString();
   if(f.mode==='week'){ const s=new Date(now); const day=(s.getDay()+6)%7; s.setDate(s.getDate()-day); s.setHours(0,0,0,0); return d>=s; }
   if(f.mode==='month') return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
@@ -3372,13 +3399,13 @@ function renderDeployments(){
   const grpVal=f.group==='none'?'None':GROUPS[f.group];
   const chip=(id,ico,label,val,active)=>`<button class="chip ${active?'active':''}" id="${id}">${ico}<span class="chip-lbl">${label}</span><span class="chip-val">${esc(val)}</span>${CHEV_SVG}</button>`;
   const seg=(m,label)=>`<button class="dep-seg ${f.mode===m?'on':''}" data-mode="${m}">${label}</button>`;
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depGrpBtn',ICO_GRP,'Group',grpVal,f.group!=='none')}</div><div class="period-box"><div class="dep-filter">${seg('all','All')}${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depGrpBtn',ICO_GRP,'Group',grpVal,f.group!=='none')}</div><div class="period-box"><div class="dep-filter">${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
     ${body}`;
   document.getElementById('depProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.depFilter.project=v; renderDeployments(); }); };
   document.getElementById('depPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.depFilter.priority=v; renderDeployments(); }); };
   document.getElementById('depAsgBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, asgOpts, f.assignee, v=>{ ui.depFilter.assignee=v; renderDeployments(); }); };
   document.getElementById('depGrpBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, grpOpts, f.group, v=>{ ui.depFilter.group=v; renderDeployments(); }); };
-  el.querySelectorAll('.dep-seg').forEach(b=>b.onclick=()=>{ ui.depFilter.mode=b.dataset.mode; renderDeployments(); });
+  el.querySelectorAll('.dep-seg').forEach(b=>b.onclick=()=>{ ui.depFilter.mode=(ui.depFilter.mode===b.dataset.mode)?'':b.dataset.mode; renderDeployments(); });
   if(f.mode==='custom') wirePeriodCustom('dep', f.from, f.to, v=>{ ui.depFilter.from=v; renderDeployments(); }, v=>{ ui.depFilter.to=v; renderDeployments(); });
   el.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(b.dataset.del); renderDeployments(); } });
 }
@@ -3923,6 +3950,27 @@ function ovDonut(parts,top,bot,size){ size=size||120; const total=parts.reduce((
   const segs=parts.filter(p=>p.v>0).map(p=>{ const pct=p.v/total*100; const off=25-acc; acc+=pct; return `<circle cx="21" cy="21" r="15.9" fill="none" stroke="${p.color}" stroke-width="5.5" stroke-dasharray="${pct.toFixed(2)} ${(100-pct).toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"/>`; }).join('');
   return `<svg width="${size}" height="${size}" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--surface-3)" stroke-width="5.5"/>${segs}<text x="21" y="20.5" text-anchor="middle" font-size="6.6" font-weight="800" fill="var(--ink)">${top}</text><text x="21" y="25.5" text-anchor="middle" font-size="3.1" fill="var(--muted)">${bot}</text></svg>`; }
 function ovDelta(cur,prev){ if(!prev) return cur>0?{t:'New',c:'up'}:{t:'—',c:''}; const d=Math.round((cur-prev)/prev*100); return {t:(d>=0?'↑ ':'↓ ')+Math.abs(d)+'%', c:d>=0?'up':'dn'}; }
+let _ovSets={};
+function wireOvPops(){
+  const pop=document.getElementById('ovPop'); if(!pop) return;
+  let hideT=null; const cancel=()=>{ if(hideT){ clearTimeout(hideT); hideT=null; } };
+  const hide=()=>{ cancel(); hideT=setTimeout(()=>pop.classList.remove('on'),150); };
+  pop.onmouseenter=cancel; pop.onmouseleave=hide;
+  document.querySelectorAll('#overviewwrap [data-pop]').forEach(elm=>{
+    elm.onmouseenter=()=>{ cancel(); const set=_ovSets[elm.dataset.pop];
+      if(!set||!set.tasks.length){ pop.classList.remove('on'); return; }
+      const rows=set.tasks.slice(0,12).map(x=>`<div class="ovpr" data-id="${x.t.id}"><span class="ovkey">${esc(x.t.key)}</span><span class="ovti">${esc(x.t.title)}</span>${x.right||''}</div>`).join('');
+      pop.innerHTML=`<div class="ovpop-h"><span class="t">${esc(set.title)}</span><span class="c">${set.tasks.length}</span></div><div class="ovpop-list">${rows}</div>${set.tasks.length>12?`<div class="ovpop-f">+${set.tasks.length-12} more</div>`:''}`;
+      pop.querySelectorAll('.ovpr').forEach(r=>r.onclick=()=>{ pop.classList.remove('on'); openPanel(r.dataset.id); });
+      pop.classList.add('on');
+      const r=elm.getBoundingClientRect(); const pw=322, ph=pop.offsetHeight;
+      let left=r.left; if(left+pw>window.innerWidth-12) left=Math.max(12, window.innerWidth-pw-12);
+      let top=r.bottom+8; if(top+ph>window.innerHeight-12) top=Math.max(12, r.top-ph-8);
+      pop.style.left=left+'px'; pop.style.top=top+'px';
+    };
+    elm.onmouseleave=hide;
+  });
+}
 function renderOverview(){
   const el=document.getElementById('overviewwrap');
   const win=ovWindow(); const inWin=d=>!!d && d>=win.from && d<=win.to;
@@ -3965,6 +4013,21 @@ function renderOverview(){
   const capMin=Math.max(1, workDays*8*60);
   const capRows=topUsers.map(x=>{ const u=store.user(x.u); const util=x.m/capMin; const pct=Math.min(100,Math.round(util*100)); const c= util>1.05?'#CE2F26' : util>=.7?'#0E8F5A' : '#B96A00'; return {u,m:x.m,util,pct,c}; });
   const engBars=topUsers.length?topUsers.map(x=>{const u=store.user(x.u);const c=u?u.color:'#999';return `<div class="hbar-row"><span class="nm">${avatar(u,20)}${u?esc(u.name):'—'}</span><span class="track"><span class="fill" style="width:${x.m/umax*100}%;background:linear-gradient(90deg,${c}99,${c})"></span></span><span class="val">${hm(x.m)}</span></div>`;}).join(''):'<p class="ov-cap">No time logged in this period.</p>';
+  const _todayISO=new Date().toISOString().slice(0,10);
+  const _nd=t=>(store.status(t.status)||{}).cat!=='done';
+  const createdTix=all.filter(t=>inWin(t.createdAt)).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const overdueTix=all.filter(t=>t.due && _nd(t) && t.due<_todayISO).sort((a,b)=>a.due.localeCompare(b.due));
+  const dueTodayTix=all.filter(t=>t.due===_todayISO && _nd(t));
+  const deployedTix=all.filter(t=>t.deployedAt && inWin(t.deployedAt)).sort((a,b)=>(b.deployedAt||'').localeCompare(a.deployedAt||''));
+  const solvedTix=all.filter(t=>(store.status(t.status)||{}).cat==='done');
+  const activeTix=all.filter(t=>(store.status(t.status)||{}).cat==='inprogress');
+  const openTixCat=all.filter(t=>(store.status(t.status)||{}).cat==='todo');
+  const _d7=new Date(); _d7.setDate(_d7.getDate()+7); const _to7=_d7.toISOString().slice(0,10);
+  const upcoming=all.filter(t=>t.due && t.due>=_todayISO && t.due<=_to7 && _nd(t)).sort((a,b)=>a.due.localeCompare(b.due));
+  const _asgAv=t=>{ const u=store.user(t.assignee); return u?avatar(u,22):'<span class="ov-un">Unassigned</span>'; };
+  const _late=t=>Math.max(1,Math.round((new Date(_todayISO)-new Date(t.due))/86400000));
+  const PRICLS={Highest:'high',High:'high',Medium:'med',Low:'low',Lowest:'low'};
+  const _dueLabel=d=>{ if(d===_todayISO) return 'Today · '+fdate(d); const tm=new Date(_todayISO); tm.setDate(tm.getDate()+1); if(d===tm.toISOString().slice(0,10)) return 'Tomorrow · '+fdate(d); const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(d+'T00:00:00').getDay()]; return wd+' · '+fdate(d); };
 
   el.innerHTML=`
     <div class="sb-hero">
@@ -3974,10 +4037,10 @@ function renderOverview(){
       <div class="sb-hero-chart">${ovArea(dHours,AC,84)}</div>
     </div>
     <div class="sb-kpis">
-      <div class="sb-kpi"><div class="top"><span class="l">Tickets created</span><span class="sb-dl ${dC.c}">${dC.t}</span></div><div class="v">${created}</div>${ovSpark(dCreated,'#3B6FE0')}</div>
-      <div class="sb-kpi"><div class="top"><span class="l">Tickets solved</span><span class="sb-dl ${dS.c}">${dS.t}</span></div><div class="v">${solved}</div>${ovSpark(dSolved,'#0E8F5A')}</div>
-      <div class="sb-kpi"><div class="top"><span class="l">Resolution</span><span class="sb-dl ${dR.c}">${dR.t}</span></div><div class="v">${resPct}<span class="u">%</span></div>${ovSpark(dHours,'#B96A00')}</div>
-      <div class="sb-kpi"><div class="top"><span class="l">In progress</span></div><div class="v">${inprog}</div><div class="sb-sub">being worked now</div></div>
+      <div class="sb-kpi" data-pop="created"><div class="top"><span class="l">Tickets created</span><span class="sb-dl ${dC.c}">${dC.t}</span></div><div class="v">${created}</div>${ovSpark(dCreated,'#3B6FE0')}</div>
+      <div class="sb-kpi" data-pop="overdue"><div class="top"><span class="l">Overdue</span>${overdueTix.length?`<span class="sb-dl dn">${overdueTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${overdueTix.length?'var(--crit)':'var(--ink)'}">${overdueTix.length}</div><div class="sb-sub">past due · open</div></div>
+      <div class="sb-kpi" data-pop="duetoday"><div class="top"><span class="l">Due Today</span>${dueTodayTix.length?`<span class="sb-dl" style="color:var(--warn)">${dueTodayTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${dueTodayTix.length?'var(--warn)':'var(--ink)'}">${dueTodayTix.length}</div><div class="sb-sub">due by end of day</div></div>
+      <div class="sb-kpi" data-pop="deployed"><div class="top"><span class="l">Deployments</span><span class="sb-dl">—</span></div><div class="v">${deployedTix.length}</div><div class="sb-sub">shipped ${win.label.toLowerCase()}</div></div>
     </div>
     <div class="sb-2">
       <div class="ov-tile"><div class="ov-gh">Aging tickets</div><p class="ov-cap">Oldest open · needs attention</p>
@@ -3985,12 +4048,12 @@ function renderOverview(){
       </div>
       <div class="ov-tile"><div class="ov-gh">Ticket status</div><p class="ov-cap">${all.length} tickets</p>
         <div class="ov-donut-row">${ovDonut([{v:doneNow,color:'#0E8F5A'},{v:inprog,color:'#3B6FE0'},{v:openNow,color:'#E7E8EC'}],all.length,'tickets',108)}
-          <div class="ov-legs"><div class="ov-leg"><span class="d" style="background:#0E8F5A"></span>Solved<span class="v">${doneNow}</span></div><div class="ov-leg"><span class="d" style="background:#3B6FE0"></span>Active<span class="v">${inprog}</span></div><div class="ov-leg"><span class="d" style="background:#E7E8EC"></span>Open<span class="v">${openNow}</span></div></div></div>
+          <div class="ov-legs"><div class="ov-leg" data-pop="solved"><span class="d" style="background:#0E8F5A"></span>Solved<span class="v">${doneNow}</span></div><div class="ov-leg" data-pop="active"><span class="d" style="background:#3B6FE0"></span>Active<span class="v">${inprog}</span></div><div class="ov-leg" data-pop="open"><span class="d" style="background:#E7E8EC"></span>Open<span class="v">${openNow}</span></div></div></div>
       </div>
     </div>
     <div class="sb-eq">
-      <div class="ov-tile"><div class="ov-gh">Capacity</div><p class="ov-cap">Logged vs available · ${workDays} working day${workDays!==1?'s':''}</p>
-        ${capRows.length?capRows.map(r=>`<div class="hbar-row" title="${hm(r.m)} of ${hm(capMin)}"><span class="nm">${avatar(r.u,20)}${r.u?esc(r.u.name):'—'}</span><span class="track"><span class="fill" style="width:${r.pct}%;background:${r.c}"></span></span><span class="val" style="color:${r.c}">${Math.round(r.util*100)}%</span></div>`).join(''):'<p class="ov-cap">No time logged in this period.</p>'}
+      <div class="ov-tile"><div class="ov-gh">Upcoming due dates</div><p class="ov-cap">Next 7 days · ${upcoming.length} ticket${upcoming.length!==1?'s':''}</p>
+        ${upcoming.length?(()=>{ let out=''; let cur=''; upcoming.forEach(t=>{ if(t.due!==cur){ cur=t.due; out+=`<div class="ov-due-day">${_dueLabel(t.due)}</div>`; } const pc=PRICLS[t.priority]||'low'; const pcol=pc==='high'?'var(--crit)':pc==='med'?'var(--warn)':'var(--muted)'; const pbg=pc==='high'?'var(--crit-soft)':pc==='med'?'var(--warn-soft)':'var(--surface-3)'; out+=`<div class="ov-due-row" onclick="openPanel('${t.id}')"><span class="ovkey">${esc(t.key)}</span><span class="ov-due-t">${esc(t.title)}</span><span class="ov-due-pri" style="color:${pcol};background:${pbg}">${esc(t.priority||'—')}</span></div>`; }); return out; })():'<p class="ov-cap">Nothing due in the next 7 days.</p>'}
       </div>
       <div class="ov-tile"><div class="ov-gh">Hours by category</div><p class="ov-cap">Where effort is going</p>
         <div class="ov-donut-row">${ovDonut(CATS.map(c=>({v:byCat[c.id]||0,color:CATCLR[c.id]||'#71717A'})),(totalMin/60).toFixed(0)+'h','logged',108)}
@@ -3998,9 +4061,19 @@ function renderOverview(){
       </div>
     </div>
     <div class="ov-tile"><div class="ov-gh">Tickets by project</div><p class="ov-cap">Volume in scope</p>
-      ${byProj.map(x=>`<div class="hbar-row"><span class="nm">${esc(x.p.name)}</span><span class="track"><span class="fill" style="width:${x.n/pmax*100}%;background:linear-gradient(90deg,${(x.p.color||'#3B6FE0')}99,${x.p.color||'#3B6FE0'})"></span></span><span class="val">${x.n}</span></div>`).join('')||'<p class="ov-cap">No projects in scope.</p>'}
+      ${byProj.map(x=>`<div class="hbar-row" data-pop="proj:${x.p.id}"><span class="nm">${esc(x.p.name)}</span><span class="track"><span class="fill" style="width:${x.n/pmax*100}%;background:linear-gradient(90deg,${(x.p.color||'#3B6FE0')}99,${x.p.color||'#3B6FE0'})"></span></span><span class="val">${x.n}</span></div>`).join('')||'<p class="ov-cap">No projects in scope.</p>'}
     </div>`;
-  el.querySelectorAll('#periodSeg button').forEach(()=>{});
+  _ovSets={};
+  const _mk=(title,tasks,rt)=>({title, tasks:tasks.map(t=>({t, right: rt?rt(t):''}))});
+  _ovSets.created=_mk('Tickets created',createdTix,_asgAv);
+  _ovSets.overdue=_mk('Overdue tickets',overdueTix,t=>`<span class="ovrt crit">${_late(t)}d late</span>`);
+  _ovSets.duetoday=_mk('Due today',dueTodayTix,_asgAv);
+  _ovSets.deployed=_mk('Recent deployments',deployedTix,t=>`<span class="ovrt mut">${t.deployedAt?fdate(t.deployedAt):''}</span>`);
+  _ovSets.solved=_mk('Solved',solvedTix,_asgAv);
+  _ovSets.active=_mk('Active',activeTix,_asgAv);
+  _ovSets.open=_mk('Open',openTixCat,_asgAv);
+  byProj.forEach(x=>{ _ovSets['proj:'+x.p.id]=_mk(x.p.name,all.filter(t=>t.project===x.p.id),_asgAv); });
+  wireOvPops();
 }
 
 /* ---------- Team ---------- */
@@ -4984,7 +5057,7 @@ const SLA_RULES={Highest:3, High:5, Medium:10, Low:15};
 let _anRef=null;
 function anInPeriod(ds){
   const per=ui.anPeriod;
-  if(per==='all') return true;
+  if(per==='all'||!per) return true;
   if(per==='custom'){ if(!ui.anFrom||!ui.anTo) return true; return !!ds && ds>=ui.anFrom && ds<=ui.anTo; }
   if(!ds) return false;
   const r=Date.parse(_anRef), d=Date.parse(ds);
@@ -5013,7 +5086,7 @@ function renderAnalytics(){
   const pending=active.filter(t=>(store.status(t.status)||{}).cat!=='done');
 
   // period control
-  const periods=[['all','All'],['today','Today'],['week','Week'],['month','Month'],['custom','Custom']];
+  const periods=[['today','Today'],['week','Week'],['month','Month'],['custom','Custom']];
   const periodBar=`<div class="period-box">
     <div class="period-seg">${periods.map(([k,l])=>`<button data-period="${k}" class="${ui.anPeriod===k?'on':''}">${l}</button>`).join('')}</div>
     ${ui.anPeriod==='custom'?periodCustomRow('an', ui.anFrom, ui.anTo):''}</div>`;
@@ -5030,10 +5103,10 @@ function renderAnalytics(){
   else if(ui.analyticsTab==='priority') section=anPriority(scope, resolved, today());
   else section=anProductivity(scope, logs);
 
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><h2>Analytics</h2>${periodBar}</div>
-    <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${ui.anPeriod==='all'?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):'anchored to '+fdate(_anRef))}</div>
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><h2>Dashboards</h2>${periodBar}</div>
+    <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${(!ui.anPeriod||ui.anPeriod==='all')?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):'anchored to '+fdate(_anRef))}</div>
     ${ui.analyticsTab==='productivity'?'':kpis}<div id="anSection">${section}</div>`;
-  el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
+  el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=(ui.anPeriod===b.dataset.period)?'':b.dataset.period; renderAnalytics(); });
   if(ui.anPeriod==='custom') wirePeriodCustom('an', ui.anFrom, ui.anTo, v=>{ ui.anFrom=v; renderAnalytics(); }, v=>{ ui.anTo=v; renderAnalytics(); });
   el.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>openPanel(r.dataset.open));
 }
@@ -5282,7 +5355,7 @@ async function saveMemberEdit(){ if(!umEditId){ closeMemberEdit(); return; } con
 document.getElementById('ueCancel').onclick=closeMemberEdit;
 document.getElementById('ueSave').onclick=saveMemberEdit;
 document.getElementById('umEditWrap').addEventListener('click',e=>{ if(e.target.id==='umEditWrap') closeMemberEdit(); });
-document.getElementById('clearFilters').onclick=()=>{ ui.filters={search:'',assignee:'all',status:'all',priority:'all',type:'all',time:'all',epic:'all',period:'all',from:'',to:''};
+document.getElementById('clearFilters').onclick=()=>{ ui.filters={search:'',assignee:'all',status:'all',priority:'all',type:'all',time:'all',epic:'all',period:'today',from:'',to:''};
   document.getElementById('search').value=''; fillFilters(); renderFilterChips(); refreshViews(); };
 const _ntb=document.getElementById('newTaskBtn'); if(_ntb) _ntb.onclick=openModal;
 document.getElementById('bsAdd').onclick=()=>{
