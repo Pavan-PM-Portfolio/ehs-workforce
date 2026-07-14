@@ -4819,6 +4819,12 @@ store._persist = function(){
   try{ localStorage.setItem(this._k, JSON.stringify(this.data)); }catch(e){}
   if(REMOTE && WS){ clearTimeout(syncTimer); syncTimer=setTimeout(diffPush, 300); }
 };
+// flush any pending (debounced) write before the page goes away or is reloaded,
+// so an edit made just before a reload is never lost / reverted.
+function flushSync(){ if(syncTimer){ clearTimeout(syncTimer); syncTimer=null; if(REMOTE && WS){ try{ diffPush(); }catch(e){} } } }
+window.addEventListener('pagehide', flushSync);
+window.addEventListener('beforeunload', flushSync);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushSync(); });
 async function diffPush(){
   if(!sb||!WS) return; const jobs=[];
   for(const [k,t] of Object.entries(TBL)){
