@@ -4002,6 +4002,12 @@ function renderOverview(){
   const dDeployed=days.map(day=>all.filter(t=>t.deployedAt===day).length);
   const dDue=days.map(day=>all.filter(t=>t.due===day).length);
   const dOverdue=days.map(day=>all.filter(t=>t.due && t.due<day && (store.status(t.status)||{}).cat!=='done').length);
+  // trailing 14-day series for KPI sparklines (independent of period, so the line always shows)
+  const spDays=[]; { const _e=new Date(); for(let i=13;i>=0;i--){ const d=new Date(_e); d.setDate(d.getDate()-i); spDays.push(d.toISOString().slice(0,10)); } }
+  const spCreated=spDays.map(day=>all.filter(t=>t.createdAt===day).length);
+  const spDeployed=spDays.map(day=>all.filter(t=>t.deployedAt===day).length);
+  const spDue=spDays.map(day=>all.filter(t=>t.due===day).length);
+  const spOverdue=spDays.map(day=>all.filter(t=>t.due && t.due<day && (store.status(t.status)||{}).cat!=='done').length);
   const AC='#2563EB';
   const RANGES=[['today','Today'],['week','Week'],['month','Month'],['custom','Custom']];
   const CATCLR={Development:'#3B6FE0','Code Review':'#B96A00',QA:'#CE2F26',Deployment:'#0E8F5A',Other:'#71717A'};
@@ -4040,10 +4046,10 @@ function renderOverview(){
       <div class="sb-hero-chart">${ovArea(dHours,AC,84)}</div>
     </div>
     <div class="sb-kpis">
-      <div class="sb-kpi" data-pop="created"><div class="top"><span class="l">Tickets created</span><span class="sb-dl ${dC.c}">${dC.t}</span></div><div class="v">${created}</div>${ovSpark(dCreated,'#3B6FE0')}</div>
-      <div class="sb-kpi" data-pop="overdue"><div class="top"><span class="l">Overdue</span>${overdueTix.length?`<span class="sb-dl dn">${overdueTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${overdueTix.length?'var(--crit)':'var(--ink)'}">${overdueTix.length}</div>${ovSpark(dOverdue,'#CE2F26')}</div>
-      <div class="sb-kpi" data-pop="duetoday"><div class="top"><span class="l">Due Today</span>${dueTodayTix.length?`<span class="sb-dl" style="color:var(--warn)">${dueTodayTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${dueTodayTix.length?'var(--warn)':'var(--ink)'}">${dueTodayTix.length}</div>${ovSpark(dDue,'#B96A00')}</div>
-      <div class="sb-kpi" data-pop="deployed"><div class="top"><span class="l">Deployments</span><span class="sb-dl">—</span></div><div class="v">${deployedTix.length}</div>${ovSpark(dDeployed,'#0E8F5A')}</div>
+      <div class="sb-kpi" data-pop="created"><div class="top"><span class="l">Tickets created</span><span class="sb-dl ${dC.c}">${dC.t}</span></div><div class="v">${created}</div>${ovSpark(spCreated,'#3B6FE0')}</div>
+      <div class="sb-kpi" data-pop="overdue"><div class="top"><span class="l">Overdue</span>${overdueTix.length?`<span class="sb-dl dn">${overdueTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${overdueTix.length?'var(--crit)':'var(--ink)'}">${overdueTix.length}</div>${ovSpark(spOverdue,'#CE2F26')}</div>
+      <div class="sb-kpi" data-pop="duetoday"><div class="top"><span class="l">Due Today</span>${dueTodayTix.length?`<span class="sb-dl" style="color:var(--warn)">${dueTodayTix.length}</span>`:'<span class="sb-dl">—</span>'}</div><div class="v" style="color:${dueTodayTix.length?'var(--warn)':'var(--ink)'}">${dueTodayTix.length}</div>${ovSpark(spDue,'#B96A00')}</div>
+      <div class="sb-kpi" data-pop="deployed"><div class="top"><span class="l">Deployments</span><span class="sb-dl">—</span></div><div class="v">${deployedTix.length}</div>${ovSpark(spDeployed,'#0E8F5A')}</div>
     </div>
     <div class="sb-2">
       <div class="ov-tile"><div class="ov-gh">Aging tickets</div><p class="ov-cap">Oldest open · needs attention</p>
