@@ -241,7 +241,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pj-ov-hero{padding-right:28px;border-right:1px solid var(--ink)}
 .pj-ov-hero .v{font-size:44px;font-weight:900;letter-spacing:-.04em;line-height:.9}
 .pj-ov-hero .l{font-size:11px;color:var(--muted);margin-top:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.pj-ov-rest{display:flex;gap:30px;row-gap:16px;align-items:center;flex-wrap:wrap;flex:1}
+.pj-ov-rest{display:flex;justify-content:space-between;gap:20px;align-items:center;flex:1}
 .pj-ov-s .v{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1}
 .pj-ov-s .v.hp,.pj-ov-s .v.blk{color:#CE2F26}
 .pj-ov-s .v.done{color:#0E8F5A}
@@ -4118,20 +4118,26 @@ function renderProjects(){
   const head=`<div class="ov-h"><h2>Projects</h2><button class="btn primary" id="prAddProj" style="margin-left:auto">Add project</button></div>`;
   const addFn=()=>{ store.addProject('New project'); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); };
   const allK=store.standardTasks();
-  const ovIndev=allK.filter(k=>k.status==='indev').length;
-  const ovDone=allK.filter(k=>k.status==='done').length;
-  const ovBlocked=allK.filter(k=>k.status==='blocked').length;
+  const cnt=st=>allK.filter(k=>k.status===st).length;
+  const ovBacklog=cnt('backlog');
+  const ovIndev=cnt('indev');
+  const ovReview=allK.filter(k=>k.status==='review'||k.status==='qa'||k.status==='pmreview').length;
+  const ovDone=cnt('done');
+  const ovBlocked=cnt('blocked');
   const ovHp=allK.filter(k=>k.priority==='Highest').length;
-  const ovPct=allK.length?Math.round(ovDone/allK.length*100):0;
+  const _sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
+  const ovHrs=Math.round((store.data.worklogs||[]).filter(w=>{const t=store.task(w.task);return t&&(t.ws||'ws_main')===_sp;}).reduce((a,w)=>a+(w.min||0),0)/60);
   const ov=`<div class="pj-ov">
     <div class="pj-ov-hero"><div class="v">${projects.length}</div><div class="l">Total projects</div></div>
     <div class="pj-ov-rest">
       <div class="pj-ov-s"><div class="v">${allK.length}</div><div class="l">Total tickets</div></div>
+      <div class="pj-ov-s"><div class="v">${ovBacklog}</div><div class="l">Backlog</div></div>
       <div class="pj-ov-s"><div class="v">${ovIndev}</div><div class="l">In development</div></div>
+      <div class="pj-ov-s"><div class="v">${ovReview}</div><div class="l">In review</div></div>
       <div class="pj-ov-s"><div class="v done">${ovDone}</div><div class="l">Completed</div></div>
       <div class="pj-ov-s"><div class="v blk">${ovBlocked}</div><div class="l">Blocked</div></div>
       <div class="pj-ov-s"><div class="v hp">${ovHp}</div><div class="l">High priority</div></div>
-      <div class="pj-ov-s"><div class="v">${ovPct}%</div><div class="l">Completion</div></div>
+      <div class="pj-ov-s"><div class="v">${ovHrs}h</div><div class="l">Logged</div></div>
     </div>
   </div>`;
   if(!projects.length){ el.innerHTML=head+`<div class="pj-sep"></div>`+ov+`<div class="pj-empty2">No projects yet. Click \u201cAdd project\u201d to create one.</div>`;
