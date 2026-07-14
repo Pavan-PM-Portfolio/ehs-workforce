@@ -510,7 +510,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .board.grouped{flex-direction:column;align-items:stretch;gap:0;padding:8px 0 20px;min-width:0}
 .swimlane{border-top:1px solid var(--line-2)}
 .swimlane:first-child{border-top:0}
-.swim-h{display:flex;align-items:center;gap:9px;padding:13px 20px 9px;font-size:13.5px;font-weight:600;color:var(--ink);
+.swim-h{display:flex;align-items:center;gap:9px;height:42px;padding:0 20px;font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;
   position:sticky;left:0;top:0;z-index:30;background:var(--bg);width:max-content}
 .swim-h .avatar,.swim-h .col-dot{flex:none}
 .swim-count{font-size:11px;color:var(--muted);font-weight:600;background:var(--surface);border:1px solid var(--line);
@@ -531,6 +531,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .col.drop-no{opacity:.45}
 .col-h{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:12px 14px 10px}
 .board:not(.grouped) .col-h{position:sticky;top:0;z-index:6;background:var(--surface-3);border-radius:11px 11px 0 0;box-shadow:0 1px 0 var(--line)}
+.board.grouped .col-h{position:sticky;top:42px;z-index:6;background:var(--surface-3);border-radius:11px 11px 0 0;box-shadow:0 1px 0 var(--line)}
 .col-dot{width:8px;height:8px;border-radius:50%;flex:none}
 .col-h .t{font-size:12.5px;font-weight:600;letter-spacing:-.01em}
 .col-h .c{font-size:11px;color:var(--muted);font-weight:600;background:var(--surface);
@@ -2067,8 +2068,8 @@ body[data-density="compact"] .board{padding:12px 16px}
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
-const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
+const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
+const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
