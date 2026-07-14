@@ -761,7 +761,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .overlay{position:fixed;inset:0;background:rgba(16,20,30,.5);opacity:0;pointer-events:none;transition:.2s;z-index:40}
 .overlay.on{opacity:1;pointer-events:auto}
 .panel{position:fixed;inset:0;margin:auto;width:1080px;max-width:94vw;height:86vh;max-height:900px;background:var(--surface);
-  box-shadow:0 30px 90px -24px rgba(16,20,30,.5);border:1px solid var(--line);
+  box-shadow:0 30px 90px -24px rgba(16,20,30,.5);border:1px solid var(--line);border-radius:18px !important;overflow:hidden;
   z-index:50;display:flex;flex-direction:column;opacity:0;transform:scale(.985);pointer-events:none;
   transition:opacity .17s ease, transform .17s ease}
 .panel.on{opacity:1;transform:scale(1);pointer-events:auto}
@@ -773,11 +773,12 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
   display:grid;place-items:center;flex:none}
 .icon-btn:hover{background:var(--surface-3);color:var(--ink-2)}
 .panel-body{flex:1;overflow-y:auto;display:flex;align-items:stretch;padding:0}
-.pnl-main{flex:1.85;min-width:0;padding:22px 26px 44px}
-.pnl-side{width:340px;flex:none;padding:22px 22px 44px;background:var(--surface);border-left:1px solid var(--line)}
+.pnl-main{flex:1.85;min-width:0;padding:22px 26px 10px}
+.pnl-side{width:340px;flex:none;padding:22px 22px 10px;background:var(--surface);border-left:1px solid var(--line)}
+.pnl-tail{height:40px;flex:none}
 .pb-sec{margin-bottom:28px}
 .pb-h{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
-.pdesc{width:100%;min-height:92px;border:1px solid var(--line);background:var(--surface);padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;resize:vertical;line-height:1.55}
+.pdesc{width:100%;min-height:92px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface);padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;resize:vertical;line-height:1.55}
 .pdesc:focus{border-color:var(--accent)}
 .act-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px}
 .act-tab{border:0;background:none;padding:9px 13px;font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
@@ -785,7 +786,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .act-tab.on{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
 .cmt-new{display:flex;gap:11px;margin-bottom:22px}
 .cmt-new-b{flex:1;min-width:0}
-.cmt-input{width:100%;min-height:46px;border:1px solid var(--line);background:var(--surface);padding:9px 11px;font-family:inherit;font-size:13px;color:var(--ink);outline:none;resize:vertical;line-height:1.5}
+.cmt-input{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface);padding:9px 11px;font-family:inherit;font-size:13px;color:var(--ink);outline:none;resize:vertical;line-height:1.5}
 .cmt-input:focus{border-color:var(--accent)}
 .cmt-actions{margin-top:8px}
 .cmt-list{display:flex;flex-direction:column;gap:18px}
@@ -828,9 +829,36 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .fv-status{padding:2px 9px;font-size:12px;font-weight:600;line-height:1.5}
 .fv-input{width:100%;border:1px solid transparent;background:none;padding:5px 8px;margin:0 -8px;font-family:inherit;font-size:13px;color:var(--ink);outline:none}
 .fv-input:hover{background:var(--surface-3)}
+/* subtasks (panel-only) */
+.subs{margin-bottom:28px}
+.subs-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.subs-h .pb-h{margin:0}
+.subs-prog{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.subs-bar{width:82px;height:6px;background:var(--surface-3);border-radius:99px !important;overflow:hidden}
+.subs-fill{height:100%;background:var(--good,#0E8F5A);border-radius:99px !important;transition:width .2s}
+.sub-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.sub{display:flex;align-items:center;gap:11px;padding:9px 11px;border:1px solid var(--line-2);border-radius:11px !important;background:var(--surface)}
+.sub:hover{border-color:var(--line)}
+.sub-cb{flex:none;width:19px;height:19px;border:1.8px solid var(--line);border-radius:6px !important;background:var(--surface);cursor:pointer;display:grid;place-items:center;padding:0;color:#fff;transition:.12s}
+.sub-cb.on{background:var(--good,#0E8F5A);border-color:var(--good,#0E8F5A)}
+.sub-cb svg{opacity:0;transition:.12s}
+.sub-cb.on svg{opacity:1}
+.sub-tt{flex:1;min-width:0;border:1px solid transparent;background:transparent;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;padding:3px 6px;margin:-3px -6px;border-radius:7px !important}
+.sub-tt:hover{background:var(--surface-2)}
+.sub-tt:focus{background:var(--surface);border-color:var(--accent)}
+.sub.done .sub-tt{color:var(--faint);text-decoration:line-through}
+.sub-del{flex:none;border:0;background:none;color:var(--faint);cursor:pointer;font-size:13px;line-height:1;padding:3px 7px;opacity:0;transition:.12s;border-radius:7px !important}
+.sub:hover .sub-del{opacity:1}
+.sub-del:hover{color:var(--crit);background:var(--surface-2)}
+.sub-add{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px dashed var(--line);border-radius:11px !important;cursor:text}
+.sub-add:focus-within{border-color:var(--accent);border-style:solid}
+.sub-add-ic{flex:none;color:var(--faint);display:grid;place-items:center}
+.sub-add-in{flex:1;border:0;background:transparent;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;padding:2px 0}
+.sub-add-in::placeholder{color:var(--faint)}
+.subs-empty{font-size:12.5px;color:var(--faint);padding:2px 0 12px}
 .fv-input:focus{background:var(--surface);border-color:var(--accent)}
 .ov{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--surface);border:1px solid var(--line);
-  border-radius:12px;overflow:hidden;margin-bottom:22px}
+  border-radius:14px !important;overflow:hidden;margin-bottom:22px}
 .ov-i{display:flex;flex-direction:column;gap:9px;min-width:0;padding:16px 18px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .ov-i:nth-child(3n){border-right:0}
@@ -840,7 +868,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-p{display:inline-flex;align-items:center;gap:9px;min-width:0}
 .ov-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ov-none{font-size:13.5px;color:var(--faint)}
-.tsb{border:1px solid var(--line);padding:15px 17px;margin-bottom:22px}
+.tsb{border:1px solid var(--line);border-radius:14px !important;padding:15px 17px;margin-bottom:22px}
 .tsb-h{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px}
 .tsb-row{display:flex;align-items:center;gap:10px;padding:5px 0}
 .tsb-dot{width:8px;height:8px;border-radius:50%;flex:none}
@@ -952,7 +980,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .meta-item select{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:6px 8px;color:var(--ink);font-weight:500}
 .desc{font-size:13px;color:var(--ink-2);line-height:1.6;background:var(--surface-2);border:1px solid var(--line);
   border-radius:9px;padding:13px 15px;margin-bottom:24px}
-.tt-strip{display:flex;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:22px}
+.tt-strip{display:flex;gap:0;border:1px solid var(--line);border-radius:12px !important;overflow:hidden;margin-bottom:22px}
 .tsi{flex:1;padding:11px 14px;border-right:1px solid var(--line-2);display:flex;flex-direction:column;gap:3px}
 .tsi:last-child{border-right:0}
 .tsl{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
@@ -966,7 +994,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .tt-head h3{font-size:14px;font-weight:600;letter-spacing:-.01em;margin:0}
 .tt-total{font-family:"Inter";font-size:18px;font-weight:600;letter-spacing:-.02em}
 .tt-sub{font-size:11.5px;color:var(--muted);margin:0 0 16px}
-.cat{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.cat{border:1px solid var(--line);border-radius:12px !important;margin-bottom:12px;overflow:hidden}
 .cat-h{display:flex;align-items:center;gap:9px;padding:11px 13px;background:var(--surface-2);border-bottom:1px solid var(--line-2)}
 .cat-bar{width:3px;height:16px;border-radius:2px;flex:none}
 .cat-h .nm{font-size:12.5px;font-weight:600}
@@ -992,7 +1020,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .addlog .add-btn:hover{background:#1e37c0}
 
 /* contributors summary */
-.contrib{margin-top:22px;border:1px solid var(--line);border-radius:10px;padding:14px 15px}
+.contrib{margin-top:22px;border:1px solid var(--line);border-radius:12px !important;padding:14px 15px}
 .contrib h3{font-size:13px;font-weight:600;margin:0 0 12px}
 .contrib-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
 .contrib-row:last-child{margin-bottom:0}
@@ -1330,6 +1358,68 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .btn.danger{border-color:#F3C9C4;color:var(--crit);white-space:nowrap}
 .btn.danger:hover{background:#FCE8E6;border-color:var(--crit)}
 .btn.armed{background:var(--crit);border-color:var(--crit);color:#fff}
+/* ===== Settings v2 (stx-) — preferences + field-level Read/Edit/Hide ===== */
+.stx-sub{font-size:12.5px;color:var(--muted);margin:2px 0 20px;max-width:640px}
+.stx-sec{max-width:820px;margin-bottom:26px}
+.stx-h{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.01em;margin:0 0 2px}
+.stx-note{font-size:12px;color:var(--muted);margin:0 0 12px}
+.stx-lbl{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:20px 0 2px}
+.stx-card{border:1px solid var(--line);border-radius:12px !important;background:var(--surface);padding:4px 16px;margin-top:8px}
+.stx-card.pad{padding:14px 16px}
+.stx-card-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 0 3px}
+.stx-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line-2)}
+.stx-row:last-child{border-bottom:0}
+.stx-row .fn{font-size:13.5px;font-weight:600;color:var(--ink)}
+.stx-row .fs{font-size:11.5px;color:var(--faint);margin-top:1px}
+/* segmented Read/Edit/Hide */
+.stx-seg{display:inline-flex;background:var(--surface-3);border-radius:9px !important;padding:3px;gap:2px;flex:none}
+.stx-seg button{display:inline-flex;align-items:center;gap:6px;border:0;background:none;font-family:inherit;font-size:12px;font-weight:600;padding:6px 13px;color:var(--muted);border-radius:7px !important;cursor:pointer;transition:.12s}
+.stx-seg button svg{width:13px;height:13px}
+.stx-seg button:hover{color:var(--ink-2)}
+.stx-seg button.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.stx-seg button.on.hide{color:var(--faint)}
+.stx-seg button.on.read{color:var(--ink)}
+.stx-seg button.on.edit{color:var(--accent)}
+/* toggle */
+.stx-tgl{position:relative;width:38px;height:22px;border-radius:999px !important;background:var(--surface-3);border:1px solid var(--line);cursor:pointer;flex:none;transition:.15s;padding:0}
+.stx-tgl::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50% !important;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:.15s}
+.stx-tgl.on{background:var(--accent);border-color:var(--accent)}
+.stx-tgl.on::after{transform:translateX(16px)}
+/* select */
+.stx-sel{appearance:none;border:1px solid var(--line);background:#fff;border-radius:9px !important;padding:7px 30px 7px 11px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;min-width:150px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 9px center}
+.stx-sel:focus{outline:none;border-color:var(--accent)}
+.stx-mods{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+/* teammate selector head */
+.stx-head{display:flex;align-items:center;gap:13px;padding:16px 18px;margin-top:12px;border:1px solid var(--line);border-radius:14px !important;background:linear-gradient(180deg,#fff,#FBFCFE)}
+.stx-head.empty{background:var(--surface-2);border-style:dashed}
+.stx-head .avatar{width:48px !important;height:48px !important;border-radius:13px !important;font-size:17px}
+.stx-av-none{width:48px;height:48px;border-radius:13px !important;display:grid;place-items:center;color:var(--faint);background:var(--surface-3);flex:none}
+.stx-id{min-width:0;flex:1}
+.stx-id .nm{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.stx-id .em{font-size:12.5px;color:var(--muted);margin-top:1px}
+.stx-id .ph{font-size:14px;font-weight:700;color:var(--ink-2)}
+.stx-id .ph-s{font-size:12px;color:var(--muted);margin-top:2px}
+.stx-role{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:7px !important;background:var(--accent-soft);color:var(--accent);flex:none}
+.stx-pick select{appearance:none;border:1px solid var(--line);background:#fff;border-radius:10px !important;padding:9px 34px 9px 13px;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;min-width:190px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 10px center}
+.stx-pick.pulse select{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.stx-notice{display:flex;align-items:center;gap:11px;margin-top:14px;padding:12px 15px;border:1px solid #BCD0F5;background:var(--accent-soft);border-radius:12px !important;color:#274B9E;font-size:13px;font-weight:600}
+.stx-notice svg{width:17px;height:17px;flex:none}
+.stx-empty{margin-top:16px;padding:44px 20px;border:1px dashed var(--line);border-radius:14px !important;text-align:center;background:var(--surface-2)}
+.stx-empty .ic{width:52px;height:52px;border-radius:14px !important;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);margin:0 auto 14px}
+.stx-empty h3{font-size:15px;font-weight:800;margin:0 0 5px}
+.stx-empty p{font-size:13px;color:var(--muted);margin:0 auto;max-width:42ch}
+.stx-bulk{display:flex;align-items:center;gap:10px;margin-top:16px;padding:11px 15px;border:1px dashed var(--line);border-radius:12px !important;background:var(--surface-2)}
+.stx-bulk .lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+.stx-bulk .sp{flex:1}
+.stx-mini{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:8px !important;padding:6px 11px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:inherit}
+.stx-mini:hover{border-color:var(--faint)}
+.stx-ghost{border:1px solid var(--line);background:#fff;color:var(--ink-2);font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:9px !important;cursor:pointer;white-space:nowrap}
+.stx-ghost:hover{border-color:var(--faint)}
+.stx-acc-t{font-size:13.5px;font-weight:700}
+.stx-acc-d{font-size:11.5px;color:var(--muted);margin-top:2px;max-width:52ch}
+@media(max-width:640px){.stx-mods{grid-template-columns:1fr}}
 /* auth */
 .auth-screen{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:500}
 /* ===== Workspaces gallery (Option A) ===== */
@@ -1962,8 +2052,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
-const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
+const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
+const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -2041,6 +2131,10 @@ const store = {
     this.data.tasks.forEach(t=>{ if(t.parent===id) t.parent=null; }); this._persist(); },
   addComment(taskId, userId, text){ const t=this.task(taskId); if(!t) return; if(!t.comments) t.comments=[]; t.comments.push({id:'c'+Date.now().toString(36), user:userId, text, date:new Date().toISOString()}); this._persist(); },
   removeComment(taskId, cid){ const t=this.task(taskId); if(!t||!t.comments) return; t.comments=t.comments.filter(c=>c.id!==cid); this._persist(); },
+  addSubtask(taskId, title){ const t=this.task(taskId); if(!t) return; const tt=(title||'').trim(); if(!tt) return; if(!t.subtasks) t.subtasks=[]; t.subtasks.push({id:'st'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), title:tt, done:false, at:new Date().toISOString()}); t.updatedAt=today(); this._persist(); },
+  toggleSubtask(taskId, sid){ const t=this.task(taskId); if(!t||!t.subtasks) return; const s=t.subtasks.find(x=>x.id===sid); if(s) s.done=!s.done; t.updatedAt=today(); this._persist(); },
+  renameSubtask(taskId, sid, title){ const t=this.task(taskId); if(!t||!t.subtasks) return; const s=t.subtasks.find(x=>x.id===sid); if(s) s.title=(title||'').trim(); this._persist(); },
+  removeSubtask(taskId, sid){ const t=this.task(taskId); if(!t||!t.subtasks) return; t.subtasks=t.subtasks.filter(x=>x.id!==sid); this._persist(); },
   chatChannels(){ return this.data.chatChannels||(this.data.chatChannels=[]); },
   chatChannel(id){ return this.chatChannels().find(c=>c.id===id); },
   chatMessages(chId){ return (this.data.chatMessages||[]).filter(m=>m.channel===chId).sort((a,b)=>new Date(a.at)-new Date(b.at)); },
@@ -2987,6 +3081,15 @@ function openPanel(id, keepScroll){
           <div class="pb-h">Description</div>
           <textarea id="pDesc" class="pdesc" placeholder="Add a description…">${esc(t.desc||'')}</textarea>
         </div>
+        ${(function(){ const subs=t.subtasks||[]; const dn=subs.filter(s=>s.done).length; const pct=subs.length?Math.round(dn/subs.length*100):0;
+          const CBK=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+          const rows=subs.map(s=>`<div class="sub ${s.done?'done':''}" data-sid="${s.id}"><button class="sub-cb ${s.done?'on':''}" data-toggle="${s.id}" title="${s.done?'Mark not done':'Mark done'}">${CBK}</button><input class="sub-tt" data-rename="${s.id}" value="${esc(s.title)}" autocomplete="off"/><button class="sub-del" data-subdel="${s.id}" title="Delete subtask">✕</button></div>`).join('');
+          return `<div class="subs">
+            <div class="subs-h"><div class="pb-h">Subtasks</div>${subs.length?`<div class="subs-prog"><div class="subs-bar"><div class="subs-fill" style="width:${pct}%"></div></div><span>${dn}/${subs.length}</span></div>`:''}</div>
+            <div class="sub-list">${rows}</div>
+            ${subs.length?'':'<div class="subs-empty">No subtasks yet. Break this ticket into smaller steps.</div>'}
+            <div class="sub-add"><span class="sub-add-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><input class="sub-add-in" id="subAddIn" placeholder="Add a subtask and press Enter" autocomplete="off"/></div>
+          </div>`; })()}
         <div class="tsb">
           <div class="tsb-h">Time spent by category</div>
           ${CATS.map(c=>{ const m=tot.byCat[c.id]||0; const pct=tot.total?Math.round(m/tot.total*100):0;
@@ -3028,6 +3131,7 @@ function openPanel(id, keepScroll){
             </div>
           `:''}
         </div>
+        <div class="pnl-tail"></div>
       </div>
       <div class="pnl-side">
         <div class="dt-title">Details</div>
@@ -3048,6 +3152,7 @@ function openPanel(id, keepScroll){
           ${dtRow('Category', `<span class="tag" style="background:var(--surface-3);color:${CATCOLOR[stCat]}"><span class="col-dot" style="background:${CATCOLOR[stCat]}"></span>${CATLABEL[stCat]}</span>`, false)}
           ${dtField('see_logged',null,'Time logged', `<b style="font-size:13px">${hm(tot.total)}</b>`, false)}
         </div>
+        <div class="pnl-tail"></div>
       </div>
     </div>`;
 
@@ -3073,6 +3178,10 @@ function openPanel(id, keepScroll){
   const ttLog=document.getElementById('ttLog'); if(ttLog) ttLog.onclick=()=>openLogModal(id,'Development');
   panel.querySelectorAll('.cat-log').forEach(btn=>btn.onclick=()=>openLogModal(id, btn.dataset.cat));
   panel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ store.removeWorklog(b.dataset.del); openPanel(id,true); refreshViews(); toast('Log removed'); });
+  panel.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{ store.toggleSubtask(id, b.dataset.toggle); openPanel(id,true); });
+  panel.querySelectorAll('[data-subdel]').forEach(b=>b.onclick=()=>{ store.removeSubtask(id, b.dataset.subdel); openPanel(id,true); });
+  panel.querySelectorAll('[data-rename]').forEach(inp=>{ inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }; inp.onchange=()=>{ store.renameSubtask(id, inp.dataset.rename, inp.value); }; });
+  const subAdd=document.getElementById('subAddIn'); if(subAdd) subAdd.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); const v=(subAdd.value||'').trim(); if(!v) return; store.addSubtask(id, v); openPanel(id,true); setTimeout(()=>{ const el=document.getElementById('subAddIn'); if(el) el.focus(); },10); } };
 
   document.getElementById('overlay').classList.add('on');
   document.getElementById('overlay').onclick=closePanel;
@@ -3877,86 +3986,155 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
 const MASTER_EMAILS=['pavan.k@eduhubspot.com','reachpavan02@gmail.com'];
 function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
 function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
+const STX_FGROUPS=[
+  {g:'Ticket fields', note:'Core issue attributes on the card and detail panel.', items:[
+    ['summary','Summary / title','shown on every card'],['desc','Description',''],['type','Type','Task, Bug, Story, Epic'],
+    ['status','Status','move across columns'],['priority','Priority',''],['resolution','Resolution',''],
+    ['project','Project',''],['epic','Epic / parent','']]},
+  {g:'Schedule & effort', note:'', items:[
+    ['start','Start date',''],['due','Due date',''],['estimate','Original estimate',''],['logged','Logged / remaining','time tracked']]},
+  {g:'People & roles', note:'', items:[
+    ['assignee','Assignee (Developer)',''],['reporter','Reporter',''],['qa','Quality Analyst',''],['reviewer','Code Reviewer',''],['deployer','Deployer','']]},
+  {g:'Collaboration & meta', note:'', items:[
+    ['comments','Comments',''],['subtasks','Subtasks',''],['worklogs','Worklogs','time entries'],['contributors','Contributors',''],['attachments','Attachments',''],['custom','Custom fields','all custom values']]},
+];
+const STX_FALL=STX_FGROUPS.reduce((a,g)=>a.concat(g.items.map(i=>i[0])),[]);
+const STX_MODS=[['view_board','Board'],['view_list','List'],['view_epics','Epics'],['view_overview','Overview'],['view_analytics','Analytics'],['view_reports','Reports'],['view_team','Team'],['view_operations','Operations']];
+const STX_EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const STX_EYEOFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.44M6.6 6.6C3.6 8.3 2 11 2 11s3.5 7 10 7a9 9 0 0 0 3.9-.88M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+const STX_PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+function stxSeg(fk, st){ const b=(v,cls,ic,l)=>`<button class="${st===v?'on '+cls:''}" data-fp="${fk}" data-v="${v}">${ic}${l}</button>`;
+  return `<div class="stx-seg">${b('hide','hide',STX_EYEOFF,'Hide')}${b('read','read',STX_EYE,'Read')}${b('edit','edit',STX_PEN,'Edit')}</div>`; }
+
 function renderSettings(){
   const el=document.getElementById('settingswrap'); const s=store.settings();
-  const reqs=store.accessRequests(); const umUsers=store.users();
-  let userPerms=s.userPerms||{}; let _dirtyUP=false;
-  umUsers.forEach(u=>{ if(!userPerms[u.id]){ userPerms[u.id]=JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMS[permOf(u)]||{})); _dirtyUP=true; } });
-  if(_dirtyUP) store.updateSettings({userPerms});
-  if(!editUser || !umUsers.some(u=>u.id===editUser)) editUser=(umUsers.find(u=>permOf(u)!=='Admin')||umUsers[0]||{}).id;
-  const muser=meUser()||{};
-  const myColor=(muser.color&&/^#[0-9a-fA-F]{6}$/.test(muser.color))?muser.color:'#3B6FE0';
-  const myDefView=(muser.prefs&&muser.prefs.defaultView)||s.defaultView||'board';
-  const myDefBoard=(muser.prefs&&muser.prefs.defaultBoard)||s.defaultBoard||'';
-  const boardOpts=store.boards().map(b=>`<option value="${b.id}" ${myDefBoard===b.id?'selected':''}>${esc(b.name)}</option>`).join('');
-  const viewOpts=[['board','Board'],['overview','Overview'],['list','List'],['epics','Epics'],['analytics','Analytics'],['reports','Reports']].map(([v,l])=>`<option value="${v}" ${myDefView===v?'selected':''}>${l}</option>`).join('');
-  const dtOpts=[['dmy','31 Jul 2026'],['mdy','Jul 31, 2026'],['iso','2026-07-31']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.dateFmt)||'dmy')===v?'selected':''}>${l}</option>`).join('');
-  const denseOpts=[['comfortable','Comfortable'],['compact','Compact']].map(([v,l])=>`<option value="${v}" ${((muser.prefs&&muser.prefs.density)||'comfortable')===v?'selected':''}>${l}</option>`).join('');
-  el.innerHTML=`<div class="ov-h"><h2>Settings</h2><span class="range">Your Project Hub preferences${IS_ADMIN?' · workspace admin':''}</span></div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>My preferences</h3><span class="range">Only affects your account</span></div>
-      <div class="set-grid">
-        <label class="repf"><span>Default view on open</span><select id="myDefView">${viewOpts}</select></label>
-        <label class="repf"><span>Default board on open</span><select id="myDefBoard">${boardOpts}</select></label>
-        <label class="repf"><span>Date format</span><select id="myDateFmt">${dtOpts}</select></label>
-        <label class="repf"><span>Density</span><select id="myDensity">${denseOpts}</select></label>
+  const umUsers=store.users(); const muser=meUser()||{}; const pr=muser.prefs||{}; const notif=pr.notify||{};
+  if(editUser && !umUsers.some(u=>u.id===editUser)) editUser=null;   // start on None; never auto-select
+
+  const opt=(v,l,cur)=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${esc(l)}</option>`;
+  const psel=(id,label,pairs,cur)=>`<div class="stx-row"><div class="fn">${esc(label)}</div><select class="stx-sel" data-pref="${id}">${pairs.map(([v,l])=>opt(v,l,cur)).join('')}</select></div>`;
+  const ptgl=(id,label,on)=>`<div class="stx-row"><div class="fn">${esc(label)}</div><button class="stx-tgl ${on?'on':''}" data-pref="${id}"></button></div>`;
+  const boardPairs=store.boards().map(b=>[b.id,b.name]);
+  const projPairs=[['all','All projects']].concat(store.projects().map(p=>[p.id,p.name]));
+  const catPairs=CATS.map(c=>[c.id,c.id]);
+
+  const preferences=`
+    <div class="ov-h"><h2>Settings</h2></div>
+    <div class="stx-sub">Your preferences${IS_ADMIN?', plus teammate access and workspace controls for admins.':' for the Project Hub.'}</div>
+    <div class="stx-sec">
+      <h3 class="stx-h">Preferences</h3>
+      <div class="stx-note">How the Project Hub looks and behaves for you. Only affects your own account.</div>
+      <div class="stx-card"><div class="stx-card-h">Defaults</div>
+        ${psel('defaultView','Default view on open',[['board','Board'],['overview','Overview'],['list','List'],['epics','Epics'],['analytics','Analytics'],['reports','Reports']], pr.defaultView||s.defaultView||'board')}
+        ${psel('defaultBoard','Default board', boardPairs, pr.defaultBoard||s.defaultBoard||(boardPairs[0]||[''])[0])}
+        ${psel('defaultProject','Default project filter', projPairs, pr.defaultProject||'all')}
+        ${psel('startScreen','Start screen',[['last','Last visited'],['board','Board'],['overview','Overview']], pr.startScreen||'last')}
       </div>
-      <div class="set-note">Your name, email and password are managed in your <b>Workforce account settings</b> (top-right menu on the home screen).</div>
-    </div>
-    ${IS_ADMIN?`
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Workspace</h3><span class="range">Admin</span></div>
-      <div class="set-grid"><label class="repf"><span>Workspace name</span><input id="setWsName" value="${esc(s.workspaceName)}"/></label></div>
-    </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Access &amp; permissions</h3><span class="range">Admin · per teammate</span></div>
-      <div class="set-grid"><label class="repf"><span>Teammate</span><select id="apUser">${umUsers.filter(u=>u.id!==CURRENT_UID).map(u=>`<option value="${u.id}" ${editUser===u.id?'selected':''}>${esc(u.name)} — ${permOf(u)}</option>`).join('')||'<option>No teammates</option>'}</select></label></div>
-      ${(()=>{ const eu=store.user(editUser)||{}; const isAdm=permOf(eu)==='Admin'; const up=userPerms[editUser]||{}; const sps=store.spaces();
-        const capBlock=(title,items)=>`<div class="fp-block"><div class="fp-h">${title}</div>${items.map(([c,l])=>`<label class="fp-row"><span>${l}</span><input type="checkbox" class="ap-cap" data-cap="${c}" ${up[c]?'checked':''} ${isAdm?'disabled':''}></label>`).join('')}</div>`;
-        const editItems=((CAP_GROUPS.find(g=>g.g==='Edit ticket fields')||{}).items||[]).concat((CAP_GROUPS.find(g=>g.g==='Assign people')||{}).items||[]);
-        const seeItems=(CAP_GROUPS.find(g=>g.g==='View sensitive fields')||{}).items||[];
-        return `<div class="fp-wrap">
-          <div class="fp-block"><div class="fp-h">Access level</div>
-            <label class="fp-row"><span><b>Full admin</b> — sees &amp; manages every workspace</span><input type="checkbox" id="apAdmin" ${isAdm?'checked':''}></label>
-            <div class="fp-note">Admins bypass every field and workspace limit below.</div></div>
-          <div class="fp-block" ${isAdm?'style="opacity:.45;pointer-events:none"':''}><div class="fp-h">Visible workspaces</div>
-            ${sps.length?sps.map(sp=>`<label class="fp-row"><span>${esc(sp.name)}</span><input type="checkbox" class="ap-ws" data-ws="${sp.id}" ${(sp.members||[]).includes(editUser)?'checked':''}></label>`).join(''):'<div class="fp-note">No workspaces yet.</div>'}</div>
-          <div ${isAdm?'style="opacity:.45;pointer-events:none"':''}>${capBlock('Editable fields', editItems)}</div>
-          <div ${isAdm?'style="opacity:.45;pointer-events:none"':''}>${capBlock('Visible fields', seeItems)}</div>
-        </div>`; })()}
-    </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3>Data</h3></div>
-      <div class="set-actions">
+      <div class="stx-card"><div class="stx-card-h">Display</div>
+        ${psel('dateFmt','Date format',[['dmy','31 Jul 2026'],['mdy','Jul 31, 2026'],['iso','2026-07-31']], pr.dateFmt||'dmy')}
+        ${psel('density','Density',[['comfortable','Comfortable'],['compact','Compact']], pr.density||'comfortable')}
+        ${psel('weekStart','First day of week',[['sun','Sunday'],['mon','Monday']], pr.weekStart||'sun')}
+        ${psel('pageSize','List rows per page',[['25','25'],['50','50'],['100','100']], pr.pageSize||'25')}
+        ${ptgl('showWeekends','Show weekends on calendar', pr.showWeekends!==false)}
+        ${ptgl('hlOverdue','Highlight overdue tickets', pr.hlOverdue!==false)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Notifications</div>
+        ${ptgl('notify.assigned','Assigned to me', notif.assigned!==false)}
+        ${ptgl('notify.mentions','Mentions', notif.mentions!==false)}
+        ${ptgl('notify.status','Status changes on my tickets', notif.status!==false)}
+        ${ptgl('notify.dueSoon','Due-soon reminders', notif.dueSoon!==false)}
+        ${ptgl('notify.replies','Comment replies', !!notif.replies)}
+        ${ptgl('notify.digest','Daily digest email', !!notif.digest)}
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Time &amp; tracking</div>
+        ${psel('logCat','Default log category', catPairs, pr.logCat||'Development')}
+        ${psel('hoursPerDay','Working hours per day',[['8','8h'],['7','7h'],['6','6h']], pr.hoursPerDay||'8')}
+        ${psel('tz','Time zone',[['Asia/Kolkata','Asia/Kolkata (IST)'],['UTC','UTC'],['America/New_York','America/New_York']], pr.tz||'Asia/Kolkata')}
+        ${ptgl('autoAssign','Auto-assign me on create', !!pr.autoAssign)}
+        ${ptgl('logOthers','Can log time for others', !!pr.logOthers)}
+      </div>
+    </div>`;
+
+  let access='';
+  if(IS_ADMIN){
+    const eu=editUser?store.user(editUser):null;
+    if(!eu){
+      access=`<div class="stx-sec">
+        <h3 class="stx-h">Access &amp; permissions</h3>
+        <div class="stx-note">Per-teammate visibility and field-level Read / Edit / Hide control.</div>
+        <div class="stx-head empty"><div class="stx-av-none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+          <div class="stx-id"><div class="ph">No teammate selected</div><div class="ph-s">Choose someone to manage their access &amp; field permissions</div></div>
+          <div class="stx-pick pulse"><select id="stxUser"><option value="" selected>Select a teammate…</option>${umUsers.filter(u=>u.id!==CURRENT_UID).map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('')}</select></div></div>
+        <div class="stx-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Select a teammate above to manage their access and field-level Read / Edit / Hide permissions.</div>
+        <div class="stx-empty"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <h3>Pick a teammate to begin</h3><p>Their field-level Read / Edit / Hide permissions and workspace access will appear here.</p></div>
+      </div>`;
+    } else {
+      const isAdm=permOf(eu)==='Admin'; const roleLbl=isAdm?'Admin':(isMasterUser(eu)?'Master':'User');
+      const fp=Object.assign({}, (s.fieldPerms&&s.fieldPerms[editUser])||{}); STX_FALL.forEach(k=>{ if(!fp[k]) fp[k]='edit'; });
+      const up=Object.assign({}, (s.userPerms&&s.userPerms[editUser])||{});
+      const sps=store.spaces();
+      const dim=isAdm?' style="opacity:.5;pointer-events:none"':'';
+      const fieldBlocks=STX_FGROUPS.map(g=>`<div class="stx-lbl">${g.g}</div>${g.note?`<div class="stx-note">${g.note}</div>`:''}<div class="stx-card">${g.items.map(([k,l,sub])=>`<div class="stx-row"><div><div class="fn">${esc(l)}</div>${sub?`<div class="fs">${sub}</div>`:''}</div>${stxSeg(k,fp[k])}</div>`).join('')}</div>`).join('');
+      const modBlocks=`<div class="stx-lbl">Views &amp; modules</div><div class="stx-note">These have no editable state — show or hide the tab.</div><div class="stx-card"><div class="stx-mods">${STX_MODS.map(([cap,l])=>`<div class="stx-row"><div class="fn">${l}</div><button class="stx-tgl stx-mod ${up[cap]!==false?'on':''}" data-cap="${cap}"></button></div>`).join('')}</div></div>`;
+      const wsBlocks=`<div class="stx-lbl">Visible workspaces</div><div class="stx-card">${sps.length?sps.map(sp=>`<div class="stx-row"><div class="fn">${esc(sp.name)}</div><button class="stx-tgl stx-ws ${(sp.members||[]).includes(editUser)?'on':''}" data-ws="${sp.id}"></button></div>`).join(''):'<div class="stx-note" style="padding:12px 0">No workspaces yet.</div>'}</div>`;
+      access=`<div class="stx-sec">
+        <h3 class="stx-h">Access &amp; permissions</h3>
+        <div class="stx-note">Per-teammate visibility and field-level Read / Edit / Hide control.</div>
+        <div class="stx-head">${avatar(eu,48)}<div class="stx-id"><div class="nm">${esc(eu.name)}</div><div class="em">${esc(eu.email||'—')}</div></div><span class="stx-role">${roleLbl}</span>
+          <div class="stx-pick"><select id="stxUser"><option value="">Select a teammate…</option>${umUsers.filter(u=>u.id!==CURRENT_UID).map(u=>`<option value="${u.id}" ${u.id===editUser?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div></div>
+        <div class="stx-card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div><div class="stx-acc-t">Full admin</div><div class="stx-acc-d">Sees &amp; manages every workspace, and bypasses every field limit below.</div></div><button class="stx-tgl" id="stxAdmin" ${isAdm?'':''}></button></div></div>
+        <div${dim}>${wsBlocks}
+          <div class="stx-bulk"><span class="lbl">Quick set all fields</span><button class="stx-mini" data-bulk="hide">Hide</button><button class="stx-mini" data-bulk="read">Read</button><button class="stx-mini" data-bulk="edit">Edit</button><span class="sp"></span><button class="stx-ghost" data-bulk="edit">Reset to full access</button></div>
+          ${fieldBlocks}
+          ${modBlocks}</div>
+        ${isAdm?'<div class="stx-note" style="margin-top:12px">This teammate is a full admin — field limits don\u2019t apply. Turn off Full admin to restrict specific fields.</div>':''}
+      </div>`;
+    }
+  }
+
+  const dataDanger=IS_ADMIN?`
+    <div class="stx-sec">
+      <h3 class="stx-h">Data</h3>
+      <div class="set-actions" style="margin-top:10px">
         <button class="btn" id="setExport">Export data (JSON)</button>
         <button class="btn" id="setExportCsv">Export tickets (CSV)</button>
         <button class="btn" id="setImport">Import data (JSON)</button>
         <input type="file" id="setImportFile" accept="application/json" style="display:none"/>
       </div>
     </div>
-    <div class="op-sec">
-      <div class="op-sec-h"><h3 style="color:var(--crit)">Danger zone</h3></div>
-      <div class="set-danger">
+    <div class="stx-sec">
+      <h3 class="stx-h" style="color:var(--crit)">Danger zone</h3>
+      <div class="set-danger" style="margin-top:10px">
         <div class="sd-row"><div><div class="sd-t">Clear all tickets</div><div class="sd-d">Removes every ticket and worklog. Keeps projects, statuses, boards and teams.</div></div><button class="btn danger" id="setClear">Clear tickets</button></div>
         <div class="sd-row"><div><div class="sd-t">Reset to sample data</div><div class="sd-d">Restores the original demo dataset. Everything you changed is lost.</div></div><button class="btn danger" id="setReset">Reset</button></div>
         ${(typeof sb!=='undefined' && sb)?`<div class="sd-row"><div><div class="sd-t">Wipe workspace (server)</div><div class="sd-d">Permanently deletes every ticket, worklog, project, team and user from the database, then rebuilds an empty workspace with just you. Cannot be undone.</div></div><button class="btn danger" id="setWipe">Wipe all</button></div>`:''}
       </div>
-    </div>`:''}`;
-  const _uid=CURRENT_UID; const _g=id=>document.getElementById(id);
-  if(_g('myName')) _g('myName').onchange=e=>{ store.updateUser(_uid,{name:e.target.value.trim()||muser.name}); renderAll(); renderSettings(); };
-  if(_g('myColor')) _g('myColor').onchange=e=>{ store.updateUser(_uid,{color:e.target.value}); renderAll(); };
-  if(_g('myDefView')) _g('myDefView').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.defaultView=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
-  if(_g('myDefBoard')) _g('myDefBoard').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.defaultBoard=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
-  if(_g('myDateFmt')) _g('myDateFmt').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.dateFmt=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
-  if(_g('myDensity')) _g('myDensity').onchange=e=>{ const u=meUser(); u.prefs=u.prefs||{}; u.prefs.density=e.target.value; store.updateUser(u.id,{prefs:u.prefs}); document.body.dataset.density=e.target.value; toast('Saved'); };
-  if(_g('myPwBtn')) _g('myPwBtn').onclick=async()=>{ const pw=_g('myPw').value; if(!pw||pw.length<6){ toast('Password must be at least 6 characters'); return; }
-    if(typeof sb!=='undefined'&&sb){ try{ const {error}=await sb.auth.updateUser({password:pw}); if(error){ toast('Could not update: '+error.message); return; } _g('myPw').value=''; toast('Password updated'); }catch(e){ toast('Could not update password'); } }
-    else { toast('Sign-in is managed by your workspace admin.'); } };
-  if(_g('setWsName')) _g('setWsName').onchange=e=>{ store.updateSettings({workspaceName:e.target.value.trim()||'Workspace'}); applyBrand(); };
-  if(_g('apUser')) _g('apUser').onchange=e=>{ editUser=e.target.value; renderSettings(); };
-  if(_g('apAdmin')) _g('apAdmin').onchange=()=>{ const on=!!_g('apAdmin').checked; store.updateUser(editUser,{perm:on?'Admin':''}); toast(on?'Granted full admin access':'Admin access removed'); renderAll(); renderSettings(); };
-  el.querySelectorAll('.ap-ws').forEach(cb=>cb.onchange=()=>{ const sp=store.space(cb.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); cb.checked?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); toast('Workspace access updated'); });
-  el.querySelectorAll('.ap-cap').forEach(cb=>cb.onchange=()=>{ const base=Object.assign({}, s.userPerms||{}); const rec=Object.assign({}, base[editUser]||userPerms[editUser]||{}); rec[cb.dataset.cap]=cb.checked; base[editUser]=rec; store.updateSettings({userPerms:base}); });
+    </div>`:'';
+
+  el.innerHTML=preferences+access+dataDanger;
+
+  const _g=id=>document.getElementById(id);
+  // preferences wiring (current user)
+  el.querySelectorAll('[data-pref]').forEach(node=>{
+    const path=node.dataset.pref;
+    const setVal=v=>{ const u=meUser(); if(!u) return; u.prefs=u.prefs||{}; const parts=path.split('.'); let o=u.prefs; for(let i=0;i<parts.length-1;i++){ o[parts[i]]=o[parts[i]]||{}; o=o[parts[i]]; } o[parts[parts.length-1]]=v; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
+    if(node.classList.contains('stx-tgl')){ node.onclick=()=>{ node.classList.toggle('on'); setVal(node.classList.contains('on')); }; }
+    else if(node.tagName==='SELECT'){ node.onchange=()=>{ setVal(node.value); if(path==='density') document.body.dataset.density=node.value; }; }
+  });
+  // teammate picker
+  if(_g('stxUser')) _g('stxUser').onchange=e=>{ editUser=e.target.value||null; renderSettings(); };
+  // full admin
+  if(_g('stxAdmin')) _g('stxAdmin').onclick=()=>{ const on=!_g('stxAdmin').classList.contains('on'); store.updateUser(editUser,{perm:on?'Admin':''}); toast(on?'Granted full admin access':'Admin access removed'); renderAll(); renderSettings(); };
+  // field Read/Edit/Hide
+  el.querySelectorAll('.stx-seg button').forEach(btn=>btn.onclick=()=>{ const fk=btn.dataset.fp, v=btn.dataset.v; const fpm=Object.assign({}, s.fieldPerms||{}); const rec=Object.assign({}, fpm[editUser]||{}); rec[fk]=v; fpm[editUser]=rec; store.updateSettings({fieldPerms:fpm}); const seg=btn.parentElement; seg.querySelectorAll('button').forEach(b=>b.className=''); btn.className='on '+v; });
+  // bulk set
+  el.querySelectorAll('[data-bulk]').forEach(b=>b.onclick=()=>{ const v=b.dataset.bulk; const fpm=Object.assign({}, s.fieldPerms||{}); const rec={}; STX_FALL.forEach(k=>rec[k]=v); fpm[editUser]=rec; store.updateSettings({fieldPerms:fpm}); renderSettings(); toast('Fields set to '+v); });
+  // module visibility (existing cap system)
+  el.querySelectorAll('.stx-mod').forEach(node=>node.onclick=()=>{ const cap=node.dataset.cap; const base=Object.assign({}, s.userPerms||{}); const rec=Object.assign({}, base[editUser]||{}); const on=!node.classList.contains('on'); rec[cap]=on; base[editUser]=rec; store.updateSettings({userPerms:base}); node.classList.toggle('on'); });
+  // visible workspaces
+  el.querySelectorAll('.stx-ws').forEach(node=>node.onclick=()=>{ const sp=store.space(node.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); const on=!node.classList.contains('on'); on?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); node.classList.toggle('on'); toast('Workspace access updated'); });
+  // data + danger (unchanged handlers)
   if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
   if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
     downloadCSV('all-tickets.csv', flds.map(f=>REPORT_FIELDS[f]), store.standardTasks().map(t=>flds.map(f=>reportFieldVal(t,f)))); };
@@ -3968,7 +4146,6 @@ function renderSettings(){
   if(_g('setReset')) _g('setReset').onclick=e=>armDanger(e.currentTarget,()=>{ store.reset(); ui.project='all'; ui.board='main'; toast('Reset to sample data'); renderAll(); renderSettings(); applyBrand(); });
   { const wb=_g('setWipe'); if(wb) wb.onclick=e=>armDanger(e.currentTarget, wipeWorkspace); }
 }
-
 /* ---------- Velocity & Burndown ---------- */
 function renderVelocity(){
   _dashInit(); _blInit();
