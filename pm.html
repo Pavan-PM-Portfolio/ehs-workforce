@@ -1198,7 +1198,7 @@ body[data-view="overview"] #periodSeg button[data-p="today"],body[data-view="ove
 .ovpr:last-child{border-bottom:0}
 .ovpr:hover{background:var(--surface-2)}
 .ovkey{font-family:ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 5px;border-radius:5px !important;flex:none}
-.ovti{font-size:12.3px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ovti{font-size:12.3px;color:var(--accent);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ovrt{font-size:11px;font-weight:600;white-space:nowrap;flex:none}
 .ovrt.crit{color:var(--crit)}.ovrt.warn{color:var(--warn)}.ovrt.mut{color:var(--faint)}
 .ovpop .avatar{width:22px !important;height:22px !important;border-radius:7px !important;font-size:9px}
@@ -1963,6 +1963,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 
     <div class="filterbar" id="filterbar">
       <div class="chips" id="filterChips"></div>
+      <button class="filter-clear" id="clearFilters">Clear all</button>
       <div class="fbar-right">
       <div class="period-box">
         <div class="period-seg" id="periodSeg">
@@ -1973,7 +1974,6 @@ body[data-density="compact"] .board{padding:12px 16px}
         </div>
         <div class="pcustom-wrap" id="fPeriodCustom" style="display:none"></div>
       </div>
-      <button class="filter-clear" id="clearFilters">Clear all</button>
       <button class="fb-refresh" id="boardRefresh" title="Refresh data"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg></button>
       </div>
     </div>
@@ -3971,7 +3971,7 @@ function wireOvPops(){
   document.querySelectorAll('#overviewwrap [data-pop]').forEach(elm=>{
     elm.onmouseenter=()=>{ cancel(); const set=_ovSets[elm.dataset.pop];
       if(!set||!set.tasks.length){ pop.classList.remove('on'); return; }
-      const rows=set.tasks.slice(0,12).map(x=>`<div class="ovpr" data-id="${x.t.id}"><span class="ovkey">${esc(x.t.key)}</span><span class="ovti">${esc(x.t.title)}</span>${x.right||''}</div>`).join('');
+      const rows=set.tasks.slice(0,12).map(x=>`<div class="ovpr" data-id="${x.t.id}"><span class="ovti">${esc(x.t.title)}</span>${x.right||''}</div>`).join('');
       pop.innerHTML=`<div class="ovpop-h"><span class="t">${esc(set.title)}</span><span class="c">${set.tasks.length}</span></div><div class="ovpop-list">${rows}</div>${set.tasks.length>12?`<div class="ovpop-f">+${set.tasks.length-12} more</div>`:''}`;
       pop.querySelectorAll('.ovpr').forEach(r=>r.onclick=()=>{ pop.classList.remove('on'); openPanel(r.dataset.id); });
       pop.classList.add('on');
@@ -4082,7 +4082,7 @@ function renderOverview(){
       </div>
     </div>
     <div class="ov-tile"><div class="ov-gh">Tickets by project</div><p class="ov-cap">Volume in scope</p>
-      ${byProj.map(x=>`<div class="hbar-row" data-pop="proj:${x.p.id}"><span class="nm">${esc(x.p.name)}</span><span class="track"><span class="fill" style="width:${x.n/pmax*100}%;background:linear-gradient(90deg,${(x.p.color||'#3B6FE0')}99,${x.p.color||'#3B6FE0'})"></span></span><span class="val">${x.n}</span></div>`).join('')||'<p class="ov-cap">No projects in scope.</p>'}
+      ${(()=>{ const PAL=['#3B6FE0','#0E8F5A','#B96A00','#7C3AED','#CE2F26','#0891B2','#BE185D','#65A30D','#C2410C','#4F46E5']; return byProj.map((x,i)=>{ const c=x.p.color||PAL[i%PAL.length]; return `<div class="hbar-row"><span class="nm">${esc(x.p.name)}</span><span class="track"><span class="fill" style="width:${x.n?Math.max(6,x.n/pmax*100):0}%;background:linear-gradient(90deg,${c},${c}cc)"></span></span><span class="val">${x.n}</span></div>`; }).join(''); })()||'<p class="ov-cap">No projects in scope.</p>'}
     </div>`;
   _ovSets={};
   const _mk=(title,tasks,rt)=>({title, tasks:tasks.map(t=>({t, right: rt?rt(t):''}))});
