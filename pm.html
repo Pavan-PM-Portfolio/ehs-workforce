@@ -1571,26 +1571,26 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .tn-av{border-radius:10px !important}
 .btn{border-radius:10px !important}
 
-.nt-modal{padding:0 !important;width:760px;max-width:calc(100vw - 40px);overflow:hidden}
+.nt-modal{padding:0 !important;width:720px;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);overflow:hidden;border-radius:16px !important;display:flex;flex-direction:column}
 .nt-h{display:flex;align-items:center;gap:10px;padding:15px 20px;border-bottom:1px solid var(--line-2)}
 .nt-hic{width:26px;height:26px;border-radius:7px !important;background:#3B6FE015;color:var(--accent);display:grid;place-items:center;flex:none}
 #ntModalTitle{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .nt-x{margin-left:auto;width:28px;height:28px;border:0;background:none;color:var(--faint);cursor:pointer;border-radius:7px !important;display:grid;place-items:center;font-size:14px}
 .nt-x:hover{background:var(--surface-2);color:var(--ink)}
-.nt-grid{display:grid;grid-template-columns:1.5fr 1fr}
-.nt-left{padding:18px 20px;border-right:1px solid var(--line-2)}
-.nt-key{display:inline-flex;align-items:center;gap:7px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-weight:700;font-size:13px;color:var(--accent);background:#3B6FE012;border:1px solid #3B6FE026;padding:5px 10px;border-radius:8px !important;letter-spacing:.02em;margin-bottom:14px;min-height:28px}
+.nt-grid{display:grid;grid-template-columns:1.5fr 1fr;overflow-y:auto;min-height:0}
+.nt-left{padding:20px;border-right:1px solid var(--line-2)}
+.nt-key{display:inline-flex;align-items:center;gap:7px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-weight:700;font-size:13px;color:var(--accent);background:#3B6FE012;border:1px solid #3B6FE026;padding:5px 10px;border-radius:8px !important;letter-spacing:.02em;margin-bottom:16px;min-height:28px}
 .nt-live{width:6px;height:6px;border-radius:50% !important;background:#0E8F5A;flex:none}
 .nt-caret{display:inline-block;width:1px;height:14px;background:var(--accent);animation:ntblink 1s steps(1) infinite}
 @keyframes ntblink{50%{opacity:0}}
 .nt-title{width:100%;border:0;outline:none;font-family:inherit;font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ink);padding:0;background:transparent}
 .nt-title::placeholder{color:#C3C7CE}
-.nt-desc{width:100%;border:0;outline:none;resize:none;font-family:inherit;font-size:13.5px;color:var(--ink-2,#3A4048);line-height:1.55;padding:0;margin-top:12px;min-height:150px;background:transparent}
+.nt-desc{width:100%;border:0;outline:none;resize:none;font-family:inherit;font-size:13.5px;color:var(--ink-2,#3A4048);line-height:1.55;padding:0;margin-top:14px;min-height:150px;background:transparent}
 .nt-desc::placeholder{color:#C3C7CE}
-.nt-rail{padding:8px 20px}
-.ntrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.nt-rail{padding:10px 20px}
+.ntrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line-2)}
 .ntrow:last-child{border-bottom:0}
-.ntrow-ic{color:var(--faint);flex:none;display:grid;place-items:center;width:15px}
+.ntrow-ic{color:var(--faint);flex:none;display:grid;place-items:center;width:14px}
 .ntrow-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);width:62px;flex:none}
 .ntrow-sel{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;text-align:right;text-align-last:right;-webkit-appearance:none;appearance:none;padding:3px 16px 3px 2px;outline:none;border-radius:6px !important;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239AA1AC' stroke-width='2.4'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right center;background-size:11px}
 .ntrow-sel:hover{background-color:var(--surface-2)}
@@ -1598,6 +1598,32 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ntrow-in{background-image:none;padding-right:2px}
 .nt-f{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line-2)}
 @media(max-width:640px){.nt-grid{grid-template-columns:1fr}.nt-left{border-right:0;border-bottom:1px solid var(--line-2)}.nt-desc{min-height:90px}}
+
+.nt-hidden{display:none !important}
+.nt-val{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:7px;border:0;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;padding:4px;border-radius:7px !important}
+.nt-val:hover{background:var(--surface-2)}
+.nt-val.ph{color:var(--faint);font-weight:500}
+.nt-val-in{display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden}
+.nt-val-in span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-val-ch{color:var(--faint);flex:none}
+.ntrow-in{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);text-align:right;outline:none;padding:4px 2px;background-image:none;cursor:pointer}
+.ntrow-in::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer}
+.nt-menu{position:fixed;z-index:700;min-width:190px;max-width:300px;background:#fff;border:1px solid var(--line);border-radius:11px !important;box-shadow:0 20px 44px -18px rgba(16,24,45,.42);padding:5px;display:none;max-height:264px;overflow-y:auto}
+.nt-menu.on{display:block}
+.nt-mi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px !important;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap}
+.nt-mi:hover{background:var(--surface-2)}
+.nt-mi.sel{font-weight:700}
+.nt-mi-t{overflow:hidden;text-overflow:ellipsis}
+.nt-mi-chk{margin-left:auto;color:var(--accent);flex:none}
+.nt-l-wide{width:auto !important;flex:none;white-space:nowrap}
+.nt-est-in{text-align:right}
+.nt-esthint{font-size:10.5px;color:var(--faint);padding:7px 0 2px;text-align:right;line-height:1.5}
+.nt-esthint b{color:var(--muted);font-weight:700;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+.ntrow{position:relative}
+.nt-dateinp{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;cursor:pointer;font-size:16px}
+.nt-dateinp::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer;opacity:0}
+.nt-key-hdr{color:var(--ink) !important;background:none !important;border:0 !important;padding:0 !important;margin:0 !important;font-size:15px;min-height:auto}
+.nt-key-hdr .nt-caret{background:var(--ink)}
 </style>
 </head>
 <body>
@@ -1668,10 +1694,9 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
       <button class="nav-item" data-view="epics"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Epics</button>
       <button class="nav-item" data-view="projects"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projects</button>
       <div class="np-sec">Insights</div>
-      <div class="nav-item nav-parent" id="navAnalyticsToggle">
+      <div class="nav-item nav-parent open" id="navAnalyticsToggle">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l3-4 3 3 4-6"/></svg>
         <span class="np-label">Analytics</span>
-        <svg class="np-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
       </div>
       <div id="navAnalytics" class="board-sublist">
         <button class="nav-item sub-item" data-atab="delivery"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Delivery</button>
@@ -1680,15 +1705,9 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
       </div>
       <button class="nav-item" data-view="dashboard"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</button>
       <button class="nav-item" data-view="reports"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Reports</button>
-      <button class="nav-item" data-view="velocity"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg>Velocity</button>
-      <div class="np-sec">Plan</div>
-      <button class="nav-item" data-view="backlog"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M3 12h18M3 19h18"/><rect x="1" y="3" width="4" height="4" rx="1"/></svg>Backlog</button>
-      <button class="nav-item" data-view="timeline"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h9M3 6h.01M3 12h.01M3 18h.01"/></svg>Timeline</button>
-      <button class="nav-item" data-view="releases"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Releases</button>
       <div class="np-sec">Manage</div>
       <button class="nav-item" data-view="team"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Team</button>
       <button class="nav-item" data-view="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</button>
-      <button class="nav-item" data-view="operations"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Operations</button>
       <button class="nav-item" id="navColumns"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>Board settings</button>
       <button class="nav-item" data-view="settings"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
     </nav>
@@ -1781,24 +1800,23 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 <!-- New ticket modal -->
 <div class="modal-wrap" id="modalWrap">
   <div class="modal nt-modal">
-    <div class="modal-h nt-h"><span class="nt-hic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span><span id="ntModalTitle">New ticket</span><button class="nt-x" id="ntX" type="button">✕</button></div>
+    <div class="modal-h nt-h"><span class="nt-key nt-key-hdr" id="ntKeyBadge"><span class="nt-live"></span><span id="ntKeyText"></span><span class="nt-caret"></span></span><button class="nt-x" id="ntX" type="button">✕</button></div>
     <div class="nt-grid">
       <div class="nt-left">
-        <div class="nt-key" id="ntKeyBadge"><span class="nt-live"></span><span id="ntKeyText"></span><span class="nt-caret"></span></div>
         <input id="ntTitle" class="nt-title" placeholder="Ticket title" autocomplete="off"/>
         <textarea id="ntDesc" class="nt-desc" placeholder="Add a description…"></textarea>
       </div>
       <div class="nt-rail">
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="ntrow-l">Project</span><select id="ntProject" class="ntrow-sel"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/></svg></span><span class="ntrow-l">Type</span><select id="ntType" class="ntrow-sel"><option>Task</option><option>Bug</option><option>Epic</option></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V4M4 4h13l-2 4 2 4H4"/></svg></span><span class="ntrow-l">Priority</span><select id="ntPriority" class="ntrow-sel"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></span><span class="ntrow-l">Status</span><select id="ntStatus" class="ntrow-sel"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Assignee</span><select id="ntAssignee" class="ntrow-sel"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Reporter</span><select id="ntReporter" class="ntrow-sel"></select></div>
-        <div class="ntrow" id="ntParentField"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="ntrow-l">Epic</span><select id="ntParent" class="ntrow-sel"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Start</span><input id="ntStart" type="date" class="ntrow-sel ntrow-in"/></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Due</span><input id="ntDue" type="date" class="ntrow-sel ntrow-in"/></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ntrow-l">Estimate</span><input id="ntEstimate" type="number" step="0.25" min="0" placeholder="e.g. 8h" class="ntrow-sel ntrow-in"/></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="ntrow-l">Project</span><button type="button" class="nt-val" data-for="ntProject"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntProject" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/></svg></span><span class="ntrow-l">Type</span><button type="button" class="nt-val" data-for="ntType"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntType" class="nt-hidden" data-enh="1"><option>Task</option><option>Bug</option><option>Epic</option></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V4M4 4h13l-2 4 2 4H4"/></svg></span><span class="ntrow-l">Priority</span><button type="button" class="nt-val" data-for="ntPriority"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntPriority" class="nt-hidden" data-enh="1"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></span><span class="ntrow-l">Status</span><button type="button" class="nt-val" data-for="ntStatus"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntStatus" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Assignee</span><button type="button" class="nt-val" data-for="ntAssignee"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntAssignee" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Reporter</span><button type="button" class="nt-val" data-for="ntReporter"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntReporter" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow" id="ntParentField"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="ntrow-l">Epic</span><button type="button" class="nt-val" data-for="ntParent"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntParent" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Start</span><button type="button" class="nt-val ph" data-date="ntStart"><span class="nt-val-in"><span>Pick date</span></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><input id="ntStart" type="date" class="nt-dateinp" tabindex="-1"/></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Due</span><button type="button" class="nt-val ph" data-date="ntDue"><span class="nt-val-in"><span>Pick date</span></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><input id="ntDue" type="date" class="nt-dateinp" tabindex="-1"/></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ntrow-l nt-l-wide">Original estimate</span><input id="ntEstimate" type="text" placeholder="5h 30m" class="ntrow-in nt-est-in" autocomplete="off"/></div><div class="nt-esthint"><b>h</b> hours · <b>m</b> minutes — e.g. <b>5h</b>, <b>5h30m</b>, <b>45m</b></div>
       </div>
     </div>
     <div class="modal-f nt-f">
@@ -1808,6 +1826,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
   </div>
 </div>
 
+<div class="nt-menu" id="ntMenu"></div>
 <div class="toast" id="toast"></div>
 <div id="spacesScreen" class="sp-screen on">
   <header class="sp-top">
@@ -1933,8 +1952,8 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
-const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
+const SUPABASE_URL  = "PASTE_YOUR_SUPABASE_URL";
+const SUPABASE_ANON = "PASTE_YOUR_SUPABASE_ANON";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3224,12 +3243,70 @@ function wireChat(){ const fab=document.getElementById('chatFab'); if(fab) fab.o
 /* ============================================================
    NEW TICKET
 ============================================================ */
-function ntNextKey(){
-  const pe=document.getElementById('ntProject'); if(!pe) return '';
-  const proj=store.project(pe.value); if(!proj||!proj.key) return '';
-  const n=store.tasks().filter(t=>t.project===pe.value).length+1;
-  return proj.key+'-'+(100+n);
+function ntWireDates(){
+  ['ntStart','ntDue'].forEach(id=>{
+    const inp=document.getElementById(id); const btn=document.querySelector('.nt-val[data-date="'+id+'"]'); if(!inp||!btn) return;
+    const refresh=()=>{ const v=inp.value; const t=btn.querySelector('.nt-val-in span');
+      if(v){ const d=new Date(v+'T00:00'); t.textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); btn.classList.remove('ph'); }
+      else { t.textContent='Pick date'; btn.classList.add('ph'); } };
+    inp.onchange=refresh; inp._refresh=refresh; refresh();
+  });
 }
+function ntIsPerson(id){ return id==='ntAssignee'||id==='ntReporter'; }
+function ntBtnDisplay(selId){
+  const sel=document.getElementById(selId); const btn=document.querySelector('.nt-val[data-for="'+selId+'"]'); if(!sel||!btn) return;
+  const opt=sel.options[sel.selectedIndex]; const label=opt?opt.textContent:'';
+  let inner=''; if(ntIsPerson(selId) && sel.value){ const u=store.user(sel.value); if(u) inner=avatar(u,18); }
+  const ph=(!sel.value||label==='None'||label==='Unassigned');
+  btn.querySelector('.nt-val-in').innerHTML=inner+'<span>'+esc(label||'')+'</span>';
+  btn.classList.toggle('ph', ph && !inner);
+}
+function openNtMenu(btn){
+  const selId=btn.dataset.for; const sel=document.getElementById(selId); if(!sel) return;
+  const menu=document.getElementById('ntMenu'); const isP=ntIsPerson(selId);
+  menu.innerHTML=[...sel.options].map(o=>{ let ic=''; if(isP&&o.value){ const u=store.user(o.value); if(u) ic=avatar(u,18); }
+    const on=o.value===sel.value;
+    return '<div class="nt-mi '+(on?'sel':'')+'" data-v="'+esc(o.value)+'">'+ic+'<span class="nt-mi-t">'+esc(o.textContent)+'</span>'+(on?'<svg class="nt-mi-chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>':'')+'</div>';
+  }).join('');
+  const r=btn.getBoundingClientRect(); const mw=Math.max(190, r.width);
+  menu.style.minWidth=mw+'px';
+  menu.style.left=Math.max(8, Math.min(r.right-mw, window.innerWidth-mw-8))+'px';
+  menu.style.visibility='hidden'; menu.classList.add('on');
+  const mh=menu.offsetHeight; let top=r.bottom+5;
+  if(top+mh>window.innerHeight-8) top=Math.max(8, r.top-5-mh);
+  menu.style.top=top+'px'; menu.style.visibility='';
+  menu._sel=selId;
+  menu.querySelectorAll('.nt-mi').forEach(mi=>mi.onclick=(e)=>{ e.stopPropagation(); sel.value=mi.dataset.v; sel.dispatchEvent(new Event('change')); ntBtnDisplay(selId); menu.classList.remove('on'); });
+}
+function closeNtMenu(){ const m=document.getElementById('ntMenu'); if(m) m.classList.remove('on'); }
+function wireNtVals(){
+  document.querySelectorAll('#modalWrap .nt-val').forEach(btn=>{
+    btn.onclick=(e)=>{ e.stopPropagation(); const m=document.getElementById('ntMenu'); const isOpen=m.classList.contains('on')&&m._sel===btn.dataset.for; if(isOpen) closeNtMenu(); else openNtMenu(btn); };
+    ntBtnDisplay(btn.dataset.for);
+  });
+}
+document.addEventListener('click',e=>{ const m=document.getElementById('ntMenu'); if(m&&m.classList.contains('on')&&!e.target.closest('#ntMenu')&&!e.target.closest('.nt-val')) closeNtMenu(); });
+window.addEventListener('scroll',(e)=>{ const m=document.getElementById('ntMenu'); if(m&&m.classList.contains('on')&&!(e.target&&e.target.closest&&e.target.closest('#ntMenu'))) closeNtMenu(); }, true);
+function computeNextKey(pid){
+  const proj = pid ? store.project(pid) : null;
+  if(proj && proj.key){ const n=store.tasks().filter(t=>t.project===pid).length+1; return proj.key+'-'+(100+n); }
+  const sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
+  const tks=store.data.tasks.filter(t=>(t.ws||'ws_main')===sp && t.key);
+  const counts={}; let best='',bestN=0;
+  tks.forEach(t=>{ const m=(t.key||'').match(/^(.*)-(\d+)$/); if(m){ counts[m[1]]=(counts[m[1]]||0)+1; if(counts[m[1]]>bestN){bestN=counts[m[1]];best=m[1];} } });
+  if(best){ let mx=100; tks.forEach(t=>{ const m=(t.key||'').match(/^(.*)-(\d+)$/); if(m&&m[1]===best) mx=Math.max(mx,+m[2]); }); return best+'-'+(mx+1); }
+  return 'TASK-'+(tks.length+1);
+}
+function parseEstimate(str){
+  if(str==null) return null; str=(''+str).trim().toLowerCase(); if(!str) return null;
+  let mins=0, matched=false;
+  const h=str.match(/(\d+(?:\.\d+)?)\s*h/); if(h){ mins+=parseFloat(h[1])*60; matched=true; }
+  const m=str.match(/(\d+)\s*m/); if(m){ mins+=parseInt(m[1],10); matched=true; }
+  if(!matched){ const n=parseFloat(str); if(!isNaN(n)) mins=n*60; else return null; }
+  return mins>0?Math.round(mins):null;
+}
+function fmtEstimate(mins){ if(!mins) return ''; const h=Math.floor(mins/60),m=Math.round(mins%60); return ((h?h+'h':'')+(m?(h?' ':'')+m+'m':''))||'0m'; }
+function ntNextKey(){ const pe=document.getElementById('ntProject'); if(!pe) return ''; return computeNextKey(pe.value); }
 function typeNtKey(){
   const wrap=document.getElementById('ntKeyBadge'), out=document.getElementById('ntKeyText'); if(!wrap||!out) return;
   const full=ntNextKey();
@@ -3241,14 +3318,13 @@ function typeNtKey(){
 function openModal(presetType, presetParent, presetProject){
   const setSel=(id,opts)=>document.getElementById(id).innerHTML=opts;
   const isEpic=presetType==='Epic';
-  document.getElementById('ntModalTitle').textContent = isEpic?'New epic':'New ticket';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
-  setSel('ntProject', store.projects().map(p=>`<option value="${p.id}">${p.name}</option>`).join(''));
+  setSel('ntProject', `<option value="">No project</option>`+store.projects().map((p,i)=>`<option value="${p.id}" ${i===0?'selected':''}>${esc(p.name)}</option>`).join(''));
   setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${u.name}</option>`).join(''));
   setSel('ntReporter', store.users().map(u=>`<option value="${u.id}" ${u.role==='PM'?'selected':''}>${u.name}</option>`).join(''));
   setSel('ntStatus', STATUSES.map((s,i)=>`<option value="${s.id}" ${i===0?'selected':''}>${esc(s.name)}</option>`).join(''));
   fillParentOptions();
-  document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); };
+  document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject'); };
   document.getElementById('ntType').onchange=toggleEpicField;
   toggleEpicField();
   ['ntTitle','ntDesc','ntDue','ntStart','ntEstimate'].forEach(id=>document.getElementById(id).value='');
@@ -3257,6 +3333,8 @@ function openModal(presetType, presetParent, presetProject){
   if(presetType){ document.getElementById('ntType').value=presetType; }
   if(presetParent){ const pp=document.getElementById('ntParent'); if(pp) pp.value=presetParent; }
   toggleEpicField();
+  wireNtVals();
+  ntWireDates();
   typeNtKey();
   document.getElementById('modalWrap').classList.add('on');
   document.getElementById('ntTitle').focus();
@@ -3311,20 +3389,18 @@ function createTask(){
   const title=document.getElementById('ntTitle').value.trim();
   if(!title){ toast('Give the ticket a title'); return; }
   const pid=document.getElementById('ntProject').value;
-  const proj=store.project(pid);
-  const n=store.tasks().filter(t=>t.project===pid).length+1;
-  const est=parseFloat(document.getElementById('ntEstimate').value);
+  const estMin=parseEstimate(document.getElementById('ntEstimate').value);
   const statusId=document.getElementById('ntStatus').value;
   const type=document.getElementById('ntType').value;
   const isEpic=type==='Epic';
-  const t={ id:(isEpic?'e':'t')+Date.now(), ws:(ui.space||'ws_main'), project:pid, key:`${proj.key}-${100+n}`, title,
+  const t={ id:(isEpic?'e':'t')+Date.now(), ws:(ui.space||'ws_main'), project:pid, key:computeNextKey(pid), title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
     reporter:document.getElementById('ntReporter').value||null,
     parent:isEpic?null:(document.getElementById('ntParent').value||null),
     color:isEpic?SWATCHES[2+(store.epics().length%6)]:undefined,
     due:document.getElementById('ntDue').value||null, start:document.getElementById('ntStart').value||null,
-    estimate: est>0?Math.round(est*60):null,
+    estimate: estMin,
     resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(), updatedAt:today(), resolvedAt:null,
     desc:document.getElementById('ntDesc').value.trim() };
   store._applyResolution(t);
@@ -4779,8 +4855,7 @@ document.getElementById('signOutBtn').onclick=async()=>{
 window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ location.href='index.html'; } });
 document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#navAddBoard')) return; setView('board'); };
 (function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>document.body.classList.toggle('nav-collapsed'); })();
-document.getElementById('navAnalyticsToggle').onclick=e=>{ const tog=e.currentTarget;
-  if(ui.view==='analytics'){ tog.classList.toggle('open'); } else { tog.classList.add('open'); setView('analytics'); } };
+document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
 document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>{ ui.analyticsTab=it.dataset.atab; setView('analytics'); });
 document.querySelectorAll('#boardMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
   const menu=document.getElementById('boardMenu'); const id=menu.dataset.board; menu.classList.remove('on'); boardAction(id, btn.dataset.act); });
