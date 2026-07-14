@@ -447,6 +447,10 @@ body.nav-collapsed .side-head{justify-content:center;padding:10px 0 6px}
 .bn-pop-sep{height:1px;background:var(--line-2);margin:5px 4px}
 
 /* ---------- Filter bar ---------- */
+.fb-refresh{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink-2);font-family:inherit;font-weight:600;font-size:12.5px;padding:6px 11px;border-radius:8px !important;cursor:pointer}
+.fb-refresh:hover{background:var(--surface-2);border-color:#CFD3DA}
+.fb-refresh.spinning svg{animation:fbspin .7s linear infinite}
+@keyframes fbspin{to{transform:rotate(360deg)}}
 .filterbar{display:flex;align-items:center;gap:7px;padding:9px 20px;
   background:var(--bg);border-bottom:1px solid var(--line);flex:none;flex-wrap:nowrap;overflow-x:auto}
 .fl{display:flex;align-items:center;gap:6px;flex:none}
@@ -1694,6 +1698,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
     <div class="filterbar" id="filterbar">
       <div class="chips" id="filterChips"></div>
       <div class="fbar-right">
+      <button class="fb-refresh" id="boardRefresh" title="Refresh data"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>Refresh</button>
       <div class="period-box">
         <div class="period-seg" id="periodSeg">
           <button data-p="all" class="on">All</button>
@@ -3497,7 +3502,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
 
-function setView(v){ ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; }
+function setView(v){ ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
 
 /* ---------- Side card ---------- */
 function renderSideCard(){
@@ -4654,6 +4659,7 @@ document.querySelectorAll('#groupMenu button').forEach(b=>b.onclick=()=>{ const 
   document.querySelectorAll('#groupMenu button').forEach(x=>x.classList.toggle('on', x===b));
   document.getElementById('groupMenu').classList.remove('on'); renderBoard(); });
 document.addEventListener('click',()=>document.getElementById('groupMenu').classList.remove('on'));
+{ const _rb=document.getElementById('boardRefresh'); if(_rb) _rb.onclick=function(){ manualRefresh(this); }; }
 document.getElementById('navAddBoard').onclick=e=>{ e.stopPropagation(); document.getElementById('navBoardsToggle').classList.add('open'); addBoardFromSide(); };
 const ACCT_TOOLS=[{id:'pm',name:'Project Hub',sub:'Cadence Tracker'},{id:'delivery',name:'Delivery Hub',sub:'Concern intake & delivery'},{id:'products',name:'Product Hub',sub:'Catalog & licensing'},{id:'ops',name:'Operations Hub',sub:'Day-to-day ops'}];
 const AD_IC={
@@ -4929,7 +4935,7 @@ async function loadWorkspace(){
     setEl('apName',e=>e.textContent=full||'Account'); setEl('apEmail',e=>e.textContent=em); setEl('apRole',e=>e.textContent=IS_ADMIN?'Master Admin':'Member');
     setEl('apAv',e=>{e.textContent=pini;e.style.background=cc+'20';e.style.border='1.6px solid '+cc;e.style.color=cc;});
     setEl('apAdmin',e=>{e.style.display=IS_ADMIN?'':'none';}); }
-  ensureSpaces(); renderAll(); subscribeRealtime(); wireSpaces(); showSpaces();
+  ensureSpaces(); renderAll(); subscribeRealtime(); wireSpaces(); restoreSpot();
   const mc = (ME && ME.user_metadata) ? ME.user_metadata.must_change_pw : undefined;
   const mustChange = (mc===true) ? true : (mc===false ? false : store.isPwPending(em));
   if(em && mustChange) forcePasswordModal(em);
@@ -5068,7 +5074,31 @@ const SP_COLORS=['#3B6FE0','#0E8FA8','#7A3FF2','#0E8F5A','#B96A00','#CE2F26','#C
 let _spEdit=null;
 function myUid(){ try{ if(ME && ME.uid) return ME.uid; }catch(e){} const u=store.users&&store.users()[0]; return u?u.id:'u7'; }
 function canAccessSpace(sp){ if(typeof IS_ADMIN!=='undefined'&&IS_ADMIN) return true; return (sp.members||[]).includes(myUid()); }
-function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); }
+function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); saveSpot(); }
+function saveSpot(){ try{ localStorage.setItem('ehs_spot', JSON.stringify({space:ui.space||null, view:ui.view||'overview', board:ui.board||null})); }catch(e){} }
+function restoreSpot(){
+  let sp=null; try{ sp=JSON.parse(localStorage.getItem('ehs_spot')||'null'); }catch(e){}
+  if(sp && sp.space && store.space(sp.space)){
+    ui.space=sp.space; ui.project='all';
+    const bds=store.boards();
+    ui.board=(sp.board && store.board(sp.board) && (store.board(sp.board).ws||'ws_main')===sp.space) ? sp.board : (bds.length?bds[0].id:store.addBoard('Board'));
+    hideSpaces();
+    setView(sp.view||'overview');
+    const el=document.getElementById('scroll'); if(el) el.scrollTop=0;
+    return true;
+  }
+  showSpaces(); return false;
+}
+async function manualRefresh(btn){
+  if(btn){ btn.classList.add('spinning'); btn.disabled=true; }
+  try{
+    if(typeof REMOTE!=='undefined' && REMOTE && typeof WS!=='undefined' && WS && typeof fetchAll==='function'){
+      await fetchAll(); if(typeof buildSnap==='function') buildSnap();
+    }
+    renderAll(); toast('Refreshed');
+  }catch(e){ toast('Couldn\u2019t refresh — check connection'); }
+  if(btn){ setTimeout(()=>{ btn.classList.remove('spinning'); btn.disabled=false; }, 350); }
+}
 function hideSpaces(){ const el=document.getElementById('spacesScreen'); if(el) el.classList.remove('on'); }
 function renderSpaces(){
   const grid=document.getElementById('spGrid'); if(!grid) return;
@@ -5094,7 +5124,7 @@ function renderSpaces(){
   grid.querySelectorAll('.sp-manage').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openSpaceModal(b.dataset.space); });
   const nc=document.getElementById('spNewCard'); if(nc) nc.onclick=()=>openSpaceModal(null);
 }
-function enterSpace(id){ const sp=store.space(id); if(!sp) return; ui.space=id; const bds=store.boards(); if(!bds.length){ ui.board=store.addBoard('Board'); } else if(!store.board(ui.board) || (store.board(ui.board).ws||'ws_main')!==id){ ui.board=bds[0].id; } ui.view='overview'; ui.project='all'; hideSpaces(); renderAll(); const el=document.getElementById('scroll'); if(el) el.scrollTop=0; }
+function enterSpace(id){ const sp=store.space(id); if(!sp) return; ui.space=id; const bds=store.boards(); if(!bds.length){ ui.board=store.addBoard('Board'); } else if(!store.board(ui.board) || (store.board(ui.board).ws||'ws_main')!==id){ ui.board=bds[0].id; } ui.view='overview'; ui.project='all'; hideSpaces(); renderAll(); saveSpot(); const el=document.getElementById('scroll'); if(el) el.scrollTop=0; }
 function backToSpaces(){ showSpaces(); }
 function openSpaceModal(id){
   _spEdit=id||null; const sp=id?store.space(id):null;
@@ -5179,7 +5209,7 @@ function ensureSpaces(){
 async function boot(){
   wireChat();
   if(CONFIGURED && !window.supabase){
-    store.load(); applyDefaults(); ensureSpaces(); renderAll(); wireSpaces(); showSpaces();
+    store.load(); applyDefaults(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot();
     setTimeout(()=>toast('Couldn’t load the Supabase library — check your connection and refresh.'),600);
     return;
   }
@@ -5190,7 +5220,7 @@ async function boot(){
     const {data:{session}}=await sb.auth.getSession();
     if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
-    store.load(); applyDefaults(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); showSpaces();
+    store.load(); applyDefaults(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot();
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
