@@ -1134,14 +1134,14 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-h{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
 .ov-h h2{font-size:19px;font-weight:600;letter-spacing:-.02em;margin:0}
 .ov-h .range{font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px !important;padding:15px 16px}
 .kpi .l{font-size:12.5px;color:var(--muted);font-weight:500;display:flex;align-items:center;justify-content:space-between}
-.kpi .v{font-size:30px;font-weight:600;letter-spacing:-.03em;margin-top:10px;line-height:1}
+.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:6px;line-height:1}
 .kpi .d{font-size:11.5px;margin-top:8px;color:var(--muted)}
 .kpi .up{color:var(--good);font-weight:600}
 .ov-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:2px}
-.ov-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.ov-card{background:#fff;border:1px solid var(--line);border-radius:16px !important;box-shadow:0 12px 32px -24px rgba(16,26,51,.18);padding:18px 20px;overflow:hidden}
 .ov-card h3{font-size:13.5px;font-weight:600;margin:0 0 3px}
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
 .hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
@@ -1624,6 +1624,10 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .nt-dateinp::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;cursor:pointer;opacity:0}
 .nt-key-hdr{color:var(--ink) !important;background:none !important;border:0 !important;padding:0 !important;margin:0 !important;font-size:15px;min-height:auto}
 .nt-key-hdr .nt-caret{background:var(--ink)}
+.prow-agent{cursor:default}
+.prow-agent:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.prow-agent .prow-nm{color:var(--ink)}
+.prow-agent:hover .prow-nm{text-decoration:none}
 </style>
 </head>
 <body>
@@ -4644,7 +4648,7 @@ function renderAnalytics(){
 
   el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><h2>Analytics</h2>${periodBar}</div>
     <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${ui.anPeriod==='all'?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):'anchored to '+fdate(_anRef))}</div>
-    ${kpis}<div id="anSection">${section}</div>`;
+    ${ui.analyticsTab==='productivity'?'':kpis}<div id="anSection">${section}</div>`;
   el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
   if(ui.anPeriod==='custom') wirePeriodCustom('an', ui.anFrom, ui.anTo, v=>{ ui.anFrom=v; renderAnalytics(); }, v=>{ ui.anTo=v; renderAnalytics(); });
   el.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>openPanel(r.dataset.open));
@@ -4733,29 +4737,36 @@ function anProductivity(scope, logs){
   const ranked=users.sort((a,b)=>(byUser[b.id]||0)-(byUser[a.id]||0));
   const topRanked=ranked.slice().sort((a,b)=>closedCount(b.id)-closedCount(a.id))[0];
   const topClosed=topRanked&&closedCount(topRanked.id)>0?topRanked.id:null;
-  const maxMins=Math.max(...ranked.map(u=>byUser[u.id]||0),1);
+  const totalMin=Object.values(byUser).reduce((x,m)=>x+m,0);
+  const activeAgents=ranked.length;
+  const allTasks=new Set(); Object.values(tasksBy).forEach(set=>set.forEach(t=>allTasks.add(t)));
+  const totalTasks=allTasks.size, totalClosed=[...allTasks].filter(isDone).length, totalPending=totalTasks-totalClosed;
+  const totalEntries=Object.values(entries).reduce((x,n)=>x+n,0);
+  const ovStrip=`<div class="pj-ov">
+    <div class="pj-ov-hero"><div class="v">${(totalMin/60).toFixed(0)}<span style="font-size:16px;color:var(--muted);font-weight:700">h</span></div><div class="l">Time logged</div></div>
+    <div class="pj-ov-rest">
+      <div class="pj-ov-s"><div class="v">${activeAgents}</div><div class="l">Active agents</div></div>
+      <div class="pj-ov-s"><div class="v">${totalTasks}</div><div class="l">Tickets worked</div></div>
+      <div class="pj-ov-s"><div class="v done">${totalClosed}</div><div class="l">Closed</div></div>
+      <div class="pj-ov-s"><div class="v">${totalPending}</div><div class="l">Pending</div></div>
+      <div class="pj-ov-s"><div class="v">${totalEntries}</div><div class="l">Log entries</div></div>
+    </div></div>`;
+  const aring=(val,tot)=>{ const r=24,c=2*Math.PI*r, frac=tot?Math.max(val/Math.max(tot,1),0.06):0, off=c*(1-frac);
+    return `<div class="prow-ringc"><svg width="58" height="58"><circle cx="29" cy="29" r="${r}" fill="none" stroke="var(--line)" stroke-width="6"/>${val>0?`<circle cx="29" cy="29" r="${r}" fill="none" stroke="#0E8F5A" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>`:''}</svg><div class="prow-rc">${val}</div></div>`; };
   const cards=ranked.map(u=>{ const mins=byUser[u.id]||0; const worked=[...(tasksBy[u.id]||[])];
     const total=worked.length, closed=worked.filter(isDone).length, pending=total-closed;
-    const share=Math.round(mins/maxMins*100);
-    const crown=u.id===topClosed?`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="margin-left:auto"><path d="M4 8l4 4 4-7 4 7 4-4v9H4V8z" fill="#B96A00"/></svg>`:'';
-    return `<div class="member">
-      <div class="member-top"><span class="member-av" style="background:${u.color}">${initials(u.name)}</span>
-        <div><div class="member-nm">${u.name}</div><div class="member-role">${u.role} · ${entries[u.id]||0} logs</div></div>${crown}</div>
-      <div style="margin-bottom:13px"><div style="height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden"><div style="height:100%;width:${Math.max(share,4)}%;background:${u.color};border-radius:4px"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px"><span>Share of team's busiest</span><span class="num">${share}%</span></div></div>
-      <div class="member-stats">
-        <div class="member-stat"><div class="v num">${hm(mins)}</div><div class="l">Time Logged</div></div>
-        <div class="member-stat"><div class="v num">${total}</div><div class="l">Total Tickets</div></div>
-        <div class="member-stat"><div class="v num">${pending}</div><div class="l">Tickets Pending</div></div>
-        <div class="member-stat"><div class="v num">${closed}</div><div class="l">Tickets Closed</div></div>
-      </div></div>`; }).join('') || '<p class="cap" style="padding:20px 0">No activity in this period.</p>';
+    return `<div class="prow prow-agent">
+      <div class="prow-main"><div class="prow-nm">${esc(u.name)}</div><div class="prow-k">${esc(u.role)} \u00b7 ${entries[u.id]||0} logs</div></div>
+      <div class="prow-stats"><div class="prow-st"><div class="v">${hm(mins)}</div><div class="l">Logged</div></div><div class="prow-st"><div class="v">${total}</div><div class="l">Total</div></div><div class="prow-st"><div class="v">${pending}</div><div class="l">Pending</div></div></div>
+      <div class="prow-ring clear"><div class="prow-ring-l">Closed</div>${aring(closed,total)}</div>
+    </div>`; }).join('') || '<p class="cap" style="padding:20px 0">No activity in this period.</p>';
   const byCat={}; plogs.forEach(w=>byCat[w.cat]=(byCat[w.cat]||0)+w.min);
   const catItems=CATS.map(c=>({label:c.id, v:byCat[c.id]||0, color:c.color}));
   const engItems=ranked.map(u=>({label:`<span style="display:inline-flex;align-items:center;gap:7px">${avatar(u,18)}${u.name}</span>`, v:byUser[u.id]||0, color:u.color}));
-  return `<div class="team-grid" style="grid-template-columns:repeat(3,1fr)">${cards}</div>
+  return ovStrip + `<div class="pj-list" style="margin-top:14px">${cards}</div>
     <div class="ov-cols" style="grid-template-columns:1fr 1fr;margin-top:14px">
       <div class="ov-card"><h3>Hours by engineer</h3><p class="cap">Logged time in period</p>${engItems.length?barRows(engItems,i=>i.color,v=>hm(v)):'<p class="cap">None.</p>'}</div>
-      <div class="ov-card"><h3>Hours by category</h3><p class="cap">Development · Review · QA · Deploy · Other</p>${barRows(catItems,i=>i.color,v=>hm(v))}</div>
+      <div class="ov-card"><h3>Hours by category</h3><p class="cap">Development \u00b7 Review \u00b7 QA \u00b7 Deploy \u00b7 Other</p>${barRows(catItems,i=>i.color,v=>hm(v))}</div>
     </div>`;
 }
 
