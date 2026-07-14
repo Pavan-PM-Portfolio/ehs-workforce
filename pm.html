@@ -2230,6 +2230,7 @@ function tInPeriod(t, ref){
   if(fInPeriod(t.createdAt,ref)||fInPeriod(t.updatedAt,ref)||fInPeriod(t.resolvedAt,ref)) return true;
   return store.worklogs(t.id).some(w=>fInPeriod(w.date,ref));
 }
+function matchFilt(fv,tv){ if(!fv||fv==='all') return true; if(Array.isArray(fv)) return fv.length===0||fv.includes(tv); return fv===tv; }
 function filteredTasks(){
   const f=ui.filters;
   const ref=(f.period&&f.period!=='all')?boardRef():null;
@@ -2237,10 +2238,10 @@ function filteredTasks(){
     if(t.archived) return false;
     if(ui.project!=='all' && t.project!==ui.project) return false;
     if(f.epic!=='all'){ if(f.epic==='none'){ if(t.parent) return false; } else if(t.parent!==f.epic) return false; }
-    if(f.assignee!=='all' && t.assignee!==f.assignee) return false;
-    if(f.status!=='all' && t.status!==f.status) return false;
-    if(f.priority!=='all' && t.priority!==f.priority) return false;
-    if(f.type!=='all' && t.type!==f.type) return false;
+    if(!matchFilt(f.assignee, t.assignee)) return false;
+    if(!matchFilt(f.status, t.status)) return false;
+    if(!matchFilt(f.priority, t.priority)) return false;
+    if(!matchFilt(f.type, t.type)) return false;
     if(f.time!=='all'){ const has=store.worklogs(t.id).length>0; if(f.time==='yes'&&!has) return false; if(f.time==='no'&&has) return false; }
     if(ref && !tInPeriod(t, ref)) return false;
     if(f.search){ const q=f.search.toLowerCase(); if(!(t.title.toLowerCase().includes(q)||t.key.toLowerCase().includes(q))) return false; }
@@ -2260,26 +2261,28 @@ const FILTER_DEFS=[
   {key:'epic', label:'Epic', search:true,
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#7C3AED"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
    opts(){ return [{v:'all',t:'All'},{v:'none',t:'No epic'}].concat(store.epics().filter(e=>ui.project==='all'||e.project===ui.project).map(e=>({v:e.id,t:e.title,dot:e.color}))); }},
-  {key:'assignee', label:'Assignee', search:true,
+  {key:'assignee', label:'Assignee', multi:true, search:true,
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#2743E0"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
    opts(){ return [{v:'all',t:'All'}].concat(store.users().map(u=>({v:u.id,t:u.name,dot:u.color,ava:avatar(u,18)}))); }},
-  {key:'status', label:'Status',
+  {key:'status', label:'Status', multi:true,
    ico:'<svg class="chip-ico" style="color:#0E8F5A" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>',
    opts(){ return [{v:'all',t:'All'}].concat(STATUSES.map(s=>({v:s.id,t:s.name,dot:s.color}))); }},
-  {key:'priority', label:'Priority',
+  {key:'priority', label:'Priority', multi:true,
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#CA8A04"><path d="M4 21V4M4 4h13l-2 5 2 5H4"/></svg>',
    opts(){ return [{v:'all',t:'All'}].concat(Object.keys(PRIORITIES).map(p=>({v:p,t:p,dot:PRIORITIES[p]}))); }},
-  {key:'type', label:'Type',
+  {key:'type', label:'Type', multi:true,
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#0891B2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
    opts(){ return [{v:'all',t:'All'},{v:'Task',t:'Task'},{v:'Bug',t:'Bug'}]; }},
   {key:'time', label:'Time', allLabel:'Any',
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#EA580C"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
    opts(){ return [{v:'all',t:'Any'},{v:'yes',t:'Logged'},{v:'no',t:'Not logged'}]; }},
 ];
-function filterValLabel(def){ const cur=ui.filters[def.key]; const o=def.opts().find(x=>x.v===cur); return o?o.t:(def.allLabel||'All'); }
+function filterValLabel(def){ const cur=ui.filters[def.key];
+  if(def.multi && Array.isArray(cur)){ if(!cur.length) return def.allLabel||'All'; if(cur.length===1){ const o=def.opts().find(x=>x.v===cur[0]); return o?o.t:'1 selected'; } return cur.length+' selected'; }
+  const o=def.opts().find(x=>x.v===cur); return o?o.t:(def.allLabel||'All'); }
 function renderFilterChips(){
   const wrap=document.getElementById('filterChips'); if(!wrap) return;
-  wrap.innerHTML=FILTER_DEFS.map(def=>{ const active=(ui.filters[def.key]||'all')!=='all';
+  wrap.innerHTML=FILTER_DEFS.map(def=>{ const _v=ui.filters[def.key]; const active=Array.isArray(_v)?_v.length>0:(!!_v&&_v!=='all');
     return `<button class="chip ${active?'active':''}" data-key="${def.key}">${def.ico}<span class="chip-lbl">${def.label}</span><span class="chip-val">${esc(filterValLabel(def))}</span>${CHEV_SVG}</button>`;
   }).join('');
   wrap.querySelectorAll('.chip').forEach(c=>c.onclick=e=>{ e.stopPropagation(); openFilterMenu(c.dataset.key, c); });
@@ -2296,10 +2299,15 @@ function openFilterMenu(key, chip){
   fmOpen=key;
   document.querySelectorAll('#filterChips .chip.open').forEach(c=>c.classList.remove('open')); if(chip) chip.classList.add('open');
   const cur=ui.filters[key]||'all';
+  const isMulti=!!def.multi;
+  const selArr=()=>{ const c=ui.filters[key]; return (isMulti && Array.isArray(c))?c:[]; };
   const draw=(q)=>{ const items=def.opts().filter(o=>!q||o.t.toLowerCase().includes(q.toLowerCase()));
-    const list=items.length?items.map(o=>`<div class="fmenu-item ${o.v===cur?'sel':''}" data-v="${o.v}">${o.v===cur?'<svg class="fchk" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>':'<span class="fchk"></span>'}${o.ava||''}<span style="overflow:hidden;text-overflow:ellipsis">${esc(o.t)}</span></div>`).join(''):'<div class="fmenu-empty">No matches</div>';
+    const sel=selArr(); const isOn=o=> isMulti ? (o.v==='all' ? sel.length===0 : sel.includes(o.v)) : (o.v===cur);
+    const list=items.length?items.map(o=>`<div class="fmenu-item ${isOn(o)?'sel':''}" data-v="${o.v}">${isOn(o)?'<svg class="fchk" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>':'<span class="fchk"></span>'}${o.ava||''}<span style="overflow:hidden;text-overflow:ellipsis">${esc(o.t)}</span></div>`).join(''):'<div class="fmenu-empty">No matches</div>';
     menu.querySelector('.fmenu-list').innerHTML=list;
-    menu.querySelectorAll('.fmenu-item').forEach(it=>it.onclick=()=>{ ui.filters[key]=it.dataset.v; closeFilterMenu(); renderFilterChips(); refreshViews(); }); };
+    menu.querySelectorAll('.fmenu-item').forEach(it=>it.onclick=(e)=>{ e.stopPropagation(); const v=it.dataset.v;
+      if(isMulti){ if(v==='all'){ ui.filters[key]='all'; } else { let arr=selArr().slice(); if(arr.includes(v)) arr=arr.filter(x=>x!==v); else arr.push(v); ui.filters[key]=arr.length?arr:'all'; } draw(q); renderFilterChips(); refreshViews(); }
+      else { ui.filters[key]=v; closeFilterMenu(); renderFilterChips(); refreshViews(); } }); };
   menu.innerHTML=(def.search?`<div class="fmenu-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" autocomplete="off" placeholder="Search ${def.label.toLowerCase()}"/></div>`:'')+`<div class="fmenu-list"></div>`;
   draw('');
   const r=chip.getBoundingClientRect();
@@ -2307,7 +2315,7 @@ function openFilterMenu(key, chip){
   const si=menu.querySelector('.fmenu-search input'); if(si){ si.oninput=()=>draw(si.value); setTimeout(()=>si.focus(),0); }
 }
 document.addEventListener('click',e=>{ if(fmOpen && !e.target.closest('#filterMenu')) closeFilterMenu(); });
-window.addEventListener('scroll',()=>{ if(fmOpen) closeFilterMenu(); }, true);
+window.addEventListener('scroll',(e)=>{ const t=e&&e.target; if(fmOpen && !(t && t.closest && t.closest('#filterMenu'))) closeFilterMenu(); }, true);
 function fillFilters(){
   renderFilterChips();
   const seg=document.getElementById('periodSeg'); if(seg){ seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.p===(ui.filters.period||'all')));
