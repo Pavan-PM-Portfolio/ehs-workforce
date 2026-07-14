@@ -249,7 +249,10 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pj-card{background:#fff;border:1px solid var(--ink);border-radius:15px !important;padding:20px;text-align:left;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;display:flex;flex-direction:column;min-height:172px;font-family:inherit}
 .pj-card:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(16,24,45,.4)}
 .pj-card:hover .pj-chev{opacity:1}
-.pj-card-top{display:flex;align-items:flex-start;justify-content:flex-end;gap:10px;margin-bottom:14px;min-height:34px}
+.pj-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;min-height:34px}
+.pj-manage{width:28px;height:28px;border:0;background:none;color:var(--faint);cursor:pointer;display:grid;place-items:center;border-radius:8px !important;opacity:0;transition:opacity .15s;flex:none}
+.pj-card:hover .pj-manage{opacity:1}
+.pj-manage:hover{background:var(--surface-3);color:var(--ink)}
 .pj-nm{font-weight:700;font-size:15.5px;letter-spacing:-.01em}
 .pj-sub{font-size:12.5px;color:var(--muted);margin-top:5px;flex:1}
 .pj-foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--ink)}
@@ -1754,6 +1757,14 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
     <div class="sp-members" id="spmMembers"></div>
   </div>
   <div class="sp-modal-f"><button class="sp-mdelete" id="spModalDelete" style="display:none">Delete workspace</button><div class="sp-fspacer"></div><button class="sp-mcancel" id="spModalCancel">Cancel</button><button class="btn primary" id="spModalSave">Create</button></div>
+</div></div>
+<div id="pjModalScrim" class="sp-mscrim"><div class="sp-modal">
+  <div class="sp-modal-h"><h2 id="pjModalTitle">Edit project</h2><button class="sp-mx" id="pjModalX">&#10005;</button></div>
+  <div class="sp-modal-b">
+    <label class="sp-lbl">Name</label><input class="sp-inp" id="pjmName" placeholder="Project name" autocomplete="off">
+    <label class="sp-lbl">Colour</label><div class="sp-colors" id="pjmColors"></div>
+  </div>
+  <div class="sp-modal-f"><button class="sp-mdelete" id="pjModalDelete">Delete project</button><div class="sp-fspacer"></div><button class="sp-mcancel" id="pjModalCancel">Cancel</button><button class="btn primary" id="pjModalSave">Save changes</button></div>
 </div></div>
 <div class="auth-screen" id="authScreen" style="display:none">
   <div class="auth-card">
@@ -4062,6 +4073,7 @@ function renderProjects(){
   const HPUP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m17 11-5-5-5 5M17 18l-5-5-5 5"/></svg>';
   const HPOK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>';
   const CHV='<svg class="pj-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
+  const DOTS='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>';
   const cards=projects.map(p=>{
     const kids=store.standardTasks().filter(t=>t.project===p.id);
     const total=kids.length;
@@ -4072,7 +4084,7 @@ function renderProjects(){
     const c=(typeof projColor==='function'?projColor(p.id):'#3B6FE0')||'#3B6FE0';
     const ini=(p.name||'?').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
     return `<div class="pj-card" data-proj="${p.id}">
-      <div class="pj-card-top"><div class="pj-hp ${hot?'hot':'clear'}">${hot?HPUP:HPOK}<div><div class="v">${hp}</div><div class="l">${hot?'High priority':'Priority tasks'}</div></div></div></div>
+      <div class="pj-card-top"><button class="pj-manage" data-proj="${p.id}" title="Edit project">${DOTS}</button><div class="pj-hp ${hot?'hot':'clear'}">${hot?HPUP:HPOK}<div><div class="v">${hp}</div><div class="l">${hot?'High priority':'Priority tasks'}</div></div></div></div>
       <div class="pj-nm">${esc(p.name)}</div>
       <div class="pj-sub">${esc(p.key)} \u00b7 ${total} ticket${total!==1?'s':''}</div>
       <div class="pj-foot"><div class="pj-ministats"><span class="pj-mini"><b>${backlog}</b>Backlog</span><span class="pj-mini"><b>${indev}</b>In Dev</span><span class="pj-mini"><b>${blocked}</b>Blocked</span></div>${CHV}</div>
@@ -4090,7 +4102,8 @@ function renderProjects(){
     </div>
   </div>`;
   el.innerHTML=head+`<div class="pj-sep"></div>`+ov+`<div class="pj-grid">${cards}</div>`;
-  el.querySelectorAll('.pj-card[data-proj]').forEach(c=>{ c.onclick=()=>openProjectPop(c.dataset.proj); });
+  el.querySelectorAll('.pj-card[data-proj]').forEach(c=>{ c.onclick=e=>{ if(e.target.closest('.pj-manage')) return; openProjectPop(c.dataset.proj); }; });
+  el.querySelectorAll('.pj-manage').forEach(btn=>btn.onclick=e=>{ e.stopPropagation(); openProjectModal(btn.dataset.proj); });
   document.getElementById('prAddProj').onclick=addFn;
   const ac=document.getElementById('prAddCard'); if(ac) ac.onclick=addFn;
 }
@@ -5040,6 +5053,30 @@ function deleteSpace(){
   store.removeSpace(_spEdit); if(wasCurrent) ui.space=null;
   toast('Workspace deleted'); closeSpaceModal(); renderSpaces();
 }
+let _pjEdit=null, _pjDelArm=false, _pjDelTimer=null;
+function openProjectModal(id){
+  const p=store.project(id); if(!p) return; _pjEdit=id;
+  document.getElementById('pjmName').value=p.name||'';
+  const cur=p.color||SP_COLORS[0];
+  document.getElementById('pjmColors').innerHTML=SP_COLORS.map(c=>`<button type="button" class="sp-color ${c===cur?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
+  document.querySelectorAll('#pjmColors .sp-color').forEach(b=>b.onclick=()=>{ document.querySelectorAll('#pjmColors .sp-color').forEach(x=>x.classList.remove('on')); b.classList.add('on'); });
+  const del=document.getElementById('pjModalDelete'); del.textContent='Delete project'; del.classList.remove('armed'); _pjDelArm=false; if(_pjDelTimer) clearTimeout(_pjDelTimer);
+  document.getElementById('pjModalScrim').classList.add('on');
+}
+function closeProjectModal(){ document.getElementById('pjModalScrim').classList.remove('on'); }
+function saveProject(){
+  if(!_pjEdit) return; const name=document.getElementById('pjmName').value.trim(); if(!name){ toast('Give the project a name'); return; }
+  const on=document.querySelector('#pjmColors .sp-color.on'); const patch={name}; if(on) patch.color=on.dataset.c;
+  store.updateProject(_pjEdit, patch); toast('Project updated'); closeProjectModal(); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch();
+}
+function deleteProject(){
+  if(!_pjEdit) return; const p=store.project(_pjEdit); if(!p) return;
+  const btn=document.getElementById('pjModalDelete');
+  if(!_pjDelArm){ _pjDelArm=true; btn.textContent='Click again to delete'; btn.classList.add('armed'); _pjDelTimer=setTimeout(()=>{ _pjDelArm=false; btn.textContent='Delete project'; btn.classList.remove('armed'); },3000); return; }
+  clearTimeout(_pjDelTimer); _pjDelArm=false;
+  store.removeProject(_pjEdit); if(ui.project===_pjEdit) ui.project='all';
+  toast('Project deleted'); closeProjectModal(); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch();
+}
 function wireSpaces(){
   const g=id=>document.getElementById(id);
   if(g('spCreateBtn')) g('spCreateBtn').onclick=()=>openSpaceModal(null);
@@ -5050,6 +5087,11 @@ function wireSpaces(){
   if(g('spModalScrim')) g('spModalScrim').onclick=e=>{ if(e.target===g('spModalScrim')) closeSpaceModal(); };
   if(g('spSearch')) g('spSearch').oninput=()=>renderSpaces();
   if(g('spSwitch')) g('spSwitch').onclick=backToSpaces;
+  if(g('pjModalX')) g('pjModalX').onclick=closeProjectModal;
+  if(g('pjModalCancel')) g('pjModalCancel').onclick=closeProjectModal;
+  if(g('pjModalSave')) g('pjModalSave').onclick=saveProject;
+  if(g('pjModalDelete')) g('pjModalDelete').onclick=deleteProject;
+  if(g('pjModalScrim')) g('pjModalScrim').onclick=e=>{ if(e.target===g('pjModalScrim')) closeProjectModal(); };
 }
 function ensureSpaces(){
   if(!store.data.spaces) store.data.spaces=[];
