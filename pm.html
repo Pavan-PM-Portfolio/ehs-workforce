@@ -3302,6 +3302,7 @@ function epicHealth(e,st){ const _today=today();
   return {k:'ok',t:'On track'};
 }
 function renderEpics(){
+  try{ urlSync(); }catch(e){}
   const wrap=document.getElementById('epicswrap');
   const epics=store.epics().filter(e=>ui.project==='all'||e.project===ui.project);
   const head=`<div class="ov-h"><h2>Epics</h2><button class="btn primary" id="epCreate" style="margin-left:auto">Create epic</button></div><div class="ep-sep"></div>`;
@@ -3514,8 +3515,10 @@ let panelTab='comments';
 let panelSub='worklog';   // the two-pane block: 'worklog' | 'cat'
 let CURRENT_UID=null;
 function openPanel(id, keepScroll){
+  if(panelTab==='worklog') panelTab='comments';   // Work log lives in the two-pane block now
   try{ if(typeof nset==='function' && nset().autoRead && typeof loadNotifs==='function'){ const a=loadNotifs(); let ch=false; a.forEach(n=>{ if(n.taskId===id && !n.read){ n.read=true; ch=true; } }); if(ch){ saveNotifs(a); updateBell(); if(document.getElementById('notifScrim')&&document.getElementById('notifScrim').classList.contains('on')) renderNotifDrawer(); } } }catch(e){}
   ui.openTask=id;
+  try{ urlSync(); }catch(e){}
   const t=store.task(id); if(!t) return;
   if(t.type==='Epic'){ return openEpicPanel(t); }
   const tot=taskTotals(id);
@@ -3729,7 +3732,7 @@ function openPanel(id, keepScroll){
   panel.classList.add('on');
   if(keepScroll){ const pb=panel.querySelector('.panel-body'); if(pb) pb.scrollTop=prevScroll; }
 }
-function closePanel(){ ui.openTask=null; document.getElementById('panel').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); }
+function closePanel(){ ui.openTask=null; try{ urlSync(); }catch(e){} document.getElementById('panel').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); }
 
 /* ---------- Deployment tracker ---------- */
 function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; if(!t.deployedAt) return false;
@@ -3739,6 +3742,7 @@ function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return
   if(f.mode==='custom'){ if(f.from && ds<f.from) return false; if(f.to && ds>f.to) return false; return true; }
   return true; }
 function renderDeployments(){
+  try{ urlSync(); }catch(e){}
   const el=document.getElementById('deploymentswrap'); if(!el) return;
   const f=ui.depFilter;
   let done=store.standardTasks().filter(t=>t.deployed).filter(depInRange);
@@ -4349,7 +4353,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
 
-function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
+function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); try{ urlSync(); }catch(e){} }
 
 /* ---------- Side card ---------- */
 function renderSideCard(){
@@ -4771,6 +4775,7 @@ async function syncSuitePeople(){
 }
 
 function renderSettings(){
+  try{ urlSync(); }catch(e){}
   if(IS_ADMIN && !_suiteSynced){ _suiteSynced=true;
     syncSuitePeople().then(added=>{ if(added && ui.view==='settings') renderSettings(); }); }
   const el=document.getElementById('settingswrap'); const s=store.settings();
@@ -5383,6 +5388,7 @@ function ehsSearchBox(id,ph,val){
 }
 
 function renderProjects(){
+  try{ urlSync(); }catch(e){}
   const el=document.getElementById('projectswrap');
   const projects=store.projects();
   const allK=store.standardTasks();
@@ -5826,6 +5832,7 @@ function anInPeriod(ds){
 function anActive(t){ return anInPeriod(t.createdAt) || anInPeriod(t.resolvedAt) || store.worklogs(t.id).some(w=>anInPeriod(w.date)); }
 
 function renderAnalytics(){
+  try{ urlSync(); }catch(e){}
   const el=document.getElementById('analyticswrap');
   const scope = ui.project==='all' ? store.standardTasks() : store.standardTasks().filter(t=>t.project===ui.project);
   const ids=scope.map(t=>t.id);
@@ -6858,9 +6865,136 @@ function canAccessSpace(sp){
   const me=myUid(); if(!me) return false;                      // unknown identity → no access
   return (sp.members||[]).includes(me);
 }
-function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); saveSpot(); }
+function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); saveSpot();
+  try{ if(!_urlApplying) history.replaceState(null,'','#/'); }catch(e){} }
+/* ================== URL routing ==================
+   Every meaningful bit of state lives in the hash, so a refresh, a back button
+   or a pasted link all land on exactly the same screen with the same filters.
+   Shape:  #/<space>/<view>[/<tab|board>]?<filters>
+   e.g.    #/ws_tpm/analytics/productivity?period=today&ag=u4,u5
+           #/ws_tpm/board?period=week&assignee=u4&t=t123
+*/
+let _urlApplying=false;
+function urlBuild(){
+  const q=new URLSearchParams();
+  const put=(k,v,def)=>{ if(v!==undefined && v!==null && v!=='' && String(v)!==String(def)) q.set(k,String(v)); };
+  const f=ui.filters||{};
+  const v=ui.view||'overview';
+  const seg=[ui.space||'', v];
+  if(v==='analytics') seg.push(ui.analyticsTab||'productivity');
+  if(v==='board' && ui.board) seg.push(ui.board);
+
+  if(v==='board'||v==='list'){
+    put('period', f.period, 'all'); put('from', f.from); put('to', f.to);
+    put('project', ui.project, 'all'); put('assignee', f.assignee, 'all');
+    put('status', f.status, 'all'); put('priority', f.priority, 'all');
+    put('type', f.type, 'all'); put('epic', f.epic, 'all'); put('time', f.time, 'all');
+    put('q', f.search);
+  } else if(v==='overview'){
+    put('period', ui.ovRange, 'all'); put('from', ui.ovFrom); put('to', ui.ovTo);
+    put('project', ui.project, 'all');
+  } else if(v==='analytics'){
+    put('period', ui.anPeriod, 'all'); put('from', ui.anFrom); put('to', ui.anTo);
+    put('project', ui.project, 'all');
+    if(ui.analyticsTab==='productivity' && (ui.prSel||[]).length) q.set('ag', ui.prSel.join(','));
+    if(ui.analyticsTab==='delivery' && ui.dlSel) q.set('st', ui.dlSel);
+    if(ui.analyticsTab==='priority' && ui.piSel) q.set('pr', ui.piSel);
+  } else if(v==='projects'){
+    if(ui.pjSel) q.set('p', ui.pjSel);
+  } else if(v==='settings'){
+    if(ui.setSel) q.set('sec', ui.setSel);
+  } else if(v==='deployments'){
+    const d=ui.depFilter||{};
+    put('period', d.mode, 'all'); put('from', d.from); put('to', d.to);
+    put('project', d.project, 'all'); put('assignee', d.assignee, 'all');
+    put('priority', d.priority, 'all'); put('group', d.group, 'none');
+  }
+  if(ui.openTask) q.set('t', ui.openTask);
+  const qs=q.toString();
+  return '#/'+seg.filter(Boolean).join('/')+(qs?('?'+qs):'');
+}
+function urlSync(){
+  if(_urlApplying) return;
+  const u=urlBuild();
+  if(location.hash===u) return;
+  try{ history.replaceState(null,'',u); }catch(e){ location.hash=u; }
+}
+function urlPush(){
+  if(_urlApplying) return;
+  const u=urlBuild();
+  if(location.hash===u) return;
+  try{ history.pushState(null,'',u); }catch(e){ location.hash=u; }
+}
+// read the hash back into ui. returns true if it drove navigation.
+function urlApply(){
+  const raw=(location.hash||'').replace(/^#\/?/,'');
+  if(!raw) return false;
+  const [path,qs]=raw.split('?');
+  const seg=path.split('/').filter(Boolean);
+  const q=new URLSearchParams(qs||'');
+  if(!seg.length) return false;
+
+  _urlApplying=true;
+  try{
+    // 1. workspace
+    const spId=seg[0];
+    const sp=store.space(spId);
+    if(!sp || !canAccessSpace(sp)){ _urlApplying=false; return false; }
+    ui.space=spId;
+    hideSpaces();
+
+    // 2. view
+    let v=seg[1]||'overview';
+    if(v!=='settings' && typeof canView==='function' && !canView(v)) v='overview';
+    ui.view=v;
+
+    // 3. sub-segment: dashboard tab, or which board
+    if(v==='analytics'){ const tab=seg[2]; if(['productivity','delivery','priority'].includes(tab)) ui.analyticsTab=tab; }
+    if(v==='board'){ const bd=seg[2]; if(bd && store.board(bd)) ui.board=bd; }
+    if(!store.board(ui.board)){ const bds=store.boards(); ui.board=bds.length?bds[0].id:ui.board; }
+
+    // 4. filters
+    const g=(k,d)=>q.has(k)?q.get(k):d;
+    ui.filters=ui.filters||{};
+    if(v==='board'||v==='list'){
+      ui.filters.period=g('period','all'); ui.filters.from=g('from',''); ui.filters.to=g('to','');
+      ui.project=g('project','all'); ui.filters.assignee=g('assignee','all');
+      ui.filters.status=g('status','all'); ui.filters.priority=g('priority','all');
+      ui.filters.type=g('type','all'); ui.filters.epic=g('epic','all'); ui.filters.time=g('time','all');
+      ui.filters.search=g('q','');
+    } else if(v==='overview'){
+      ui.ovRange=g('period','all'); ui.ovFrom=g('from',''); ui.ovTo=g('to',''); ui.project=g('project','all');
+    } else if(v==='analytics'){
+      ui.anPeriod=g('period','all'); ui.anFrom=g('from',''); ui.anTo=g('to',''); ui.project=g('project','all');
+      ui.prSel = q.has('ag') ? q.get('ag').split(',').filter(Boolean) : [];
+      ui.dlSel = q.get('st')||null;
+      ui.piSel = q.get('pr')||null;
+    } else if(v==='projects'){
+      ui.pjSel = q.get('p')||null;
+    } else if(v==='settings'){
+      ui.setSel = q.get('sec')||null;
+    } else if(v==='deployments'){
+      ui.depFilter=ui.depFilter||{};
+      ui.depFilter.mode=g('period','all'); ui.depFilter.from=g('from',''); ui.depFilter.to=g('to','');
+      ui.depFilter.project=g('project','all'); ui.depFilter.assignee=g('assignee','all');
+      ui.depFilter.priority=g('priority','all'); ui.depFilter.group=g('group','none');
+    }
+    _urlApplying=false;
+    setView(v);
+    // 5. an open ticket
+    const tid=q.get('t');
+    if(tid && store.task(tid)) openPanel(tid); else if(!tid) closePanel();
+    return true;
+  }catch(e){ console.warn('[url] could not apply', e); _urlApplying=false; return false; }
+}
+window.addEventListener('hashchange', ()=>{ if(!_urlApplying) urlApply(); });
+window.addEventListener('popstate',  ()=>{ if(!_urlApplying) urlApply(); });
+
 function saveSpot(){ try{ localStorage.setItem('ehs_spot', JSON.stringify({space:ui.space||null, view:ui.view||'overview', board:ui.board||null})); }catch(e){} }
 function restoreSpot(){
+  // A hash wins over the remembered spot: refresh, back/forward and pasted
+  // links must all land exactly where the URL says.
+  try{ if(location.hash && location.hash.length>2 && urlApply()) return; }catch(e){}
   let sp=null; try{ sp=JSON.parse(localStorage.getItem('ehs_spot')||'null'); }catch(e){}
   // Fresh entry (a new tab — e.g. just launched/logged in) has empty sessionStorage;
   // a reload of an ongoing session keeps it. Reload → same screen; fresh → honour Start-screen pref.
@@ -6926,13 +7060,14 @@ function renderSpaces(){
   const nc=document.getElementById('spNewCard'); if(nc) nc.onclick=()=>openSpaceModal(null);
 }
 function enterSpace(id){ const sp=store.space(id); if(!sp) return;
+  const _first=!ui.space;
   if(!canAccessSpace(sp)){ toast('You don\u2019t have access to that workspace'); showSpaces(); return; }
   ui.space=id; const p=curPrefs(); const bds=store.boards();
   const wantBd = (p.defaultBoard && store.board(p.defaultBoard) && (store.board(p.defaultBoard).ws||'ws_main')===id) ? p.defaultBoard : null;
   if(wantBd){ ui.board=wantBd; } else if(!bds.length){ ui.board=store.addBoard('Board'); } else if(!store.board(ui.board) || (store.board(ui.board).ws||'ws_main')!==id){ ui.board=bds[0].id; }
   ui.project = (p.defaultProject==='all') ? 'all' : (p.defaultProject && store.project(p.defaultProject) ? p.defaultProject : 'all');
   const ss=p.startScreen||'last'; ui.view = ss==='board' ? 'board' : ss==='overview' ? 'overview' : (p.defaultView||'overview');
-  hideSpaces(); renderAll(); saveSpot(); const el=document.getElementById('scroll'); if(el) el.scrollTop=0; }
+  hideSpaces(); renderAll(); saveSpot(); try{ _first?urlSync():urlPush(); }catch(e){} const el=document.getElementById('scroll'); if(el) el.scrollTop=0; }
 function backToSpaces(){ showSpaces(); }
 function openSpaceModal(id){
   _spEdit=id||null; const sp=id?store.space(id):null;
