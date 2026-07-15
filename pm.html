@@ -5571,6 +5571,28 @@ async function loadWorkspace(){
   if(empty){ setTimeout(()=>toast('This workspace has no data yet — an admin needs to run seed.sql.'),400); }
   STATUSES=store.data.statuses||[];
   buildSnap(); applyDefaults(); applyPrefs();
+  // A user created in People & Access gets a suite `profiles` row, but NO PM
+  // `people` row — so they were invisible in Settings > Access & permissions
+  // (which lists people), while still showing under Users (which lists profiles).
+  // With no people row their identity resolved to nobody and they silently fell
+  // back to DEFAULT_ROLE_PERMS — which grants view_board. Provision them here.
+  if(!CURRENT_UID && ME){
+    try{
+      const meta=(ME.user_metadata&&ME.user_metadata.full_name)||'';
+      const nm=(meta || (ME.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) || 'Teammate').trim();
+      const isToolAdmin = (TOOL_ROLE==='admin') || IS_MASTER;
+      const doc={ id:'u_'+ME.id.slice(0,8), name:nm, email:(ME.email||''), authId:ME.id,
+        role: isToolAdmin?'PM':'Developer',
+        perm: isToolAdmin?'Admin':'User',
+        profile: isToolAdmin?'pf_admin':'pf_users',
+        master: !!IS_MASTER,
+        color: SWATCHES[(store.users().length*2)%SWATCHES.length],
+        prefs:{} };
+      const {error}=await sb.from('people').upsert({workspace_id:WS, id:doc.id, doc});
+      if(!error){ store.data.users.push(doc); buildSnap(); applyDefaults(); applyPrefs(); }
+      else console.warn('people provision failed', error.message);
+    }catch(e){ console.warn('people provision failed', e); }
+  }
   try{ const _me=meUser(); if(_me && permOf(_me)==='Admin') IS_ADMIN=true; }catch(e){}
   applyRole();
   document.getElementById('authScreen').style.display='none';
@@ -5733,8 +5755,24 @@ function applyEmailFixes(){ if(!store.data||!store.data.users) return; let chang
 }
 const SP_COLORS=['#3B6FE0','#0E8FA8','#7A3FF2','#0E8F5A','#B96A00','#CE2F26','#C026D3','#2743E0'];
 let _spEdit=null;
-function effPerms(uid){ try{ const s=store.settings(); if(s.userPerms && s.userPerms[uid]) return s.userPerms[uid]; const u=store.user&&store.user(uid); return DEFAULT_ROLE_PERMS[permOf(u||{})]||{}; }catch(e){ return {}; } }
-function can(cap){ if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return true; try{ return !!effPerms(myUid())[cap]; }catch(e){ return true; } }
+function effPerms(uid){
+  try{
+    if(!uid) return {};                       // unknown identity => no capabilities
+    const s=store.settings();
+    if(s.userPerms && s.userPerms[uid]) return s.userPerms[uid];
+    const u=store.user&&store.user(uid);
+    if(!u) return {};                         // no person record => no capabilities.
+                                              // (was falling through to permOf({})='User',
+                                              //  whose defaults include view_board)
+    return DEFAULT_ROLE_PERMS[permOf(u)]||{};
+  }catch(e){ return {}; }
+}
+function can(cap){
+  if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return true;
+  // fail CLOSED: this used to `return true` on any error, so a hiccup while
+  // resolving permissions handed out the capability instead of withholding it.
+  try{ return !!effPerms(myUid())[cap]; }catch(e){ return false; }
+}
 // field-level Read/Edit/Hide (admins bypass; unset fields default to full edit)
 function fieldPerm(key){ if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return 'edit'; try{ const s=store.settings(); const fp=s.fieldPerms && s.fieldPerms[myUid()]; const v=fp && fp[key]; return v||'edit'; }catch(e){ return 'edit'; } }
 function canSeeField(key){ return fieldPerm(key)!=='hide'; }
