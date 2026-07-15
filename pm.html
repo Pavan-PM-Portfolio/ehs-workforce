@@ -4289,7 +4289,7 @@ document.addEventListener('click',()=>document.querySelectorAll('.bspal').forEac
 function refreshViews(){ const v=ui.view;
   if(v==='board') renderBoard(); else if(v==='list') renderList(); else if(v==='epics') renderEpics();
   else if(v==='overview') renderOverview(); else if(v==='team') renderTeam(); else if(v==='analytics') renderAnalytics();
-  renderProjectSwitch(); renderSideCard(); updateCount(); }
+  renderProjectSwitch(); renderSideCard(); updateCount(); try{ urlSync(); }catch(e){} }
 function updateCount(){ return; }
 
 const VIEW_TITLE={overview:'Overview',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
@@ -4351,7 +4351,8 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(v==='settings') renderSettings();
   else if(v==='users') renderUsers();
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
-  updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
+  updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document);
+  try{ urlSync(); }catch(e){} }
 
 function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); try{ urlSync(); }catch(e){} }
 
@@ -6669,7 +6670,7 @@ async function loadWorkspace(){
     setEl('apName',e=>e.textContent=full||'Account'); setEl('apEmail',e=>e.textContent=em); setEl('apRole',e=>e.textContent=_roleLbl);
     /* account panel uses the same neutral person glyph */
     setEl('apAdmin',e=>{e.style.display=IS_ADMIN?'':'none';}); }
-  ensureSpaces(); renderAll(); subscribeRealtime(); wireSpaces(); restoreSpot();
+  ensureSpaces(); renderAll(); subscribeRealtime(); wireSpaces(); restoreSpot(); _urlReady=true; try{ urlSync(); }catch(e){}
   const mc = (ME && ME.user_metadata) ? ME.user_metadata.must_change_pw : undefined;
   const mustChange = (mc===true) ? true : (mc===false ? false : store.isPwPending(em));
   if(em && mustChange) forcePasswordModal(em);
@@ -6874,7 +6875,7 @@ function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getEleme
    e.g.    #/ws_tpm/analytics/productivity?period=today&ag=u4,u5
            #/ws_tpm/board?period=week&assignee=u4&t=t123
 */
-let _urlApplying=false;
+let _urlApplying=false, _urlReady=false;
 function urlBuild(){
   const q=new URLSearchParams();
   const put=(k,v,def)=>{ if(v!==undefined && v!==null && v!=='' && String(v)!==String(def)) q.set(k,String(v)); };
@@ -6914,13 +6915,13 @@ function urlBuild(){
   return '#/'+seg.filter(Boolean).join('/')+(qs?('?'+qs):'');
 }
 function urlSync(){
-  if(_urlApplying) return;
+  if(_urlApplying || !_urlReady) return;
   const u=urlBuild();
   if(location.hash===u) return;
   try{ history.replaceState(null,'',u); }catch(e){ location.hash=u; }
 }
 function urlPush(){
-  if(_urlApplying) return;
+  if(_urlApplying || !_urlReady) return;
   const u=urlBuild();
   if(location.hash===u) return;
   try{ history.pushState(null,'',u); }catch(e){ location.hash=u; }
@@ -6979,7 +6980,7 @@ function urlApply(){
       ui.depFilter.project=g('project','all'); ui.depFilter.assignee=g('assignee','all');
       ui.depFilter.priority=g('priority','all'); ui.depFilter.group=g('group','none');
     }
-    _urlApplying=false;
+    _urlApplying=false; _urlReady=true;
     setView(v);
     // 5. an open ticket
     const tid=q.get('t');
@@ -7312,7 +7313,7 @@ function wireNotifs(){
 async function boot(){
   wireChat();
   if(CONFIGURED && !window.supabase){
-    store.load(); applyDefaults(); applyPrefs(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot();
+    store.load(); applyDefaults(); applyPrefs(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot(); _urlReady=true; try{ urlSync(); }catch(e){}
     setTimeout(()=>toast('Couldn’t load the Supabase library — check your connection and refresh.'),600);
     return;
   }
@@ -7324,7 +7325,7 @@ async function boot(){
     if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
     IS_MASTER=true;   // local/no-backend preview only: no auth to check against
-    store.load(); applyDefaults(); applyPrefs(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot();
+    store.load(); applyDefaults(); applyPrefs(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot(); _urlReady=true; try{ urlSync(); }catch(e){}
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
