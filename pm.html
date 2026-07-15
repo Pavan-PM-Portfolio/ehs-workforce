@@ -3227,10 +3227,10 @@ function openCfMulti(taskId, fid, anchor, after){
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('#cfMenu')&&!e.target.closest('.cfmulti')&&!e.target.closest('.projbtn')&&!e.target.closest('.asgbtn')&&!e.target.closest('.cdate')&&!e.target.closest('.p-sel')) document.getElementById('cfMenu').classList.remove('on'); });
 
-function epicHealth(e,st){ const today=today();
+function epicHealth(e,st){ const _today=today();
   if(st.total && st.done===st.total) return {k:'ok',t:'Complete'};
-  if(e.due && e.due<today) return {k:'late',t:'Behind'};
-  if(e.due){ const d=(new Date(e.due)-new Date(today))/86400000; if(d<=7 && st.pct<60) return {k:'risk',t:'At risk'}; }
+  if(e.due && e.due<_today) return {k:'late',t:'Behind'};
+  if(e.due){ const d=(new Date(e.due)-new Date(_today))/86400000; if(d<=7 && st.pct<60) return {k:'risk',t:'At risk'}; }
   return {k:'ok',t:'On track'};
 }
 function renderEpics(){
