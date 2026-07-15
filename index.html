@@ -628,7 +628,7 @@ function topbar(title, sub){
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
     <div class="tb-acct" onclick="openAccount(event)"><span class="tb-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
       <div><div class="who">${esc(dn)}</div>
-        <div class="role">${EHS.isMaster()?'Master Admin':'Operator'}</div></div>${ic('chevron')}</div>
+        <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
 }
 function acctMenu(e){ openAccount(e); }
@@ -648,7 +648,7 @@ function openAccount(e){ if(e) e.stopPropagation(); const u=EHS.me(); if(!u) ret
     <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccount()">${ic('x')}</button></div>
     <div class="acd-head"><span class="acd-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
       <div class="acd-id"><div class="nm">${esc(u.full_name||'—')}</div><div class="em">${esc(u.email)}</div>
-        <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div></div>
+        <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Member'}</span></div></div>
     <div class="acd-body">
       <div class="acd-sec"><div class="acd-lbl">Your access</div><div class="acd-mods">${access}</div></div>
       <div class="acd-sec"><div class="acd-lbl">Workspace</div>
@@ -677,7 +677,7 @@ function renderSettings(){
         <div class="field"><label>Last name <span style="color:var(--crit)">*</span></label><input id="st_last" type="text" value="${esc(last)}"></div>
       </div>
       <div class="field"><label>Email</label><input type="email" value="${esc(u.email)}" disabled style="opacity:.6"><div class="hint">Contact a Master Admin to change your email.</div></div>
-      <div class="field" style="margin-bottom:0"><label>Role</label><input type="text" value="${u.is_master_admin?'Master Admin':'Operator'}" disabled style="opacity:.6"></div>
+      <div class="field" style="margin-bottom:0"><label>Role</label><input type="text" value="${u.is_master_admin?'Master Admin':'Member'}" disabled style="opacity:.6"></div>
       <div style="margin-top:16px"><button class="btn accent" id="st_saveProfile" onclick="saveProfile()">Save profile</button></div>
     </div>
     <div ${card}>
@@ -830,7 +830,7 @@ async function renderPeople(){
 function paSub(u){
   return u.is_master_admin
     ? '<div class="pa-sub master">Master Admin</div>'
-    : '<div class="pa-sub">Operator</div>';
+    : '<div class="pa-sub">Member</div>';
 }
 function paRow(u){ return `<button class="pa-row ${u.id===_selPerson?'on':''}" onclick="paPick('${u.id}')">
   <div class="pa-nm">${esc(u.full_name||'\u2014')}</div>${paSub(u)}<div class="pa-em">${esc(u.email)}</div></button>`; }
@@ -851,8 +851,8 @@ function paDetail(id){
           </div></div>`;
       }).join('');
   return `<div class="pa-dh"><div class="pa-dh-id">
-      <div class="pa-dh-nm">${esc(u.full_name||'\u2014')} <span class="pa-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div>
-      <div class="pa-subline">${master?'Master Admin':'Operator'} at EduHubSpot</div>
+      <div class="pa-dh-nm">${esc(u.full_name||'\u2014')} <span class="pa-role ${master?'master':''}">${master?'Master Admin':'Member'}</span></div>
+      <div class="pa-subline">${master?'Master Admin':'Member'} at EduHubSpot</div>
       <div class="pa-contact"><span class="pa-ci">${mailSvg}${esc(u.email)}</span></div>
     </div></div>
     <div class="pa-drule"></div>
@@ -861,13 +861,13 @@ function paDetail(id){
         <div class="k">First name</div><div class="v">${esc(first)}</div>
         <div class="k">Last name</div><div class="v">${esc(last)}</div>
         <div class="k">Email</div><div class="v link">${esc(u.email)}</div>
-        <div class="k">Role</div><div class="v">${master?'Master Admin':'Operator'}</div>
+        <div class="k">Role</div><div class="v">${master?'Master Admin':'Member'}</div>
         <div class="k">Status</div><div class="v">${esc(statusLabel)}</div>
       </div></div>
     <div class="pa-drule"></div>
     <div class="pa-dsec"><div class="pa-dsec-t">Role</div>
-      <div class="pa-rolerow"><div class="pa-rolecopy">Master Admins get <b>full access to every tool</b>, plus People &amp; Access. Operators only see the tools you grant below.</div>
-        <div class="pa-seg role"><button class="${master?'':'on'}" onclick="paSetMaster('${u.id}',false)">Operator</button><button class="${master?'on':''}" onclick="paSetMaster('${u.id}',true)">Master Admin</button></div>
+      <div class="pa-rolerow"><div class="pa-rolecopy">Master Admins get <b>full access to every tool</b>, plus People &amp; Access. Members only see the tools you grant below.</div>
+        <div class="pa-seg role"><button class="${master?'':'on'}" onclick="paSetMaster('${u.id}',false)">Member</button><button class="${master?'on':''}" onclick="paSetMaster('${u.id}',true)">Master Admin</button></div>
       </div></div>
     <div class="pa-drule"></div>
     <div class="pa-dsec"><div class="pa-dsec-t">Tool access <span class="pa-hint">${master?'Managed by role':'Editable'}</span></div>${modules}</div>
