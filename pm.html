@@ -3881,7 +3881,14 @@ function openLogModal(taskId, presetCat){
     ? `The original estimate for this work item was <b>${jiraDur(est)}</b>.`
     : `No original estimate set — you can enter time remaining below to set one.`;
   { const defCat=presetCat||curPrefs().logCat||'Development'; document.getElementById('logCat').innerHTML=CATS.map(c=>`<option value="${c.id}" ${c.id===defCat?'selected':''}>${c.id}</option>`).join(''); }
-  document.getElementById('logWho').innerHTML=((can('time_log_others')||curPrefs().logOthers)?store.users():store.users().filter(u=>u.id===myUid())).map(u=>`<option value="${u.id}" ${u.id===(t.assignee||CURRENT_UID)?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
+  // Default to the person doing the logging — NOT the ticket's assignee. Defaulting
+  // to the assignee meant logging time on someone else's ticket silently recorded
+  // it against THEM. Every tracker defaults to "me"; you must opt in to log for others.
+  const _logMe=myUid();
+  const _logList=((can('time_log_others')||curPrefs().logOthers)?store.users():store.users().filter(u=>u.id===_logMe));
+  const _logSel=document.getElementById('logWho');
+  _logSel.innerHTML=_logList.map(u=>`<option value="${u.id}" ${u.id===_logMe?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
+  if(_logList.some(u=>u.id===_logMe)) _logSel.value=_logMe;   // belt and braces
   document.getElementById('logSpent').value='';
   document.getElementById('logRem').value= est? jiraDur(remaining) : '';
   document.getElementById('logDate').value=today();
@@ -5926,8 +5933,13 @@ function flushSync(){ if(syncTimer){ clearTimeout(syncTimer); syncTimer=null; if
 window.addEventListener('pagehide', flushSync);
 window.addEventListener('beforeunload', flushSync);
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushSync(); });
+// Tables RLS reserves for admins. A non-admin has no UI to change these, so any
+// push of them is spurious — attempting it just triggers "row-level security"
+// rejections. Skip them rather than fail the whole save.
+const ADMIN_ONLY_TABLES = new Set(['settings','statuses','projects','teams','boards','spaces']);
 async function diffPush(){
   if(!sb||!WS) return;
+  const amAdmin = (typeof IS_ADMIN!=='undefined' && IS_ADMIN);
   const jobs=[];
   for(const [k,t] of Object.entries(TBL)){
     const arr=store.data[k]||[]; const cur=new Map(); const ups=[];
@@ -5935,10 +5947,11 @@ async function diffPush(){
       if((snap[t]||new Map()).get(d.id)!==js){ const row={workspace_id:WS, id:d.id, doc:d}; if(t==='statuses'||t==='boards') row.sort=i; ups.push(row); if(t==='tasks'){ try{ markSelfPushed(d.id); }catch(e){} } } });
     const del=[...(snap[t]||new Map()).keys()].filter(id=>!cur.has(id));
     if(!ups.length && !del.length){ snap[t]=cur; continue; }   // nothing to send
+    if(!amAdmin && ADMIN_ONLY_TABLES.has(t)){ snap[t]=cur; continue; }   // not ours to write
     jobs.push({t, cur, ups, del});
   }
   const sjs=JSON.stringify(store.data.settings);
-  const pushSettings = (sjs!==snap.settings);
+  const pushSettings = (sjs!==snap.settings) && amAdmin;   // settings are admin-only
 
   const failed=[];
   const runOne=async j=>{
