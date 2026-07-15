@@ -5193,9 +5193,22 @@ function renderProjects(){
   const pj = (!isAll && ui.pjSel!=='__none') ? store.project(ui.pjSel) : null;
   const dTitle = isAll ? 'All projects' : (pj?pj.name:'No project');
   const hp = scoped.filter(k=>k.priority==='Highest').length;
-  const sts=store.statuses();
-  const stats=sts.map(st=>{ const n=scoped.filter(k=>k.status===st.id).length;
-    return `<div class="ehs-d-stat${n?'':' is-zero'}"><b>${n}</b><span>${esc(st.name)}</span></div>`; }).join('');
+  const _tdP=today();
+  const _openP=t=>(store.status(t.status)||{}).cat!=='done';
+  const _blkP=t=>{ const st=store.status(t.status)||{}; return st.id==='blocked'||/blocked/i.test(st.name||''); };
+  const _7agoP=_isoLocal(new Date(Date.parse(_tdP+'T00:00:00')-7*864e5));
+  const sOverdue = scoped.filter(t=>t.due && t.due<_tdP && _openP(t)).length;
+  const sBlocked = scoped.filter(t=>_blkP(t) && _openP(t)).length;
+  const sUnassig = scoped.filter(t=>!t.assignee && _openP(t)).length;
+  const sStale   = scoped.filter(t=>_openP(t) && (t.updatedAt||t.createdAt||'') < _7agoP).length;
+  const sHigh    = scoped.filter(t=>t.priority==='Highest' && _openP(t)).length;
+  const stats=[
+    ['Overdue',        sOverdue, sOverdue?'is-hot':''],
+    ['Blocked',        sBlocked, sBlocked?'is-hot':''],
+    ['Unassigned',     sUnassig, ''],
+    ['Untouched >7d',  sStale,   ''],
+    ['High priority',  sHigh,    sHigh?'is-hot':'']
+  ].map(([l,v,cls])=>`<div class="ehs-d-stat${v?'':' is-zero'}${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`).join('');
   const subBits=[`<b>${scoped.length}</b> ticket${scoped.length===1?'':'s'}`];
   if(hp) subBits.push(`<b class="hot">${hp}</b> high priority`);
   if(pj) subBits.push(`<b>${esc(pj.key)}</b>`);
