@@ -5941,24 +5941,30 @@ async function diffPush(){
   const pushSettings = (sjs!==snap.settings);
 
   const failed=[];
-  const runs=jobs.map(async j=>{
+  const runOne=async j=>{
     try{
       if(j.ups.length){ const r=await sb.from(j.t).upsert(j.ups); if(r&&r.error) throw r.error; }
       if(j.del.length){ const r=await sb.from(j.t).delete().eq('workspace_id',WS).in('id',j.del); if(r&&r.error) throw r.error; }
       snap[j.t]=j.cur;                      // commit the snapshot ONLY once the DB accepted it
     }catch(e){ failed.push({t:j.t, e}); }   // leave snap alone so the change is retried, not lost
-  });
-  if(pushSettings) runs.push((async()=>{
+  };
+  // ORDER MATTERS: worklogs are gated by an RLS check that looks their parent task
+  // up in the DB. Pushed in parallel, a worklog for a brand-new ticket could hit
+  // that check before the task row existed and be rejected as a policy violation.
+  // Push everything else first, then worklogs.
+  await Promise.all(jobs.filter(j=>j.t!=='worklogs').map(runOne));
+  await Promise.all(jobs.filter(j=>j.t==='worklogs').map(runOne));
+  if(pushSettings){
     try{ const r=await sb.from('settings').upsert({workspace_id:WS, doc:store.data.settings}); if(r&&r.error) throw r.error; snap.settings=sjs; }
     catch(e){ failed.push({t:'settings', e}); }
-  })());
-  await Promise.all(runs);
+  }
 
   if(failed.length){
     const names=[...new Set(failed.map(f=>f.t))];
-    console.error('sync rejected for:', names, failed[0].e);
+    failed.forEach(f=>console.error('[sync] '+f.t+' rejected:', f.e && (f.e.message||f.e), f.e));
     const rls=failed.some(f=>(((f.e&&f.e.message)||'')+'').toLowerCase().includes('row-level'));
-    toast(rls ? ('Not allowed \u2014 '+names.join(', ')+' is admin-only') : 'Sync error \u2014 check connection');
+    const msg=(failed[0].e&&failed[0].e.message)||'';
+    toast(rls ? ('Not allowed \u2014 '+names.join(', ')+' (RLS). See console.') : ('Sync error \u2014 '+names.join(', ')+(msg?': '+msg.slice(0,60):'')));
   }
 }
 
