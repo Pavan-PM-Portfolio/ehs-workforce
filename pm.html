@@ -1572,9 +1572,9 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-btn--ghost:hover{background:var(--surface-2);border-color:var(--faint)}
 .ehs-btn--sm{padding:7px 12px;font-size:12px}
 .ehs-overview{border:1px solid var(--ink);border-radius:8px !important;padding:18px 24px;margin-bottom:22px;display:flex;align-items:center;gap:28px}
-.ehs-ov-lead{padding-right:28px;border-right:1px solid var(--line);flex:none}
+.ehs-ov-lead{padding-right:28px;border-right:1px solid var(--line);flex:none;text-align:center}
 .ehs-ov-cells{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
-.ehs-ov-cell{flex:1 1 0;min-width:0}
+.ehs-ov-cell{flex:1 1 0;min-width:0;text-align:center}
 .ehs-ov-cell.is-hot .ehs-ov-n{color:var(--crit)}
 .ehs-ov-cell.is-hot .ehs-ov-l{color:var(--crit)}
 .ehs-d-sub b.hot{color:var(--crit)}
@@ -1621,6 +1621,10 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .ehs-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
 .ehs-tickets{border-top:1px solid var(--line-2)}
+.ehs-tickets--scroll{max-height:360px;overflow-y:auto;overscroll-behavior:contain}
+.ehs-tickets--scroll::-webkit-scrollbar{width:8px}
+.ehs-tickets--scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px !important}
+.ehs-tickets--scroll::-webkit-scrollbar-thumb:hover{background:var(--faint)}
 .ehs-tk{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-2)}
 .ehs-tk:hover{background:var(--surface-2)}
 .ehs-tk-k{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:600;color:var(--muted);width:74px;flex:none}
@@ -1655,7 +1659,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 /* auth */
 .auth-screen{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:500}
 /* ===== Workspaces gallery (Option A) ===== */
-.sp-screen{position:fixed;inset:0;background:var(--bg);z-index:300;display:none;flex-direction:column;overflow:auto}
+.sp-screen{position:fixed;top:62px;left:0;right:0;bottom:0;background:var(--bg);z-index:300;display:none;flex-direction:column;overflow:auto}
 .sp-screen.on{display:flex}
 .sp-top{display:flex;align-items:center;gap:12px;height:62px;padding:0 26px;background:#fff;border-bottom:1px solid var(--line);flex:none}
 .sp-brand-t{font-weight:800;font-size:15px;letter-spacing:-.01em}
@@ -2178,7 +2182,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div class="toast" id="toast"></div>
 <div id="spacesScreen" class="sp-screen on">
   <header class="sp-top">
-    <span class="sp-brand-t">Project Hub</span><span class="sp-badge">EHS Workspace</span>
     <div class="sp-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="spSearch" placeholder="Search workspaces" autocomplete="off"></div>
     <div class="sp-topspacer"></div>
     <button class="btn primary" id="spCreateBtn">Create workspace</button>
@@ -5519,8 +5522,6 @@ function renderAnalytics(){
     const id=cb.dataset.cb; const cur=Array.isArray(ui.prSel)?ui.prSel.slice():[];
     const i=cur.indexOf(id); if(i>=0) cur.splice(i,1); else cur.push(id);
     ui.prSel=cur; renderAnalytics(); });
-  const _rows=document.getElementById('prRowsSel');
-  if(_rows) _rows.onchange=()=>{ ui.prRows=_rows.value; renderAnalytics(); };
   const _clr=document.getElementById('prClearSel');
   if(_clr) _clr.onclick=()=>{ ui.prSel=[]; renderAnalytics(); };
   const _prS=document.getElementById('prSearch');
@@ -5624,10 +5625,25 @@ function anProductivity(scope, logs){
   const ovBlocked   = scope.filter(t=>_isBlocked(t) && _open(t)).length;
   const ovUnassigned= scope.filter(t=>!t.assignee && _open(t)).length;
   const ovStale     = scope.filter(t=>_open(t) && (t.updatedAt||t.createdAt||'') < _7ago).length;
-  const cells=[[totalTasks,'Tickets worked'],[totalTasks-totalClosed,'Tickets open'],[totalClosed,'Tickets closed'],
+  // pace: hours per day actually worked
+  const _allDays=new Set(plogs.map(w=>w.date));
+  const avgDayMin = _allDays.size ? totalMin/_allDays.size : 0;
+  // throughput: closed inside the current Mon-Sun week
+  const wkClosed = scope.filter(t=>t.resolvedAt && t.resolvedAt>=_wk.from && t.resolvedAt<=_wk.to).length;
+  // speed: created -> resolved, averaged over what has actually closed
+  const _cyc=scope.filter(t=>t.resolvedAt && t.createdAt)
+    .map(t=>Math.max(0,Math.round((Date.parse(t.resolvedAt)-Date.parse(t.createdAt))/864e5)));
+  const avgCycle=_cyc.length?Math.round(_cyc.reduce((a,d)=>a+d,0)/_cyc.length):0;
+  // load: due inside this week and still open
+  const dueWk = scope.filter(t=>t.due && t.due>=_wk.from && t.due<=_wk.to && _open(t)).length;
+
+  const cells=[
+    [hm(Math.round(avgDayMin)),'Avg hrs/day', avgDayMin===0],
+    [wkClosed,'Closed this week'],
+    [avgCycle?avgCycle+'d':'—','Avg cycle time', avgCycle===0],
+    [dueWk,'Due this week'],
     [ovOverdue,'Overdue',ovOverdue===0,ovOverdue?'is-hot':''],
     [ovBlocked,'Blocked',ovBlocked===0,ovBlocked?'is-hot':''],
-    [ovUnassigned,'Unassigned'],
     [ovStale,'Untouched >7d']];
   const ov=`<section class="ehs-overview">
     <div class="ehs-ov-lead"><span class="ehs-ov-n">${(totalMin/60).toFixed(0)}<span class="u">h</span></span><span class="ehs-ov-l">Total hrs logged</span></div>
@@ -5685,22 +5701,16 @@ function anProductivity(scope, logs){
   const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
     if(_isBlocked(t)) return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
   const sorted=worked.sort((a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
-  const lim = (ui.prRows==='all') ? sorted.length : (Number(ui.prRows)||10);
-  const shown = sorted.slice(0, lim);
-  const rows=shown.map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
+  const rows=sorted.map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
       <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
       ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
       ${ehsSt(t.status)}</div>`).join('');
-  const rowsSel=`<select class="ehs-rows" id="prRowsSel">
-      ${[10,25,50].map(n=>`<option value="${n}" ${String(ui.prRows||10)===String(n)?'selected':''}>Show ${n}</option>`).join('')}
-      <option value="all" ${ui.prRows==='all'?'selected':''}>Show all</option></select>`;
 
   const detail=`<div class="ehs-d-head"><h2>${esc(title)}</h2>
     ${sel.length?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prClearSel" type="button">Clear selection</button>':''}</div>
     <div class="ehs-d-stats" style="grid-template-columns:repeat(6,1fr)">${stats}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span>
-      <span style="display:flex;align-items:center;gap:10px"><span class="ehs-eyebrow">${shown.length} of ${sorted.length}</span>${rowsSel}</span></div>
-    <div class="ehs-tickets">${rows||'<p class="ehs-rail-none">No tickets.</p>'}</div>`;
+    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${sorted.length}</span></div>
+    <div class="ehs-tickets ehs-tickets--scroll">${rows||'<p class="ehs-rail-none">No tickets.</p>'}</div>`;
 
   // ---- bottom: tickets by project / by status ----
   const projItems=store.projects().map(pr=>({label:esc(pr.name), v:worked.filter(t=>t.project===pr.id).length, color:pr.color||'#3B6FE0'}))
