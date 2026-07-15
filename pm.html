@@ -4231,7 +4231,46 @@ const STX_PEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 function stxSeg(fk, st){ const b=(v,cls,ic,l)=>`<button class="${st===v?'on '+cls:''}" data-fp="${fk}" data-v="${v}">${ic}${l}</button>`;
   return `<div class="stx-seg">${b('hide','hide',STX_EYEOFF,'Hide')}${b('read','read',STX_EYE,'Read')}${b('edit','edit',STX_PEN,'Edit')}</div>`; }
 
+/* Suite users live in `profiles`/`tool_access`; PM manages `people`. A person
+   created in People & Access therefore shows under Users but is missing from
+   Access & permissions until they first open PM. Mirror them across so an admin
+   can set someone's permissions BEFORE they ever log in. */
+let _suiteSynced=false;
+async function syncSuitePeople(){
+  if(!(typeof sb!=='undefined' && sb) || typeof IS_ADMIN==='undefined' || !IS_ADMIN) return false;
+  try{
+    const [pr, ac] = await Promise.all([
+      sb.from('profiles').select('id, full_name, email, is_master_admin'),
+      sb.from('tool_access').select('user_id, role').eq('tool_id','pm')
+    ]);
+    if(pr.error || ac.error) return false;
+    const accMap={}; (ac.data||[]).forEach(a=>accMap[a.user_id]=a.role);
+    const have=store.users(); const rows=[];
+    (pr.data||[]).forEach(p=>{
+      const master=!!p.is_master_admin, r=accMap[p.id];
+      if(!master && !r) return;                                   // no PM access → not our concern
+      const em=(p.email||'').toLowerCase();
+      if(have.some(u=>u.authId===p.id || (u.email && em && u.email.toLowerCase()===em))) return;
+      const nm=p.full_name || (p.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) || 'Teammate';
+      const isAdmin = master || r==='admin';
+      const doc={ id:'u_'+String(p.id).slice(0,8), name:nm, email:p.email||'', authId:p.id,
+        role:isAdmin?'PM':'Developer', perm:isAdmin?'Admin':'User',
+        profile:isAdmin?'pf_admin':'pf_users', master:master,
+        color:SWATCHES[((have.length+rows.length)*2)%SWATCHES.length], prefs:{} };
+      rows.push({workspace_id:WS, id:doc.id, doc});
+      store.data.users.push(doc);
+    });
+    if(!rows.length) return false;
+    const {error}=await sb.from('people').upsert(rows);
+    if(error){ console.warn('suite sync failed', error.message); return false; }
+    buildSnap();
+    return true;
+  }catch(e){ console.warn('suite sync failed', e); return false; }
+}
+
 function renderSettings(){
+  if(IS_ADMIN && !_suiteSynced){ _suiteSynced=true;
+    syncSuitePeople().then(added=>{ if(added && ui.view==='settings') renderSettings(); }); }
   const el=document.getElementById('settingswrap'); const s=store.settings();
   const umUsers=store.users(); const muser=meUser()||{}; const pr=muser.prefs||{}; const notif=pr.notify||{}; const N=Object.assign({},NOTIF_DEFAULTS,notif);
   if(editUser && !umUsers.some(u=>u.id===editUser)) editUser=null;   // start on None; never auto-select
