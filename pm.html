@@ -1618,6 +1618,53 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-d-stat span{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);display:block}
 .ehs-d-stat.is-zero b{color:var(--faint)}
 .ehs-d-stat.is-zero span{color:var(--muted)}
+.ehs-statbar{display:flex;align-items:center;gap:16px;border:1px solid var(--line);border-radius:8px !important;background:#fff;padding:18px 24px;margin:18px 0 22px}
+.ehs-sb{flex:1 1 0;min-width:0;text-align:center}
+.ehs-sb b{font-size:24px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:block;line-height:1.05;margin-bottom:4px}
+.ehs-sb span{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);display:block;white-space:nowrap}
+.ehs-sb.is-zero b{color:var(--faint)}
+.ehs-sb.is-zero span{color:var(--muted)}
+.ehs-sb.is-hot b,.ehs-sb.is-hot span{color:var(--crit)}
+/* filterable ticket table */
+.ehs-tbl-wrap{border:1px solid var(--line);border-radius:8px !important;overflow:hidden}
+.ehs-tbl-scroll{max-height:380px;overflow-y:auto;overscroll-behavior:contain}
+.ehs-tbl-scroll::-webkit-scrollbar{width:8px}
+.ehs-tbl-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px !important}
+.ehs-tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.ehs-tbl th{position:sticky;top:0;z-index:2;background:var(--surface-2);border-bottom:1px solid var(--line);padding:0;text-align:left}
+.ehs-th{display:flex;align-items:center;gap:6px;width:100%;padding:9px 12px;border:0;background:none;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);cursor:pointer}
+.ehs-th:hover{background:var(--surface-3)}
+.ehs-th .cap{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ehs-th .ic{width:12px;height:12px;flex:none;color:var(--faint)}
+.ehs-th.is-on{color:var(--accent)}
+.ehs-th.is-on .ic{color:var(--accent)}
+.ehs-tbl td{padding:9px 12px;border-bottom:1px solid var(--line-2);font-size:12.8px;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ehs-tbl tbody tr:hover{background:var(--surface-2)}
+.ehs-tbl tbody tr:last-child td{border-bottom:0}
+.ehs-td-k{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer}
+.ehs-td-k:hover{text-decoration:underline;text-underline-offset:2px}
+.ehs-td-t{color:var(--ink);cursor:pointer}
+.ehs-td-t:hover{color:var(--accent)}
+.ehs-td-due{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink-2)}
+.ehs-td-due.over{color:var(--crit);font-weight:700}
+.ehs-tbl-none{padding:26px;text-align:center;font-size:12.5px;color:var(--muted)}
+/* excel-style filter menu */
+.ehs-fmenu{position:fixed;z-index:520;background:#fff;border:1px solid var(--line);border-radius:10px !important;box-shadow:0 20px 50px -18px rgba(16,26,51,.4);width:236px;display:none;overflow:hidden}
+.ehs-fmenu.on{display:block}
+.ehs-fmenu .sortb{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;font-family:inherit;font-size:12.5px;color:var(--ink);padding:8px 12px;cursor:pointer;text-align:left}
+.ehs-fmenu .sortb:hover{background:var(--surface-2)}
+.ehs-fmenu .sep{height:1px;background:var(--line-2);margin:4px 0}
+.ehs-fsearch{padding:8px 10px}
+.ehs-fsearch input{width:100%;border:1px solid var(--line);border-radius:6px !important;padding:6px 9px;font-family:inherit;font-size:12px;outline:none}
+.ehs-fsearch input:focus{border-color:var(--accent)}
+.ehs-flist{max-height:190px;overflow-y:auto;padding:2px 0}
+.ehs-fopt{display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:12.5px;cursor:pointer}
+.ehs-fopt:hover{background:var(--surface-2)}
+.ehs-fopt input{accent-color:var(--accent);cursor:pointer;margin:0;flex:none}
+.ehs-fopt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ehs-ffoot{display:flex;gap:8px;padding:9px 10px;border-top:1px solid var(--line-2)}
+.ehs-ffoot button{flex:1;border-radius:6px !important;font-family:inherit;font-size:12px;font-weight:700;padding:6px 0;cursor:pointer;border:1px solid var(--line);background:#fff}
+.ehs-ffoot .ok{background:var(--ink);color:#fff;border-color:var(--ink)}
 .ehs-eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .ehs-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
 .ehs-tickets{border-top:1px solid var(--line-2)}
@@ -2115,6 +2162,7 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="cardmenu" id="cardMenu"></div>
     <div class="ovpop" id="ovPop"></div>
     <div class="ep-cmenu" id="epCMenu"></div>
+    <div class="ehs-fmenu" id="prFMenu"></div>
 
     <div class="scroll" id="scroll">
       <div class="board" id="board"></div>
@@ -5522,6 +5570,7 @@ function renderAnalytics(){
     const id=cb.dataset.cb; const cur=Array.isArray(ui.prSel)?ui.prSel.slice():[];
     const i=cur.indexOf(id); if(i>=0) cur.splice(i,1); else cur.push(id);
     ui.prSel=cur; renderAnalytics(); });
+  el.querySelectorAll('.ehs-th').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); openPrFilter(b.dataset.col, b); });
   const _clr=document.getElementById('prClearSel');
   if(_clr) _clr.onclick=()=>{ ui.prSel=[]; renderAnalytics(); };
   const _prS=document.getElementById('prSearch');
@@ -5603,6 +5652,59 @@ function anPriority(scope, resolved, NOW){
   <div class="ov-card" style="margin-top:14px"><h3>Overdue open work</h3><p class="cap">Past due and not resolved · as of ${fdate(NOW)}</p>
     <table class="an-table"><thead><tr><th>Issue</th><th>Title</th><th>Assignee</th><th class="r">Days over</th><th class="r">Status</th></tr></thead><tbody>${ovRows}</tbody></table></div>`;
 }
+
+/* ---------- Excel-style column filters for the productivity ticket table ---------- */
+let _prRows=[];
+function prTblState(){ if(!ui.prTbl) ui.prTbl={sort:{col:null,dir:'asc'}, filters:{}}; return ui.prTbl; }
+// rows passing every column filter EXCEPT `skip` (so a menu lists the values still reachable)
+function prTblApply(rows, skip){
+  const f=prTblState().filters;
+  return rows.filter(r=>Object.keys(f).every(c=>{
+    if(c===skip) return true;
+    const allow=f[c]; if(!allow||!allow.length) return true;
+    return allow.includes(c==='due'?r.dueTxt:String(r[c]));
+  }));
+}
+function prTblValues(col){
+  const seen=new Map();
+  prTblApply(_prRows, col).forEach(r=>{ const v=(col==='due')?r.dueTxt:String(r[col]||''); seen.set(v,(seen.get(v)||0)+1); });
+  return [...seen.keys()].sort((a,b)=> col==='due' ? 0 : a.localeCompare(b));
+}
+function openPrFilter(col, btn){
+  const m=document.getElementById('prFMenu'); if(!m) return;
+  const st=prTblState();
+  const vals=prTblValues(col);
+  const cur=(st.filters[col]&&st.filters[col].length)?st.filters[col].slice():vals.slice();
+  const opts=v=>`<label class="ehs-fopt"><input type="checkbox" value="${esc(v)}" ${cur.includes(v)?'checked':''}/><span>${esc(v||'(blank)')}</span></label>`;
+  m.innerHTML=`<button class="sortb" data-sort="asc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Sort A \u2192 Z</button>
+    <button class="sortb" data-sort="desc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>Sort Z \u2192 A</button>
+    <div class="sep"></div>
+    <div class="ehs-fsearch"><input id="prFSearch" placeholder="Search" autocomplete="off"/></div>
+    <div class="ehs-flist" id="prFList">
+      <label class="ehs-fopt" style="font-weight:700"><input type="checkbox" id="prFAll" ${cur.length===vals.length?'checked':''}/><span>(Select all)</span></label>
+      ${vals.map(opts).join('')}
+    </div>
+    <div class="ehs-ffoot"><button type="button" id="prFClear">Clear</button><button type="button" class="ok" id="prFOk">Apply</button></div>`;
+  const r=btn.getBoundingClientRect();
+  m.style.left=Math.min(r.left, window.innerWidth-248)+'px';
+  m.style.top=Math.min(r.bottom+4, window.innerHeight-330)+'px';
+  m.classList.add('on');
+  const list=m.querySelector('#prFList');
+  const boxes=()=>[...list.querySelectorAll('input[type=checkbox]:not(#prFAll)')];
+  m.querySelector('#prFSearch').oninput=e=>{ const q=e.target.value.toLowerCase();
+    list.querySelectorAll('.ehs-fopt').forEach(l=>{ if(l.querySelector('#prFAll')) return;
+      l.style.display=l.textContent.toLowerCase().includes(q)?'':'none'; }); };
+  m.querySelector('#prFAll').onchange=e=>{ boxes().forEach(b=>{ if(b.closest('.ehs-fopt').style.display!=='none') b.checked=e.target.checked; }); };
+  m.querySelectorAll('.sortb').forEach(b=>b.onclick=()=>{ st.sort={col, dir:b.dataset.sort}; m.classList.remove('on'); renderAnalytics(); });
+  m.querySelector('#prFClear').onclick=()=>{ delete st.filters[col]; m.classList.remove('on'); renderAnalytics(); };
+  m.querySelector('#prFOk').onclick=()=>{
+    const picked=boxes().filter(b=>b.checked).map(b=>b.value);
+    if(picked.length===vals.length) delete st.filters[col]; else st.filters[col]=picked;
+    m.classList.remove('on'); renderAnalytics();
+  };
+}
+document.addEventListener('click',e=>{ const m=document.getElementById('prFMenu');
+  if(m && m.classList.contains('on') && !e.target.closest('#prFMenu') && !e.target.closest('.ehs-th')) m.classList.remove('on'); });
 
 function anProductivity(scope, logs){
   const plogs=logs.filter(w=>anInPeriod(w.date));
@@ -5696,21 +5798,41 @@ function anProductivity(scope, logs){
     ['Avg hrs/day', hm(Math.round(avgMin)), avgMin===0],
     ['Overdue', odue, odue===0, odue?'is-hot':''],
     ['Today / yesterday', hm(minToday)+' / '+hm(minYest), minToday===0&&minYest===0]
-  ].map(([l,v,zero,cls])=>`<div class="ehs-d-stat${zero?' is-zero':''}${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`).join('');
+  ].map(([l,v,zero,cls])=>`<div class="ehs-sb${zero?' is-zero':''}${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`).join('');
 
   const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
     if(_isBlocked(t)) return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
-  const sorted=worked.sort((a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
-  const rows=sorted.map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
-      <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
-      ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
-      ${ehsSt(t.status)}</div>`).join('');
+  _prRows = worked.map(t=>({
+    t, key:t.key||'', title:t.title||'',
+    due: t.due||'', dueTxt: t.due?fdate(t.due):'\u2014',
+    status:(store.status(t.status)||{}).name||t.status||''
+  }));
+  const shown=prTblApply(_prRows).sort((a,b)=>{
+    const sc=ui.prTbl&&ui.prTbl.sort; if(sc&&sc.col){ const d=sc.dir==='desc'?-1:1;
+      const av=(sc.col==='due')?(a.due||'9999'):String(a[sc.col]||'').toLowerCase();
+      const bv=(sc.col==='due')?(b.due||'9999'):String(b[sc.col]||'').toLowerCase();
+      return av<bv?-1*d:av>bv?1*d:0; }
+    return rank(a.t)-rank(b.t)||(b.t.updatedAt||'').localeCompare(a.t.updatedAt||'');
+  });
+  const th=(col,label,w)=>{ const on=(ui.prTbl&&ui.prTbl.filters&&ui.prTbl.filters[col]&&ui.prTbl.filters[col].length)||((ui.prTbl&&ui.prTbl.sort&&ui.prTbl.sort.col)===col);
+    return `<th style="width:${w}"><button class="ehs-th ${on?'is-on':''}" data-col="${col}" type="button"><span class="cap">${label}</span>
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M6 12h12M10 19h4"/></svg></button></th>`; };
+  const body=shown.map(r=>`<tr>
+      <td><span class="ehs-td-k" onclick="openPanel('${r.t.id}')">${esc(r.key)}</span></td>
+      <td><span class="ehs-td-t" title="${esc(r.title)}" onclick="openPanel('${r.t.id}')">${esc(r.title)}</span></td>
+      <td><span class="ehs-td-due ${(r.due && r.due<_td && _open(r.t))?'over':''}">${esc(r.dueTxt)}</span></td>
+      <td>${ehsSt(r.t.status)}</td></tr>`).join('');
+  const table=`<div class="ehs-tbl-wrap"><div class="ehs-tbl-scroll">
+      <table class="ehs-tbl"><thead><tr>
+        ${th('key','Ticket','132px')}${th('title','Title','auto')}${th('due','Due date','126px')}${th('status','Status','156px')}
+      </tr></thead><tbody>${body||`<tr><td colspan="4" class="ehs-tbl-none">No tickets match these filters.</td></tr>`}</tbody></table>
+    </div></div>`;
 
   const detail=`<div class="ehs-d-head"><h2>${esc(title)}</h2>
     ${sel.length?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prClearSel" type="button">Clear selection</button>':''}</div>
-    <div class="ehs-d-stats" style="grid-template-columns:repeat(6,1fr)">${stats}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${sorted.length}</span></div>
-    <div class="ehs-tickets ehs-tickets--scroll">${rows||'<p class="ehs-rail-none">No tickets.</p>'}</div>`;
+    <div class="ehs-statbar">${stats}</div>
+    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${shown.length}${shown.length!==_prRows.length?' of '+_prRows.length:''}</span></div>
+    ${table}`;
 
   // ---- bottom: tickets by project / by status ----
   const projItems=store.projects().map(pr=>({label:esc(pr.name), v:worked.filter(t=>t.project===pr.id).length, color:pr.color||'#3B6FE0'}))
