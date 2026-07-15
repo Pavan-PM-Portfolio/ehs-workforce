@@ -158,9 +158,9 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .btn{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-size:12.5px;
   font-weight:550;padding:8px 13px;border-radius:9px;display:inline-flex;align-items:center;gap:7px;transition:.15s}
 .btn:hover{border-color:var(--faint)}
-.btn.primary{background:var(--ink);color:#fff;border:1px solid var(--ink);font-weight:700;box-shadow:none}
-.btn.primary:hover{background:#000;border-color:#000;transform:none;box-shadow:none}
-.btn.primary:active{background:#000;transform:translateY(1px);box-shadow:none}
+.btn.primary{background:#fff;color:var(--ink);border:1px solid var(--ink);font-weight:700;box-shadow:none}
+.btn.primary:hover{background:var(--surface-2);border-color:var(--ink);transform:none;box-shadow:none}
+.btn.primary:active{background:var(--surface-3);transform:translateY(1px);box-shadow:none}
 .topbar-avatar{width:32px;height:32px;border-radius:9px;background:var(--ink);color:#fff;display:grid;place-items:center;
   font-size:12px;font-weight:600;flex:none;border:0;cursor:pointer}
 .acct-btn{display:inline-flex;align-items:center;gap:9px;padding:5px 8px;border:0;background:none;cursor:pointer;font-family:inherit;
@@ -208,6 +208,27 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ep-cmenu .sep{height:1px;background:var(--line-2);margin:4px 0}
 /* Create Epic modal */
 .epic-modal{width:760px;max-width:100%;display:flex;flex-direction:column;max-height:88vh;border-radius:14px !important;overflow:hidden}
+/* Log time / Subtask dialogs — the base .modal sets 13px but the global sharp
+   reset overrides it, so these have to say !important to stay rounded. */
+.log-modal,.sub-modal{border-radius:14px !important;overflow:hidden}
+.log-modal .modal-h,.sub-modal .modal-h{padding:16px 18px 13px;border-bottom:1px solid var(--line-2);font-size:15px;font-weight:800;letter-spacing:-.015em}
+.log-modal .modal-b,.sub-modal .modal-b{padding:16px 18px}
+.log-modal .field label,.sub-modal .field label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:block;margin-bottom:6px}
+.log-modal .field input,.log-modal .field select,.sub-modal .field input,.sub-modal .field select{
+  width:100%;height:38px;border:1px solid var(--line) !important;border-radius:9px !important;background:#fff;
+  padding:0 11px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none}
+.log-modal .field input:focus,.log-modal .field select:focus,.sub-modal .field input:focus,.sub-modal .field select:focus{
+  border-color:var(--accent) !important;box-shadow:0 0 0 3px var(--accent-soft)}
+.log-modal .modal-f,.sub-modal .modal-f{padding:13px 18px;border-top:1px solid var(--line-2);display:flex;justify-content:flex-end;gap:9px;background:var(--surface-2)}
+.log-modal .btn,.sub-modal .btn{border-radius:9px !important;height:36px;padding:0 15px;font-weight:700}
+.log-modal .lptrack{border-radius:999px !important;overflow:hidden}
+.log-modal .lpfill{border-radius:999px !important}
+.log-modal .loghint{border-radius:9px !important;background:var(--surface-2);border:0}
+.sub-modal .loghint{border-radius:9px !important;background:var(--surface-2);border:0;padding:10px 12px;font-size:11.5px;line-height:1.55;color:var(--ink-2)}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sb-done-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px !important}
+.sb-done-t{font-size:13px;font-weight:700}
+.sb-done-d{font-size:11.5px;color:var(--muted);margin-top:2px}
 .epm-h{display:flex;align-items:center;justify-content:space-between}
 .epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
 .epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
@@ -824,6 +845,15 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .pnl-main{flex:1.85;min-width:0;padding:22px 26px 10px}
 .pnl-side{width:340px;flex:none;padding:22px 22px 10px;background:var(--surface);border-left:1px solid var(--line)}
 .pnl-tail{height:40px;flex:none}
+/* two-pane inside the ticket panel: pick Time spent by category / Work log */
+.pn-pane{display:grid;grid-template-columns:188px 1fr;border:1px solid var(--line);border-radius:12px !important;overflow:hidden;margin-bottom:28px}
+.pn-rail{background:var(--surface-2);border-right:1px solid var(--line);padding:8px;display:flex;flex-direction:column;gap:2px}
+.pn-rl{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);text-align:left;padding:9px 11px;border-radius:7px !important;cursor:pointer;line-height:1.3}
+.pn-rl:hover{background:#fff}
+.pn-rl.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(15,23,42,.09)}
+.pn-det{padding:16px 18px;min-width:0}
+.tsb-bare{border:0 !important;padding:0 !important;margin:0 !important;background:none !important}
+.tsb-bare .tsb-h{display:none}
 .pb-sec{margin-bottom:28px}
 .pb-h{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
 .pdesc{width:100%;min-height:92px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface);padding:10px 12px;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;resize:vertical;line-height:1.55}
@@ -861,9 +891,10 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .tl-time{font-size:11px;color:var(--faint);margin-top:4px;font-variant-numeric:tabular-nums}
 .dt-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px}
 .dt-list{display:flex;flex-direction:column;gap:1px}
-.dt-row{display:grid;grid-template-columns:104px 1fr auto;align-items:center;gap:8px;padding:3px 0;min-height:32px}
+.dt-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;padding:7px 0;min-height:34px;border-bottom:1px solid var(--line-2)}
+.dt-row:last-child{border-bottom:0}
 .dt-l{font-size:12.5px;color:var(--muted)}
-.dt-v{min-width:0;display:flex;align-items:center}
+.dt-v{min-width:0;display:flex;align-items:center;justify-content:flex-end;text-align:right;gap:6px}
 .dt-ind{flex:none;display:flex;align-items:center;color:var(--faint)}
 .dt-ind.ed{opacity:0;transition:opacity .12s}
 .dt-row:hover .dt-ind.ed{opacity:1;color:var(--accent)}
@@ -905,6 +936,10 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .sub-add-ic{flex:none;color:var(--faint);display:grid;place-items:center}
 .sub-add-in{flex:1;border:0;background:transparent;font-family:inherit;font-size:13.5px;color:var(--ink);outline:none;padding:2px 0}
 .sub-add-in::placeholder{color:var(--faint)}
+.sub-est{flex:none;font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;color:var(--ink-2);background:var(--surface-3);border-radius:6px !important;padding:2px 7px}
+.sub-av{flex:none;display:grid;place-items:center}
+.sub-edit{flex:none;width:24px;height:24px;display:grid;place-items:center;border:0;background:none;color:var(--faint);cursor:pointer;border-radius:6px !important}
+.sub-edit:hover{background:var(--surface-3);color:var(--ink-2)}
 .subs-empty{font-size:12.5px;color:var(--faint);padding:2px 0 12px}
 .fv-input:focus{background:var(--surface);border-color:var(--accent)}
 .ov{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--surface);border:1px solid var(--line);
@@ -932,9 +967,9 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .tsb-val{font-size:12.5px;font-weight:600;color:var(--ink);min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
 .tsb-total{border-top:1px solid var(--line);margin-top:6px;padding-top:9px}
 .tsb-total .tsb-nm{font-weight:600;color:var(--ink)}
-.p-cd{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;width:100%;
-  display:inline-flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;color:var(--ink);cursor:pointer}
-.p-cd:hover{border-color:var(--faint)}
+.p-cd{border:0;background:none;border-radius:7px !important;padding:4px 8px;width:auto;
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:13px;color:var(--ink);cursor:pointer}
+.p-cd:hover{background:var(--surface-3)}
 .p-cd .cfchev{color:var(--muted)}
 .p-sel{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;width:100%;
   display:inline-flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;color:var(--ink);
@@ -1576,8 +1611,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 /* ===== Two-pane rail+detail (projects / productivity) ===== */
 .ehs-page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;margin-bottom:30px}
 .ehs-page-head h1{font-size:16px;font-weight:600;letter-spacing:-.02em;margin:0}
-.ehs-btn{background:var(--ink);color:#fff;border:0;border-radius:8px !important;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
-.ehs-btn:hover{background:#333}
+.ehs-btn{background:#fff;color:var(--ink);border:1px solid var(--ink);border-radius:8px !important;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s}
+.ehs-btn:hover{background:var(--surface-2)}
 .ehs-btn--ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .ehs-btn--ghost:hover{background:var(--surface-2);border-color:var(--faint)}
 .ehs-btn--sm{padding:7px 12px;font-size:12px}
@@ -1676,7 +1711,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-fopt span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ehs-ffoot{display:flex;gap:8px;padding:9px 10px;border-top:1px solid var(--line-2)}
 .ehs-ffoot button{flex:1;border-radius:6px !important;font-family:inherit;font-size:12px;font-weight:700;padding:6px 0;cursor:pointer;border:1px solid var(--line);background:#fff}
-.ehs-ffoot .ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ehs-ffoot .ok{background:#fff;color:var(--ink);border-color:var(--ink)}
 .ehs-eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .ehs-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
 .ehs-tickets{border-top:1px solid var(--line-2)}
@@ -1777,8 +1812,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 .sp-mdelete{border:1px solid #E7C3C0;background:#fff;color:#CE2F26;font-family:inherit;font-weight:600;font-size:13px;padding:8px 14px;cursor:pointer;border-radius:8px !important}
 .sp-mdelete:hover{background:rgba(206,47,38,.06)}
 .sp-mdelete.armed{background:#CE2F26;border-color:#CE2F26;color:#fff}
-.sp-top .btn.primary,.sp-modal-f .btn.primary{background:var(--ink);color:#fff;border:1px solid var(--ink);box-shadow:none !important;border-radius:10px !important;font-weight:700;padding:9px 16px;transform:none !important}
-.sp-top .btn.primary:hover,.sp-modal-f .btn.primary:hover{background:#000;border-color:#000}
+.sp-top .btn.primary,.sp-modal-f .btn.primary{background:#fff;color:var(--ink);border:1px solid var(--ink);box-shadow:none !important;border-radius:10px !important;font-weight:700;padding:9px 16px;transform:none !important}
+.sp-top .btn.primary:hover,.sp-modal-f .btn.primary:hover{background:var(--surface-2);border-color:var(--ink)}
 .auth-card{width:340px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 26px;box-shadow:var(--shadow-md)}
 .auth-brand{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
 .auth-sub{font-size:13px;color:var(--muted);margin:4px 0 20px}
@@ -1844,8 +1879,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-none{color:var(--faint);font-size:13.5px;padding:30px 4px;line-height:1.6}
 @media(max-width:900px){.dep-card{flex-direction:column;align-items:stretch}.dep-main{width:auto}}
 /* Card dialogue: dark section lines */
-.panel .cmt-input,.panel .tl-item::before{border-color:#1A1A1A !important}
-.panel .ov,.panel .ov-i,.panel .tsb,.panel .tsb-total,.panel .act-tabs,.panel .pdesc{border-color:#1A1A1A !important}
+.panel .tl-item::before{border-color:#1A1A1A !important}
+.panel .ov,.panel .ov-i,.panel .tsb-total,.panel .act-tabs{border-color:#1A1A1A !important}
 .panel .ov,.panel .ov-i{border:0 !important}
 .panel .act-tabs{border-bottom:0 !important}
 .panel .ov-i:nth-child(3n+1){padding-left:0}
@@ -2311,9 +2346,29 @@ body[data-density="compact"] .board{padding:12px 16px}
   </div>
 </div>
 
+<!-- Subtask dialog -->
+<div class="modal-wrap" id="subWrap">
+  <div class="modal sub-modal" style="width:430px">
+    <div class="modal-h">Subtask<div id="subCtx" style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px"></div></div>
+    <div class="modal-b">
+      <div class="field" style="margin-bottom:14px"><label>Title</label><input id="sbTitle" placeholder="What needs doing?"/></div>
+      <div class="fgrid2">
+        <div class="field"><label>Assignee</label><select id="sbWho"></select></div>
+        <div class="field"><label>Time estimate</label><input id="sbEst" placeholder="e.g. 2h 30m"/></div>
+      </div>
+      <div class="sb-done-row">
+        <div><div class="sb-done-t">Mark completed</div><div class="sb-done-d">Ticks it off in the subtask list.</div></div>
+        <button type="button" class="stx-tgl" id="sbDone"></button>
+      </div>
+      <div class="loghint" style="margin-top:14px">Estimates roll up into the ticket\u2019s <b>original estimate</b>. Use <b>2w 4d 6h 45m</b> \u00b7 w = weeks, d = days, h = hours, m = minutes</div>
+    </div>
+    <div class="modal-f"><button class="btn" id="sbCancel">Cancel</button><button class="btn primary" id="sbSave">Save</button></div>
+  </div>
+</div>
+
 <!-- Log time modal (Jira-style) -->
 <div class="modal-wrap" id="logWrap">
-  <div class="modal" style="width:470px">
+  <div class="modal log-modal" style="width:470px">
     <div class="modal-h">Log time<div id="logCtx" style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px"></div></div>
     <div class="modal-b">
       <div class="logprog">
@@ -3452,6 +3507,7 @@ function openEpicPanel(e){
   document.getElementById('overlay').classList.add('on'); panel.classList.add('on');
 }
 let panelTab='comments';
+let panelSub='worklog';   // the two-pane block: 'worklog' | 'cat'
 let CURRENT_UID=null;
 function openPanel(id, keepScroll){
   try{ if(typeof nset==='function' && nset().autoRead && typeof loadNotifs==='function'){ const a=loadNotifs(); let ch=false; a.forEach(n=>{ if(n.taskId===id && !n.read){ n.read=true; ch=true; } }); if(ch){ saveNotifs(a); updateBell(); if(document.getElementById('notifScrim')&&document.getElementById('notifScrim').classList.contains('on')) renderNotifDrawer(); } } }catch(e){}
@@ -3546,41 +3602,55 @@ function openPanel(id, keepScroll){
         </div>`:''}
         ${(function(){ if(!canSeeField('subtasks')) return ''; const canEd=canEditField('subtasks'); const subs=t.subtasks||[]; const dn=subs.filter(s=>s.done).length; const pct=subs.length?Math.round(dn/subs.length*100):0;
           const CBK=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
-          const rows=subs.map(s=>`<div class="sub ${s.done?'done':''}" data-sid="${s.id}"><button class="sub-cb ${s.done?'on':''}" data-toggle="${s.id}" title="${s.done?'Mark not done':'Mark done'}">${CBK}</button><input class="sub-tt" data-rename="${s.id}" value="${esc(s.title)}" autocomplete="off" ${canEd?'':'readonly'}/>${canEd?`<button class="sub-del" data-subdel="${s.id}" title="Delete subtask">✕</button>`:''}</div>`).join('');
+          const rows=subs.map(s=>{ const su=s.assignee?store.user(s.assignee):null;
+            return `<div class="sub ${s.done?'done':''}" data-sid="${s.id}"><button class="sub-cb ${s.done?'on':''}" data-toggle="${s.id}" title="${s.done?'Mark not done':'Mark done'}">${CBK}</button>
+            <input class="sub-tt" data-rename="${s.id}" value="${esc(s.title)}" autocomplete="off" ${canEd?'':'readonly'}/>
+            ${s.estimate?`<span class="sub-est">${hm(s.estimate)}</span>`:''}
+            ${su?`<span class="sub-av" title="${esc(su.name)}">${avatar(su,18)}</span>`:''}
+            ${canEd?`<button class="sub-edit" data-subedit="${s.id}" title="Edit subtask"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`:''}
+            ${canEd?`<button class="sub-del" data-subdel="${s.id}" title="Delete subtask">✕</button>`:''}</div>`; }).join('');
           return `<div class="subs">
             <div class="subs-h"><div class="pb-h">Subtasks</div>${subs.length?`<div class="subs-prog"><div class="subs-bar"><div class="subs-fill" style="width:${pct}%"></div></div><span>${dn}/${subs.length}</span></div>`:''}</div>
             <div class="sub-list">${rows}</div>
             ${subs.length?'':'<div class="subs-empty">No subtasks yet. Break this ticket into smaller steps.</div>'}
-            ${canEd?`<div class="sub-add"><span class="sub-add-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><input class="sub-add-in" id="subAddIn" placeholder="Add a subtask and press Enter" autocomplete="off"/></div>`:''}
+            ${canEd?`<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="subAddBtn" type="button" style="margin-bottom:8px">Add subtask</button><div class="sub-add"><span class="sub-add-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><input class="sub-add-in" id="subAddIn" placeholder="Add a subtask and press Enter" autocomplete="off"/></div>`:''}
           </div>`; })()}
-        <div class="tsb">
+        <div class="pn-pane">
+          <aside class="pn-rail">
+            <button type="button" class="pn-rl ${panelSub==='worklog'?'on':''}" data-sub="worklog">Work log</button>
+            <button type="button" class="pn-rl ${panelSub==='cat'?'on':''}" data-sub="cat">Time spent by category</button>
+          </aside>
+          <section class="pn-det">
+            ${panelSub==='cat'?`<div class="tsb tsb-bare">
           <div class="tsb-h">Time spent by category</div>
           ${CATS.map(c=>{ const m=tot.byCat[c.id]||0; const pct=tot.total?Math.round(m/tot.total*100):0;
             return `<div class="tsb-row">${catIcon(c.id,c.color)}<span class="tsb-nm">${c.id}</span><span class="tsb-bar"><span class="tsb-fill" style="width:${pct}%;background:${c.color}"></span></span><span class="tsb-val">${hm(m)}</span></div>`; }).join('')}
           <div class="tsb-row tsb-total"><span class="tsb-ico" style="visibility:hidden"></span><span class="tsb-nm">Total</span><span class="tsb-bar" style="visibility:hidden"></span><span class="tsb-val">${hm(tot.total)}</span></div>
+            </div>`:''}
+            ${panelSub==='worklog'?`
+            <div class="tt-strip">
+              <div class="tsi"><span class="tsl">Original estimate</span><span class="tsv">${t.estimate?hm(t.estimate):'—'}</span></div>
+              <div class="tsi"><span class="tsl">Logged</span><span class="tsv">${hm(tot.total)}</span></div>
+              <div class="tsi"><span class="tsl">Remaining</span><span class="tsv" style="color:${remaining<0?'var(--crit)':'var(--ink)'}">${t.estimate?hm(Math.abs(remaining)):'—'}${remaining<0?' over':''}</span></div>
+            </div>
+            <div class="tt-head"><h3>Time tracking</h3><div class="tt-actions"><span class="tt-total">${hm(tot.total)}</span></div></div>
+            <p class="tt-sub">Anyone can log time in any category. Totals roll up per person and per ticket.</p>
+            ${catBlocks}
+            <div class="contrib"><h3>Contributors on this ticket</h3>${contribRows}</div>
+`:''}
+          </section>
         </div>
         ${store.fields().length?`<div class="pb-sec"><div class="pb-h">Custom fields</div><div class="meta-grid pf-grid">${store.fields().map(f=>`<div class="meta-item"><div class="l">${esc(f.name)}</div><div class="v">${cfControl(t,f)}</div></div>`).join('')}</div></div>`:''}
         <div class="pb-sec">
           <div class="act-tabs">
             <button class="act-tab ${panelTab==='comments'?'on':''}" data-tab="comments">Comments${(t.comments||[]).length?` (${(t.comments||[]).length})`:''}</button>
-            <button class="act-tab ${panelTab==='worklog'?'on':''}" data-tab="worklog">Work log</button>
             <button class="act-tab ${panelTab==='timeline'?'on':''}" data-tab="timeline">Timeline</button>
           </div>
           ${panelTab==='comments'?`
             ${canEditField('comments')?`<div class="cmt-new">${avatar(meU,28)}<div class="cmt-new-b"><textarea id="cmtInput" class="cmt-input" placeholder="Add a comment…"></textarea><div class="cmt-actions"><button class="btn primary" id="cmtPost">Comment</button></div></div></div>`:''}
             ${canSeeField('comments')?`<div class="cmt-list">${(t.comments||[]).slice().reverse().map(c=>{ const u=store.user(c.user); return `<div class="cmt">${avatar(u,28)}<div class="cmt-main"><div class="cmt-top"><span class="cmt-nm">${u?esc(u.name):'—'}</span><span class="cmt-dt">${fdate(c.date)}</span>${canEditField('comments')?`<button class="cmt-del" data-cid="${c.id}" title="Delete">✕</button>`:''}</div><div class="cmt-text">${esc(c.text)}</div></div></div>`; }).join('')||'<div class="cmt-empty">No comments yet. Start the discussion.</div>'}</div>`:'<div class="cmt-empty">Comments are hidden.</div>'}
           `:''}
-          ${panelTab==='worklog'?`
-            <div class="tt-strip">
-              <div class="tsi"><span class="tsl">Original estimate</span><span class="tsv">${t.estimate?hm(t.estimate):'—'}</span></div>
-              <div class="tsi"><span class="tsl">Logged</span><span class="tsv">${hm(tot.total)}</span></div>
-              <div class="tsi"><span class="tsl">Remaining</span><span class="tsv" style="color:${remaining<0?'var(--crit)':'var(--ink)'}">${t.estimate?hm(Math.abs(remaining)):'—'}${remaining<0?' over':''}</span></div>
-            </div>
-            <div class="tt-head"><h3>Time tracking</h3><div class="tt-actions"><span class="tt-total">${hm(tot.total)}</span><button class="btn primary" id="ttLog" style="padding:6px 12px;font-size:12px">Log time</button></div></div>
-            <p class="tt-sub">Anyone can log time in any category. Totals roll up per person and per ticket.</p>
-            ${catBlocks}
-            <div class="contrib"><h3>Contributors on this ticket</h3>${contribRows}</div>
-          `:''}
+          
           ${panelTab==='timeline'?`
             <div class="tl">
               ${tlEvents.length? tlEvents.map(e=>{ const u=store.user(e.by); return `<div class="tl-item">
@@ -3599,7 +3669,7 @@ function openPanel(id, keepScroll){
       <div class="pnl-side">
         <div class="dt-title">Details</div>
         <div class="dt-list">
-          ${dtField(null,'field_status','Status', fvBtn('pStatus', `<span class="fv-status" style="background:${CATCOLOR[stCat]}1f;color:${CATCOLOR[stCat]}">${esc(pLbl(statusSel,t.status))}</span>`))}
+          ${dtField(null,'field_status','Status', fvBtn('pStatus', ehsSt(t.status)))}
           ${dtField(null,'field_priority','Priority', fvBtn('pPriority', `<span style="color:${PRIORITIES[t.priority]||'var(--ink)'};font-weight:600">${esc(t.priority||'—')}</span>`))}
           ${dtField(null,'role_developer','Developer', fvBtn('pAssignee', personVal(t.assignee)))}
           ${dtField('see_contributors','role_qa','Quality Analyst', fvBtn('pQa', personVal(t.qa)))}
@@ -3611,8 +3681,6 @@ function openPanel(id, keepScroll){
           ${dtField('see_dates','field_due','Due date', cdVal('due'))}
           ${dtField('see_estimate', estLocked?null:'field_estimate', 'Original estimate', estLocked ? `<span class="fv-input" style="opacity:.7" title="Locked — time has been logged">${t.estimate?hm(t.estimate):'None'}</span>` : `<input id="pEstimate" class="fv-input" type="number" step="0.25" min="0" placeholder="None" value="${t.estimate?(t.estimate/60):''}"/>`)}
           ${dtField(null,'field_epic','Epic', fvBtn('pParent', `<span class="${t.parent?'':'fv-none'}">${esc(pLbl(epicSel,t.parent))}</span>`))}
-          ${dtRow('Resolution', `<span class="tag" style="background:${t.resolution==='Done'?'var(--good-soft,#E4F3EC)':'var(--surface-3)'};color:${t.resolution==='Done'?'var(--good)':'var(--muted)'}">${t.resolution||'Unresolved'}</span>`, false)}
-          ${dtRow('Category', `<span class="tag" style="background:var(--surface-3);color:${CATCOLOR[stCat]}"><span class="col-dot" style="background:${CATCOLOR[stCat]}"></span>${CATLABEL[stCat]}</span>`, false)}
           ${dtField('see_logged',null,'Time logged', `<b style="font-size:13px">${hm(tot.total)}</b>`, false)}
         </div>
         <div class="pnl-tail"></div>
@@ -3635,15 +3703,19 @@ function openPanel(id, keepScroll){
   F('pEstimate','field_estimate').onchange=e=>{ const h=parseFloat(e.target.value); store.updateTask(id,{estimate:h>0?Math.round(h*60):null}); openPanel(id,true); };
   const pDesc=document.getElementById('pDesc'); if(pDesc && canEditField('desc')){ pDesc.onchange=()=>{ store.updateTask(id,{desc:pDesc.value}); refreshViews(); }; }
   panel.querySelectorAll('.act-tab').forEach(tb=>tb.onclick=()=>{ panelTab=tb.dataset.tab; openPanel(id,true); });
+  panel.querySelectorAll('.pn-rl').forEach(rb=>rb.onclick=()=>{ panelSub=rb.dataset.sub; openPanel(id,true); });
   const cmtPost=document.getElementById('cmtPost'); if(cmtPost && canEditField('comments')) cmtPost.onclick=()=>{ const el=document.getElementById('cmtInput'); const v=(el.value||'').trim(); if(!v){ el.focus(); return; } store.addComment(id, meU?meU.id:null, v); toast('Comment added'); openPanel(id,true); };
   panel.querySelectorAll('.cmt-del').forEach(b=>b.onclick=()=>{ store.removeComment(id, b.dataset.cid); openPanel(id,true); });
   wireCustomEdits(panel, ()=>openPanel(id,true));
-  const ttLog=document.getElementById('ttLog'); if(ttLog) ttLog.onclick=()=>openLogModal(id,'Development');
   panel.querySelectorAll('.cat-log').forEach(btn=>btn.onclick=()=>openLogModal(id, btn.dataset.cat));
   panel.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ store.removeWorklog(b.dataset.del); openPanel(id,true); refreshViews(); toast('Log removed'); });
   if(canEditField('subtasks')){
   panel.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{ store.toggleSubtask(id, b.dataset.toggle); openPanel(id,true); });
-  panel.querySelectorAll('[data-subdel]').forEach(b=>b.onclick=()=>{ store.removeSubtask(id, b.dataset.subdel); openPanel(id,true); });
+  panel.querySelectorAll('[data-subdel]').forEach(b=>b.onclick=()=>{ const sub=(t.subtasks||[]).find(x=>x.id===b.dataset.subdel);
+    if(sub && sub.estimate) store.updateTask(id,{estimate:Math.max(0,(t.estimate||0)-sub.estimate)});   // take its estimate back out
+    store.removeSubtask(id, b.dataset.subdel); openPanel(id,true); });
+  panel.querySelectorAll('[data-subedit]').forEach(b=>b.onclick=()=>openSubModal(id, b.dataset.subedit));
+  const _sbAdd=document.getElementById('subAddBtn'); if(_sbAdd) _sbAdd.onclick=()=>openSubModal(id, null);
   panel.querySelectorAll('[data-rename]').forEach(inp=>{ inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }; inp.onchange=()=>{ store.renameSubtask(id, inp.dataset.rename, inp.value); }; });
   const subAdd=document.getElementById('subAddIn'); if(subAdd) subAdd.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); const v=(subAdd.value||'').trim(); if(!v) return; store.addSubtask(id, v); openPanel(id,true); setTimeout(()=>{ const el=document.getElementById('subAddIn'); if(el) el.focus(); },10); } };
   }
@@ -3938,6 +4010,53 @@ function closeModal(){ document.getElementById('modalWrap').classList.remove('on
 
 /* ---------- Jira-style Log time modal ---------- */
 let logTaskId=null;
+/* ---------- Subtask dialog ----------
+   Captures assignee + estimate + done. The estimate rolls into the parent's
+   original estimate by DELTA, so a manually-set estimate is never clobbered. */
+let _sbTask=null, _sbId=null, _sbDone=false;
+function openSubModal(taskId, subId){
+  const t=store.task(taskId); if(!t) return;
+  _sbTask=taskId; _sbId=subId||null;
+  const sub=(t.subtasks||[]).find(x=>x.id===subId) || {title:'',assignee:'',estimate:0,done:false};
+  _sbDone=!!sub.done;
+  document.getElementById('subCtx').textContent=t.key+' \u00b7 '+t.title;
+  document.getElementById('sbTitle').value=sub.title||'';
+  document.getElementById('sbEst').value=sub.estimate?hm(sub.estimate):'';
+  const who=document.getElementById('sbWho');
+  who.innerHTML='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}" ${sub.assignee===u.id?'selected':''}>${esc(u.name)}</option>`).join('');
+  const dt=document.getElementById('sbDone'); dt.classList.toggle('on', _sbDone);
+  dt.onclick=()=>{ _sbDone=!_sbDone; dt.classList.toggle('on', _sbDone); };
+  document.getElementById('subWrap').classList.add('on');
+  setTimeout(()=>document.getElementById('sbTitle').focus(),40);
+}
+function closeSubModal(){ const w=document.getElementById('subWrap'); if(w) w.classList.remove('on'); }
+function saveSubModal(){
+  const t=store.task(_sbTask); if(!t) return;
+  const title=document.getElementById('sbTitle').value.trim();
+  if(!title){ toast('Give the subtask a title'); return; }
+  const who=document.getElementById('sbWho').value||'';
+  const estStr=document.getElementById('sbEst').value.trim();
+  const est=estStr?(parseDur(estStr)||0):0;
+  if(estStr && !parseDur(estStr)){ toast('Could not read that estimate — try 2h 30m'); return; }
+  const subs=(t.subtasks||[]).slice();
+  let prevEst=0;
+  if(_sbId){
+    const i=subs.findIndex(x=>x.id===_sbId);
+    if(i<0){ closeSubModal(); return; }
+    prevEst=subs[i].estimate||0;
+    subs[i]=Object.assign({}, subs[i], {title, assignee:who, estimate:est, done:_sbDone});
+  } else {
+    subs.push({id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), title, assignee:who, estimate:est, done:_sbDone});
+  }
+  // roll the change into the parent's original estimate
+  const delta=est-prevEst;
+  const patch={subtasks:subs};
+  if(delta) patch.estimate=Math.max(0,(t.estimate||0)+delta);
+  store.updateTask(_sbTask, patch);
+  closeSubModal(); openPanel(_sbTask,true);
+  toast(_sbId?'Subtask updated':'Subtask added');
+}
+
 function openLogModal(taskId, presetCat){
   if(!can('time_log_own')&&!can('time_log_others')){ toast('You don\u2019t have permission to log time'); return; }
   logTaskId=taskId;
@@ -6223,6 +6342,12 @@ document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#na
 (function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>document.body.classList.toggle('nav-collapsed'); })();
 document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
 document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>{ ui.analyticsTab=it.dataset.atab; setView('analytics'); });
+(function(){ const c=document.getElementById('sbCancel'), sv=document.getElementById('sbSave'), w=document.getElementById('subWrap');
+  if(c) c.onclick=closeSubModal;
+  if(sv) sv.onclick=saveSubModal;
+  if(w) w.onclick=e=>{ if(e.target===w) closeSubModal(); };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && w && w.classList.contains('on')) closeSubModal(); });
+})();
 document.querySelectorAll('#boardMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
   const menu=document.getElementById('boardMenu'); const id=menu.dataset.board; menu.classList.remove('on'); boardAction(id, btn.dataset.act); });
 document.addEventListener('click',()=>document.getElementById('boardMenu').classList.remove('on'));
