@@ -3901,7 +3901,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document); }
 
-function setView(v){ if(!IS_ADMIN){ if(v==='settings'||v==='operations'){ v='overview'; } else if(!canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
+function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
 
 /* ---------- Side card ---------- */
 function renderSideCard(){
@@ -5670,7 +5670,10 @@ async function pushSeed(){
 function applyRole(){
   if(IS_ADMIN) return;
   ['navColumns'].forEach(id=>{ const e=document.getElementById(id); if(e) e.style.display='none'; });
-  document.querySelectorAll('.nav-item[data-view="operations"],.nav-item[data-view="settings"]').forEach(b=>b.style.display='none');
+  // NOTE: Settings stays visible — its top section is the person's OWN preferences
+  // (notifications, date format, density...). renderSettings() hides the admin-only
+  // sections by itself. Only Operations is admin-gated here.
+  document.querySelectorAll('.nav-item[data-view="operations"]').forEach(b=>b.style.display='none');
   // hide nav items for views this teammate can't open
   document.querySelectorAll('.nav-item[data-view]').forEach(b=>{ const v=b.dataset.view; if(VIEW_CAP[v] && !can(VIEW_CAP[v])) b.style.display='none'; });
   // board / users nav + admin action buttons gated by capability
