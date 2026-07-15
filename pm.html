@@ -191,7 +191,46 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pl-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}
 /* --- Epic E1 cards --- */
 .ep-wrap{display:flex;flex-direction:column;gap:16px}
-.ep-card{background:#fff;border:1px solid var(--line);border-radius:16px !important;overflow:hidden;box-shadow:0 10px 30px -18px rgba(16,26,51,.14)}
+.ep-card{background:#fff;border:1.5px solid var(--ink);border-radius:16px !important;overflow:hidden;box-shadow:0 10px 30px -20px rgba(16,26,51,.16)}
+.ep-sep{border-top:1.5px solid var(--ink);margin:0 0 26px}
+.ep-card:not(.pc-only) .ep-left{padding-right:54px}
+.ep-ti-edit{border:1px solid transparent;border-radius:6px !important;padding:2px 6px;margin:-2px -6px;outline:none;cursor:text}
+.ep-ti-edit:hover{border-color:var(--line)}
+.ep-ti-edit:focus{border-color:var(--accent);background:#fff}
+.ep-kebab{position:absolute;top:14px;right:16px;z-index:2;width:30px;height:30px;border-radius:8px !important;border:1.3px solid var(--ink);background:#fff;display:grid;place-items:center;cursor:pointer}
+.ep-kebab:hover{background:var(--surface-2)}
+.ep-cmenu{position:fixed;z-index:500;background:#fff;border:1px solid var(--line);border-radius:11px !important;box-shadow:0 20px 50px -18px rgba(16,26,51,.4);padding:5px;min-width:176px;display:none}
+.ep-cmenu.on{display:block}
+.ep-cmenu button{display:flex;align-items:center;gap:9px;width:100%;border:0;background:none;font-family:inherit;font-size:13px;color:var(--ink);padding:8px 10px;border-radius:7px !important;cursor:pointer;text-align:left}
+.ep-cmenu button:hover{background:var(--surface-2)}
+.ep-cmenu button.danger{color:var(--crit)}
+.ep-cmenu button svg{width:15px;height:15px;flex:none}
+.ep-cmenu .sep{height:1px;background:var(--line-2);margin:4px 0}
+/* Create Epic modal */
+.epic-modal{width:760px;max-width:100%;display:flex;flex-direction:column;max-height:88vh}
+.epm-h{display:flex;align-items:center;justify-content:space-between}
+.epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
+.epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
+.epm-rail{padding:20px 22px;background:var(--surface-2);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:16px}
+.epm-title{font-size:17px;font-weight:800;letter-spacing:-.01em;border:0;border-bottom:2px solid var(--line);background:none;font-family:inherit;padding:4px 2px;outline:none}
+.epm-title:focus{border-color:var(--accent)}
+.epm-desc{margin-top:14px;border:1px solid var(--line);border-radius:10px !important;padding:10px 12px;font-family:inherit;font-size:13px;resize:vertical;min-height:60px;outline:none}
+.epm-desc:focus{border-color:var(--accent)}
+.epm-tasks-h{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.epm-addtask{display:inline-flex;align-items:center;gap:5px;border:1.3px solid var(--ink);background:#fff;border-radius:8px !important;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ink);padding:5px 10px;cursor:pointer;text-transform:none;letter-spacing:0}
+.epm-addtask:hover{background:var(--surface-2)}
+.epm-tasks{display:flex;flex-direction:column;gap:8px}
+.epm-task{display:flex;align-items:center;gap:8px}
+.epm-tname{flex:1;border:1px solid var(--line);border-radius:9px !important;padding:8px 11px;font-family:inherit;font-size:13px;outline:none;min-width:0}
+.epm-tname:focus{border-color:var(--accent)}
+.epm-tasg{width:150px;flex:none;border:1px solid var(--line);border-radius:9px !important;padding:8px 9px;font-family:inherit;font-size:12.5px;background:#fff;cursor:pointer}
+.epm-trm{width:30px;height:30px;flex:none;border:1px solid var(--line);border-radius:8px !important;background:#fff;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.epm-trm:hover{background:var(--crit-soft);color:var(--crit);border-color:var(--crit-soft)}
+.epm-frow{display:flex;flex-direction:column;gap:5px}
+.epm-frow label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.epm-frow select,.epm-frow input{border:1px solid var(--line);border-radius:9px !important;padding:8px 10px;font-family:inherit;font-size:13px;background:#fff;outline:none}
+.epm-frow select:focus,.epm-frow input:focus{border-color:var(--accent)}
+.epm-hint{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:auto}
 .ep-left{padding:18px 20px;border-bottom:1px solid var(--line-2);display:flex;gap:22px;align-items:center;flex-wrap:wrap}
 .ep-head{min-width:180px}
 .ep-ti{font-weight:800;font-size:15px}
@@ -1982,6 +2021,7 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="fmenu" id="cfMenu"></div>
     <div class="cardmenu" id="cardMenu"></div>
     <div class="ovpop" id="ovPop"></div>
+    <div class="ep-cmenu" id="epCMenu"></div>
 
     <div class="scroll" id="scroll">
       <div class="board" id="board"></div>
@@ -2098,6 +2138,28 @@ body[data-density="compact"] .board{padding:12px 16px}
   <button data-act="rename"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Rename</button>
   <div class="bn-pop-sep"></div>
   <button class="danger" data-act="delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete board</button>
+</div>
+
+<!-- Create Epic modal -->
+<div class="modal-wrap" id="epicWrap">
+  <div class="modal epic-modal">
+    <div class="modal-h epm-h"><span>Create epic</span><button class="nt-x" id="epX" type="button">&#10005;</button></div>
+    <div class="epm-body">
+      <div class="epm-main">
+        <input id="epmTitle" class="epm-title" placeholder="Epic name" autocomplete="off"/>
+        <textarea id="epmDesc" class="epm-desc" placeholder="What is this epic about? (optional)"></textarea>
+        <div class="epm-tasks-h"><span>Tasks in this epic</span><button class="epm-addtask" id="epmAddTask" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add task</button></div>
+        <div class="epm-tasks" id="epmTasks"></div>
+      </div>
+      <div class="epm-rail">
+        <div class="epm-frow"><label>Project</label><select id="epmProject"></select></div>
+        <div class="epm-frow"><label>Lead / assignee</label><select id="epmLead"></select></div>
+        <div class="epm-frow"><label>Due date</label><input type="date" id="epmDue"/></div>
+        <div class="epm-hint">Add as many tasks as you like &mdash; each becomes a ticket linked to this epic.</div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn ghost" id="epCancel" type="button">Cancel</button><button class="btn primary" id="epSubmit" type="button">Create epic</button></div>
+  </div>
 </div>
 
 <!-- Log time modal (Jira-style) -->
@@ -3034,8 +3096,8 @@ function epicHealth(e,st){ const today=new Date().toISOString().slice(0,10);
 function renderEpics(){
   const wrap=document.getElementById('epicswrap');
   const epics=store.epics().filter(e=>ui.project==='all'||e.project===ui.project);
-  const head=`<div class="ov-h"><h2>Epics</h2><button class="btn primary" id="epCreate" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Create epic</button></div>`;
-  if(!epics.length){ wrap.innerHTML=head+`<div class="pl-card"><div class="pl-empty">No epics yet. Click “Create epic” to group related work.</div></div>`; document.getElementById('epCreate').onclick=()=>openModal('Epic'); return; }
+  const head=`<div class="ov-h"><h2>Epics</h2><button class="btn primary" id="epCreate" style="margin-left:auto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Create epic</button></div><div class="ep-sep"></div>`;
+  if(!epics.length){ wrap.innerHTML=head+`<div class="pl-card"><div class="pl-empty">No epics yet. Click “Create epic” to group related work.</div></div>`; document.getElementById('epCreate').onclick=openEpicModal; return; }
   const catOf=k=>{ const s=store.status(k.status); return s?s.cat:'todo'; };
   const cards=epics.map(e=>{
     const st=epicStats(e.id); const kids=st.kids; const proj=(store.project(e.project)||{}).name||'';
@@ -3046,9 +3108,10 @@ function renderEpics(){
         <div class="ep-trow-top"><a class="ep-tnm" onclick="openPanel('${k.id}')">${esc(k.title)}</a><span class="ep-tstt">${s?esc(s.name):esc(k.status)}</span></div>
         <div class="ep-tmeta">${u?`<span class="ep-tav" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span><span>${esc(u.name)}</span>`:'<span>Unassigned</span>'}</div>
       </div>`; }).join('')||'<div class="ep-empty">No tickets yet. Add one to start.</div>';
-    return `<div class="ep-card" data-epic="${e.id}" data-tab="all">
+    return `<div class="ep-card" data-epic="${e.id}" data-tab="all" style="position:relative">
+      <button class="ep-kebab" data-epic="${e.id}" title="Epic options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
       <div class="ep-left">
-        <div class="ep-head"><div class="ep-ti">${esc(e.title)}</div><div class="ep-sub">${esc(e.key)}${proj?' \u00b7 '+esc(proj):''} \u00b7 ${e.estimate?e.estimate+' pts':(st.total+' ticket'+(st.total!==1?'s':''))}</div></div>
+        <div class="ep-head"><div class="ep-ti ep-ti-edit" contenteditable="true" spellcheck="false" data-epic="${e.id}">${esc(e.title)}</div><div class="ep-sub">${esc(e.key)}${proj?' \u00b7 '+esc(proj):''} \u00b7 ${e.estimate?e.estimate+' pts':(st.total+' ticket'+(st.total!==1?'s':''))}</div></div>
         <div class="ep-mid"><div class="ep-ring" style="background:conic-gradient(var(--accent) ${st.pct}%, var(--surface-3) 0)"><b>${st.pct}%</b></div>
           <div><div class="ep-state">${st.total?(st.done===st.total?'Complete':'On the way'):'Not started'}</div><div class="ep-statesub">${st.done} of ${st.total} tickets \u00b7 ${hm(st.minutes)} logged</div><span class="ep-health ${health.k}">${health.t}</span></div></div>
         <div class="ep-cards"><div class="ep-sc"><div class="v">${st.done}</div><div class="l">Done</div></div><div class="ep-sc"><div class="v">${inprog}</div><div class="l">In progress</div></div><div class="ep-sc"><div class="v">${dueTxt}</div><div class="l">Due date</div></div></div>
@@ -3063,8 +3126,101 @@ function renderEpics(){
   wrap.querySelectorAll('.ep-card').forEach(card=>{
     card.querySelectorAll('.ep-tabs button').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); card.dataset.tab=b.dataset.t; card.querySelectorAll('.ep-tabs button').forEach(x=>x.classList.toggle('on',x===b)); });
   });
+  wrap.querySelectorAll('.ep-ti-edit').forEach(ti=>{
+    const save=()=>{ const eid=ti.dataset.epic; const nv=ti.textContent.trim(); const ep=store.task(eid);
+      if(ep && nv && nv!==ep.title){ store.updateTask(eid,{title:nv}); toast('Epic renamed'); }
+      else if(ep && !nv){ ti.textContent=ep.title; } };
+    ti.onblur=save;
+    ti.onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); ti.blur(); }
+      if(ev.key==='Escape'){ const ep=store.task(ti.dataset.epic); if(ep) ti.textContent=ep.title; ti.blur(); } };
+  });
+  wrap.querySelectorAll('.ep-kebab').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); openEpicMenu(b.dataset.epic, b); });
   wrap.querySelectorAll('.ep-add').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); const eid=b.dataset.epic; const ep=store.task(eid); openModal(null, eid, ep?ep.project:null); });
-  document.getElementById('epCreate').onclick=()=>openModal('Epic');
+  document.getElementById('epCreate').onclick=openEpicModal;
+}
+
+/* ---------- Epic options menu ---------- */
+function openEpicMenu(eid, btn){
+  const e=store.task(eid); if(!e) return;
+  const m=document.getElementById('epCMenu');
+  m.innerHTML=`<button data-a="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Open details</button>
+    <button data-a="rename"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Rename</button>
+    <button data-a="due"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Set due date</button>
+    <button data-a="addtask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add task</button>
+    <div class="sep"></div>
+    <button class="danger" data-a="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete epic</button>`;
+  const r=btn.getBoundingClientRect();
+  m.style.left=Math.min(r.right-176, window.innerWidth-186)+'px'; m.style.top=(r.bottom+6)+'px'; m.classList.add('on');
+  m.querySelectorAll('button').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); const a=b.dataset.a; m.classList.remove('on');
+    if(a==='open') openEpicPanel(store.task(eid));
+    else if(a==='rename'){ const ti=document.querySelector('.ep-ti-edit[data-epic="'+eid+'"]'); if(ti){ ti.focus(); document.getSelection().selectAllChildren(ti); } }
+    else if(a==='due') openDateMenu(btn, eid, e.due, 'due');
+    else if(a==='addtask') openModal(null, eid, e.project);
+    else if(a==='delete') deleteEpic(eid);
+  });
+}
+function deleteEpic(eid){
+  const e=store.task(eid); if(!e) return;
+  const kids=store.tasks().filter(t=>t.parent===eid).length;
+  const msg=kids ? 'Delete epic \u201c'+e.title+'\u201d?\n\nIts '+kids+' linked ticket'+(kids!==1?'s':'')+' will be kept, but un-linked from this epic.'
+                 : 'Delete epic \u201c'+e.title+'\u201d?';
+  if(!confirm(msg)) return;
+  store.tasks().forEach(t=>{ if(t.parent===eid) store.updateTask(t.id,{parent:null}); });
+  store.removeTask(eid); refreshViews(); toast('Epic deleted');
+}
+document.addEventListener('click',e=>{ const m=document.getElementById('epCMenu');
+  if(m && m.classList.contains('on') && !e.target.closest('#epCMenu') && !e.target.closest('.ep-kebab')) m.classList.remove('on'); });
+
+/* ---------- Create Epic modal ---------- */
+function epmTaskRow(){
+  const opts='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  const row=document.createElement('div'); row.className='epm-task';
+  row.innerHTML=`<input class="epm-tname" placeholder="Task title" autocomplete="off"/><select class="epm-tasg">${opts}</select><button class="epm-trm" type="button" title="Remove">\u2715</button>`;
+  row.querySelector('.epm-trm').onclick=()=>row.remove();
+  row.querySelector('.epm-tname').onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault();
+    const rows=[...document.querySelectorAll('#epmTasks .epm-task')];
+    if(row===rows[rows.length-1]) epmAddTaskRow(true);
+    else { const nx=rows[rows.indexOf(row)+1]; if(nx) nx.querySelector('.epm-tname').focus(); } } };
+  return row;
+}
+function epmAddTaskRow(focus){ const box=document.getElementById('epmTasks'); const r=epmTaskRow(); box.appendChild(r); if(focus) r.querySelector('.epm-tname').focus(); }
+function openEpicModal(){
+  const pSel=document.getElementById('epmProject');
+  pSel.innerHTML=store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  if(ui.project && ui.project!=='all') pSel.value=ui.project;
+  document.getElementById('epmLead').innerHTML='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  document.getElementById('epmTitle').value=''; document.getElementById('epmDesc').value=''; document.getElementById('epmDue').value='';
+  document.getElementById('epmTasks').innerHTML=''; epmAddTaskRow(); epmAddTaskRow();
+  document.getElementById('epicWrap').classList.add('on');
+  setTimeout(()=>document.getElementById('epmTitle').focus(),40);
+}
+function closeEpicModal(){ document.getElementById('epicWrap').classList.remove('on'); }
+function submitEpic(){
+  const title=document.getElementById('epmTitle').value.trim();
+  if(!title){ toast('Give the epic a name'); document.getElementById('epmTitle').focus(); return; }
+  const pid=document.getElementById('epmProject').value||null;
+  const lead=document.getElementById('epmLead').value||null;
+  const due=document.getElementById('epmDue').value||null;
+  const desc=document.getElementById('epmDesc').value.trim();
+  const ws=(ui.space||'ws_main');
+  const todoStatus=(STATUSES.find(s=>(s.cat||'todo')==='todo')||STATUSES[0]||{}).id;
+  const eid='e'+Date.now();
+  const epic={ id:eid, ws, project:pid, key:computeNextKey(pid), title, type:'Epic', status:todoStatus,
+    priority:'Medium', assignee:lead, reporter:CURRENT_UID||lead, parent:null,
+    color:SWATCHES[2+(store.epics().length%6)], due, start:null, estimate:0,
+    resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(), updatedAt:today(), resolvedAt:null, desc };
+  store._applyResolution(epic); store.addTask(epic);
+  let n=0;
+  document.querySelectorAll('#epmTasks .epm-task').forEach((row,i)=>{
+    const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) return;
+    const t={ id:'t'+Date.now()+'_'+i, ws, project:pid, key:computeNextKey(pid), title:tt, type:'Task', status:todoStatus,
+      priority:'Medium', assignee:row.querySelector('.epm-tasg').value||null, reporter:CURRENT_UID||null, parent:eid,
+      due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
+      updatedAt:today(), resolvedAt:null, desc:'' };
+    store._applyResolution(t); store.addTask(t); n++;
+  });
+  closeEpicModal(); refreshViews();
+  toast('Epic created'+(n?' with '+n+' task'+(n!==1?'s':''):''));
 }
 /* ---------- drag & drop ---------- */
 let dragId=null, dragFrom=null;
@@ -4198,7 +4354,7 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
   else { toast('Password reset link sent to '+email); } }
-const MASTER_EMAILS=['pavan.k@eduhubspot.com','reachpavan02@gmail.com'];
+const MASTER_EMAILS=['pavan.k@eduhubspot.com'];
 function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
 function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
 const STX_FGROUPS=[
@@ -5431,13 +5587,18 @@ document.getElementById('bsWrap').onclick=e=>{ if(e.target.id==='bsWrap') closeB
 document.getElementById('ntCancel').onclick=closeModal;
 { const _x=document.getElementById('ntX'); if(_x) _x.onclick=closeModal; }
 document.getElementById('ntCreate').onclick=createTask;
+document.getElementById('epX').onclick=closeEpicModal;
+document.getElementById('epCancel').onclick=closeEpicModal;
+document.getElementById('epSubmit').onclick=submitEpic;
+document.getElementById('epmAddTask').onclick=()=>epmAddTaskRow(true);
+document.getElementById('epicWrap').onclick=e=>{ if(e.target.id==='epicWrap') closeEpicModal(); };
 document.getElementById('overlay').onclick=closePanel;
 document.getElementById('modalWrap').onclick=e=>{ if(e.target.id==='modalWrap') closeModal(); };
 document.getElementById('logCancel').onclick=closeLogModal;
 document.getElementById('logSave').onclick=saveLog;
 document.getElementById('logWrap').onclick=e=>{ if(e.target.id==='logWrap') closeLogModal(); };
 document.getElementById('logSpent').addEventListener('keydown',e=>{ if(e.key==='Enter') saveLog(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePanel(); closeModal(); closeBoardSettings(); closeLogModal(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePanel(); closeModal(); closeBoardSettings(); closeLogModal(); closeEpicModal(); } });
 
 /* ============================================================
    BACKEND  —  Supabase auth + load + first-run seed + per-record
