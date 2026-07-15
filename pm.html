@@ -1240,6 +1240,13 @@ body[data-view="deployments"] .topbar{border-bottom:0}
 .ovpr:hover{background:var(--surface-2)}
 .ovkey{font-family:ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 5px;border-radius:5px !important;flex:none}
 .ovti{font-size:12.3px;color:var(--accent);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ovtk{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--accent);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ovpop-def{padding:9px 14px;font-size:11.5px;line-height:1.5;color:var(--ink-2);background:var(--surface-2);border-bottom:1px solid var(--line-2)}
+.ovpop-none{padding:16px 14px;font-size:12px;color:var(--muted);text-align:center}
+.ovpop-more{padding:8px 14px;font-size:11px;color:var(--muted);text-align:center}
+.ehs-ov-cell[data-pop]{cursor:pointer;border-radius:8px !important;transition:background .12s}
+.ehs-ov-cell[data-pop]:hover{background:var(--surface-2)}
+.ehs-ov-lead[data-pop]{cursor:pointer}
 .ovrt{font-size:11px;font-weight:600;white-space:nowrap;flex:none}
 .ovrt.crit{color:var(--crit)}.ovrt.warn{color:var(--warn)}.ovrt.mut{color:var(--faint)}
 .ovpop .avatar{width:22px !important;height:22px !important;border-radius:7px !important;font-size:9px}
@@ -5194,8 +5201,47 @@ function ehsAge(t){
   const n=Math.max(0,Math.round((new Date(today())-new Date(String(d).slice(0,10)))/864e5));
   return n+'d';
 }
-function ehsOvCell(n,l,zero,cls){
-  return `<div class="ehs-ov-cell${zero?' is-zero':''}${cls?' '+cls:''}"><span class="ehs-ov-n">${n}</span><span class="ehs-ov-l">${esc(l)}</span></div>`;
+function ehsOvCell(n,l,zero,cls,pop){
+  return `<div class="ehs-ov-cell${zero?' is-zero':''}${cls?' '+cls:''}"${pop?` data-pop="${pop}"`:''}><span class="ehs-ov-n">${n}</span><span class="ehs-ov-l">${esc(l)}</span></div>`;
+}
+
+function depInRangeAn(d){ if(!d) return true; const ds=String(d).slice(0,10);
+  const pr=periodRange(ui.anPeriod);
+  if(pr) return ds>=pr.from && ds<=pr.to;
+  if(ui.anPeriod==='custom'){ if(ui.anFrom && ds<ui.anFrom) return false; if(ui.anTo && ds>ui.anTo) return false; }
+  return true; }
+
+/* ---------- hover popovers for the dashboard strips ----------
+   Each entry: {title, def, tasks}. The popover lists Ticket + Status only,
+   and carries a one-line definition so the metric isn't a guess. */
+let _statPops={};
+function wireStatPops(scopeSel){
+  const pop=document.getElementById('ovPop'); if(!pop) return;
+  let hideT=null; const cancel=()=>{ if(hideT){ clearTimeout(hideT); hideT=null; } };
+  const hide=()=>{ cancel(); hideT=setTimeout(()=>pop.classList.remove('on'),150); };
+  pop.onmouseenter=cancel; pop.onmouseleave=hide;
+  document.querySelectorAll(scopeSel+' [data-pop]').forEach(elm=>{
+    elm.onmouseenter=()=>{ cancel();
+      const set=_statPops[elm.dataset.pop]; if(!set){ pop.classList.remove('on'); return; }
+      const list=(set.tasks||[]);
+      const rows=list.slice(0,14).map(t=>`<div class="ovpr" data-id="${t.id}">
+          <span class="ovtk">${esc(t.key||'')}</span>${ehsSt(t.status)}</div>`).join('')
+        || '<div class="ovpop-none">No tickets.</div>';
+      const more=list.length>14?`<div class="ovpop-more">+${list.length-14} more</div>`:'';
+      pop.innerHTML=`<div class="ovpop-h"><span class="t">${esc(set.title)}</span><span class="c">${list.length}</span></div>
+        <div class="ovpop-def">${esc(set.def||'')}</div>
+        <div class="ovpop-list">${rows}${more}</div>`;
+      pop.querySelectorAll('.ovpr').forEach(r=>r.onclick=()=>{ pop.classList.remove('on'); openPanel(r.dataset.id); });
+      pop.classList.add('on');
+      const r=elm.getBoundingClientRect(); const pw=322, ph=pop.offsetHeight;
+      let left=r.left+r.width/2-pw/2;
+      if(left+pw>window.innerWidth-12) left=window.innerWidth-pw-12;
+      left=Math.max(12,left);
+      let top=r.bottom+8; if(top+ph>window.innerHeight-12) top=Math.max(12, r.top-ph-8);
+      pop.style.left=left+'px'; pop.style.top=top+'px';
+    };
+    elm.onmouseleave=hide;
+  });
 }
 function ehsSearchBox(id,ph,val){
   return `<div class="ehs-rail-top"><div class="ehs-search">
@@ -5685,6 +5731,7 @@ function renderAnalytics(){
   el.innerHTML=`<div class="ov-h" style="align-items:flex-start;justify-content:flex-end;margin-bottom:14px">${periodBar}</div>
     <div id="anSection">${section}</div>`;
   el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
+  if(ui.analyticsTab==='productivity') wireStatPops('#analyticswrap');
   // two-pane rails: Delivery (by status) and Priority (by level)
   el.querySelectorAll('#dlRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.dlSel=b.dataset.id||null; renderAnalytics(); });
   const _dlS=document.getElementById('dlSearch');
@@ -5990,39 +6037,42 @@ function anProductivity(scope, logs){
   const totalTasks=allTasks.size, totalClosed=[...allTasks].filter(isDone).length;
   const totalEntries=Object.values(entries).reduce((x,n)=>x+n,0);
 
-  // ---- overview strip: hours first, then volume, then what needs attention ----
+  // ---- overview strip: pace, speed, delivery, and what is slipping ----
   const _td=today();
   const _wk=periodRange('week');
   const _7ago=_isoLocal(new Date(Date.parse(_td+'T00:00:00')-7*864e5));
   const _open=t=>(store.status(t.status)||{}).cat!=='done';
   const _isBlocked=t=>{ const st=store.status(t.status)||{}; return st.id==='blocked'||/blocked/i.test(st.name||''); };
-  const ovOverdue   = scope.filter(t=>t.due && t.due<_td && _open(t)).length;
-  const ovBlocked   = scope.filter(t=>_isBlocked(t) && _open(t)).length;
-  const ovUnassigned= scope.filter(t=>!t.assignee && _open(t)).length;
-  const ovStale     = scope.filter(t=>_open(t) && (t.updatedAt||t.createdAt||'') < _7ago).length;
-  // pace: hours per day actually worked
+
+  const workedAll=[...allTasks].map(id=>store.task(id)).filter(Boolean);
   const _allDays=new Set(plogs.map(w=>w.date));
-  const avgDayMin = _allDays.size ? totalMin/_allDays.size : 0;
-  // throughput: closed inside the current Mon-Sun week
-  const wkClosed = scope.filter(t=>t.resolvedAt && t.resolvedAt>=_wk.from && t.resolvedAt<=_wk.to).length;
-  // speed: created -> resolved, averaged over what has actually closed
-  const _cyc=scope.filter(t=>t.resolvedAt && t.createdAt)
-    .map(t=>Math.max(0,Math.round((Date.parse(t.resolvedAt)-Date.parse(t.createdAt))/864e5)));
+  const avgDayMin=_allDays.size ? totalMin/_allDays.size : 0;
+  const cycTix=scope.filter(t=>t.resolvedAt && t.createdAt);
+  const _cyc=cycTix.map(t=>Math.max(0,Math.round((Date.parse(t.resolvedAt)-Date.parse(t.createdAt))/864e5)));
   const avgCycle=_cyc.length?Math.round(_cyc.reduce((a,d)=>a+d,0)/_cyc.length):0;
-  // load: due inside this week and still open
-  const dueWk = scope.filter(t=>t.due && t.due>=_wk.from && t.due<=_wk.to && _open(t)).length;
+  const depTix=scope.filter(t=>t.deployedAt && depInRangeAn(t.deployedAt));
+  const overdueTix=scope.filter(t=>t.due && t.due<_td && _open(t));
+  const staleTix=scope.filter(t=>_open(t) && (t.updatedAt||t.createdAt||'') < _7ago);
+
+  _statPops={
+    hrs:   {title:'Time logged', def:'Every hour logged in this period. These are the tickets it went on.', tasks:workedAll},
+    avg:   {title:'Avg hrs/day', def:'Hours logged \u00f7 the days someone actually logged. Days with no logs are ignored, so this is a working-day average.', tasks:workedAll},
+    cycle: {title:'Avg cycle time', def:'Average days from a ticket being created to being resolved. Long-buried backlog items pull this up.', tasks:cycTix},
+    dep:   {title:'Deployed', def:'Tickets marked deployed in this period.', tasks:depTix},
+    over:  {title:'Overdue', def:'Open tickets past their due date.', tasks:overdueTix},
+    stale: {title:'Untouched >7d', def:'Open tickets with no update in the last 7 days \u2014 quietly going stale.', tasks:staleTix}
+  };
 
   const cells=[
-    [hm(Math.round(avgDayMin)),'Avg hrs/day', avgDayMin===0],
-    [wkClosed,'Closed this week'],
-    [avgCycle?avgCycle+'d':'—','Avg cycle time', avgCycle===0],
-    [dueWk,'Due this week'],
-    [ovOverdue,'Overdue',ovOverdue===0,ovOverdue?'is-hot':''],
-    [ovBlocked,'Blocked',ovBlocked===0,ovBlocked?'is-hot':''],
-    [ovStale,'Untouched >7d']];
+    [hm(Math.round(avgDayMin)),'Avg hrs/day', avgDayMin===0, '', 'avg'],
+    [avgCycle?avgCycle+'d':'\u2014','Avg cycle time', avgCycle===0, '', 'cycle'],
+    [depTix.length,'Deployed', depTix.length===0, '', 'dep'],
+    [overdueTix.length,'Overdue', overdueTix.length===0, overdueTix.length?'is-hot':'', 'over'],
+    [staleTix.length,'Untouched >7d', staleTix.length===0, '', 'stale']
+  ];
   const ov=`<section class="ehs-overview">
-    <div class="ehs-ov-lead"><span class="ehs-ov-n">${(totalMin/60).toFixed(0)}<span class="u">h</span></span><span class="ehs-ov-l">Total hrs logged</span></div>
-    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0,c[3])).join('')}</div>
+    <div class="ehs-ov-lead" data-pop="hrs"><span class="ehs-ov-n">${(totalMin/60).toFixed(0)}<span class="u">h</span></span><span class="ehs-ov-l">Total hrs logged</span></div>
+    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c[2],c[3],c[4])).join('')}</div>
   </section>`;
 
   if(!ranked.length) return ov+`<div class="ehs-empty"><p>No activity logged in this period.</p></div>`;
