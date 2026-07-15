@@ -2348,7 +2348,10 @@ const LOCK_ICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stro
 const SWATCHES = ['#9BA3AF','#6B7280','#2743E0','#7A3FF2','#0EA5E9','#0E8FA8','#B96A00','#C026D3','#CE2F26','#0E8F5A'];
 const CATLABEL = {todo:'To Do', inprogress:'In Progress', done:'Done'};
 const CATCOLOR = {todo:'#727A87', inprogress:'#2743E0', done:'#0E8F5A'};
-const today = () => new Date().toISOString().slice(0,10);
+// LOCAL date, not UTC. toISOString() shifts the day for anyone east/west of
+// UTC — in IST (+5:30) this returned yesterday until 05:30 every morning,
+// which silently emptied the Today filters.
+const today = () => _isoLocal(new Date());
 /* ---- user preferences (applied app-wide) ---- */
 let DATE_FMT='dmy', WEEK_START=0, HOURS_PER_DAY=8, MIN_PER_DAY=480, MIN_PER_WEEK=2400, USER_TZ='', HL_OVERDUE=true, PAGE_SIZE=25;
 function curPrefs(){ try{ const u=(typeof meUser==='function')&&meUser(); return (u&&u.prefs)||{}; }catch(e){ return {}; } }
@@ -2455,8 +2458,8 @@ const store = {
     this.data.releases.push({id, name:name||('v'+(this.releases().length+1)+'.0'), date:null, status:'unreleased', desc:''}); this._persist(); return id; },
   updateRelease(id,patch){ const r=this.release(id); if(r) Object.assign(r,patch); this._persist(); },
   removeRelease(id){ this.data.tasks.forEach(t=>{ if(t.release===id) t.release=null; }); this.data.releases=this.releases().filter(r=>r.id!==id); this._persist(); },
-  markReleased(id){ const r=this.release(id); if(r){ r.status='released'; if(!r.date) r.date=new Date().toISOString().slice(0,10); } this._persist(); },
-  setTaskRelease(taskId,releaseId){ const t=this.task(taskId); if(t){ t.release=releaseId||null; t.updatedAt=new Date().toISOString().slice(0,10); } this._persist(); },
+  markReleased(id){ const r=this.release(id); if(r){ r.status='released'; if(!r.date) r.date=today(); } this._persist(); },
+  setTaskRelease(taskId,releaseId){ const t=this.task(taskId); if(t){ t.release=releaseId||null; t.updatedAt=today(); } this._persist(); },
   tasksInRelease(id){ return this.standardTasks().filter(t=>t.release===id); },
   noRelease(){ return this.standardTasks().filter(t=>!t.release && t.status!=='done'); },
   // sprints (scrum)
@@ -2466,9 +2469,9 @@ const store = {
     this.data.sprints.push({id, name:name||('Sprint '+(this.sprints().length+1)), goal:'', state:'future', start:null, end:null}); this._persist(); return id; },
   updateSprint(id,patch){ const s=this.sprint(id); if(s) Object.assign(s,patch); this._persist(); },
   removeSprint(id){ this.data.tasks.forEach(t=>{ if(t.sprint===id) t.sprint=null; }); this.data.sprints=this.sprints().filter(s=>s.id!==id); this._persist(); },
-  startSprint(id){ const s=this.sprint(id); if(s){ s.state='active'; if(!s.start) s.start=new Date().toISOString().slice(0,10); } this._persist(); },
+  startSprint(id){ const s=this.sprint(id); if(s){ s.state='active'; if(!s.start) s.start=today(); } this._persist(); },
   completeSprint(id){ const s=this.sprint(id); if(s){ s.state='closed'; this.data.tasks.forEach(t=>{ if(t.sprint===id && t.status!=='done') t.sprint=null; }); } this._persist(); },
-  setTaskSprint(taskId,sprintId){ const t=this.task(taskId); if(t){ t.sprint=sprintId||null; t.updatedAt=new Date().toISOString().slice(0,10); } this._persist(); },
+  setTaskSprint(taskId,sprintId){ const t=this.task(taskId); if(t){ t.sprint=sprintId||null; t.updatedAt=today(); } this._persist(); },
   tasksInSprint(id){ return this.standardTasks().filter(t=>t.sprint===id); },
   backlogTasks(){ return this.standardTasks().filter(t=>!t.sprint && t.status!=='done'); },
   // projects admin
@@ -2616,13 +2619,13 @@ function fdate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); const day=+
 function timeAgo(at){ const iso=(typeof at==='string'&&at.length<=10)?at+'T00:00:00':at; const d=new Date(iso); const diff=(Date.now()-d.getTime())/1000;
   if(diff<0) return 'just now'; if(diff<45) return 'just now'; if(diff<3600) return Math.max(1,Math.floor(diff/60))+'m ago';
   if(diff<86400) return Math.floor(diff/3600)+'h ago'; if(diff<604800) return Math.floor(diff/86400)+'d ago';
-  return fdate((typeof at==='string'?at.slice(0,10):d.toISOString().slice(0,10))); }
+  return fdate((typeof at==='string'?at.slice(0,10):_isoLocal(d))); }
 function fdatetime(at){ if(typeof at==='string'&&at.length<=10) return fdate(at); const d=new Date(at);
   if(USER_TZ){ try{ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:USER_TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d);
     const g=t=>(parts.find(p=>p.type===t)||{}).value;
     return fdate(`${g('year')}-${g('month')}-${g('day')}`)+', '+g('hour')+':'+g('minute')+' '+(g('dayPeriod')||'').toUpperCase(); }catch(e){} }
   let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0'); const ap=h>=12?'PM':'AM'; h=h%12||12;
-  return fdate(d.toISOString().slice(0,10))+', '+h+':'+m+' '+ap; }
+  return fdate(_isoLocal(d))+', '+h+':'+m+' '+ap; }
 function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charCodeAt(0))>>>0); const h=9+(n%9); const m=(n>>3)%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':00'; }
 
 /* ============================================================
@@ -3171,7 +3174,7 @@ function openCfMulti(taskId, fid, anchor, after){
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('#cfMenu')&&!e.target.closest('.cfmulti')&&!e.target.closest('.projbtn')&&!e.target.closest('.asgbtn')&&!e.target.closest('.cdate')&&!e.target.closest('.p-sel')) document.getElementById('cfMenu').classList.remove('on'); });
 
-function epicHealth(e,st){ const today=new Date().toISOString().slice(0,10);
+function epicHealth(e,st){ const today=today();
   if(st.total && st.done===st.total) return {k:'ok',t:'Complete'};
   if(e.due && e.due<today) return {k:'late',t:'Behind'};
   if(e.due){ const d=(new Date(e.due)-new Date(today))/86400000; if(d<=7 && st.pct<60) return {k:'risk',t:'At risk'}; }
@@ -3663,7 +3666,7 @@ function openTicketFromURL(){ if(_urlTicketOpened) return; try{ const k=new URLS
 function chatTime(at){ const d=new Date(at); const diff=(Date.now()-d.getTime())/1000;
   let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0'); const ap=h>=12?'PM':'AM'; h=h%12||12; const hm=h+':'+m+' '+ap;
   if(diff<86400 && d.getDate()===new Date().getDate()) return hm;
-  return fdate(d.toISOString().slice(0,10))+', '+hm; }
+  return fdate(_isoLocal(d))+', '+hm; }
 function chatEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function renderMentions(text){ let s=chatEsc(text);
   const names=store.users().map(u=>u.name).sort((a,b)=>b.length-a.length);
@@ -4182,7 +4185,7 @@ function periodRange(per, ref){
 }
 /* ---------- Overview dashboard ---------- */
 function ovWindow(){
-  const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
+  const iso=d=>_isoLocal(d); const today=new Date(); const to=iso(today);
   const per=ui.ovRange||'all';
   const pr=periodRange(per); if(pr) return pr;
   if(per==='custom'){ const f=ui.ovFrom||to, t=ui.ovTo||to; return {from:f<t?f:t,to:f<t?t:f,label:fdate(f<t?f:t)+' \u2013 '+fdate(f<t?t:f)}; }
@@ -4193,7 +4196,7 @@ function ovWindow(){
   return {from, to, label:'All time'};
 }
 function _ovWindowOld(){
-  const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
+  const iso=d=>_isoLocal(d); const today=new Date(); const to=iso(today);
   const per=(ui.filters&&ui.filters.period)||'all';
   if(per==='today') return {from:to,to,label:'Today'};
   if(per==='week'){ const d=new Date(today); d.setDate(d.getDate()-6); return {from:iso(d),to,label:'Last 7 days'}; }
@@ -4255,7 +4258,7 @@ function renderOverview(){
   const win=ovWindow(); const inWin=d=>!!d && d>=win.from && d<=win.to;
   const lenDays=Math.max(1,Math.round((new Date(win.to)-new Date(win.from))/86400000)+1);
   const pf=new Date(win.from); pf.setDate(pf.getDate()-lenDays); const pt=new Date(win.from); pt.setDate(pt.getDate()-1);
-  const pFrom=pf.toISOString().slice(0,10), pTo=pt.toISOString().slice(0,10); const inPrev=d=>!!d && d>=pFrom && d<=pTo;
+  const pFrom=_isoLocal(pf), pTo=_isoLocal(pt); const inPrev=d=>!!d && d>=pFrom && d<=pTo;
   const all = ovTasks();
   const created=all.filter(t=>inWin(t.createdAt)).length, pCreated=all.filter(t=>inPrev(t.createdAt)).length;
   const solved=all.filter(t=>inWin(t.resolvedAt)).length, pSolved=all.filter(t=>inPrev(t.resolvedAt)).length;
@@ -4274,7 +4277,7 @@ function renderOverview(){
   const byProj=projScope.map(p=>({p, n:all.filter(t=>t.project===p.id).length})).sort((a,b)=>b.n-a.n);
   const pmax=Math.max(...byProj.map(x=>x.n),1);
   const byCat={}; logs.forEach(w=>byCat[w.cat]=(byCat[w.cat]||0)+w.min);
-  const days=[]; { let d=new Date(win.from); const end=new Date(win.to); let g=0; while(d<=end && g<800){ days.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); g++; } }
+  const days=[]; { let d=new Date(win.from+'T00:00:00'); const end=new Date(win.to+'T00:00:00'); let g=0; while(d<=end && g<800){ days.push(_isoLocal(d)); d.setDate(d.getDate()+1); g++; } }
   const dHours=days.map(day=>logs.filter(w=>w.date===day).reduce((a,w)=>a+w.min,0)/60);
   const dCreated=days.map(day=>all.filter(t=>t.createdAt===day).length);
   const dSolved=days.map(day=>all.filter(t=>t.resolvedAt===day).length);
@@ -4282,7 +4285,7 @@ function renderOverview(){
   const dDue=days.map(day=>all.filter(t=>t.due===day).length);
   const dOverdue=days.map(day=>all.filter(t=>t.due && t.due<day && (store.status(t.status)||{}).cat!=='done').length);
   // trailing 14-day series for KPI sparklines (independent of period, so the line always shows)
-  const spDays=[]; { const _e=new Date(); for(let i=13;i>=0;i--){ const d=new Date(_e); d.setDate(d.getDate()-i); spDays.push(d.toISOString().slice(0,10)); } }
+  const spDays=[]; { const _e=new Date(); for(let i=13;i>=0;i--){ const d=new Date(_e); d.setDate(d.getDate()-i); spDays.push(_isoLocal(d)); } }
   const spCreated=spDays.map(day=>all.filter(t=>t.createdAt===day).length);
   const spDeployed=spDays.map(day=>all.filter(t=>t.deployedAt===day).length);
   const spDue=spDays.map(day=>all.filter(t=>t.due===day).length);
@@ -4301,7 +4304,7 @@ function renderOverview(){
   const capMin=Math.max(1, workDays*8*60);
   const capRows=topUsers.map(x=>{ const u=store.user(x.u); const util=x.m/capMin; const pct=Math.min(100,Math.round(util*100)); const c= util>1.05?'#CE2F26' : util>=.7?'#0E8F5A' : '#B96A00'; return {u,m:x.m,util,pct,c}; });
   const engBars=topUsers.length?topUsers.map(x=>{const u=store.user(x.u);const c=u?u.color:'#999';return `<div class="hbar-row"><span class="nm">${avatar(u,20)}${u?esc(u.name):'—'}</span><span class="track"><span class="fill" style="width:${x.m/umax*100}%;background:linear-gradient(90deg,${c}99,${c})"></span></span><span class="val">${hm(x.m)}</span></div>`;}).join(''):'<p class="ov-cap">No time logged in this period.</p>';
-  const _todayISO=new Date().toISOString().slice(0,10);
+  const _todayISO=today();
   const _nd=t=>(store.status(t.status)||{}).cat!=='done';
   const createdTix=all.filter(t=>inWin(t.createdAt)).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
   const overdueTix=all.filter(t=>t.due && _nd(t) && t.due<_todayISO).sort((a,b)=>a.due.localeCompare(b.due));
@@ -4310,12 +4313,12 @@ function renderOverview(){
   const solvedTix=all.filter(t=>(store.status(t.status)||{}).cat==='done');
   const activeTix=all.filter(t=>(store.status(t.status)||{}).cat==='inprogress');
   const openTixCat=all.filter(t=>(store.status(t.status)||{}).cat==='todo');
-  const _d7=new Date(); _d7.setDate(_d7.getDate()+7); const _to7=_d7.toISOString().slice(0,10);
+  const _d7=new Date(); _d7.setDate(_d7.getDate()+7); const _to7=_isoLocal(_d7);
   const upcoming=all.filter(t=>t.due && t.due>=_todayISO && t.due<=_to7 && _nd(t)).sort((a,b)=>a.due.localeCompare(b.due));
   const _asgAv=t=>{ const u=store.user(t.assignee); return u?avatar(u,22):'<span class="ov-un">Unassigned</span>'; };
   const _late=t=>Math.max(1,Math.round((new Date(_todayISO)-new Date(t.due))/86400000));
   const PRICLS={Highest:'high',High:'high',Medium:'med',Low:'low',Lowest:'low'};
-  const _dueLabel=d=>{ if(d===_todayISO) return 'Today · '+fdate(d); const tm=new Date(_todayISO); tm.setDate(tm.getDate()+1); if(d===tm.toISOString().slice(0,10)) return 'Tomorrow · '+fdate(d); const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(d+'T00:00:00').getDay()]; return wd+' · '+fdate(d); };
+  const _dueLabel=d=>{ if(d===_todayISO) return 'Today · '+fdate(d); const tm=new Date(_todayISO+'T00:00:00'); tm.setDate(tm.getDate()+1); if(d===_isoLocal(tm)) return 'Tomorrow · '+fdate(d); const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(d+'T00:00:00').getDay()]; return wd+' · '+fdate(d); };
 
   el.innerHTML=`
     <div class="sb-hero">
@@ -4733,13 +4736,13 @@ function renderVelocity(){
   let burn='<div class="bl-empty">No active sprint with a date range.</div>';
   if(active && active.start && active.end){ const ts=store.tasksInSprint(active.id); const up=usePts(ts); const val=t=>up?(t.estimate||0):1;
     const totalV=ts.reduce((a,t)=>a+val(t),0)||1;
-    const days=[]; for(let d=new Date(active.start); d<=new Date(active.end); d.setDate(d.getDate()+1)) days.push(d.toISOString().slice(0,10));
+    const days=[]; for(let d=new Date(active.start+'T00:00:00'), _e=new Date(active.end+'T00:00:00'); d<=_e; d.setDate(d.getDate()+1)) days.push(_isoLocal(d));
     const n=days.length||1;
     const rem=days.map(iso=>totalV-ts.filter(t=>t.status==='done'&&t.resolvedAt&&t.resolvedAt<=iso).reduce((a,t)=>a+val(t),0));
     const W=600,H=210,PL=34,PB=20; const x=i=>PL+(W-PL-8)*(n<=1?0:i/(n-1)); const y=v=>8+(H-8-PB)*(1-v/totalV);
     const ideal=days.map((_,i)=>`${x(i).toFixed(1)},${y(totalV*(1-i/((n-1)||1))).toFixed(1)}`).join(' ');
     const actual=rem.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-    const ti=days.indexOf(new Date().toISOString().slice(0,10));
+    const ti=days.indexOf(today());
     burn=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:220px">
       <line x1="${PL}" y1="${y(0)}" x2="${W-8}" y2="${y(0)}" stroke="var(--line)"/>
       <line x1="${PL}" y1="8" x2="${PL}" y2="${y(0)}" stroke="var(--line)"/>
@@ -4782,10 +4785,10 @@ function renderDashboard(){
   _blInit(); _dashInit();
   const el=document.getElementById('dashboardwrap');
   const scope=ui.project==='all'?store.standardTasks():store.standardTasks().filter(t=>t.project===ui.project);
-  const todayISO=new Date().toISOString().slice(0,10);
+  const todayISO=today();
   const done=scope.filter(t=>t.status==='done'); const open=scope.filter(t=>t.status!=='done');
   const overdue=open.filter(t=>t.due&&t.due<todayISO);
-  const in7=new Date(); in7.setDate(in7.getDate()+7); const in7ISO=in7.toISOString().slice(0,10);
+  const in7=new Date(); in7.setDate(in7.getDate()+7); const in7ISO=_isoLocal(in7);
   const dueSoon=open.filter(t=>t.due&&t.due>=todayISO&&t.due<=in7ISO).sort((a,b)=>a.due<b.due?-1:1);
   const kpi=(l,v,c)=>`<div class="dash-kpi"><div class="dash-kpi-v" style="color:${c||'var(--ink)'}">${v}</div><div class="dash-kpi-l">${l}</div></div>`;
   const brow=(label,n,max,color)=>`<div class="dash-brow"><span class="dash-bl">${label}</span><div class="dash-bt"><i style="width:${max?n/max*100:0}%;background:${color}"></i></div><span class="dash-bn">${n}</span></div>`;
@@ -4840,7 +4843,7 @@ function renderCalendar(){
   const cols=order.length;
   const scope=ui.project==='all'?store.tasks():store.tasks().filter(t=>t.project===ui.project);
   const byDay={}; scope.forEach(t=>{ if(t.due){ (byDay[t.due]=byDay[t.due]||[]).push(t); } });
-  const todayISO=new Date().toISOString().slice(0,10);
+  const todayISO=today();
   const cells=[]; let firstDone=false;
   for(let d=1; d<=days; d++){ const wd=new Date(y,m,d).getDay(); if(!SW && (wd===0||wd===6)) continue;
     if(!firstDone){ const pad=order.indexOf(wd); for(let i=0;i<pad;i++) cells.push('<div class="cal-cell empty"></div>'); firstDone=true; }
@@ -4897,7 +4900,7 @@ function renderTimeline(){
   epics.forEach(e=>{ grouped.add(e.id); rows.push(bar(e)); scope.filter(t=>t.parent===e.id&&t.start).forEach(ch=>{ grouped.add(ch.id); rows.push(bar(ch)); }); });
   const orphans=all.filter(t=>!grouped.has(t.id)&&t.type!=='Epic');
   const wcolW=100/weeks.length;
-  const header=`<div class="tl-row tl-head"><div class="tl-lbl">${epics.length} epics \u00b7 ${all.length} dated</div><div class="tl-track">${weeks.map(w=>`<div class="tl-wk" style="width:${wcolW}%">${fdate(w.toISOString().slice(0,10))}</div>`).join('')}</div></div>`;
+  const header=`<div class="tl-row tl-head"><div class="tl-lbl">${epics.length} epics \u00b7 ${all.length} dated</div><div class="tl-track">${weeks.map(w=>`<div class="tl-wk" style="width:${wcolW}%">${fdate(_isoLocal(w))}</div>`).join('')}</div></div>`;
   el.innerHTML=`<div class="ov-h"><h2>Timeline</h2><span class="range">Roadmap of epics and dated tickets</span></div>
     <div class="tl-wrap">${header}${rows.join('')}${orphans.length?`<div class="tl-sec">Other dated tickets</div>`+orphans.map(bar).join(''):''}</div>`;
 }
@@ -5535,7 +5538,7 @@ function anDelivery(scope, resolved){
   // tickets created last week (relative to latest activity in scope)
   const created=scope.map(t=>t.createdAt).filter(Boolean).sort();
   const ref=created.length?created[created.length-1]:today();
-  const weekAgo=new Date(Date.parse(ref)-7*86400000).toISOString().slice(0,10);
+  const weekAgo=_isoLocal(new Date(Date.parse(ref)-7*86400000));
   const recent=scope.filter(t=>t.createdAt&&t.createdAt>=weekAgo).sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
   const recentRows=recent.map(t=>{const s=store.status(t.status);
     return `<tr data-open="${t.id}"><td class="lkey">${t.key}</td><td class="ltitle">${esc(t.title)}</td>
@@ -6474,8 +6477,8 @@ function notifyTaskChange(oldDoc, newDoc){
 // due-soon / overdue scan (runs on load)
 function scanDueSoon(){
   try{ const s=nset(); if(!s.enabled) return; const me=myUid(); if(!me) return;
-    const todayISO=new Date().toISOString().slice(0,10);
-    const days=Number(s.remindBefore)||2; const soon=new Date(); soon.setDate(soon.getDate()+days); const soonISO=soon.toISOString().slice(0,10);
+    const todayISO=today();
+    const days=Number(s.remindBefore)||2; const soon=new Date(); soon.setDate(soon.getDate()+days); const soonISO=_isoLocal(soon);
     store.tasks().forEach(t=>{ if(!t.due) return; if((store.status(t.status)||{}).cat==='done') return;
       if(!involvesMe(t, s.onlyAssigned)) return;
       if(s.onlyMyProjects && t.project && !myProjectSet().has(t.project)) return;
