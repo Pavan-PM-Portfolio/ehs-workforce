@@ -5288,7 +5288,7 @@ async function openAccountPM(){
   const mu=(typeof meUser==='function' && meUser())||(store.users&&store.users()[0])||{};
   const name=mu.name||((typeof ME!=='undefined'&&ME&&ME.user_metadata&&ME.user_metadata.full_name))||((typeof ME!=='undefined'&&ME&&ME.email))||'Account';
   const email=mu.email||((typeof ME!=='undefined'&&ME&&ME.email))||'';
-  let master=isMasterUser(mu)||(email&&MASTER_EMAILS.indexOf(email.toLowerCase())!==-1);
+  let master=(typeof IS_MASTER!=='undefined'&&IS_MASTER)||isMasterUser(mu)||(email&&MASTER_EMAILS.indexOf(email.toLowerCase())!==-1);
   const accessMap={};
   if(typeof sb!=='undefined' && sb && typeof ME!=='undefined' && ME){
     try{ const [pr,ac]=await Promise.all([
@@ -5306,7 +5306,7 @@ async function openAccountPM(){
     <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccountPM()">✕</button></div>
     <div class="acd-head">${avatar({name:name}, 52)}
       <div class="acd-id"><div class="nm">${esc(name)}</div><div class="em">${esc(email||'—')}</div>
-        <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Operator'}</span></div></div>
+        <span class="acd-role ${master?'master':''}">${master?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Operator')}</span></div></div>
     <div class="acd-body">
       <div class="acd-sec"><div class="acd-lbl">Your access</div><div class="acd-mods">${access}</div></div>
       <div class="acd-sec"><div class="acd-lbl">Workspace</div>
@@ -5405,7 +5405,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePanel(); clo
    sync + realtime. Falls back to localStorage when not configured.
 ============================================================ */
 const REMOTE = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE') && window.supabase);
-let sb=null, WS=null, IS_ADMIN=true, ME=null;
+let sb=null, WS=null, IS_ADMIN=true, IS_MASTER=false, TOOL_ROLE=null, ME=null;
 const TBL={users:'people', projects:'projects', statuses:'statuses', boards:'boards', teams:'teams', tasks:'tasks', worklogs:'worklogs', spaces:'spaces'};
 let snap={}, syncTimer=null, rerenderTimer=null;
 
@@ -5534,31 +5534,38 @@ async function loadWorkspace(){
   { const {data}=await sb.from('members').select('*').eq('user_id',ME.id).maybeSingle(); mem=data; }
   if(!mem){
     // First entry for a Workspace-authenticated user: join the shared workspace.
-    // First person in becomes admin (and seeds it); everyone after joins as member.
+    // ALWAYS join as a plain member — admin is decided by profiles.is_master_admin
+    // / tool_access, never by anything this browser sends. (RLS rejects role='admin'
+    // here anyway; the old "first person in becomes admin" rule was self-escalation.)
     const WSID='ehs';
-    const {count}=await sb.from('members').select('workspace_id',{count:'exact',head:true}).eq('workspace_id',WSID);
-    const role=(count&&count>0)?'member':'admin';
-    const {error:me}=await sb.from('members').upsert({workspace_id:WSID,user_id:ME.id,email:ME.email,role},{onConflict:'user_id'});
+    const {error:me}=await sb.from('members').upsert({workspace_id:WSID,user_id:ME.id,email:ME.email,role:'member'},{onConflict:'user_id'});
     if(me){ authError('Could not set up your workspace: '+me.message); return; }
-    WS=WSID; IS_ADMIN=(role==='admin');
-    if(role==='admin'){
-      const {data:s0}=await sb.from('settings').select('workspace_id').eq('workspace_id',WSID).maybeSingle();
-      if(!s0){ try{ await pushSeed(); }catch(e){ authError('Workspace seed failed: '+e.message); return; } }
-    }
-    mem={workspace_id:WSID, role};
+    WS=WSID;
+    mem={workspace_id:WSID, role:'member'};
   }
-  WS=mem.workspace_id; IS_ADMIN=(mem.role==='admin');
-  // A master admin, or an admin of THIS tool (tool_access role=admin for 'pm'),
-  // gets full access here too — including seeing every workspace/space.
-  if(!IS_ADMIN && sb && ME){ try{
+  WS=mem.workspace_id;
+  IS_ADMIN=false;   // decided below, from the suite's own records only
+  // Resolve the suite identity: master admin flag + this tool's granted role.
+  // "Master admin" and "admin of the PM tool" are DIFFERENT things — don't conflate them.
+  if(sb && ME){ try{
     const [pr,ac]=await Promise.all([
       sb.from('profiles').select('is_master_admin').eq('id',ME.id).maybeSingle(),
       sb.from('tool_access').select('role').eq('user_id',ME.id).eq('tool_id','pm').maybeSingle()
     ]);
-    if((pr&&pr.data&&pr.data.is_master_admin)||(ac&&ac.data&&ac.data.role==='admin')) IS_ADMIN=true;
+    IS_MASTER = !!(pr&&pr.data&&pr.data.is_master_admin);
+    TOOL_ROLE = (ac&&ac.data&&ac.data.role)||null;
   }catch(e){} }
   const _meEmail=((ME&&ME.email)||'').toLowerCase();
-  if(!IS_ADMIN && ['pavan.k@eduhubspot.com','reachpavan02@gmail.com'].includes(_meEmail)) IS_ADMIN=true;
+  if(MASTER_EMAILS.indexOf(_meEmail)!==-1) IS_MASTER=true;
+  // Enforce what the launcher enforces: no PM grant + not master = no entry.
+  // (Opening pm.html directly must not bypass index.html's access check.)
+  if(!IS_MASTER && !TOOL_ROLE){ authError('You don\u2019t have access to Project Hub. Ask an admin to grant it in People & Access.'); return; }
+  if(IS_MASTER || TOOL_ROLE==='admin') IS_ADMIN=true;
+  // Seed an empty workspace — masters only (RLS blocks everyone else anyway).
+  if(IS_MASTER){
+    const {data:s0}=await sb.from('settings').select('workspace_id').eq('workspace_id',WS).maybeSingle();
+    if(!s0){ try{ await pushSeed(); }catch(e){ authError('Workspace seed failed: '+e.message); return; } }
+  }
   await fetchAll();
   const empty = !(store.data.statuses&&store.data.statuses.length);
   if(empty){ setTimeout(()=>toast('This workspace has no data yet — an admin needs to run seed.sql.'),400); }
@@ -5571,10 +5578,11 @@ async function loadWorkspace(){
   if(em){ const meta=(ME&&ME.user_metadata&&ME.user_metadata.full_name||'').trim(); const full=meta||em.split('@')[0].replace(/[._-]+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase()); const first=full.split(/\s+/)[0]; const an=document.getElementById('acctName'); if(an) an.textContent=full||'Account';
     const AVC=['#C2410C','#3B6FE0','#0E8F5A','#7C3AED','#B96A00','#0891B2','#BE185D']; let hh=0; for(const ch of em) hh=(hh*31+ch.charCodeAt(0))>>>0; const cc=AVC[hh%AVC.length];
     const av=document.getElementById('acctAv'); if(av){ av.textContent=(first[0]||'?').toUpperCase(); av.style.background=cc+'20'; av.style.border='1.5px solid '+cc; av.style.color=cc; }
-    const rl=document.getElementById('acctRole'); if(rl) rl.textContent=IS_ADMIN?'Master Admin':'Member';
+    const _roleLbl = IS_MASTER ? 'Master Admin' : (IS_ADMIN ? 'Admin' : 'Operator');
+    const rl=document.getElementById('acctRole'); if(rl) rl.textContent=_roleLbl;
     const pini=(full.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
     const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
-    setEl('apName',e=>e.textContent=full||'Account'); setEl('apEmail',e=>e.textContent=em); setEl('apRole',e=>e.textContent=IS_ADMIN?'Master Admin':'Member');
+    setEl('apName',e=>e.textContent=full||'Account'); setEl('apEmail',e=>e.textContent=em); setEl('apRole',e=>e.textContent=_roleLbl);
     setEl('apAv',e=>{e.textContent=pini;e.style.background=cc+'20';e.style.border='1.6px solid '+cc;e.style.color=cc;});
     setEl('apAdmin',e=>{e.style.display=IS_ADMIN?'':'none';}); }
   ensureSpaces(); renderAll(); subscribeRealtime(); wireSpaces(); restoreSpot();
@@ -5741,7 +5749,9 @@ function myUid(){
 }
 function canAccessSpace(sp){
   if(!sp) return false;
-  if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return true;   // workspace/master admins see all
+  // ONLY a real master admin sees every workspace. Being an admin of the PM tool
+  // does NOT grant access to workspaces you were not added to.
+  if(typeof IS_MASTER!=='undefined' && IS_MASTER) return true;
   const me=myUid(); if(!me) return false;                      // unknown identity → no access
   return (sp.members||[]).includes(me);
 }
@@ -6075,13 +6085,15 @@ async function boot(){
     const {data:{session}}=await sb.auth.getSession();
     if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
+    IS_MASTER=true;   // local/no-backend preview only: no auth to check against
     store.load(); applyDefaults(); applyPrefs(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot();
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
       setEl('acctAv',e=>{e.textContent=pini;e.style.background=cc+'20';e.style.border='1.5px solid '+cc;e.style.color=cc;});
-      setEl('acctRole',e=>e.textContent='Master Admin');
-      setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent='Master Admin');
+      const _lbl=(typeof IS_MASTER!=='undefined'&&IS_MASTER)?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Operator');
+      setEl('acctRole',e=>e.textContent=_lbl);
+      setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent=_lbl);
       setEl('apAv',e=>{e.textContent=pini;e.style.background=cc+'20';e.style.border='1.6px solid '+cc;e.style.color=cc;}); }
   }
   try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ console.warn('notif init', e); }
