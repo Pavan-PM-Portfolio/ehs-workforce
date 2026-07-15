@@ -197,7 +197,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ep-ti-edit{border:1px solid transparent;border-radius:6px !important;padding:2px 6px;margin:-2px -6px;outline:none;cursor:text}
 .ep-ti-edit:hover{border-color:var(--line)}
 .ep-ti-edit:focus{border-color:var(--accent);background:#fff}
-.ep-kebab{position:absolute;top:14px;right:16px;z-index:2;width:30px;height:30px;border-radius:8px !important;border:1px solid var(--ink);background:#fff;display:grid;place-items:center;cursor:pointer}
+.ep-kebab{position:absolute;top:0;right:0;z-index:2;width:30px;height:30px;border-radius:8px !important;border:0;background:none;color:var(--ink-2);display:grid;place-items:center;cursor:pointer}
 .ep-kebab:hover{background:var(--surface-2)}
 .ep-cmenu{position:fixed;z-index:500;background:#fff;border:1px solid var(--line);border-radius:11px !important;box-shadow:0 20px 50px -18px rgba(16,26,51,.4);padding:5px;min-width:176px;display:none}
 .ep-cmenu.on{display:block}
@@ -207,7 +207,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ep-cmenu button svg{width:15px;height:15px;flex:none}
 .ep-cmenu .sep{height:1px;background:var(--line-2);margin:4px 0}
 /* Create Epic modal */
-.epic-modal{width:760px;max-width:100%;display:flex;flex-direction:column;max-height:88vh}
+.epic-modal{width:760px;max-width:100%;display:flex;flex-direction:column;max-height:88vh;border-radius:14px !important;overflow:hidden}
 .epm-h{display:flex;align-items:center;justify-content:space-between}
 .epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
 .epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
@@ -1604,6 +1604,11 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-li-c{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .ehs-li.is-empty .ehs-li-n{color:var(--muted);font-weight:500}
 .ehs-li.is-danger .ehs-li-n{color:var(--crit)}
+.stx-roleseg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px !important;padding:2px;flex:none}
+.stx-roleseg button{border:0;background:none;font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);padding:5px 14px;border-radius:7px !important;cursor:pointer}
+.stx-roleseg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+.stx-rolechip{font-size:11px;font-weight:800;letter-spacing:.03em;padding:5px 11px;border-radius:999px !important;background:var(--accent-soft);color:var(--accent);flex:none;white-space:nowrap}
+.stx-rolechip.master{background:#1A1A1A;color:#fff}
 .ehs-rail-sep{height:1px;background:var(--line);margin:8px 11px}
 .ehs-rail-none{padding:16px 11px;font-size:12px;color:var(--muted);font-weight:500}
 .ehs-li-cb{width:14px;height:14px;flex:none;accent-color:var(--accent);cursor:pointer;margin:0}
@@ -1645,6 +1650,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-td-t{color:var(--ink);cursor:pointer}
 .ehs-td-t:hover{color:var(--accent)}
 .ehs-td-due{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink-2)}
+.ehs-td-as{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ehs-td-due.over{color:var(--crit);font-weight:700}
 .ehs-tbl-none{padding:26px;text-align:center;font-size:12.5px;color:var(--muted)}
 /* excel-style filter menu */
@@ -2680,7 +2686,7 @@ function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charC
 /* ============================================================
    VIEW STATE + RENDER
 ============================================================ */
-const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'productivity', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'', prRows:10, dlSel:null, dlQuery:'', piSel:null, piQuery:'', setSel:null,
+const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'productivity', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'', prRows:10, dlSel:null, dlQuery:'', piSel:null, piQuery:'', setSel:null, epSel:null, epQuery:'',
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
   depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
   listBoard:'all', listGroup:'none',
@@ -3233,19 +3239,26 @@ function renderEpics(){
   const wrap=document.getElementById('epicswrap');
   const epics=store.epics().filter(e=>ui.project==='all'||e.project===ui.project);
   const head=`<div class="ov-h"><h2>Epics</h2><button class="btn primary" id="epCreate" style="margin-left:auto">Create epic</button></div><div class="ep-sep"></div>`;
-  if(!epics.length){ wrap.innerHTML=head+`<div class="pl-card"><div class="pl-empty">No epics yet. Click “Create epic” to group related work.</div></div>`; document.getElementById('epCreate').onclick=openEpicModal; return; }
-  const catOf=k=>{ const s=store.status(k.status); return s?s.cat:'todo'; };
+  if(!epics.length){
+    wrap.innerHTML=head+`<div class="ehs-empty"><p>No epics yet. Group related work into one.</p><button class="ehs-btn ehs-btn--sm" id="epCreate2" type="button">Create epic</button></div>`;
+    document.getElementById('epCreate').onclick=openEpicModal;
+    const b2=document.getElementById('epCreate2'); if(b2) b2.onclick=openEpicModal;
+    return;
+  }
+  const catOf=k=>{ const x=store.status(k.status); return x?x.cat:'todo'; };
+  const rank=(a,b)=>{ const ra=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
+      if(t.status==='blocked') return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
+    return ra(a)-ra(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''); };
+
+  // one card per epic: top block untouched, ticket table underneath
   const cards=epics.map(e=>{
-    const st=epicStats(e.id); const kids=st.kids; const proj=(store.project(e.project)||{}).name||'';
+    const st=epicStats(e.id); const kids=st.kids;
+    const proj=(store.project(e.project)||{}).name||'';
     const inprog=kids.filter(k=>catOf(k)==='inprogress').length;
     const health=epicHealth(e,st); const dueTxt=e.due?fdate(e.due):'\u2014';
-    const rows=kids.map(k=>{ const s=store.status(k.status); const u=store.user(k.assignee); const cat=s?s.cat:'todo';
-      return `<div class="ep-trow" data-cat="${cat}">
-        <div class="ep-trow-top"><a class="ep-tnm" onclick="openPanel('${k.id}')">${esc(k.title)}</a><span class="ep-tstt">${s?esc(s.name):esc(k.status)}</span></div>
-        <div class="ep-tmeta">${u?`<span class="ep-tav" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span><span>${esc(u.name)}</span>`:'<span>Unassigned</span>'}</div>
-      </div>`; }).join('')||'<div class="ep-empty">No tickets yet. Add one to start.</div>';
-    return `<div class="ep-card" data-epic="${e.id}" data-tab="all" style="position:relative">
-      <button class="ep-kebab" data-epic="${e.id}" title="Epic options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+    const tbl=ehsTicketTable('ep:'+e.id, kids, rank);   // its own filter state per card
+    return `<div class="ep-card" data-epic="${e.id}" style="position:relative">
+      <button class="ep-kebab" data-epic="${e.id}" title="Epic options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
       <div class="ep-left">
         <div class="ep-head"><div class="ep-ti ep-ti-edit" contenteditable="true" spellcheck="false" data-epic="${e.id}">${esc(e.title)}</div><div class="ep-sub">${esc(e.key)}${proj?' \u00b7 '+esc(proj):''} \u00b7 ${e.estimate?e.estimate+' pts':(st.total+' ticket'+(st.total!==1?'s':''))}</div></div>
         <div class="ep-mid"><div class="ep-ring" style="background:conic-gradient(var(--accent) ${st.pct}%, var(--surface-3) 0)"><b>${st.pct}%</b></div>
@@ -3253,15 +3266,19 @@ function renderEpics(){
         <div class="ep-cards"><div class="ep-sc"><div class="v">${st.done}</div><div class="l">Done</div></div><div class="ep-sc"><div class="v">${inprog}</div><div class="l">In progress</div></div><div class="ep-sc"><div class="v">${dueTxt}</div><div class="l">Due date</div></div></div>
       </div>
       <div class="ep-right">
-        <div class="ep-rhead"><div class="ep-tabs"><button class="on" data-t="all">All</button><button data-t="todo">To Do</button><button data-t="inprogress">Active</button><button data-t="done">Done</button></div><button class="ep-add" data-epic="${e.id}">+ Add</button></div>
-        <div class="ep-list">${rows}</div>
+        <div class="ehs-sec-head" style="margin-bottom:10px"><span class="ehs-eyebrow">Tickets</span>
+          <span style="display:flex;align-items:center;gap:10px"><span class="ehs-eyebrow">${tbl.shown}${tbl.shown!==tbl.total?' of '+tbl.total:''}</span>
+          <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" data-addtk="${e.id}" type="button">Add ticket</button></span></div>
+        ${kids.length?tbl.html:'<p class="ehs-rail-none" style="padding:6px 0">No tickets yet. Add one to start.</p>'}
       </div>
     </div>`;
   }).join('');
+
   wrap.innerHTML=head+`<div class="ep-wrap">${cards}</div>`;
-  wrap.querySelectorAll('.ep-card').forEach(card=>{
-    card.querySelectorAll('.ep-tabs button').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); card.dataset.tab=b.dataset.t; card.querySelectorAll('.ep-tabs button').forEach(x=>x.classList.toggle('on',x===b)); });
-  });
+  document.getElementById('epCreate').onclick=openEpicModal;
+  wireEhsTable(wrap, renderEpics);
+  wrap.querySelectorAll('[data-addtk]').forEach(b=>b.onclick=ev=>{ ev.stopPropagation();
+    const ep=store.task(b.dataset.addtk); openModal(null, b.dataset.addtk, ep?ep.project:null); });
   wrap.querySelectorAll('.ep-ti-edit').forEach(ti=>{
     const save=()=>{ const eid=ti.dataset.epic; const nv=ti.textContent.trim(); const ep=store.task(eid);
       if(ep && nv && nv!==ep.title){ store.updateTask(eid,{title:nv}); toast('Epic renamed'); }
@@ -3271,8 +3288,6 @@ function renderEpics(){
       if(ev.key==='Escape'){ const ep=store.task(ti.dataset.epic); if(ep) ti.textContent=ep.title; ti.blur(); } };
   });
   wrap.querySelectorAll('.ep-kebab').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); openEpicMenu(b.dataset.epic, b); });
-  wrap.querySelectorAll('.ep-add').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); const eid=b.dataset.epic; const ep=store.task(eid); openModal(null, eid, ep?ep.project:null); });
-  document.getElementById('epCreate').onclick=openEpicModal;
 }
 
 /* ---------- Epic options menu ---------- */
@@ -4523,7 +4538,12 @@ let editProfile='pf_users';
 let editUser=null;
 let settingsTab='general';
 let umLastMsg=null;
-function permOf(u){ return u.perm || (u.role==='PM'?'Admin' : u.role==='Developer'?'Developer' : u.role==='Viewer'?'Viewer' : 'User'); }
+function permOf(u){
+  if(!u) return 'User';
+  if(u.master) return 'Admin';                                   // master admins: set in the launcher
+  if(u.toolRole) return u.toolRole==='admin' ? 'Admin' : 'User'; // tool_access is authoritative
+  return u.perm || (u.role==='PM'?'Admin' : u.role==='Developer'?'Developer' : u.role==='Viewer'?'Viewer' : 'User');
+}
 function resetPassword(email){ if(!email){ toast('No email on file for this member'); return; }
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
@@ -4580,11 +4600,23 @@ async function syncSuitePeople(){
       const master=!!p.is_master_admin, r=accMap[p.id];
       if(!master && !r) return;                                   // no PM access → not our concern
       const em=(p.email||'').toLowerCase();
-      if(have.some(u=>u.authId===p.id || (u.email && em && u.email.toLowerCase()===em))) return;
+      const existing=have.find(u=>u.authId===p.id || (u.email && em && u.email.toLowerCase()===em));
+      if(existing){
+        // Re-sync the role from the suite. Without this, a person carrying the old
+        // perm:'Admin' would keep admin capabilities even after being set to User.
+        const want=(r||(master?'admin':'user'));
+        if(existing.toolRole!==want || !!existing.master!==master){
+          existing.toolRole=want; existing.master=master;
+          existing.perm = (master||want==='admin') ? 'Admin' : 'User';
+          existing.profile = (master||want==='admin') ? 'pf_admin' : 'pf_users';
+          rows.push({workspace_id:WS, id:existing.id, doc:existing});
+        }
+        return;
+      }
       const nm=p.full_name || (p.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) || 'Teammate';
       const isAdmin = master || r==='admin';
       const doc={ id:'u_'+String(p.id).slice(0,8), name:nm, email:p.email||'', authId:p.id,
-        role:isAdmin?'PM':'Developer', perm:isAdmin?'Admin':'User',
+        role:isAdmin?'PM':'Developer', perm:isAdmin?'Admin':'User', toolRole:(r||(master?'admin':'user')),
         profile:isAdmin?'pf_admin':'pf_users', master:master,
         color:SWATCHES[((have.length+rows.length)*2)%SWATCHES.length], prefs:{} };
       rows.push({workspace_id:WS, id:doc.id, doc});
@@ -4698,7 +4730,12 @@ function renderSettings(){
           <h3>Pick a teammate to begin</h3><p>Their field-level Read / Edit / Hide permissions and workspace access will appear here.</p></div>
       </div>`;
     } else {
-      const isAdm=permOf(eu)==='Admin'; const roleLbl=isAdm?'Admin':(isMasterUser(eu)?'Master':'User');
+      // Their PM role comes from tool_access (mirrored onto the person record by
+      // syncSuitePeople). Master admins are set in the launcher and can't be
+      // changed from here.
+      const euMaster=isMasterUser(eu)||!!eu.master;
+      const isAdm=euMaster||eu.toolRole==='admin'||permOf(eu)==='Admin';
+      const roleLbl=euMaster?'Master Admin':(isAdm?'Admin':'Member');
       const fp=Object.assign({}, (s.fieldPerms&&s.fieldPerms[editUser])||{}); STX_FALL.forEach(k=>{ if(!fp[k]) fp[k]='edit'; });
       // seed this teammate's capability record from their role defaults on first view (so toggles reflect a sensible baseline and merges are safe)
       let up=(s.userPerms&&s.userPerms[editUser]);
@@ -4712,14 +4749,18 @@ function renderSettings(){
       access=`<div class="stx-sec">
         <div class="stx-head">${avatar(eu,48)}<div class="stx-id"><div class="nm">${esc(eu.name)}</div><div class="em">${esc(eu.email||'—')}</div></div><span class="stx-role">${roleLbl}</span>
           <div class="stx-pick"><select id="stxUser"><option value="">Select a teammate…</option>${umUsers.filter(u=>u.id!==CURRENT_UID).map(u=>`<option value="${u.id}" ${u.id===editUser?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div></div>
-        <div class="stx-card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div><div class="stx-acc-t">Full admin</div><div class="stx-acc-d">Sees &amp; manages every workspace, and bypasses every action and field limit below.</div></div><button class="stx-tgl ${isAdm?'on':''}" id="stxAdmin"></button></div></div>
+        <div class="stx-card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:14px"><div><div class="stx-acc-t">Project Hub role</div><div class="stx-acc-d">${euMaster
+          ? 'This teammate is a <b>Master Admin</b> \u2014 set in the EHS Workspace launcher. They see and manage everything, everywhere. Only another Master Admin can change that.'
+          : '<b>Admin</b> manages every workspace here and bypasses the limits below. <b>User</b> gets exactly what you grant. This only affects the Project Hub \u2014 it never grants Master Admin.'}</div></div>
+        ${euMaster?'<span class="stx-rolechip master">Master Admin</span>'
+          :`<div class="stx-roleseg"><button type="button" class="${isAdm?'':'on'}" data-role="user">User</button><button type="button" class="${isAdm?'on':''}" data-role="admin">Admin</button></div>`}</div></div>
         <div${dim}>${wsBlocks}
           ${modBlocks}
           <div class="stx-lbl" style="margin-top:20px">Actions</div><div class="stx-note">What this teammate can do across the Hub.</div>${actionBlocks}
           <div class="stx-lbl" style="margin-top:20px">Field permissions</div><div class="stx-note">Per-field visibility on the card and detail panel.</div>
           <div class="stx-bulk"><span class="lbl">Quick set all fields</span><button class="stx-mini" data-bulk="hide">Hide</button><button class="stx-mini" data-bulk="read">Read</button><button class="stx-mini" data-bulk="edit">Edit</button><span class="sp"></span><button class="stx-ghost" data-bulk="edit">Reset to full access</button></div>
           ${fieldBlocks}</div>
-        ${isAdm?'<div class="stx-note" style="margin-top:12px">This teammate is a full admin — field limits don\u2019t apply. Turn off Full admin to restrict specific fields.</div>':''}
+        ${isAdm?'<div class="stx-note" style="margin-top:12px">Admins bypass every limit below — set the role to <b>User</b> to restrict specific fields.</div>':''}
       </div>`;
     }
   }
@@ -4781,8 +4822,36 @@ function renderSettings(){
   });
   // teammate picker
   if(_g('stxUser')) _g('stxUser').onchange=e=>{ editUser=e.target.value||null; renderSettings(); };
-  // full admin
-  if(_g('stxAdmin')) _g('stxAdmin').onclick=()=>{ const on=!_g('stxAdmin').classList.contains('on'); store.updateUser(editUser,{perm:on?'Admin':''}); toast(on?'Granted full admin access':'Admin access removed'); renderAll(); renderSettings(); };
+  // Project Hub role. Writes tool_access through the admin-user Edge Function —
+  // it can only ever set 'admin' or 'user' for THIS tool, never Master Admin.
+  el.querySelectorAll('.stx-roleseg button').forEach(b=>b.onclick=async()=>{
+    const role=b.dataset.role, eu=store.user(editUser);
+    if(!eu) return;
+    if(isMasterUser(eu)||eu.master){ toast('Master Admins are managed in the EHS Workspace launcher'); return; }
+    if(!IS_ADMIN){ toast('Only a Project Hub admin can change roles'); return; }
+    const prev=eu.toolRole||(permOf(eu)==='Admin'?'admin':'user');
+    if(prev===role) return;
+    // reflect locally first so the UI responds, then persist
+    store.updateUser(editUser,{ toolRole:role, perm: role==='admin'?'Admin':'User',
+                                profile: role==='admin'?'pf_admin':'pf_users' });
+    renderSettings();
+    if(typeof sb!=='undefined' && sb && eu.authId){
+      try{
+        const {data:{session}}=await sb.auth.getSession();
+        const res=await fetch(SUPABASE_URL+'/functions/v1/admin-user',{ method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(session?session.access_token:'')},
+          body:JSON.stringify({action:'grant_access', user_id:eu.authId, tool_id:'pm', role}) });
+        const out=await res.json().catch(()=>({}));
+        if(!res.ok) throw new Error(out.error||('grant failed ('+res.status+')'));
+        toast(role==='admin'?'Now a Project Hub admin':'Now a Project Hub user');
+      }catch(err){
+        store.updateUser(editUser,{ toolRole:prev, perm: prev==='admin'?'Admin':'User',
+                                    profile: prev==='admin'?'pf_admin':'pf_users' });
+        renderSettings();
+        toast('Could not change role: '+(err.message||err));
+      }
+    } else { toast(role==='admin'?'Now a Project Hub admin':'Now a Project Hub user'); }
+  });
   // field Read/Edit/Hide
   el.querySelectorAll('.stx-seg button').forEach(btn=>btn.onclick=()=>{ const fk=btn.dataset.fp, v=btn.dataset.v; const fpm=Object.assign({}, s.fieldPerms||{}); const rec=Object.assign({}, fpm[editUser]||{}); rec[fk]=v; fpm[editUser]=rec; store.updateSettings({fieldPerms:fpm}); const seg=btn.parentElement; seg.querySelectorAll('button').forEach(b=>b.className=''); btn.className='on '+v; });
   // bulk set
@@ -5161,11 +5230,12 @@ function renderProjects(){
   const cnt=st=>scoped.filter(k=>k.status===st).length;
   const sReview=scoped.filter(k=>k.status==='review'||k.status==='qa'||k.status==='pmreview').length;
   const sHp=scoped.filter(k=>k.priority==='Highest').length;
+  // Strip = volume by status. Detail grid = what needs attention.
+  // Blocked / High priority moved to the detail, so nothing is counted twice.
   const cells=[];
   if(isAll) cells.push([scoped.length,'Total tickets']);
-  cells.push([cnt('backlog'),'Backlog'],[cnt('indev'),'In development'],[sReview,'In review'],
-             [cnt('done'),'Completed'],[cnt('blocked'),'Blocked'],
-             [sHp,'High priority',sHp===0,sHp?'is-hot':'']);
+  cells.push([cnt('backlog'),'Backlog'],[cnt('indev'),'In development'],
+             [sReview,'In review'],[cnt('done'),'Completed']);
   const ov=`<section class="ehs-overview">
     <div class="ehs-ov-lead">
       <span class="ehs-ov-n">${isAll?projects.length:scoped.length}</span>
@@ -5824,8 +5894,10 @@ function tblValues(ns,col){
   return [...seen].sort((a,b)=>a.localeCompare(b));
 }
 function tblMake(t){
+  const u=store.user(t.assignee);
   return { t, id:t.id, key:t.key||'', title:t.title||'',
            due:t.due||'', dueTxt:t.due?fdate(t.due):'\u2014',
+           assignee: u?u.name:'Unassigned',
            status:(store.status(t.status)||{}).name||t.status||'' };
 }
 function ehsTicketTable(ns, tasks, rankFn){
@@ -5846,12 +5918,13 @@ function ehsTicketTable(ns, tasks, rankFn){
   const body=rows.map(r=>`<tr>
       <td><span class="ehs-td-k" onclick="openPanel('${r.id}')">${esc(r.key)}</span></td>
       <td><span class="ehs-td-t" title="${esc(r.title)}" onclick="openPanel('${r.id}')">${esc(r.title)}</span></td>
-      <td><span class="ehs-td-due ${(r.due && r.due<_td && open(r.t))?'over':''}">${esc(r.dueTxt)}</span></td>
-      <td>${ehsSt(r.t.status)}</td></tr>`).join('');
+      <td><span class="ehs-td-as">${r.t.assignee?avatar(store.user(r.t.assignee),18):''}${esc(r.assignee)}</span></td>
+      <td>${ehsSt(r.t.status)}</td>
+      <td><span class="ehs-td-due ${(r.due && r.due<_td && open(r.t))?'over':''}">${esc(r.dueTxt)}</span></td></tr>`).join('');
   const html=`<div class="ehs-tbl-wrap"><div class="ehs-tbl-scroll">
       <table class="ehs-tbl"><thead><tr>
-        ${th('key','Ticket','132px')}${th('title','Title','auto')}${th('due','Due date','126px')}${th('status','Status','156px')}
-      </tr></thead><tbody>${body||`<tr><td colspan="4" class="ehs-tbl-none">No tickets match these filters.</td></tr>`}</tbody></table>
+        ${th('key','Ticket','128px')}${th('title','Title','auto')}${th('assignee','Assignee','168px')}${th('status','Status','150px')}${th('due','Due date','120px')}
+      </tr></thead><tbody>${body||`<tr><td colspan="5" class="ehs-tbl-none">No tickets match these filters.</td></tr>`}</tbody></table>
     </div></div>`;
   return {html, shown:rows.length, total:_tblRows[ns].length};
 }
@@ -6075,7 +6148,7 @@ async function openAccountPM(){
     <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccountPM()">✕</button></div>
     <div class="acd-head">${avatar({name:name}, 52)}
       <div class="acd-id"><div class="nm">${esc(name)}</div><div class="em">${esc(email||'—')}</div>
-        <span class="acd-role ${master?'master':''}">${master?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Operator')}</span></div></div>
+        <span class="acd-role ${master?'master':''}">${master?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Member')}</span></div></div>
     <div class="acd-body">
       <div class="acd-sec"><div class="acd-lbl">Your access</div><div class="acd-mods">${access}</div></div>
       <div class="acd-sec"><div class="acd-lbl">Workspace</div>
@@ -6398,14 +6471,17 @@ async function loadWorkspace(){
       else console.warn('people provision failed', error.message);
     }catch(e){ console.warn('people provision failed', e); }
   }
-  try{ const _me=meUser(); if(_me && permOf(_me)==='Admin') IS_ADMIN=true; }catch(e){}
+  // Admin comes ONLY from the suite: master flag, or tool_access(pm).role='admin'.
+  // It used to also come from people.doc.perm — which the PM "Full admin" toggle
+  // wrote — so a PM *user* could be handed full admin from inside this tool,
+  // bypassing tool_access entirely. That toggle is gone; this promotion goes too.
   applyRole();
   document.getElementById('authScreen').style.display='none';
   const em=(ME&&ME.email)||''; const ae=document.getElementById('acctEmail'); if(ae) ae.textContent=em||'Signed in';
   if(em){ const meta=(ME&&ME.user_metadata&&ME.user_metadata.full_name||'').trim(); const full=meta||em.split('@')[0].replace(/[._-]+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase()); const first=full.split(/\s+/)[0]; const an=document.getElementById('acctName'); if(an) an.textContent=full||'Account';
     const AVC=['#C2410C','#3B6FE0','#0E8F5A','#7C3AED','#B96A00','#0891B2','#BE185D']; let hh=0; for(const ch of em) hh=(hh*31+ch.charCodeAt(0))>>>0; const cc=AVC[hh%AVC.length];
     /* account glyph is a neutral person icon — no initials, no per-person tint */
-    const _roleLbl = IS_MASTER ? 'Master Admin' : (IS_ADMIN ? 'Admin' : 'Operator');
+    const _roleLbl = IS_MASTER ? 'Master Admin' : (IS_ADMIN ? 'Admin' : 'Member');
     const rl=document.getElementById('acctRole'); if(rl) rl.textContent=_roleLbl;
     const pini=(full.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
     const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
@@ -6944,7 +7020,7 @@ async function boot(){
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
       /* account glyph is static — initials/tint no longer applied here */
-      const _lbl=(typeof IS_MASTER!=='undefined'&&IS_MASTER)?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Operator');
+      const _lbl=(typeof IS_MASTER!=='undefined'&&IS_MASTER)?'Master Admin':((typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?'Admin':'Member');
       setEl('acctRole',e=>e.textContent=_lbl);
       setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent=_lbl);
       /* account panel uses the same neutral person glyph */ }
