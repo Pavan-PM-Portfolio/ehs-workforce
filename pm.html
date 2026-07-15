@@ -1573,9 +1573,12 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-btn--sm{padding:7px 12px;font-size:12px}
 .ehs-overview{border:1px solid var(--ink);border-radius:8px !important;padding:18px 24px;margin-bottom:22px;display:flex;align-items:center;gap:28px}
 .ehs-ov-lead{padding-right:28px;border-right:1px solid var(--line);flex:none}
-.ehs-ov-cells{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:1;min-width:0}
-.ehs-ov-cell{flex:0 0 auto}
+.ehs-ov-cells{display:flex;align-items:center;gap:16px;flex:1;min-width:0}
+.ehs-ov-cell{flex:1 1 0;min-width:0}
 .ehs-ov-cell:last-child{text-align:right}
+.ehs-ov-cell.is-hot .ehs-ov-n{color:var(--crit)}
+.ehs-ov-cell.is-hot .ehs-ov-l{color:var(--crit)}
+.ehs-d-sub b.hot{color:var(--crit)}
 .ehs-ov-n{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums;display:block}
 .ehs-ov-lead .ehs-ov-n{font-size:32px}
 .ehs-ov-n .u{font-size:15px;color:var(--muted);font-weight:700}
@@ -1633,7 +1636,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 @media(max-width:900px){.ehs-cols2{grid-template-columns:1fr}}
 .ehs-empty{border:1px dashed var(--line);border-radius:6px !important;padding:36px 24px;text-align:center;background:var(--surface-2)}
 .ehs-empty p{font-size:13px;color:var(--ink-2);margin:0 0 14px;font-weight:500}
-@media(max-width:1100px){ .ehs-ov-cells{display:grid;grid-template-columns:repeat(5,1fr);gap:18px 20px} .ehs-ov-cell:last-child{text-align:left} .ehs-d-stats--5{grid-template-columns:repeat(3,1fr)} }
+@media(max-width:1100px){ .ehs-ov-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 20px} .ehs-ov-cell:last-child{text-align:left} .ehs-d-stats--5{grid-template-columns:repeat(3,1fr)} }
 @media(max-width:820px){
   .ehs-pane{grid-template-columns:1fr;min-height:0}
   .ehs-rail{border-right:0;border-bottom:1px solid var(--line)}
@@ -5016,8 +5019,8 @@ function ehsAge(t){
   const n=Math.max(0,Math.round((new Date(today())-new Date(String(d).slice(0,10)))/864e5));
   return n+'d';
 }
-function ehsOvCell(n,l,zero){
-  return `<div class="ehs-ov-cell${zero?' is-zero':''}"><span class="ehs-ov-n">${n}</span><span class="ehs-ov-l">${esc(l)}</span></div>`;
+function ehsOvCell(n,l,zero,cls){
+  return `<div class="ehs-ov-cell${zero?' is-zero':''}${cls?' '+cls:''}"><span class="ehs-ov-n">${n}</span><span class="ehs-ov-l">${esc(l)}</span></div>`;
 }
 function ehsSearchBox(id,ph,val){
   return `<div class="ehs-rail-top"><div class="ehs-search">
@@ -5036,13 +5039,11 @@ function renderProjects(){
   const cnt=st=>allK.filter(k=>k.status===st).length;
   const ovReview=allK.filter(k=>k.status==='review'||k.status==='qa'||k.status==='pmreview').length;
   const ovHp=allK.filter(k=>k.priority==='Highest').length;
-  const _sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
-  const ovHrs=Math.round((store.data.worklogs||[]).filter(w=>{const t=store.task(w.task);return t&&(t.ws||'ws_main')===_sp;}).reduce((a,w)=>a+(w.min||0),0)/60);
   const cells=[[allK.length,'Total tickets'],[cnt('backlog'),'Backlog'],[cnt('indev'),'In development'],
-    [ovReview,'In review'],[cnt('done'),'Completed'],[cnt('blocked'),'Blocked'],[ovHp,'High priority'],[ovHrs+'h','Logged',ovHrs===0]];
+    [ovReview,'In review'],[cnt('done'),'Completed'],[cnt('blocked'),'Blocked'],[ovHp,'High priority',ovHp===0,ovHp?'is-hot':'']];
   const ov=`<section class="ehs-overview">
     <div class="ehs-ov-lead"><span class="ehs-ov-n">${projects.length}</span><span class="ehs-ov-l">Total projects</span></div>
-    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0)).join('')}</div>
+    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0,c[3])).join('')}</div>
   </section>`;
 
   const head=`<div class="ehs-page-head"><h1>Projects</h1><button class="ehs-btn" id="prAddProj" type="button">Add project</button></div>`;
@@ -5066,14 +5067,13 @@ function renderProjects(){
   // ---- detail ----
   const p=store.project(ui.pjSel);
   const kids=kidsOf(p.id);
-  const mins=(store.data.worklogs||[]).filter(w=>{const t=store.task(w.task);return t&&t.project===p.id;}).reduce((a,w)=>a+(w.min||0),0);
   const hp=kids.filter(k=>k.priority==='Highest').length;
   const sts=store.statuses();
   let stats=sts.map(st=>{ const n=kids.filter(k=>k.status===st.id).length;
     return `<div class="ehs-d-stat${n?'':' is-zero'}"><b>${n}</b><span>${esc(st.name)}</span></div>`; }).join('');
 
   const dHead=`<div class="ehs-d-head"><div><h2>${esc(p.name)}</h2>
-      <p class="ehs-d-sub"><b>${kids.length}</b> ticket${kids.length===1?'':'s'} \u00b7 <b>${Math.round(mins/60)}h</b> logged${hp?` \u00b7 <b>${hp}</b> high priority`:''} \u00b7 <b>${esc(p.key)}</b></p></div>
+      <p class="ehs-d-sub"><b>${kids.length}</b> ticket${kids.length===1?'':'s'}${hp?` \u00b7 <b class="hot">${hp}</b> high priority`:''} \u00b7 <b>${esc(p.key)}</b></p></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prNewTk" type="button">New ticket</button>
       <div class="pp-menu-wrap"><button class="ehs-kebab" id="pjKebab" type="button" title="Project options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
