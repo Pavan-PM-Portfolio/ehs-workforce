@@ -2652,10 +2652,8 @@ function fInPeriod(dateStr, ref){
   if(per==='all') return true;
   if(per==='custom'){ if(!f.from||!f.to) return true; return !!dateStr && dateStr>=f.from && dateStr<=f.to; }
   if(!dateStr) return false;
-  const r=Date.parse(ref), d=Date.parse(dateStr);
-  if(per==='today') return dateStr===ref;
-  if(per==='week') return d>=r-6*86400000 && d<=r;
-  if(per==='month') return dateStr.slice(0,7)===ref.slice(0,7);
+  const pr=periodRange(per, ref);
+  if(pr) return dateStr>=pr.from && dateStr<=pr.to;
   return true;
 }
 function tInPeriod(t, ref){
@@ -3586,11 +3584,11 @@ function openPanel(id, keepScroll){
 function closePanel(){ ui.openTask=null; document.getElementById('panel').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); }
 
 /* ---------- Deployment tracker ---------- */
-function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; if(!t.deployedAt) return false; const d=new Date(t.deployedAt); const now=new Date();
-  if(f.mode==='today') return d.toDateString()===now.toDateString();
-  if(f.mode==='week'){ const s=new Date(now); const day=(s.getDay()+6)%7; s.setDate(s.getDate()-day); s.setHours(0,0,0,0); return d>=s; }
-  if(f.mode==='month') return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-  if(f.mode==='custom'){ const from=f.from?new Date(f.from+'T00:00:00'):null; const to=f.to?new Date(f.to+'T23:59:59'):null; if(from&&d<from) return false; if(to&&d>to) return false; return true; }
+function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; if(!t.deployedAt) return false;
+  const ds=String(t.deployedAt).slice(0,10);
+  const pr=periodRange(f.mode);
+  if(pr) return ds>=pr.from && ds<=pr.to;
+  if(f.mode==='custom'){ if(f.from && ds<f.from) return false; if(f.to && ds>f.to) return false; return true; }
   return true; }
 function renderDeployments(){
   const el=document.getElementById('deploymentswrap'); if(!el) return;
@@ -4162,13 +4160,33 @@ function renderSideCard(){
   const nb=document.getElementById('scNew'); if(nb) nb.onclick=openModal;
 }
 
+/* ---------- period maths — ONE definition, used by every period filter ----------
+   Today = today.  Week = Monday .. Sunday of the current week.  Month = 1st .. last
+   of the current calendar month. (Week/Month used to be rolling "last 7/30 days".)
+   Dates are built from local parts, never toISOString(), which would shift the day
+   for anyone east/west of UTC — Asia/Kolkata included. */
+function _isoLocal(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function periodRange(per, ref){
+  const base = ref ? new Date(ref+'T00:00:00') : new Date();
+  if(per==='today'){ const t=_isoLocal(base); return {from:t, to:t, label:'Today'}; }
+  if(per==='week'){
+    const s=new Date(base); const dow=(s.getDay()+6)%7;      // 0=Mon … 6=Sun
+    s.setDate(s.getDate()-dow);
+    const e=new Date(s); e.setDate(s.getDate()+6);
+    return {from:_isoLocal(s), to:_isoLocal(e), label:'This week'};
+  }
+  if(per==='month'){
+    const s=new Date(base.getFullYear(), base.getMonth(), 1);
+    const e=new Date(base.getFullYear(), base.getMonth()+1, 0);
+    return {from:_isoLocal(s), to:_isoLocal(e), label:'This month'};
+  }
+  return null;
+}
 /* ---------- Overview dashboard ---------- */
 function ovWindow(){
   const iso=d=>d.toISOString().slice(0,10); const today=new Date(); const to=iso(today);
   const per=ui.ovRange||'all';
-  if(per==='today') return {from:to,to,label:'Today'};
-  if(per==='week'){ const d=new Date(today); d.setDate(d.getDate()-6); return {from:iso(d),to,label:'Last 7 days'}; }
-  if(per==='month'){ const d=new Date(today); d.setDate(d.getDate()-29); return {from:iso(d),to,label:'Last 30 days'}; }
+  const pr=periodRange(per); if(pr) return pr;
   if(per==='custom'){ const f=ui.ovFrom||to, t=ui.ovTo||to; return {from:f<t?f:t,to:f<t?t:f,label:fdate(f<t?f:t)+' \u2013 '+fdate(f<t?t:f)}; }
   // 'all' — span from the earliest ticket/worklog we have
   const ds=[]; (store.data.tasks||[]).forEach(t=>{ if(t.createdAt) ds.push(t.createdAt); });
@@ -5435,10 +5453,8 @@ function anInPeriod(ds){
   if(per==='all'||!per) return true;
   if(per==='custom'){ if(!ui.anFrom||!ui.anTo) return true; return !!ds && ds>=ui.anFrom && ds<=ui.anTo; }
   if(!ds) return false;
-  const r=Date.parse(_anRef), d=Date.parse(ds);
-  if(per==='today') return ds===_anRef;
-  if(per==='week') return d>=r-6*86400000 && d<=r;
-  if(per==='month') return ds.slice(0,7)===_anRef.slice(0,7);
+  const pr=periodRange(per, _anRef);
+  if(pr) return ds>=pr.from && ds<=pr.to;
   return true;
 }
 function anActive(t){ return anInPeriod(t.createdAt) || anInPeriod(t.resolvedAt) || store.worklogs(t.id).some(w=>anInPeriod(w.date)); }
