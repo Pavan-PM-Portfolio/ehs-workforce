@@ -2641,10 +2641,9 @@ function allowedTargets(b, from){ return (b.transitions&&b.transitions[from])||[
 function canMove(b, from, to){ if(from===to) return true; if(!b.enforce) return true; return allowedTargets(b, from).includes(to); }
 
 function boardRef(){
-  const ds=[];
-  store.data.tasks.forEach(t=>{ if(t.createdAt)ds.push(t.createdAt); if(t.updatedAt)ds.push(t.updatedAt); if(t.resolvedAt)ds.push(t.resolvedAt); });
-  store.data.worklogs.forEach(w=>{ if(w.date)ds.push(w.date); });
-  ds.sort(); return ds.length?ds[ds.length-1]:today();
+  // Real today — NOT the newest date in the data. Anchoring to the dataset made
+  // "Today" mean whatever the latest ticket said, which hid today's actual work.
+  return today();
 }
 function fInPeriod(dateStr, ref){
   const f=ui.filters, per=f.period||'all';
@@ -5463,9 +5462,10 @@ function renderAnalytics(){
   const scope = ui.project==='all' ? store.standardTasks() : store.standardTasks().filter(t=>t.project===ui.project);
   const ids=scope.map(t=>t.id);
   const logs=store.data.worklogs.filter(w=>ids.includes(w.task));
-  // reference "now" = latest activity date in scope (so relative filters work on the dataset)
-  const dates=[...logs.map(w=>w.date), ...scope.map(t=>t.createdAt), ...scope.map(t=>t.resolvedAt)].filter(Boolean).sort();
-  _anRef = dates.length ? dates[dates.length-1] : today();
+  // Reference "now" is the REAL today. It used to be the latest activity date in the
+  // dataset, so a single future-dated ticket silently moved "Today" to that future
+  // day and hid everything actually logged today.
+  _anRef = today();
   const resolved=scope.filter(t=>t.resolvedAt);
 
   // period-scoped figures
@@ -5494,7 +5494,7 @@ function renderAnalytics(){
   else section=anProductivity(scope, logs);
 
   el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><h2>Dashboards</h2>${periodBar}</div>
-    <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${(!ui.anPeriod||ui.anPeriod==='all')?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):'anchored to '+fdate(_anRef))}</div>
+    <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${(!ui.anPeriod||ui.anPeriod==='all')?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):(function(){const r=periodRange(ui.anPeriod);return r?(r.from===r.to?fdate(r.from):fdate(r.from)+' – '+fdate(r.to)):'';})())}</div>
     ${ui.analyticsTab==='productivity'?'':kpis}<div id="anSection">${section}</div>`;
   el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
   // two-pane rail (Productivity): All users / pick one / tick several
