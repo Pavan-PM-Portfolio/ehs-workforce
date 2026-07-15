@@ -1223,7 +1223,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-card h3{font-size:13.5px;font-weight:600;margin:0 0 3px}
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
 /* overview hover popover */
-body[data-view="overview"] #newTaskBtn{display:none !important}
+body[data-view="overview"] #newTaskBtn,body[data-view="analytics"] #newTaskBtn{display:none !important}
 [data-pop]{cursor:pointer}
 .sb-kpi[data-pop]:hover,.ov-leg[data-pop]:hover,.hbar-row[data-pop]:hover{background:var(--surface-2)}
 .ovpop{position:fixed;width:322px;background:#fff;border:1px solid var(--line);border-radius:13px !important;box-shadow:0 26px 60px -22px rgba(16,26,51,.42);z-index:400;overflow:hidden;display:none}
@@ -1603,6 +1603,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-li.is-empty .ehs-li-n{color:var(--muted);font-weight:500}
 .ehs-rail-sep{height:1px;background:var(--line);margin:8px 11px}
 .ehs-rail-none{padding:16px 11px;font-size:12px;color:var(--muted);font-weight:500}
+.ehs-li-cb{width:14px;height:14px;flex:none;accent-color:var(--accent);cursor:pointer;margin:0}
+.ehs-li-all .ehs-li-n{font-weight:700}
 .ehs-detail{padding:24px;min-width:0}
 .ehs-d-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .ehs-d-head h2{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:0}
@@ -2627,7 +2629,7 @@ function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charC
 /* ============================================================
    VIEW STATE + RENDER
 ============================================================ */
-const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'',
+const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'',
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
   depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
   listBoard:'all', listGroup:'none',
@@ -5480,8 +5482,18 @@ function renderAnalytics(){
     <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${(!ui.anPeriod||ui.anPeriod==='all')?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):'anchored to '+fdate(_anRef))}</div>
     ${ui.analyticsTab==='productivity'?'':kpis}<div id="anSection">${section}</div>`;
   el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
-  // two-pane rail (Productivity): select a person / search
-  el.querySelectorAll('#prRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.prSel=b.dataset.id; renderAnalytics(); });
+  // two-pane rail (Productivity): All users / pick one / tick several
+  el.querySelectorAll('#prRail .ehs-li[data-all]').forEach(b=>b.onclick=()=>{ ui.prSel=[]; renderAnalytics(); });
+  el.querySelectorAll('#prRail .ehs-li[data-id]').forEach(b=>b.onclick=e=>{
+    if(e.target.classList.contains('ehs-li-cb')) return;      // checkbox handles itself
+    ui.prSel=[b.dataset.id]; renderAnalytics(); });
+  el.querySelectorAll('#prRail .ehs-li-cb').forEach(cb=>cb.onclick=e=>{
+    e.stopPropagation();
+    const id=cb.dataset.cb; const cur=Array.isArray(ui.prSel)?ui.prSel.slice():[];
+    const i=cur.indexOf(id); if(i>=0) cur.splice(i,1); else cur.push(id);
+    ui.prSel=cur; renderAnalytics(); });
+  const _clr=document.getElementById('prClearSel');
+  if(_clr) _clr.onclick=()=>{ ui.prSel=[]; renderAnalytics(); };
   const _prS=document.getElementById('prSearch');
   if(_prS) _prS.oninput=()=>{ ui.prQuery=_prS.value; const at=_prS.selectionStart; renderAnalytics();
     const n=document.getElementById('prSearch'); if(n){ n.focus(); try{ n.setSelectionRange(at,at); }catch(e){} } };
@@ -5573,51 +5585,64 @@ function anProductivity(scope, logs){
   const totalTasks=allTasks.size, totalClosed=[...allTasks].filter(isDone).length;
   const totalEntries=Object.values(entries).reduce((x,n)=>x+n,0);
 
-  const cells=[[ranked.length,'Active agents'],[totalTasks,'Tickets worked'],[totalClosed,'Closed'],
-    [totalTasks-totalClosed,'Pending'],[totalEntries,'Log entries'],
-    [(totalTasks?Math.round(totalClosed/totalTasks*100):0)+'%','Close rate', totalTasks===0]];
+  // ---- overview strip: tickets first, then time ----
+  const cells=[[(totalMin/60).toFixed(0)+'<span class="u">h</span>','Time logged',totalMin===0],
+    [totalTasks-totalClosed,'Tickets open'],[totalClosed,'Tickets closed'],
+    [ranked.length,'Active agents'],[totalEntries,'Log entries'],
+    [(totalTasks?Math.round(totalClosed/totalTasks*100):0)+'%','Close rate',totalTasks===0]];
   const ov=`<section class="ehs-overview">
-    <div class="ehs-ov-lead"><span class="ehs-ov-n">${(totalMin/60).toFixed(0)}<span class="u">h</span></span><span class="ehs-ov-l">Time logged</span></div>
+    <div class="ehs-ov-lead"><span class="ehs-ov-n">${totalTasks}</span><span class="ehs-ov-l">Total tickets</span></div>
     <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0)).join('')}</div>
   </section>`;
 
   if(!ranked.length) return ov+`<div class="ehs-empty"><p>No activity logged in this period.</p></div>`;
-  if(!ui.prSel || !byUser[ui.prSel]) ui.prSel=ranked[0].id;
 
+  // selection: [] = everyone, otherwise the chosen agents
+  if(!Array.isArray(ui.prSel)) ui.prSel=[];
+  ui.prSel=ui.prSel.filter(id=>byUser[id]);
+  const sel=ui.prSel;
+  const activeIds=sel.length?sel:ranked.map(u=>u.id);
+
+  // ---- rail: All users + per-agent multi-select (ticket counts, no hours) ----
   const q=(ui.prQuery||'').trim().toLowerCase();
   const match=ranked.filter(u=>u.name.toLowerCase().includes(q));
+  const allRow=`<button type="button" class="ehs-li ehs-li-all" data-all="1" aria-current="${sel.length===0}">
+      <span class="ehs-li-n">All users</span><span class="ehs-li-c">${totalTasks}</span></button><div class="ehs-rail-sep"></div>`;
   const railList = !match.length
     ? `<p class="ehs-rail-none">No one matches \u201c${esc(ui.prQuery||'')}\u201d.</p>`
-    : match.map(u=>`<button type="button" class="ehs-li" data-id="${u.id}" aria-current="${ui.prSel===u.id}">
-        <span class="ehs-li-n">${esc(u.name)}</span><span class="ehs-li-c">${hm(byUser[u.id]||0)}</span></button>`).join('');
+    : allRow + match.map(u=>`<button type="button" class="ehs-li" data-id="${u.id}" aria-current="${sel.includes(u.id)}">
+        <input type="checkbox" class="ehs-li-cb" data-cb="${u.id}" ${sel.includes(u.id)?'checked':''}/>
+        <span class="ehs-li-n">${esc(u.name)}</span><span class="ehs-li-c">${(tasksBy[u.id]||new Set()).size}</span></button>`).join('');
 
-  const u=store.user(ui.prSel);
-  const worked=[...(tasksBy[ui.prSel]||[])].map(id=>store.task(id)).filter(Boolean);
+  // ---- detail: aggregate over the selection ----
+  const uMin=activeIds.reduce((a,id)=>a+(byUser[id]||0),0);
+  const wSet=new Set(); activeIds.forEach(id=>(tasksBy[id]||new Set()).forEach(t=>wSet.add(t)));
+  const worked=[...wSet].map(id=>store.task(id)).filter(Boolean);
   const closed=worked.filter(t=>(store.status(t.status)||{}).cat==='done').length;
-  const uMin=byUser[ui.prSel]||0;
-  const byCatU={}; plogs.filter(w=>w.user===ui.prSel).forEach(w=>byCatU[w.cat]=(byCatU[w.cat]||0)+w.min);
-  const stats=[['Logged',hm(uMin)],['Tickets',worked.length],['Closed',closed],['Pending',worked.length-closed],
-    ['Entries',entries[ui.prSel]||0],['Share',(totalMin?Math.round(uMin/totalMin*100):0)+'%']]
+  const uEntries=activeIds.reduce((a,id)=>a+(entries[id]||0),0);
+  const title = sel.length===0 ? 'All users' : (sel.length===1 ? (store.user(sel[0])||{}).name : sel.length+' agents selected');
+  const subWho = sel.length===0 ? ranked.length+' agents' : (sel.length===1 ? ((store.user(sel[0])||{}).role||'') : sel.map(id=>(store.user(id)||{}).name).join(', '));
+  const stats=[['Logged',hm(uMin)],['Tickets',worked.length],['Closed',closed],['Open',worked.length-closed],
+    ['Entries',uEntries],['Share',(totalMin?Math.round(uMin/totalMin*100):0)+'%']]
     .map(([l,v])=>`<div class="ehs-d-stat${(v===0||v==='0h'||v==='0%')?' is-zero':''}"><b>${v}</b><span>${l}</span></div>`).join('');
-  const catRows=CATS.map(c=>({label:c.id, v:byCatU[c.id]||0, color:c.color}));
-  const rows=worked.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''))
+  const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
+    if(t.status==='blocked') return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
+  const rows=worked.sort((a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''))
     .map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
       <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
       ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
       ${ehsSt(t.status)}</div>`).join('');
-  const detail=`<div class="ehs-d-head"><div><h2>${esc(u.name)}</h2>
-      <p class="ehs-d-sub"><b>${hm(uMin)}</b> logged \u00b7 <b>${worked.length}</b> ticket${worked.length===1?'':'s'} \u00b7 <b>${closed}</b> closed \u00b7 ${esc(u.role||'')}</p></div></div>
+  const detail=`<div class="ehs-d-head"><div><h2>${esc(title)}</h2>
+      <p class="ehs-d-sub"><b>${hm(uMin)}</b> logged \u00b7 <b>${worked.length}</b> ticket${worked.length===1?'':'s'} \u00b7 <b>${closed}</b> closed${subWho?' \u00b7 '+esc(subWho):''}</p></div>
+    ${sel.length?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prClearSel" type="button">Clear selection</button>':''}</div>
     <div class="ehs-d-stats" style="grid-template-columns:repeat(6,1fr)">${stats}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Hours by category</span></div>
-    <div style="margin:8px 0 20px">${barRows(catRows,i=>i.color,v=>hm(v))}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets worked</span><span class="ehs-eyebrow">${worked.length}</span></div>
+    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${worked.length}</span></div>
     <div class="ehs-tickets">${rows||'<p class="ehs-rail-none">No tickets.</p>'}</div>`;
 
-  // ---- bottom: tickets by project / by status (across everyone, in period) ----
-  const workedAll=[...allTasks].map(id=>store.task(id)).filter(Boolean);
-  const projItems=store.projects().map(pr=>({label:esc(pr.name), v:workedAll.filter(t=>t.project===pr.id).length, color:pr.color||'#3B6FE0'}))
+  // ---- bottom: tickets by project / by status ----
+  const projItems=store.projects().map(pr=>({label:esc(pr.name), v:worked.filter(t=>t.project===pr.id).length, color:pr.color||'#3B6FE0'}))
     .filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
-  const stItems=store.statuses().map(st=>({label:esc(st.name), v:workedAll.filter(t=>t.status===st.id).length, color:st.color||'#71717A'}))
+  const stItems=store.statuses().map(st=>({label:esc(st.name), v:worked.filter(t=>t.status===st.id).length, color:st.color||'#71717A'}))
     .filter(i=>i.v>0).sort((a,b)=>b.v-a.v);
   const bottom=`<div class="ehs-cols2">
     <div class="ehs-box"><div class="ehs-box-h"><h3>Tickets by project</h3><p>Worked on in this period</p></div>
