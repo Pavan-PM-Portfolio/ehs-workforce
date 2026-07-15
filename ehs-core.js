@@ -55,12 +55,17 @@
       client().from('profiles').select('*').eq('id', uid).single(),
       client().from('tool_access').select('tool_id, role').eq('user_id', uid),
     ]);
+    const meta = (s.user && s.user.user_metadata) || {};
     _me = {
       id: uid,
       email: s.user.email,
-      full_name: (profile && profile.full_name) || '',
+      full_name: (profile && profile.full_name) || meta.full_name || '',
       is_master_admin: !!(profile && profile.is_master_admin),
       status: (profile && profile.status) || 'active',
+      // admin-user stores this on the auth user when it generates a temp password.
+      // Without it, index.html's `if (EHS.me().must_change)` was always false and
+      // the forced password change never happened.
+      must_change: !!meta.must_change_pw,
       access: access || [],
     };
     return _me;
@@ -80,29 +85,26 @@
   }
 
   /* ---------------- Master Admin: people & access ---------------- */
+  // Master-only. Goes through the Edge Function so profiles/tool_access can stay
+  // locked down by RLS (a direct select here would need them world-readable).
   async function listUsers() {
-    const { data, error } = await client()
-      .from('profiles')
-      .select('id, full_name, email, is_master_admin, status, tool_access(tool_id, role)')
-      .order('created_at', { ascending: true });
-    if (error) throw error;
-    return data || [];
+    const out = await adminUser('list_users', {});
+    return (out && out.users) || [];
   }
+  // SECURITY: must stay server-side. When this wrote to tool_access directly,
+  // any signed-in user could run EHS.grantAccess(myId,'pm','admin') from the
+  // console and become a PM admin. The Edge Function verifies Master Admin.
   async function grantAccess(userId, toolId, role) {
-    const { error } = await client()
-      .from('tool_access')
-      .upsert({ user_id: userId, tool_id: toolId, role }, { onConflict: 'user_id,tool_id' });
-    if (error) throw error;
+    await adminUser('grant_access', { user_id: userId, tool_id: toolId, role });
   }
   async function revokeAccess(userId, toolId) {
-    const { error } = await client()
-      .from('tool_access').delete().eq('user_id', userId).eq('tool_id', toolId);
-    if (error) throw error;
+    await adminUser('revoke_access', { user_id: userId, tool_id: toolId });
   }
+  // SECURITY: must stay server-side. This used to update profiles directly, so
+  // ANY signed-in user could call EHS.setMaster(theirOwnId, true) and become a
+  // Master Admin. The Edge Function verifies the caller is already a master.
   async function setMaster(userId, val) {
-    const { error } = await client()
-      .from('profiles').update({ is_master_admin: val }).eq('id', userId);
-    if (error) throw error;
+    await adminUser('set_master', { user_id: userId, value: !!val });
   }
   // ---- admin-user Edge Function (service role stays server-side) ----
   // Actions: create | reset | set_master | delete  (caller must be Master Admin)
@@ -135,8 +137,15 @@
     return adminUser('create', { email, full_name: fullName, grants: grants || [], require_change: true });
   }
   async function deleteUser(userId) { return adminUser('delete', { user_id: userId }); }
-  async function resetPassword(userId, password) {
-    return adminUser('reset', { user_id: userId, password: password || undefined, require_change: !password });
+  // index.html calls resetPassword(id, pw, requireChange) — the 3rd argument was
+  // being dropped, so "require a password change" was ignored whenever an admin
+  // typed an explicit password. Harmless while must_change was broken; not now.
+  async function resetPassword(userId, password, requireChange) {
+    return adminUser('reset', {
+      user_id: userId,
+      password: password || undefined,
+      require_change: (requireChange === undefined) ? !password : !!requireChange,
+    });
   }
 
   // ---- self-service (signed-in user, no service role needed) ----
@@ -149,8 +158,12 @@
     _me = null;                            // force a fresh loadMe next call
   }
   async function changePassword(newPassword) {
-    const { error } = await client().auth.updateUser({ password: newPassword });
+    const { error } = await client().auth.updateUser({
+      password: newPassword,
+      data: { must_change_pw: false },   // clear the forced-reset flag
+    });
     if (error) throw error;
+    _me = null;                          // force a fresh loadMe
   }
 
   /* ---------------- field permissions (server-resolved) ---------------- */
