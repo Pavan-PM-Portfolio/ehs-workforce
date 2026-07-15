@@ -1259,9 +1259,12 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .ov-card h3{font-size:13.5px;font-weight:600;margin:0 0 3px}
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
 /* overview hover popover */
-body[data-view="overview"] #newTaskBtn,body[data-view="analytics"] #newTaskBtn,body[data-view="deployments"] #newTaskBtn{display:none !important}
+body[data-view="overview"] #newTaskBtn,body[data-view="analytics"] #newTaskBtn,body[data-view="deployments"] #newTaskBtn,body[data-view="team"] #newTaskBtn{display:none !important}
+#newTeamBtn{display:none}
+body[data-view="team"] #newTeamBtn{display:inline-flex}
+body[data-view="team"] .topbar{border-bottom:0}
 /* Deployments has its own filter row right below, so the title rule just doubles up */
-body[data-view="deployments"] .topbar{border-bottom:0}
+body[data-view="deployments"] .topbar,body[data-view="analytics"] .topbar{border-bottom:0}
 [data-pop]{cursor:pointer}
 .sb-kpi[data-pop]:hover,.ov-leg[data-pop]:hover,.hbar-row[data-pop]:hover{background:var(--surface-2)}
 .ovpop{position:fixed;width:322px;background:#fff;border:1px solid var(--line);border-radius:13px !important;box-shadow:0 26px 60px -22px rgba(16,26,51,.42);z-index:400;overflow:hidden;display:none}
@@ -2180,6 +2183,7 @@ body[data-density="compact"] .board{padding:12px 16px}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
         <input id="search" placeholder="Search tickets…" autocomplete="off" name="ticket-search-nofill" readonly onfocus="this.removeAttribute('readonly')"/>
       </div>
+      <button class="btn primary" id="newTeamBtn">Create team</button>
       <button class="btn primary" id="newTaskBtn">Create ticket</button>
     </div>
 
@@ -4572,8 +4576,16 @@ function renderOverview(){
 function renderTeam(){
   const el=document.getElementById('teamwrap');
   const teams=store.teams();
-  el.innerHTML=`<div class="ov-h"><h2>Teams</h2><button class="btn primary" id="teamAdd"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create team</button></div>
-  <div class="teams-list">`+teams.map(tm=>{
+  if(!teams.length){
+    el.innerHTML=`<div class="ehs-empty"><p>No teams yet. Group people together to see their workload in one place.</p>
+      <button class="ehs-btn ehs-btn--sm" id="teamEmptyAdd" type="button">Create team</button></div>`;
+    const mk=()=>{ const id=store.addTeam('New team'); renderTeam();
+      const inp=document.querySelector(`.team-card[data-team="${id}"] .tc-name`); if(inp){ inp.focus(); inp.select(); } };
+    const b1=document.getElementById('teamEmptyAdd'); if(b1) b1.onclick=mk;
+    const b2=document.getElementById('newTeamBtn'); if(b2) b2.onclick=mk;
+    return;
+  }
+  el.innerHTML=`<div class="teams-list">`+teams.map(tm=>{
     const members=store.teamMembers(tm); const ids=tm.members;
     const tasks=store.standardTasks().filter(t=>ids.includes(t.assignee));
     const open=tasks.filter(t=>(store.status(t.status)||{}).cat!=='done').length;
@@ -4603,7 +4615,9 @@ function renderTeam(){
       </div>
     </div>`;
   }).join('')+`</div>`;
-  document.getElementById('teamAdd').onclick=()=>{ const id=store.addTeam('New team'); renderTeam();
+  // Create team now lives in the sticky bar (replacing Create ticket on this view)
+  const _tAdd=document.getElementById('newTeamBtn');
+  if(_tAdd) _tAdd.onclick=()=>{ const id=store.addTeam('New team'); renderTeam();
     const inp=document.querySelector(`.team-card[data-team="${id}"] .tc-name`); if(inp){ inp.focus(); inp.select(); } };
   el.querySelectorAll('.team-card').forEach(card=>{ const id=card.dataset.team;
     card.querySelector('.tc-name').onchange=e=>{ const v=e.target.value.trim(); if(v) store.updateTeam(id,{name:v}); else e.target.value=store.team(id).name; };
