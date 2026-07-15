@@ -5927,20 +5927,39 @@ window.addEventListener('pagehide', flushSync);
 window.addEventListener('beforeunload', flushSync);
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') flushSync(); });
 async function diffPush(){
-  if(!sb||!WS) return; const jobs=[];
+  if(!sb||!WS) return;
+  const jobs=[];
   for(const [k,t] of Object.entries(TBL)){
     const arr=store.data[k]||[]; const cur=new Map(); const ups=[];
     arr.forEach((d,i)=>{ const js=JSON.stringify(d); cur.set(d.id, js);
       if((snap[t]||new Map()).get(d.id)!==js){ const row={workspace_id:WS, id:d.id, doc:d}; if(t==='statuses'||t==='boards') row.sort=i; ups.push(row); if(t==='tasks'){ try{ markSelfPushed(d.id); }catch(e){} } } });
-    if(ups.length) jobs.push(sb.from(t).upsert(ups));
     const del=[...(snap[t]||new Map()).keys()].filter(id=>!cur.has(id));
-    if(del.length) jobs.push(sb.from(t).delete().eq('workspace_id',WS).in('id',del));
-    snap[t]=cur;
+    if(!ups.length && !del.length){ snap[t]=cur; continue; }   // nothing to send
+    jobs.push({t, cur, ups, del});
   }
   const sjs=JSON.stringify(store.data.settings);
-  if(sjs!==snap.settings){ jobs.push(sb.from('settings').upsert({workspace_id:WS, doc:store.data.settings})); snap.settings=sjs; }
-  try{ const res=await Promise.all(jobs); const bad=res.find(r=>r&&r.error); if(bad) throw bad.error; }
-  catch(e){ console.error('sync', e); toast((e&&e.message||'').includes('row-level') ? 'Not allowed — admins only' : 'Sync error — check connection'); }
+  const pushSettings = (sjs!==snap.settings);
+
+  const failed=[];
+  const runs=jobs.map(async j=>{
+    try{
+      if(j.ups.length){ const r=await sb.from(j.t).upsert(j.ups); if(r&&r.error) throw r.error; }
+      if(j.del.length){ const r=await sb.from(j.t).delete().eq('workspace_id',WS).in('id',j.del); if(r&&r.error) throw r.error; }
+      snap[j.t]=j.cur;                      // commit the snapshot ONLY once the DB accepted it
+    }catch(e){ failed.push({t:j.t, e}); }   // leave snap alone so the change is retried, not lost
+  });
+  if(pushSettings) runs.push((async()=>{
+    try{ const r=await sb.from('settings').upsert({workspace_id:WS, doc:store.data.settings}); if(r&&r.error) throw r.error; snap.settings=sjs; }
+    catch(e){ failed.push({t:'settings', e}); }
+  })());
+  await Promise.all(runs);
+
+  if(failed.length){
+    const names=[...new Set(failed.map(f=>f.t))];
+    console.error('sync rejected for:', names, failed[0].e);
+    const rls=failed.some(f=>(((f.e&&f.e.message)||'')+'').toLowerCase().includes('row-level'));
+    toast(rls ? ('Not allowed \u2014 '+names.join(', ')+' is admin-only') : 'Sync error \u2014 check connection');
+  }
 }
 
 // ---- realtime: apply other users' changes ----
@@ -6168,7 +6187,11 @@ function wireAuth(){
 // ---- boot ----
 const CONFIGURED = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE'));
 const EMAIL_FIX={'Ritesh Singh':'ritesh.singh@eduhubspot.com','Prapti Wamre':'prapti.w@eduhubspot.com','Amit Debnath':'amit.debnath@eduhubspot.com','Tanay Singh':'tanay.singh@eduhubspot.com','Chirag Shah':'chirag.shah@eduhubspot.com','Sumeet Sharma':'sumeet.sharma@eduhubspot.com','Pavan Kumar':'pavan.k@eduhubspot.com','Saniya Salim Mujawar':'saniya.m@eduhubspot.com','Debabrata Dhar':'deba.dhar@eduhubspot.com'};
-function migrateProfiles(){ if(!store.data) return; const s=store.settings(); let changed=false;
+function migrateProfiles(){ if(!store.data) return;
+  // Rewrites shared settings + other people's rows -> admin-only under RLS.
+  // Running it for everyone made every save fail with "Not allowed - admins only".
+  if(typeof IS_ADMIN!=='undefined' && !IS_ADMIN) return;
+  const s=store.settings(); let changed=false;
   const cur=s.profiles||[];
   const adminP=cur.find(p=>p.id==='pf_admin'); const stdSrc=cur.find(p=>p.id==='pf_users')||cur.find(p=>p.id==='pf_editor');
   const need = !s.profiles || cur.length!==2 || !cur.find(p=>p.id==='pf_users') || cur.find(p=>p.id==='pf_editor'||p.id==='pf_viewer');
@@ -6180,7 +6203,10 @@ function migrateProfiles(){ if(!store.data) return; const s=store.settings(); le
   (store.data.users||[]).forEach(u=>{ if(u.profile==='pf_editor'||u.profile==='pf_viewer'){ u.profile='pf_users'; changed=true; } });
   if(changed) store._persist();
 }
-function applyEmailFixes(){ if(!store.data||!store.data.users) return; let changed=false;
+function applyEmailFixes(){ if(!store.data||!store.data.users) return;
+  // Rewrites other people's rows -> admin-only under RLS.
+  if(typeof IS_ADMIN!=='undefined' && !IS_ADMIN) return;
+  let changed=false;
   store.data.users.forEach(u=>{ const e=EMAIL_FIX[u.name]; if(e && u.email!==e){ u.email=e; changed=true; } });
   if(changed && store._persist) store._persist();
 }
