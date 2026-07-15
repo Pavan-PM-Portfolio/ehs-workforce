@@ -5114,25 +5114,39 @@ function renderProjects(){
   const projects=store.projects();
   const allK=store.standardTasks();
   const kidsOf=pid=>allK.filter(t=>t.project===pid);
+  // Tickets whose project is missing or points at a project that no longer exists.
+  // These were counted in the strip but belonged to no row in the rail, which is
+  // why the totals never reconciled.
+  const orphans=allK.filter(t=>!t.project || !store.project(t.project));
   const addFn=()=>{ store.addProject('New project'); ui.pjSel=null; renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); };
 
-  // ---- overview strip ----
-  const cnt=st=>allK.filter(k=>k.status===st).length;
-  const ovReview=allK.filter(k=>k.status==='review'||k.status==='qa'||k.status==='pmreview').length;
-  const ovHp=allK.filter(k=>k.priority==='Highest').length;
-  const cells=[[allK.length,'Total tickets'],[cnt('backlog'),'Backlog'],[cnt('indev'),'In development'],
-    [ovReview,'In review'],[cnt('done'),'Completed'],[cnt('blocked'),'Blocked'],[ovHp,'High priority',ovHp===0,ovHp?'is-hot':'']];
-  const ov=`<section class="ehs-overview">
-    <div class="ehs-ov-lead"><span class="ehs-ov-n">${projects.length}</span><span class="ehs-ov-l">Total projects</span></div>
-    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0,c[3])).join('')}</div>
-  </section>`;
-
   const head=`<div class="ehs-page-head"><h1>Projects</h1><button class="ehs-btn" id="prAddProj" type="button">Add project</button></div>`;
-  if(!projects.length){
-    el.innerHTML=head+ov+`<div class="ehs-empty"><p>No projects yet. Add one to start tracking work.</p><button class="ehs-btn ehs-btn--sm" id="prAddCard" type="button">Add project</button></div>`;
+  if(!projects.length && !orphans.length){
+    el.innerHTML=head+`<div class="ehs-empty"><p>No projects yet. Add one to start tracking work.</p><button class="ehs-btn ehs-btn--sm" id="prAddCard" type="button">Add project</button></div>`;
     document.getElementById('prAddProj').onclick=addFn; document.getElementById('prAddCard').onclick=addFn; return;
   }
-  if(!ui.pjSel || !store.project(ui.pjSel)) ui.pjSel=projects[0].id;
+
+  // ---- selection: null = every project, '__none' = the unfiled bucket ----
+  if(ui.pjSel && ui.pjSel!=='__none' && !store.project(ui.pjSel)) ui.pjSel=null;
+  if(ui.pjSel==='__none' && !orphans.length) ui.pjSel=null;
+  const isAll = !ui.pjSel;
+  const scoped = isAll ? allK : (ui.pjSel==='__none' ? orphans : kidsOf(ui.pjSel));
+
+  // ---- overview strip — scoped to whatever the rail has selected ----
+  const cnt=st=>scoped.filter(k=>k.status===st).length;
+  const sReview=scoped.filter(k=>k.status==='review'||k.status==='qa'||k.status==='pmreview').length;
+  const sHp=scoped.filter(k=>k.priority==='Highest').length;
+  const cells=[];
+  if(isAll) cells.push([scoped.length,'Total tickets']);
+  cells.push([cnt('backlog'),'Backlog'],[cnt('indev'),'In development'],[sReview,'In review'],
+             [cnt('done'),'Completed'],[cnt('blocked'),'Blocked'],
+             [sHp,'High priority',sHp===0,sHp?'is-hot':'']);
+  const ov=`<section class="ehs-overview">
+    <div class="ehs-ov-lead">
+      <span class="ehs-ov-n">${isAll?projects.length:scoped.length}</span>
+      <span class="ehs-ov-l">${isAll?'Total projects':'Tickets'}</span></div>
+    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0,c[3])).join('')}</div>
+  </section>`;
 
   // ---- rail ----
   const q=(ui.pjQuery||'').trim().toLowerCase();
@@ -5141,41 +5155,49 @@ function renderProjects(){
   const empty=match.filter(p=>kidsOf(p.id).length===0);
   const row=p=>`<button type="button" class="ehs-li${kidsOf(p.id).length?'':' is-empty'}" data-id="${p.id}" aria-current="${ui.pjSel===p.id}">
     <span class="ehs-li-n">${esc(p.name)}</span><span class="ehs-li-c">${kidsOf(p.id).length}</span></button>`;
-  const railList = !match.length
+  const allRow=`<button type="button" class="ehs-li ehs-li-all" data-id="" aria-current="${isAll}">
+      <span class="ehs-li-n">All projects</span><span class="ehs-li-c">${allK.length}</span></button><div class="ehs-rail-sep"></div>`;
+  const noneRow=orphans.length?`<div class="ehs-rail-sep"></div>
+      <button type="button" class="ehs-li" data-id="__none" aria-current="${ui.pjSel==='__none'}" title="Tickets not filed under any project">
+      <span class="ehs-li-n">No project</span><span class="ehs-li-c">${orphans.length}</span></button>`:'';
+  const railList = !match.length && q
     ? `<p class="ehs-rail-none">No project matches \u201c${esc(ui.pjQuery||'')}\u201d.</p>`
-    : active.map(row).join('') + ((empty.length&&active.length)?'<div class="ehs-rail-sep"></div>':'') + empty.map(row).join('');
+    : allRow + active.map(row).join('') + ((empty.length&&active.length)?'<div class="ehs-rail-sep"></div>':'') + empty.map(row).join('') + noneRow;
 
   // ---- detail ----
-  const p=store.project(ui.pjSel);
-  const kids=kidsOf(p.id);
-  const hp=kids.filter(k=>k.priority==='Highest').length;
+  const pj = (!isAll && ui.pjSel!=='__none') ? store.project(ui.pjSel) : null;
+  const dTitle = isAll ? 'All projects' : (pj?pj.name:'No project');
+  const hp = scoped.filter(k=>k.priority==='Highest').length;
   const sts=store.statuses();
-  let stats=sts.map(st=>{ const n=kids.filter(k=>k.status===st.id).length;
+  const stats=sts.map(st=>{ const n=scoped.filter(k=>k.status===st.id).length;
     return `<div class="ehs-d-stat${n?'':' is-zero'}"><b>${n}</b><span>${esc(st.name)}</span></div>`; }).join('');
-
-  const dHead=`<div class="ehs-d-head"><div><h2>${esc(p.name)}</h2>
-      <p class="ehs-d-sub"><b>${kids.length}</b> ticket${kids.length===1?'':'s'}${hp?` \u00b7 <b class="hot">${hp}</b> high priority`:''} \u00b7 <b>${esc(p.key)}</b></p></div>
+  const subBits=[`<b>${scoped.length}</b> ticket${scoped.length===1?'':'s'}`];
+  if(hp) subBits.push(`<b class="hot">${hp}</b> high priority`);
+  if(pj) subBits.push(`<b>${esc(pj.key)}</b>`);
+  if(ui.pjSel==='__none') subBits.push('not filed under any project');
+  const dHead=`<div class="ehs-d-head"><div><h2>${esc(dTitle)}</h2>
+      <p class="ehs-d-sub">${subBits.join(' \u00b7 ')}</p></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prNewTk" type="button">New ticket</button>
-      <div class="pp-menu-wrap"><button class="ehs-kebab" id="pjKebab" type="button" title="Project options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
-        <div class="pp-menu" id="pjMenu"><button data-act="open">Open ticket list</button><button data-act="rename">Rename project</button><button data-act="delete" class="danger">Delete project</button></div></div>
+      ${pj?`<div class="pp-menu-wrap"><button class="ehs-kebab" id="pjKebab" type="button" title="Project options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+        <div class="pp-menu" id="pjMenu"><button data-act="open">Open ticket list</button><button data-act="rename">Rename project</button><button data-act="delete" class="danger">Delete project</button></div></div>`:''}
     </div></div>`;
   let detail;
-  if(!kids.length){
-    detail=dHead+`<div class="ehs-empty" style="margin-top:20px"><p>No tickets in ${esc(p.name)} yet. Add the first one to start tracking work here.</p>
+  if(!scoped.length){
+    detail=dHead+`<div class="ehs-empty" style="margin-top:20px"><p>No tickets in ${esc(dTitle)} yet. Add the first one to start tracking work here.</p>
       <button class="ehs-btn ehs-btn--sm" id="prFirstTk" type="button">Add the first ticket</button></div>`;
   } else {
     const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
       if(t.status==='blocked') return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
-    const rows=[...kids].sort((a,b)=>rank(a)-rank(b)||(b.createdAt||'').localeCompare(a.createdAt||''))
+    const rows=[...scoped].sort((a,b)=>rank(a)-rank(b)||(b.createdAt||'').localeCompare(a.createdAt||''))
       .map(t=>`<div class="ehs-tk">
         <span class="ehs-tk-k">${esc(t.key)}</span>
         <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
         ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
         ${ehsSt(t.status)}</div>`).join('');
     detail=dHead+`<div class="ehs-d-stats ehs-d-stats--5">${stats}</div>
-      <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${kids.length}</span></div>
-      <div class="ehs-tickets">${rows}</div>`;
+      <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${scoped.length}</span></div>
+      <div class="ehs-tickets ehs-tickets--scroll">${rows}</div>`;
   }
 
   el.innerHTML=head+ov+`<div class="ehs-pane">
@@ -5183,12 +5205,12 @@ function renderProjects(){
     <section class="ehs-detail" id="pjDetail">${detail}</section></div>`;
 
   document.getElementById('prAddProj').onclick=addFn;
-  el.querySelectorAll('#pjRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.pjSel=b.dataset.id; renderProjects(); });
+  el.querySelectorAll('#pjRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.pjSel=b.dataset.id||null; renderProjects(); });
   const sIn=document.getElementById('pjSearch');
   if(sIn) sIn.oninput=()=>{ ui.pjQuery=sIn.value; const at=sIn.selectionStart; renderProjects();
     const n=document.getElementById('pjSearch'); if(n){ n.focus(); try{ n.setSelectionRange(at,at); }catch(e){} } };
   const nt=document.getElementById('prNewTk')||document.getElementById('prFirstTk');
-  if(nt) nt.onclick=()=>openModal(null,null,ui.pjSel);
+  if(nt) nt.onclick=()=>openModal(null,null,(pj?pj.id:null));
   const kb=document.getElementById('pjKebab'), mn=document.getElementById('pjMenu');
   if(kb&&mn){
     kb.onclick=e=>{ e.stopPropagation(); mn.classList.toggle('on'); };
