@@ -5409,7 +5409,13 @@ let sb=null, WS=null, IS_ADMIN=true, ME=null;
 const TBL={users:'people', projects:'projects', statuses:'statuses', boards:'boards', teams:'teams', tasks:'tasks', worklogs:'worklogs', spaces:'spaces'};
 let snap={}, syncTimer=null, rerenderTimer=null;
 
-function meUser(){ return store.user(CURRENT_UID) || store.users()[0] || null; }
+function meUser(){
+  const u=store.user(CURRENT_UID); if(u) return u;
+  // Signed in but no matching person record → nobody. Falling back to the first
+  // user here would hand out their role (incl. Admin) to every account.
+  if(typeof ME!=='undefined' && ME) return null;
+  return store.users()[0] || null;
+}
 async function renderUsers(){
   const el=document.getElementById('usersedwrap');
   el.innerHTML=`<div class="ov-h"><h2>Users</h2><span class="range" id="usersCount">People with access to Project Hub</span></div><div class="um-list" id="usersRoster"><p class="ov-cap">Loading…</p></div>`;
@@ -5441,7 +5447,18 @@ async function renderUsers(){
   </div>`).join('') : '<p class="ov-cap">No one has Project Hub access yet.</p>';
 }
 function applyDefaults(){
-  CURRENT_UID=((typeof ME!=='undefined' && ME && (store.users().find(u=>u.authId===ME.id) || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase())))||store.users()[0]||{}).id||null;
+  CURRENT_UID=(function(){
+    // Authenticated (real backend): resolve strictly by auth id / email.
+    // NEVER fall back to the first person on the list — that silently grants
+    // someone else's identity (and their admin rights / workspace access).
+    if(typeof ME!=='undefined' && ME){
+      const m=store.users().find(u=>u.authId===ME.id)
+           || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase());
+      return m?m.id:null;
+    }
+    // Local / no-auth (preview) mode only.
+    return (store.users()[0]||{}).id||null;
+  })();
   const mu=store.user(CURRENT_UID);
   const db=(mu&&mu.prefs&&mu.prefs.defaultBoard)||store.settings().defaultBoard;
   const dv=(mu&&mu.prefs&&mu.prefs.defaultView)||store.settings().defaultView;
@@ -5713,8 +5730,21 @@ function canSeeField(key){ return fieldPerm(key)!=='hide'; }
 function canEditField(key){ return fieldPerm(key)==='edit'; }
 const VIEW_CAP={overview:'view_overview',list:'view_list',epics:'view_epics',board:'view_board',analytics:'view_analytics',reports:'view_reports',team:'view_team',deployments:'view_operations'};
 function canView(v){ const c=VIEW_CAP[v]; return c?can(c):true; }
-function myUid(){ try{ if(typeof CURRENT_UID!=='undefined' && CURRENT_UID) return CURRENT_UID; }catch(e){} try{ if(typeof ME!=='undefined' && ME && ME.id && store.users){ const pp=store.users().find(u=>u.authId===ME.id) || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase()); if(pp) return pp.id; } }catch(e){} const u=store.users&&store.users()[0]; return u?u.id:'u7'; }
-function canAccessSpace(sp){ if(typeof IS_ADMIN!=='undefined'&&IS_ADMIN) return true; return (sp.members||[]).includes(myUid()); }
+function myUid(){
+  try{ if(typeof CURRENT_UID!=='undefined' && CURRENT_UID) return CURRENT_UID; }catch(e){}
+  try{ if(typeof ME!=='undefined' && ME && ME.id && store.users){
+    const pp=store.users().find(u=>u.authId===ME.id) || store.users().find(u=>u.email&&ME.email&&u.email.toLowerCase()===ME.email.toLowerCase());
+    if(pp) return pp.id;
+    return null;   // signed in but unlinked → identify as nobody, never as users()[0]
+  } }catch(e){}
+  const u=store.users&&store.users()[0]; return u?u.id:null;
+}
+function canAccessSpace(sp){
+  if(!sp) return false;
+  if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return true;   // workspace/master admins see all
+  const me=myUid(); if(!me) return false;                      // unknown identity → no access
+  return (sp.members||[]).includes(me);
+}
 function showSpaces(){ ui.space=null; renderSpaces(); const el=document.getElementById('spacesScreen'); if(el) el.classList.add('on'); saveSpot(); }
 function saveSpot(){ try{ localStorage.setItem('ehs_spot', JSON.stringify({space:ui.space||null, view:ui.view||'overview', board:ui.board||null})); }catch(e){} }
 function restoreSpot(){
@@ -5722,7 +5752,7 @@ function restoreSpot(){
   // Fresh entry (a new tab — e.g. just launched/logged in) has empty sessionStorage;
   // a reload of an ongoing session keeps it. Reload → same screen; fresh → honour Start-screen pref.
   let fresh=true; try{ fresh=!sessionStorage.getItem('ehs_booted'); sessionStorage.setItem('ehs_booted','1'); }catch(e){}
-  if(sp && sp.space && store.space(sp.space)){
+  if(sp && sp.space && store.space(sp.space) && canAccessSpace(store.space(sp.space))){
     ui.space=sp.space;
     const p=curPrefs();
     // Default project filter
@@ -5775,13 +5805,16 @@ function renderSpaces(){
       <div class="sp-desc">${esc(sp.desc||'')}</div>
       <div class="sp-foot"><span class="sp-cnt">${mem} member${mem!==1?'s':''}</span>${CHV}</div>
     </div>`;
-  }).join('') + (q?'':`<button class="sp-card sp-new" id="spNewCard"><div class="sp-plus">+</div><div class="sp-nm">Create workspace</div><div class="sp-desc">Start fresh and choose who can access it.</div></button>`);
+  }).join('') + (q?'':(( (typeof IS_ADMIN!=='undefined'&&IS_ADMIN) )?`<button class="sp-card sp-new" id="spNewCard"><div class="sp-plus">+</div><div class="sp-nm">Create workspace</div><div class="sp-desc">Start fresh and choose who can access it.</div></button>`:''));
   if(!list.length && q) grid.innerHTML=`<div class="sp-empty">No workspaces match &ldquo;${esc(q)}&rdquo;.</div>`;
+  else if(!list.length && !(typeof IS_ADMIN!=='undefined'&&IS_ADMIN)) grid.innerHTML=`<div class="sp-empty">You don\u2019t have access to any workspace yet.<br><span style="font-size:12.5px;color:var(--faint)">Ask an admin to add you to one.</span></div>`;
   grid.querySelectorAll('.sp-card[data-space]').forEach(c=>{ c.onclick=e=>{ if(e.target.closest('.sp-manage')) return; enterSpace(c.dataset.space); }; });
   grid.querySelectorAll('.sp-manage').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openSpaceModal(b.dataset.space); });
   const nc=document.getElementById('spNewCard'); if(nc) nc.onclick=()=>openSpaceModal(null);
 }
-function enterSpace(id){ const sp=store.space(id); if(!sp) return; ui.space=id; const p=curPrefs(); const bds=store.boards();
+function enterSpace(id){ const sp=store.space(id); if(!sp) return;
+  if(!canAccessSpace(sp)){ toast('You don\u2019t have access to that workspace'); showSpaces(); return; }
+  ui.space=id; const p=curPrefs(); const bds=store.boards();
   const wantBd = (p.defaultBoard && store.board(p.defaultBoard) && (store.board(p.defaultBoard).ws||'ws_main')===id) ? p.defaultBoard : null;
   if(wantBd){ ui.board=wantBd; } else if(!bds.length){ ui.board=store.addBoard('Board'); } else if(!store.board(ui.board) || (store.board(ui.board).ws||'ws_main')!==id){ ui.board=bds[0].id; }
   ui.project = (p.defaultProject==='all') ? 'all' : (p.defaultProject && store.project(p.defaultProject) ? p.defaultProject : 'all');
