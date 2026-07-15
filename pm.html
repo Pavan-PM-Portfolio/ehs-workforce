@@ -1613,7 +1613,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-d-stats--5{grid-template-columns:repeat(5,1fr)}
 .ehs-kebab{width:30px;height:30px;flex:none;border:1px solid var(--line);background:#fff;border-radius:8px !important;display:grid;place-items:center;cursor:pointer;color:var(--ink-2)}
 .ehs-kebab:hover{background:var(--surface-2);border-color:var(--faint)}
-.ehs-d-stat{background:#fff;padding:12px 12px 11px;box-shadow:1px 0 0 var(--line),0 1px 0 var(--line)}
+.ehs-d-stat{background:#fff;padding:12px 12px 11px;box-shadow:1px 0 0 var(--line),0 1px 0 var(--line);text-align:center}
 .ehs-d-stat b{font-family:ui-monospace,Menlo,monospace;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;display:block;line-height:1.1;margin-bottom:3px}
 .ehs-d-stat span{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);display:block}
 .ehs-d-stat.is-zero b{color:var(--faint)}
@@ -5189,15 +5189,10 @@ function renderProjects(){
   } else {
     const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
       if(t.status==='blocked') return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
-    const rows=[...scoped].sort((a,b)=>rank(a)-rank(b)||(b.createdAt||'').localeCompare(a.createdAt||''))
-      .map(t=>`<div class="ehs-tk">
-        <span class="ehs-tk-k">${esc(t.key)}</span>
-        <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
-        ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
-        ${ehsSt(t.status)}</div>`).join('');
+    const tbl=ehsTicketTable('pj', scoped, (a,b)=>rank(a)-rank(b)||(b.createdAt||'').localeCompare(a.createdAt||''));
     detail=dHead+`<div class="ehs-d-stats ehs-d-stats--5">${stats}</div>
-      <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${scoped.length}</span></div>
-      <div class="ehs-tickets ehs-tickets--scroll">${rows}</div>`;
+      <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${tbl.shown}${tbl.shown!==tbl.total?' of '+tbl.total:''}</span></div>
+      ${tbl.html}`;
   }
 
   el.innerHTML=head+ov+`<div class="ehs-pane">
@@ -5205,6 +5200,7 @@ function renderProjects(){
     <section class="ehs-detail" id="pjDetail">${detail}</section></div>`;
 
   document.getElementById('prAddProj').onclick=addFn;
+  wireEhsTable(el, renderProjects);
   el.querySelectorAll('#pjRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.pjSel=b.dataset.id||null; renderProjects(); });
   const sIn=document.getElementById('pjSearch');
   if(sIn) sIn.oninput=()=>{ ui.pjQuery=sIn.value; const at=sIn.selectionStart; renderProjects();
@@ -5592,7 +5588,7 @@ function renderAnalytics(){
     const id=cb.dataset.cb; const cur=Array.isArray(ui.prSel)?ui.prSel.slice():[];
     const i=cur.indexOf(id); if(i>=0) cur.splice(i,1); else cur.push(id);
     ui.prSel=cur; renderAnalytics(); });
-  el.querySelectorAll('.ehs-th').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); openPrFilter(b.dataset.col, b); });
+  wireEhsTable(el, renderAnalytics);
   const _clr=document.getElementById('prClearSel');
   if(_clr) _clr.onclick=()=>{ ui.prSel=[]; renderAnalytics(); };
   const _prS=document.getElementById('prSearch');
@@ -5675,58 +5671,110 @@ function anPriority(scope, resolved, NOW){
     <table class="an-table"><thead><tr><th>Issue</th><th>Title</th><th>Assignee</th><th class="r">Days over</th><th class="r">Status</th></tr></thead><tbody>${ovRows}</tbody></table></div>`;
 }
 
-/* ---------- Excel-style column filters for the productivity ticket table ---------- */
-let _prRows=[];
-function prTblState(){ if(!ui.prTbl) ui.prTbl={sort:{col:null,dir:'asc'}, filters:{}}; return ui.prTbl; }
-// rows passing every column filter EXCEPT `skip` (so a menu lists the values still reachable)
-function prTblApply(rows, skip){
-  const f=prTblState().filters;
+/* ================= Filterable ticket table (shared: projects + productivity) =================
+   Namespaced so each section keeps its own sort/filter state. */
+const _tblRows={};
+function tblState(ns){ ui.tbl=ui.tbl||{}; if(!ui.tbl[ns]) ui.tbl[ns]={sort:{col:null,dir:'asc'}, filters:{}}; return ui.tbl[ns]; }
+function tblVal(r,col){ return col==='due' ? r.dueTxt : String(r[col]||''); }
+// rows passing every filter EXCEPT `skip`, so a menu only offers values still reachable
+function tblApply(ns, rows, skip){
+  const f=tblState(ns).filters;
   return rows.filter(r=>Object.keys(f).every(c=>{
     if(c===skip) return true;
     const allow=f[c]; if(!allow||!allow.length) return true;
-    return allow.includes(c==='due'?r.dueTxt:String(r[c]));
+    return allow.includes(tblVal(r,c));
   }));
 }
-function prTblValues(col){
-  const seen=new Map();
-  prTblApply(_prRows, col).forEach(r=>{ const v=(col==='due')?r.dueTxt:String(r[col]||''); seen.set(v,(seen.get(v)||0)+1); });
-  return [...seen.keys()].sort((a,b)=> col==='due' ? 0 : a.localeCompare(b));
+function tblValues(ns,col){
+  const seen=new Set();
+  tblApply(ns,_tblRows[ns]||[],col).forEach(r=>seen.add(tblVal(r,col)));
+  return [...seen].sort((a,b)=>a.localeCompare(b));
 }
-function openPrFilter(col, btn){
+function tblMake(ns,t){
+  return { t, id:t.id, key:t.key||'', title:t.title||'',
+           due:t.due||'', dueTxt:t.due?fdate(t.due):'\u2014',
+           status:(store.status(t.status)||{}).name||t.status||'' };
+}
+// build the table HTML for a list of tasks
+function ehsTicketTable(ns, tasks, rankFn){
+  _tblRows[ns]=tasks.map(t=>tblMake(ns,t));
+  const st=tblState(ns);
+  const _td=today();
+  const rows=tblApply(ns,_tblRows[ns]).sort((a,b)=>{
+    if(st.sort&&st.sort.col){ const d=st.sort.dir==='desc'?-1:1;
+      const av=(st.sort.col==='due')?(a.due||'9999'):String(a[st.sort.col]||'').toLowerCase();
+      const bv=(st.sort.col==='due')?(b.due||'9999'):String(b[st.sort.col]||'').toLowerCase();
+      return av<bv?-1*d:av>bv?1*d:0; }
+    return rankFn?rankFn(a.t,b.t):0;
+  });
+  const th=(col,label,w)=>{ const on=(st.filters[col]&&st.filters[col].length)||(st.sort&&st.sort.col===col);
+    return `<th style="width:${w}"><button class="ehs-th ${on?'is-on':''}" data-ns="${ns}" data-col="${col}" type="button"><span class="cap">${label}</span>
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M6 12h12M10 19h4"/></svg></button></th>`; };
+  const open=t=>(store.status(t.status)||{}).cat!=='done';
+  const body=rows.map(r=>`<tr>
+      <td><span class="ehs-td-k" onclick="openPanel('${r.id}')">${esc(r.key)}</span></td>
+      <td><span class="ehs-td-t" title="${esc(r.title)}" onclick="openPanel('${r.id}')">${esc(r.title)}</span></td>
+      <td><span class="ehs-td-due ${(r.due && r.due<_td && open(r.t))?'over':''}">${esc(r.dueTxt)}</span></td>
+      <td>${ehsSt(r.t.status)}</td></tr>`).join('');
+  const html=`<div class="ehs-tbl-wrap"><div class="ehs-tbl-scroll">
+      <table class="ehs-tbl"><thead><tr>
+        ${th('key','Ticket','132px')}${th('title','Title','auto')}${th('due','Due date','126px')}${th('status','Status','156px')}
+      </tr></thead><tbody>${body||`<tr><td colspan="4" class="ehs-tbl-none">No tickets match these filters.</td></tr>`}</tbody></table>
+    </div></div>`;
+  return {html, shown:rows.length, total:_tblRows[ns].length};
+}
+function wireEhsTable(el, rerender){
+  el.querySelectorAll('.ehs-th').forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); openEhsFilter(b.dataset.ns, b.dataset.col, b, rerender); });
+}
+function positionFMenu(m, btn){
+  // measure first, then clamp inside the viewport — a fixed menu that runs off
+  // the edge (or sits at a negative offset on short screens) looked broken.
+  m.style.visibility='hidden'; m.classList.add('on');
+  const r=btn.getBoundingClientRect(); const mw=m.offsetWidth||236, mh=m.offsetHeight||300;
+  const pad=8;
+  let left=Math.min(r.left, window.innerWidth-mw-pad); left=Math.max(pad,left);
+  let top=r.bottom+4;
+  if(top+mh > window.innerHeight-pad) top=Math.max(pad, r.top-mh-4);   // flip above
+  if(top<pad) top=pad;
+  m.style.left=left+'px'; m.style.top=top+'px'; m.style.visibility='';
+}
+function openEhsFilter(ns, col, btn, rerender){
   const m=document.getElementById('prFMenu'); if(!m) return;
-  const st=prTblState();
-  const vals=prTblValues(col);
+  const st=tblState(ns);
+  const vals=tblValues(ns,col);
   const cur=(st.filters[col]&&st.filters[col].length)?st.filters[col].slice():vals.slice();
-  const opts=v=>`<label class="ehs-fopt"><input type="checkbox" value="${esc(v)}" ${cur.includes(v)?'checked':''}/><span>${esc(v||'(blank)')}</span></label>`;
+  const opt=v=>`<label class="ehs-fopt"><input type="checkbox" value="${esc(v)}" ${cur.includes(v)?'checked':''}/><span>${esc(v||'(blank)')}</span></label>`;
   m.innerHTML=`<button class="sortb" data-sort="asc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Sort A \u2192 Z</button>
     <button class="sortb" data-sort="desc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>Sort Z \u2192 A</button>
     <div class="sep"></div>
     <div class="ehs-fsearch"><input id="prFSearch" placeholder="Search" autocomplete="off"/></div>
     <div class="ehs-flist" id="prFList">
       <label class="ehs-fopt" style="font-weight:700"><input type="checkbox" id="prFAll" ${cur.length===vals.length?'checked':''}/><span>(Select all)</span></label>
-      ${vals.map(opts).join('')}
+      ${vals.map(opt).join('')}
     </div>
     <div class="ehs-ffoot"><button type="button" id="prFClear">Clear</button><button type="button" class="ok" id="prFOk">Apply</button></div>`;
-  const r=btn.getBoundingClientRect();
-  m.style.left=Math.min(r.left, window.innerWidth-248)+'px';
-  m.style.top=Math.min(r.bottom+4, window.innerHeight-330)+'px';
-  m.classList.add('on');
+  positionFMenu(m, btn);
   const list=m.querySelector('#prFList');
   const boxes=()=>[...list.querySelectorAll('input[type=checkbox]:not(#prFAll)')];
   m.querySelector('#prFSearch').oninput=e=>{ const q=e.target.value.toLowerCase();
     list.querySelectorAll('.ehs-fopt').forEach(l=>{ if(l.querySelector('#prFAll')) return;
       l.style.display=l.textContent.toLowerCase().includes(q)?'':'none'; }); };
   m.querySelector('#prFAll').onchange=e=>{ boxes().forEach(b=>{ if(b.closest('.ehs-fopt').style.display!=='none') b.checked=e.target.checked; }); };
-  m.querySelectorAll('.sortb').forEach(b=>b.onclick=()=>{ st.sort={col, dir:b.dataset.sort}; m.classList.remove('on'); renderAnalytics(); });
-  m.querySelector('#prFClear').onclick=()=>{ delete st.filters[col]; m.classList.remove('on'); renderAnalytics(); };
+  const done=()=>{ m.classList.remove('on'); (rerender||renderAll)(); };
+  m.querySelectorAll('.sortb').forEach(b=>b.onclick=()=>{ st.sort={col, dir:b.dataset.sort}; done(); });
+  m.querySelector('#prFClear').onclick=()=>{ delete st.filters[col]; if(st.sort&&st.sort.col===col) st.sort={col:null,dir:'asc'}; done(); };
   m.querySelector('#prFOk').onclick=()=>{
     const picked=boxes().filter(b=>b.checked).map(b=>b.value);
     if(picked.length===vals.length) delete st.filters[col]; else st.filters[col]=picked;
-    m.classList.remove('on'); renderAnalytics();
+    done();
   };
 }
+function closeFMenu(){ const m=document.getElementById('prFMenu'); if(m) m.classList.remove('on'); }
 document.addEventListener('click',e=>{ const m=document.getElementById('prFMenu');
-  if(m && m.classList.contains('on') && !e.target.closest('#prFMenu') && !e.target.closest('.ehs-th')) m.classList.remove('on'); });
+  if(m && m.classList.contains('on') && !e.target.closest('#prFMenu') && !e.target.closest('.ehs-th')) closeFMenu(); });
+// a fixed-position menu must not linger, detached, once the page moves
+window.addEventListener('resize', closeFMenu);
+document.addEventListener('scroll', closeFMenu, true);
 
 function anProductivity(scope, logs){
   const plogs=logs.filter(w=>anInPeriod(w.date));
@@ -5824,37 +5872,13 @@ function anProductivity(scope, logs){
 
   const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
     if(_isBlocked(t)) return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
-  _prRows = worked.map(t=>({
-    t, key:t.key||'', title:t.title||'',
-    due: t.due||'', dueTxt: t.due?fdate(t.due):'\u2014',
-    status:(store.status(t.status)||{}).name||t.status||''
-  }));
-  const shown=prTblApply(_prRows).sort((a,b)=>{
-    const sc=ui.prTbl&&ui.prTbl.sort; if(sc&&sc.col){ const d=sc.dir==='desc'?-1:1;
-      const av=(sc.col==='due')?(a.due||'9999'):String(a[sc.col]||'').toLowerCase();
-      const bv=(sc.col==='due')?(b.due||'9999'):String(b[sc.col]||'').toLowerCase();
-      return av<bv?-1*d:av>bv?1*d:0; }
-    return rank(a.t)-rank(b.t)||(b.t.updatedAt||'').localeCompare(a.t.updatedAt||'');
-  });
-  const th=(col,label,w)=>{ const on=(ui.prTbl&&ui.prTbl.filters&&ui.prTbl.filters[col]&&ui.prTbl.filters[col].length)||((ui.prTbl&&ui.prTbl.sort&&ui.prTbl.sort.col)===col);
-    return `<th style="width:${w}"><button class="ehs-th ${on?'is-on':''}" data-col="${col}" type="button"><span class="cap">${label}</span>
-      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M6 12h12M10 19h4"/></svg></button></th>`; };
-  const body=shown.map(r=>`<tr>
-      <td><span class="ehs-td-k" onclick="openPanel('${r.t.id}')">${esc(r.key)}</span></td>
-      <td><span class="ehs-td-t" title="${esc(r.title)}" onclick="openPanel('${r.t.id}')">${esc(r.title)}</span></td>
-      <td><span class="ehs-td-due ${(r.due && r.due<_td && _open(r.t))?'over':''}">${esc(r.dueTxt)}</span></td>
-      <td>${ehsSt(r.t.status)}</td></tr>`).join('');
-  const table=`<div class="ehs-tbl-wrap"><div class="ehs-tbl-scroll">
-      <table class="ehs-tbl"><thead><tr>
-        ${th('key','Ticket','132px')}${th('title','Title','auto')}${th('due','Due date','126px')}${th('status','Status','156px')}
-      </tr></thead><tbody>${body||`<tr><td colspan="4" class="ehs-tbl-none">No tickets match these filters.</td></tr>`}</tbody></table>
-    </div></div>`;
+  const tbl=ehsTicketTable('pr', worked, (a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
 
   const detail=`<div class="ehs-d-head"><h2>${esc(title)}</h2>
     ${sel.length?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prClearSel" type="button">Clear selection</button>':''}</div>
     <div class="ehs-statbar">${stats}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${shown.length}${shown.length!==_prRows.length?' of '+_prRows.length:''}</span></div>
-    ${table}`;
+    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${tbl.shown}${tbl.shown!==tbl.total?' of '+tbl.total:''}</span></div>
+    ${tbl.html}`;
 
   // ---- bottom: tickets by project / by status ----
   const projItems=store.projects().map(pr=>({label:esc(pr.name), v:worked.filter(t=>t.project===pr.id).length, color:pr.color||'#3B6FE0'}))
