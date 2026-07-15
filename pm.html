@@ -1635,6 +1635,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-box-h h3{font-size:14px;font-weight:800;letter-spacing:-.01em;margin:0}
 .ehs-box-h p{font-size:11.5px;color:var(--muted);margin:3px 0 0}
 @media(max-width:900px){.ehs-cols2{grid-template-columns:1fr}}
+.ehs-rows{border:1px solid var(--line);border-radius:6px !important;background:#fff;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink);padding:4px 8px;cursor:pointer}
+.ehs-rows:focus{outline:0;border-color:var(--accent)}
 .ehs-empty{border:1px dashed var(--line);border-radius:6px !important;padding:36px 24px;text-align:center;background:var(--surface-2)}
 .ehs-empty p{font-size:13px;color:var(--ink-2);margin:0 0 14px;font-weight:500}
 @media(max-width:1100px){ .ehs-ov-cells{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 20px} .ehs-d-stats--5{grid-template-columns:repeat(3,1fr)} }
@@ -2631,7 +2633,7 @@ function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charC
 /* ============================================================
    VIEW STATE + RENDER
 ============================================================ */
-const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'',
+const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'delivery', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'', prRows:10,
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
   depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
   listBoard:'all', listGroup:'none',
@@ -5503,8 +5505,8 @@ function renderAnalytics(){
   else if(ui.analyticsTab==='priority') section=anPriority(scope, resolved, today());
   else section=anProductivity(scope, logs);
 
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><h2>Dashboards</h2>${periodBar}</div>
-    <div style="font-size:12px;color:var(--muted);margin:-8px 0 16px">${ui.project==='all'?'All projects':store.project(ui.project).name} · ${(!ui.anPeriod||ui.anPeriod==='all')?'all time':(ui.anPeriod==='custom'?(ui.anFrom&&ui.anTo?fdate(ui.anFrom)+' – '+fdate(ui.anTo):'pick a custom range'):(function(){const r=periodRange(ui.anPeriod);return r?(r.from===r.to?fdate(r.from):fdate(r.from)+' – '+fdate(r.to)):'';})())}</div>
+  const _anTitle={productivity:'Productivity Overview', delivery:'Delivery Overview', priority:'Priority Overview'}[ui.analyticsTab]||'Dashboards';
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start;margin-bottom:14px"><h2>${_anTitle}</h2>${periodBar}</div>
     ${ui.analyticsTab==='productivity'?'':kpis}<div id="anSection">${section}</div>`;
   el.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{ ui.anPeriod=b.dataset.period; renderAnalytics(); });
   // two-pane rail (Productivity): All users / pick one / tick several
@@ -5517,6 +5519,8 @@ function renderAnalytics(){
     const id=cb.dataset.cb; const cur=Array.isArray(ui.prSel)?ui.prSel.slice():[];
     const i=cur.indexOf(id); if(i>=0) cur.splice(i,1); else cur.push(id);
     ui.prSel=cur; renderAnalytics(); });
+  const _rows=document.getElementById('prRowsSel');
+  if(_rows) _rows.onchange=()=>{ ui.prRows=_rows.value; renderAnalytics(); };
   const _clr=document.getElementById('prClearSel');
   if(_clr) _clr.onclick=()=>{ ui.prSel=[]; renderAnalytics(); };
   const _prS=document.getElementById('prSearch');
@@ -5610,14 +5614,24 @@ function anProductivity(scope, logs){
   const totalTasks=allTasks.size, totalClosed=[...allTasks].filter(isDone).length;
   const totalEntries=Object.values(entries).reduce((x,n)=>x+n,0);
 
-  // ---- overview strip: tickets first, then time ----
-  const cells=[[(totalMin/60).toFixed(0)+'<span class="u">h</span>','Time logged',totalMin===0],
-    [totalTasks-totalClosed,'Tickets open'],[totalClosed,'Tickets closed'],
-    [ranked.length,'Active agents'],[totalEntries,'Log entries'],
-    [(totalTasks?Math.round(totalClosed/totalTasks*100):0)+'%','Close rate',totalTasks===0]];
+  // ---- overview strip: hours first, then volume, then what needs attention ----
+  const _td=today();
+  const _wk=periodRange('week');
+  const _7ago=_isoLocal(new Date(Date.parse(_td+'T00:00:00')-7*864e5));
+  const _open=t=>(store.status(t.status)||{}).cat!=='done';
+  const _isBlocked=t=>{ const st=store.status(t.status)||{}; return st.id==='blocked'||/blocked/i.test(st.name||''); };
+  const ovOverdue   = scope.filter(t=>t.due && t.due<_td && _open(t)).length;
+  const ovBlocked   = scope.filter(t=>_isBlocked(t) && _open(t)).length;
+  const ovUnassigned= scope.filter(t=>!t.assignee && _open(t)).length;
+  const ovStale     = scope.filter(t=>_open(t) && (t.updatedAt||t.createdAt||'') < _7ago).length;
+  const cells=[[totalTasks,'Tickets worked'],[totalTasks-totalClosed,'Tickets open'],[totalClosed,'Tickets closed'],
+    [ovOverdue,'Overdue',ovOverdue===0,ovOverdue?'is-hot':''],
+    [ovBlocked,'Blocked',ovBlocked===0,ovBlocked?'is-hot':''],
+    [ovUnassigned,'Unassigned'],
+    [ovStale,'Untouched >7d']];
   const ov=`<section class="ehs-overview">
-    <div class="ehs-ov-lead"><span class="ehs-ov-n">${totalTasks}</span><span class="ehs-ov-l">Total tickets</span></div>
-    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0)).join('')}</div>
+    <div class="ehs-ov-lead"><span class="ehs-ov-n">${(totalMin/60).toFixed(0)}<span class="u">h</span></span><span class="ehs-ov-l">Total hrs logged</span></div>
+    <div class="ehs-ov-cells">${cells.map(c=>ehsOvCell(c[0],c[1],c.length>2?c[2]:c[0]===0,c[3])).join('')}</div>
   </section>`;
 
   if(!ranked.length) return ov+`<div class="ehs-empty"><p>No activity logged in this period.</p></div>`;
@@ -5643,25 +5657,49 @@ function anProductivity(scope, logs){
   const uMin=activeIds.reduce((a,id)=>a+(byUser[id]||0),0);
   const wSet=new Set(); activeIds.forEach(id=>(tasksBy[id]||new Set()).forEach(t=>wSet.add(t)));
   const worked=[...wSet].map(id=>store.task(id)).filter(Boolean);
-  const closed=worked.filter(t=>(store.status(t.status)||{}).cat==='done').length;
-  const uEntries=activeIds.reduce((a,id)=>a+(entries[id]||0),0);
   const title = sel.length===0 ? 'All users' : (sel.length===1 ? (store.user(sel[0])||{}).name : sel.length+' agents selected');
-  const subWho = sel.length===0 ? ranked.length+' agents' : (sel.length===1 ? ((store.user(sel[0])||{}).role||'') : sel.map(id=>(store.user(id)||{}).name).join(', '));
-  const stats=[['Logged',hm(uMin)],['Tickets',worked.length],['Closed',closed],['Open',worked.length-closed],
-    ['Entries',uEntries],['Share',(totalMin?Math.round(uMin/totalMin*100):0)+'%']]
-    .map(([l,v])=>`<div class="ehs-d-stat${(v===0||v==='0h'||v==='0%')?' is-zero':''}"><b>${v}</b><span>${l}</span></div>`).join('');
+
+  // logs belonging to the current selection
+  const selLogs=plogs.filter(w=>activeIds.includes(w.user));
+  // closed THIS WEEK (Mon-Sun)
+  const closedWk=worked.filter(t=>(store.status(t.status)||{}).cat==='done' && t.resolvedAt && t.resolvedAt>=_wk.from && t.resolvedAt<=_wk.to).length;
+  // avg hours/day per agent — across the days they actually logged
+  const dayset=new Set(selLogs.map(w=>w.date));
+  const avgMin = dayset.size ? (uMin/dayset.size/Math.max(1,activeIds.length)) : 0;
+  // overdue among the tickets they worked
+  const odue=worked.filter(t=>t.due && t.due<_td && _open(t)).length;
+  // today vs yesterday
+  const _yd=_isoLocal(new Date(Date.parse(_td+'T00:00:00')-864e5));
+  const minToday=selLogs.filter(w=>w.date===_td).reduce((a,w)=>a+(w.min||0),0);
+  const minYest =selLogs.filter(w=>w.date===_yd).reduce((a,w)=>a+(w.min||0),0);
+
+  const stats=[
+    ['Logged', hm(uMin), uMin===0],
+    ['Tickets', worked.length, worked.length===0],
+    ['Closed this week', closedWk, closedWk===0],
+    ['Avg hrs/day', hm(Math.round(avgMin)), avgMin===0],
+    ['Overdue', odue, odue===0, odue?'is-hot':''],
+    ['Today / yesterday', hm(minToday)+' / '+hm(minYest), minToday===0&&minYest===0]
+  ].map(([l,v,zero,cls])=>`<div class="ehs-d-stat${zero?' is-zero':''}${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`).join('');
+
   const rank=t=>{ const c=(store.status(t.status)||{}).cat||'todo';
-    if(t.status==='blocked') return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
-  const rows=worked.sort((a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''))
-    .map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
+    if(_isBlocked(t)) return 0; if(c==='inprogress') return 1; if(c==='todo') return 2; return 3; };
+  const sorted=worked.sort((a,b)=>rank(a)-rank(b)||(b.updatedAt||'').localeCompare(a.updatedAt||''));
+  const lim = (ui.prRows==='all') ? sorted.length : (Number(ui.prRows)||10);
+  const shown = sorted.slice(0, lim);
+  const rows=shown.map(t=>`<div class="ehs-tk"><span class="ehs-tk-k">${esc(t.key)}</span>
       <span class="ehs-tk-t" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
       ${t.priority==='Highest'?'<span class="ehs-st ehs-st--high">High</span>':''}
       ${ehsSt(t.status)}</div>`).join('');
-  const detail=`<div class="ehs-d-head"><div><h2>${esc(title)}</h2>
-      <p class="ehs-d-sub"><b>${hm(uMin)}</b> logged \u00b7 <b>${worked.length}</b> ticket${worked.length===1?'':'s'} \u00b7 <b>${closed}</b> closed${subWho?' \u00b7 '+esc(subWho):''}</p></div>
+  const rowsSel=`<select class="ehs-rows" id="prRowsSel">
+      ${[10,25,50].map(n=>`<option value="${n}" ${String(ui.prRows||10)===String(n)?'selected':''}>Show ${n}</option>`).join('')}
+      <option value="all" ${ui.prRows==='all'?'selected':''}>Show all</option></select>`;
+
+  const detail=`<div class="ehs-d-head"><h2>${esc(title)}</h2>
     ${sel.length?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prClearSel" type="button">Clear selection</button>':''}</div>
     <div class="ehs-d-stats" style="grid-template-columns:repeat(6,1fr)">${stats}</div>
-    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span><span class="ehs-eyebrow">${worked.length}</span></div>
+    <div class="ehs-sec-head"><span class="ehs-eyebrow">Tickets</span>
+      <span style="display:flex;align-items:center;gap:10px"><span class="ehs-eyebrow">${shown.length} of ${sorted.length}</span>${rowsSel}</span></div>
     <div class="ehs-tickets">${rows||'<p class="ehs-rail-none">No tickets.</p>'}</div>`;
 
   // ---- bottom: tickets by project / by status ----
