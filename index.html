@@ -85,12 +85,10 @@ input,select{font-family:inherit}
   display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
 .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer}
 .ehs-logo{display:block;height:24px;width:auto;flex:none}
-.tb-div{width:1px;height:20px;background:var(--ink);flex:none}
 .tb-glyph{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--surface-3);color:var(--ink-2)}
 .tb-glyph svg{width:18px;height:18px;display:block;margin-top:1px}
 .acd-glyph{width:52px;height:52px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--surface-3);color:var(--ink-2)}
 .acd-glyph svg{width:30px;height:30px;display:block;margin-top:2px}
-.tb-wf{font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--ink)}
 .tb-id{display:flex;flex-direction:column;justify-content:center;padding-left:15px;margin-left:3px;border-left:1px solid var(--line);cursor:pointer}
 .tb-title{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.15}
 .tb-sub{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
@@ -771,7 +769,7 @@ function topbar(title, sub){
   const dn=(u.full_name&&u.full_name.trim())?u.full_name.trim():friendlyName(u);
   return `<div class="topbar">
     <div class="tb-brand" onclick="go('#/')"><img class="ehs-logo" src="${LOGO}" alt="EduHubSpot">
-      <span class="tb-div"></span><span class="tb-wf">Workforce</span></div>
+      </div>
     <div class="tb-spacer"></div>
     <div class="tb-tools-wrap">
       <div class="tb-link" id="tbTools" onclick="toggleToolsMenu(event)">${ic('grid')} All tools
