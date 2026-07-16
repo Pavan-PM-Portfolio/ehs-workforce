@@ -1698,7 +1698,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .cal-grid-head div:first-child,.cal-grid-head div:last-child{color:var(--faint)}
 .cal-grid-body{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(132px,auto)}
 
-.cal-day{border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);background:#fff;
+.cal-day{cursor:pointer;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);background:#fff;
   padding:9px 10px 10px;min-height:132px;display:flex;flex-direction:column;gap:7px;cursor:default;position:relative;transition:background .12s}
 .cal-day:nth-child(7n){border-right:0}
 .cal-grid-body > .cal-day:nth-last-child(-n+7){border-bottom:0}
@@ -1708,13 +1708,11 @@ body[data-density="compact"] .board{padding:12px 16px}
 .cal-day.is-out .cal-fields{opacity:.42}
 .cal-day.is-out .cal-dnum{color:var(--faint)}
 .cal-day.is-sel{outline:2px solid var(--ink);outline-offset:-2px;z-index:2;background:#fff}
-.cal-day{cursor:pointer}
 .cal-nav{display:flex;gap:4px}
 .cal-nav button{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:7px !important;
   cursor:pointer;display:grid;place-items:center;color:var(--ink-2)}
 .cal-nav button:hover{background:var(--surface-2);border-color:var(--faint);color:var(--ink)}
 .cal-nav svg{width:14px;height:14px}
-.cal-day{cursor:pointer}
 .cal-day.is-sel{outline:2px solid var(--ink);outline-offset:-2px;z-index:2;background:#fff}
 
 .cal-dnum{font-size:14px;font-weight:700;color:var(--ink-2);line-height:1;font-variant-numeric:tabular-nums}
@@ -1771,7 +1769,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 .cal-dtop{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .cal-nb{font-size:9.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);
   border-radius:999px !important;padding:1px 6px;line-height:1.5}
-.cal-day{cursor:pointer}
 .cal-day.is-sel{outline:2px solid var(--ink);outline-offset:-2px;z-index:2;background:#fff}
 .cal-day:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .pn-notes{display:flex;flex-direction:column;gap:8px;padding-top:4px}
@@ -1928,23 +1925,57 @@ body[data-density="compact"] .board{padding:12px 16px}
 /* ===== Workspaces gallery (Option A) ===== */
 .sp-screen{position:fixed;top:62px;left:0;right:0;bottom:0;background:var(--bg);z-index:300;display:none;flex-direction:column;overflow:auto}
 .sp-screen.on{display:flex}
-.sp-top{display:flex;align-items:center;gap:12px;height:62px;padding:0 26px;background:#fff;border-bottom:1px solid var(--line);flex:none}
 .sp-brand-t{font-weight:800;font-size:15px;letter-spacing:-.01em}
 .sp-badge{font-size:10.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:20px !important;padding:3px 10px}
-.sp-search{margin-left:12px;flex:1;max-width:340px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px !important;padding:8px 12px;color:var(--faint)}
-.sp-search input{border:0;background:none;outline:none;font-family:inherit;font-size:12.5px;color:var(--ink);width:100%}
-.sp-topspacer{flex:1}
 .sp-body{flex:1;max-width:1140px;width:100%;margin:0 auto;padding:40px 30px 70px}
 .sp-eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
 .sp-title{font-size:30px;font-weight:800;letter-spacing:-.03em;margin:12px 0 8px}
 .sp-lede{font-size:14px;color:var(--muted);margin:0 0 30px}
 .sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+/* --- workspace icon tile + its animations --- */
+.sp-ic{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:13px !important;
+  background:var(--accent-soft);color:var(--accent)}
+.sp-ic svg{width:24px;height:24px;display:block;overflow:visible}
+@keyframes si-layers{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.8px)}}
+.si-l1{animation:si-layers 3s ease-in-out infinite}
+.si-l2{animation:si-layers 3s ease-in-out infinite .16s}
+.si-l3{animation:si-layers 3s ease-in-out infinite .32s}
+@keyframes si-rocket{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.2px)}}
+@keyframes si-flame{0%,100%{opacity:.25;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+.si-rk{animation:si-rocket 2.6s ease-in-out infinite}
+.si-rf{transform-origin:12px 16.6px;animation:si-flame .7s ease-in-out infinite}
+@keyframes si-ring{0%,100%{transform:scale(.86);opacity:.3}50%{transform:scale(1);opacity:1}}
+.si-t3{transform-origin:12px 12px;animation:si-ring 2.8s ease-in-out infinite}
+.si-t2{transform-origin:12px 12px;animation:si-ring 2.8s ease-in-out infinite .3s}
+.si-t1{transform-origin:12px 12px;animation:si-ring 2.8s ease-in-out infinite .6s}
+@keyframes si-spark{0%,100%{opacity:.55}45%,55%{opacity:1}}
+.si-sp{animation:si-spark 1.8s ease-in-out infinite}
+@keyframes si-grid{0%,72%,100%{opacity:.28}16%,52%{opacity:1}}
+.si-g{animation:si-grid 4s ease-in-out infinite}
+.si-g:nth-of-type(2){animation-delay:1s}
+.si-g:nth-of-type(3){animation-delay:2s}
+.si-g:nth-of-type(4){animation-delay:3s}
+@keyframes si-chart{0%,100%{transform:scaleY(.4)}52%{transform:scaleY(1)}}
+.si-c{transform-origin:center bottom;animation:si-chart 2.8s ease-in-out infinite}
+.si-c:nth-of-type(2){animation-delay:.16s}
+.si-c:nth-of-type(3){animation-delay:.32s}
+@keyframes si-flow{0%,8%{transform:translateX(0)}40%,52%{transform:translateX(7px)}82%,94%{transform:translateX(14px)}100%{transform:translateX(0)}}
+.si-fd{animation:si-flow 3.4s cubic-bezier(.6,0,.35,1) infinite}
+@keyframes si-cube{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.si-cb{transform-origin:12px 12px;animation:si-cube 4s ease-in-out infinite}
+/* picker */
+.sp-icons{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.sp-icb{aspect-ratio:1;display:grid;place-items:center;border:1px solid var(--line);border-radius:11px !important;
+  background:#fff;color:var(--ink-2);cursor:pointer;transition:border-color .12s,background .12s,color .12s}
+.sp-icb svg{width:22px;height:22px;overflow:visible}
+.sp-icb:hover{border-color:var(--faint);background:var(--surface-2)}
+.sp-icb.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);box-shadow:0 0 0 2.5px var(--accent-soft)}
+@media (prefers-reduced-motion:reduce){ .sp-ic *,.sp-icb *{animation:none !important} }
 .sp-card{background:#fff;border:1px solid var(--line);border-radius:15px !important;padding:20px;text-align:left;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;display:flex;flex-direction:column;min-height:172px;font-family:inherit}
 .sp-card:hover{border-color:#D3D7DD;transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(16,24,45,.4)}
 .sp-card:hover .sp-chev{opacity:1}
 .sp-card:hover .sp-manage{opacity:1}
 .sp-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:15px}
-.sp-ic{width:46px;height:46px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;letter-spacing:-.02em;flex:none;border-radius:13px !important}
 .sp-manage{width:28px;height:28px;border:0;background:none;color:var(--faint);cursor:pointer;display:grid;place-items:center;border-radius:8px !important;opacity:0;transition:opacity .15s}
 .sp-manage:hover{background:var(--surface-3);color:var(--ink)}
 .sp-nm{font-weight:700;font-size:15.5px;letter-spacing:-.01em}
@@ -2456,11 +2487,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div class="nt-menu" id="ntMenu"></div>
 <div class="toast" id="toast"></div>
 <div id="spacesScreen" class="sp-screen on">
-  <header class="sp-top">
-    <div class="sp-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="spSearch" placeholder="Search workspaces" autocomplete="off"></div>
-    <div class="sp-topspacer"></div>
-    <button class="btn primary" id="spCreateBtn">Create workspace</button>
-  </header>
   <div class="sp-body">
     <div class="sp-eyebrow">Workspaces</div>
     <h1 class="sp-title">Choose a workspace</h1>
@@ -2473,7 +2499,7 @@ body[data-density="compact"] .board{padding:12px 16px}
   <div class="sp-modal-b">
     <label class="sp-lbl">Name</label><input class="sp-inp" id="spmName" placeholder="e.g. Marketing Ops" autocomplete="off">
     <label class="sp-lbl">Description</label><input class="sp-inp" id="spmDesc" placeholder="Short description" autocomplete="off">
-    <label class="sp-lbl">Colour</label><div class="sp-colors" id="spmColors"></div>
+    <label class="sp-lbl">Icon</label><div class="sp-icons" id="spmIcons"></div>
     <label class="sp-lbl">Who can access <span class="sp-lbl-n" id="spmCount"></span></label>
     <div class="sp-members" id="spmMembers"></div>
   </div>
@@ -2641,6 +2667,68 @@ const CAT_ICON={
 function catIcon(id, color){ return `<svg class="tsb-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:${color}">${CAT_ICON[id]||''}</svg>`; }
 const EDIT_ICO='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
 const LOCK_ICO='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+/* Workspace icons. Chosen per workspace (replacing the old colour swatch) and
+   animated the same way as the tool icons in the top nav. */
+const SP_ICONS=[
+  {id:'layers', name:'Layers'},
+  {id:'rocket', name:'Rocket'},
+  {id:'target', name:'Target'},
+  {id:'spark',  name:'Spark'},
+  {id:'grid',   name:'Grid'},
+  {id:'chart',  name:'Chart'},
+  {id:'flow',   name:'Flow'},
+  {id:'cube',   name:'Cube'},
+];
+const SP_ICON={
+  layers:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path class="si-l1" d="M12 3.2 21 8l-9 4.8L3 8z" fill="currentColor"/>
+      <path class="si-l2" d="M3 12.4 12 17.2l9-4.8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity=".55"/>
+      <path class="si-l3" d="M3 16.6 12 21.4l9-4.8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" opacity=".3"/>
+    </svg>`,
+  rocket:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <g class="si-rk">
+        <path d="M12 2.4c3.2 2.2 5 5.6 5 9.4l-2.2 2.6H9.2L7 11.8c0-3.8 1.8-7.2 5-9.4z" fill="currentColor" opacity=".22"/>
+        <path d="M12 2.4c3.2 2.2 5 5.6 5 9.4l-2.2 2.6H9.2L7 11.8c0-3.8 1.8-7.2 5-9.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="12" cy="9.4" r="1.7" fill="currentColor"/>
+        <path d="M9.2 14.4 7 17.6l2.4-.5M14.8 14.4 17 17.6l-2.4-.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+      <path class="si-rf" d="M12 16.6v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>`,
+  target:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle class="si-t3" cx="12" cy="12" r="9.2" stroke="currentColor" stroke-width="1.6" opacity=".28"/>
+      <circle class="si-t2" cx="12" cy="12" r="5.6" stroke="currentColor" stroke-width="1.7" opacity=".55"/>
+      <circle class="si-t1" cx="12" cy="12" r="2.2" fill="currentColor"/>
+    </svg>`,
+  spark:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path class="si-sp" d="M13 2.4 4.4 13.6h6L11 21.6l8.6-11.2h-6z" fill="currentColor" opacity=".2"/>
+      <path class="si-sp" d="M13 2.4 4.4 13.6h6L11 21.6l8.6-11.2h-6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>`,
+  grid:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect class="si-g" x="3" y="3" width="8" height="8" rx="2.2" fill="currentColor"/>
+      <rect class="si-g" x="13" y="3" width="8" height="8" rx="2.2" fill="currentColor"/>
+      <rect class="si-g" x="13" y="13" width="8" height="8" rx="2.2" fill="currentColor"/>
+      <rect class="si-g" x="3" y="13" width="8" height="8" rx="2.2" fill="currentColor"/>
+    </svg>`,
+  chart:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect class="si-c" x="3.6" y="12" width="3.8" height="8" rx="1.3" fill="currentColor" opacity=".45"/>
+      <rect class="si-c" x="10.1" y="8" width="3.8" height="12" rx="1.3" fill="currentColor" opacity=".7"/>
+      <rect class="si-c" x="16.6" y="4" width="3.8" height="16" rx="1.3" fill="currentColor"/>
+    </svg>`,
+  flow:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="5" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7"/>
+      <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7"/>
+      <circle cx="19" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7"/>
+      <path d="M7.6 12h1.8M14.6 12h1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".45"/>
+      <circle class="si-fd" cx="5" cy="12" r="1.4" fill="currentColor"/>
+    </svg>`,
+  cube:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <g class="si-cb">
+        <path d="M12 2.6 20.6 7v10L12 21.4 3.4 17V7z" fill="currentColor" opacity=".18"/>
+        <path d="M12 2.6 20.6 7v10L12 21.4 3.4 17V7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M3.4 7 12 11.6 20.6 7M12 11.6v9.8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/>
+      </g>
+    </svg>`
+};
 const SWATCHES = ['#9BA3AF','#6B7280','#2743E0','#7A3FF2','#0EA5E9','#0E8FA8','#B96A00','#C026D3','#CE2F26','#0E8F5A'];
 const CATLABEL = {todo:'To Do', inprogress:'In Progress', done:'Done'};
 const CATCOLOR = {todo:'#727A87', inprogress:'#2743E0', done:'#0E8F5A'};
@@ -7692,17 +7780,14 @@ async function manualRefresh(btn){
 function hideSpaces(){ const el=document.getElementById('spacesScreen'); if(el) el.classList.remove('on'); }
 function renderSpaces(){
   const grid=document.getElementById('spGrid'); if(!grid) return;
-  const qi=document.getElementById('spSearch'); const q=(qi&&qi.value||'').trim().toLowerCase();
-  let list=store.spaces().filter(canAccessSpace);
-  if(q) list=list.filter(sp=>((sp.name||'')+' '+(sp.desc||'')).toLowerCase().includes(q));
+  const q='';
+  const list=store.spaces().filter(canAccessSpace);
   const DOTS='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>';
   const CHV='<svg class="sp-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
   grid.innerHTML=list.map(sp=>{
     const mem=(sp.members||[]).length;
-    const c=sp.color||'#3B6FE0';
-    const ini=(sp.name||'?').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase();
     return `<div class="sp-card" data-space="${sp.id}">
-      <div class="sp-card-top"><div class="sp-ic" style="background:linear-gradient(135deg, ${c}, ${c}22)">${ini}</div>
+      <div class="sp-card-top"><div class="sp-ic">${SP_ICON[sp.icon]||SP_ICON.layers}</div>
         ${(typeof IS_ADMIN!=='undefined'&&IS_ADMIN)?`<button class="sp-manage" data-space="${sp.id}" title="Manage workspace">${DOTS}</button>`:''}</div>
       <div class="sp-nm">${esc(sp.name||'')}</div>
       <div class="sp-desc">${esc(sp.desc||'')}</div>
@@ -7731,9 +7816,11 @@ function openSpaceModal(id){
   document.getElementById('spModalSave').textContent=sp?'Save changes':'Create workspace';
   document.getElementById('spmName').value=sp?(sp.name||''):'';
   document.getElementById('spmDesc').value=sp?(sp.desc||''):'';
-  const color=sp?sp.color:SP_COLORS[0];
-  document.getElementById('spmColors').innerHTML=SP_COLORS.map(c=>`<button type="button" class="sp-color ${c===color?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
-  document.querySelectorAll('#spmColors .sp-color').forEach(b=>b.onclick=()=>{ document.querySelectorAll('#spmColors .sp-color').forEach(x=>x.classList.remove('on')); b.classList.add('on'); });
+  const icon=(sp&&sp.icon)||SP_ICONS[0].id;
+  document.getElementById('spmIcons').innerHTML=SP_ICONS.map(o=>
+    `<button type="button" class="sp-icb ${o.id===icon?'on':''}" data-i="${o.id}" title="${o.name}" aria-label="${o.name}">${SP_ICON[o.id]}</button>`).join('');
+  document.querySelectorAll('#spmIcons .sp-icb').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#spmIcons .sp-icb').forEach(x=>x.classList.toggle('on', x===b)); });
   const mem=sp?(sp.members||[]):store.users().map(u=>u.id);
   document.getElementById('spmMembers').innerHTML=store.users().map(u=>`<label class="sp-mrow"><input type="checkbox" value="${u.id}" ${mem.includes(u.id)?'checked':''}><span class="sp-av" style="background:${u.color}22;color:${u.color};margin:0;border:0">${_ini(u.name)}</span>${esc(u.name)}<span class="sp-mrole">${esc(u.role||'')}</span></label>`).join('');
   const upd=()=>{ const n=document.querySelectorAll('#spmMembers input:checked').length; document.getElementById('spmCount').textContent='· '+n+' selected'; };
@@ -7745,10 +7832,10 @@ function closeSpaceModal(){ document.getElementById('spModalScrim').classList.re
 function saveSpace(){
   const name=document.getElementById('spmName').value.trim(); if(!name){ toast('Give the workspace a name'); return; }
   const desc=document.getElementById('spmDesc').value.trim();
-  const on=document.querySelector('#spmColors .sp-color.on'); const color=on?on.dataset.c:SP_COLORS[0];
+  const on=document.querySelector('#spmIcons .sp-icb.on'); const icon=on?on.dataset.i:SP_ICONS[0].id;
   const members=[...document.querySelectorAll('#spmMembers input:checked')].map(i=>i.value);
-  if(_spEdit){ store.updateSpace(_spEdit,{name,desc,color,members}); toast('Workspace updated'); }
-  else { store.addSpace({id:'ws_'+Date.now(),name,desc,color,members,createdAt:today()}); toast('Workspace created'); }
+  if(_spEdit){ store.updateSpace(_spEdit,{name,desc,icon,members}); toast('Workspace updated'); }
+  else { store.addSpace({id:'ws_'+Date.now(),name,desc,icon,members,createdAt:today()}); toast('Workspace created'); }
   closeSpaceModal(); renderSpaces();
 }
 let _spDelArm=false, _spDelTimer=null;
@@ -7788,13 +7875,11 @@ function deleteProject(){
 }
 function wireSpaces(){
   const g=id=>document.getElementById(id);
-  if(g('spCreateBtn')) g('spCreateBtn').onclick=()=>openSpaceModal(null);
   if(g('spModalX')) g('spModalX').onclick=closeSpaceModal;
   if(g('spModalCancel')) g('spModalCancel').onclick=closeSpaceModal;
   if(g('spModalSave')) g('spModalSave').onclick=saveSpace;
   if(g('spModalDelete')) g('spModalDelete').onclick=deleteSpace;
   if(g('spModalScrim')) g('spModalScrim').onclick=e=>{ if(e.target===g('spModalScrim')) closeSpaceModal(); };
-  if(g('spSearch')) g('spSearch').oninput=()=>renderSpaces();
   if(g('spSwitch')) g('spSwitch').onclick=backToSpaces;
   if(g('pjModalX')) g('pjModalX').onclick=closeProjectModal;
   if(g('pjModalCancel')) g('pjModalCancel').onclick=closeProjectModal;
