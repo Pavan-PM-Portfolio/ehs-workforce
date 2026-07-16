@@ -1686,8 +1686,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 /* ---------- Calendar ----------
    Full-width month grid, current month only. Cells name the field rather than
    relying on icons; the detail lives in a hover popover. */
-.cal-count{font-size:12px;font-weight:600;color:var(--muted)}
-.cal-count b{color:var(--crit);font-weight:700}
 .cal-monthbar{display:flex;align-items:baseline;gap:14px;margin:2px 0 14px}
 .cal-month{font-size:22px;font-weight:800;letter-spacing:-.025em;margin:0}
 .cal-hint{font-size:11.5px;color:var(--faint);font-weight:600}
@@ -1704,9 +1702,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .cal-grid-body > .cal-day:nth-last-child(-n+7){border-bottom:0}
 .cal-day:hover{background:var(--surface-2)}
 .cal-day.is-weekend{background:#FCFDFE}
-.cal-day.is-out{background:var(--surface-2)}
-.cal-day.is-out .cal-fields{opacity:.42}
-.cal-day.is-out .cal-dnum{color:var(--faint)}
+.cal-day.is-pad{background:var(--surface-2);cursor:default;pointer-events:none}
 .cal-day.is-sel{outline:2px solid var(--ink);outline-offset:-2px;z-index:2;background:#fff}
 .cal-nav{display:flex;gap:4px}
 .cal-nav button{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:7px !important;
@@ -5557,7 +5553,7 @@ function renderDashboard(){
 }
 
 /* ---------- Calendar (by due date) ---------- */
-let _calRef=null, _calSel=null;
+let _calRef=null, _calSel=null, _calScroll=0, _calWheelLock=false;
 
 /* ---------- Notes ----------
    Day-scoped scribbles. Stored on the author's own person record (prefs.notes),
@@ -5717,10 +5713,7 @@ function renderCalendar(){
   }
   if(cells.slice(35).every(c=>c.out)) cells=cells.slice(0,35);
 
-  if(!_calSel || !cells.find(c=>c.iso===_calSel)) _calSel = cells.find(c=>c.iso===_td) ? _td : cells.find(c=>!c.out).iso;
-
-  let mDep=0, mCre=0, mOvd=0;
-  cells.filter(c=>!c.out).forEach(c=>{ const x=metrics(c.iso); mDep+=x.deployed.length; mCre+=x.created.length; mOvd+=x.overdue.length; });
+  if(!_calSel || !cells.find(c=>c.iso===_calSel && !c.out)) _calSel = cells.find(c=>c.iso===_td) ? _td : cells.find(c=>!c.out).iso;
 
   // hover sets: everything that touches that date, deduped
   _calPops={};
@@ -5728,6 +5721,8 @@ function renderCalendar(){
   const head=dowNames.map(n=>`<div>${n}</div>`).join('');
 
   const grid=cells.map(c=>{
+    // Dates from the neighbouring month read as noise — the pad is just blank.
+    if(c.out) return '<div class="cal-day is-pad" aria-hidden="true"></div>';
     const x=metrics(c.iso);
     const seen=new Set(); const all=[];
     [...x.overdue, ...x.due, ...x.deployed, ...x.created].forEach(t=>{ if(!seen.has(t.id)){ seen.add(t.id); all.push(t); } });
@@ -5741,7 +5736,7 @@ function renderCalendar(){
     if(x.top)             rows.push(`<span class="cal-f" style="--fc:${PCOL[x.top.priority]||'var(--faint)'}"><span class="l">Highest due</span><span class="v" style="color:var(--fc)">${esc(x.top.priority||'\u2014')}</span></span>`);
 
     const nN=notesOnDate(c.iso).length;
-    const cls=['cal-day', c.out?'is-out':'', c.weekend?'is-weekend':'', c.iso===_td?'is-today':'', c.iso===_calSel?'is-sel':''].filter(Boolean).join(' ');
+    const cls=['cal-day', c.weekend?'is-weekend':'', c.iso===_td?'is-today':'', c.iso===_calSel?'is-sel':''].filter(Boolean).join(' ');
     return `<div class="${cls}" data-cal="${c.iso}" role="button" tabindex="0">
       <div class="cal-dtop"><span class="cal-dnum">${c.d.getDate()}</span>
         ${nN?`<span class="cal-nb" title="${nN} note${nN===1?'':'s'}">${nN}</span>`:''}</div>
@@ -5755,7 +5750,6 @@ function renderCalendar(){
       </div>
       <h2 class="cal-month">${now.toLocaleString('en-US',{month:'long'})} ${y}</h2>
       ${_isoLocal(new Date()).slice(0,7)!==_isoLocal(now).slice(0,7)?'<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="calToday" type="button">Today</button>':''}
-      <span class="cal-count">${mDep} deployed \u00b7 ${mCre} created${mOvd?` \u00b7 <b>${mOvd} overdue</b>`:''}</span>
       <span style="flex:1"></span>
       <span class="cal-hint">Click a date for its tickets \u00b7 notes attach to the day you pick</span></div>
     <div class="cal-layout">
@@ -5773,10 +5767,20 @@ function renderCalendar(){
 
   wireCalPops();
   wireNotes();
-  document.getElementById('calPrev').onclick=()=>{ _calRef=new Date(y,m-1,1); renderCalendar(); };
-  document.getElementById('calNext').onclick=()=>{ _calRef=new Date(y,m+1,1); renderCalendar(); };
-  const _tb=document.getElementById('calToday');
-  if(_tb) _tb.onclick=()=>{ _calRef=new Date(); _calRef.setDate(1); _calSel=today(); renderCalendar(); };
+  // Scroll sideways over the grid to step through months — trackpad swipe or
+  // shift+wheel. Debounced so one gesture moves one month, not five.
+  const _calWheelEl=document.getElementById('calGrid');
+  if(_calWheelEl) _calWheelEl.onwheel=e=>{
+    const dx = Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+    if(!dx) return;                                  // vertical scroll: leave the page alone
+    e.preventDefault();
+    _calScroll=(_calScroll||0)+dx;
+    if(Math.abs(_calScroll)<90) return;              // ignore the small stuff
+    const dir=_calScroll>0?1:-1; _calScroll=0;
+    if(_calWheelLock) return;
+    _calWheelLock=true; setTimeout(()=>{ _calWheelLock=false; }, 260);
+    _calRef=new Date(y, m+dir, 1); renderCalendar();
+  };
   document.getElementById('calPrev').onclick=()=>{ _calRef=new Date(y,m-1,1); renderCalendar(); };
   document.getElementById('calNext').onclick=()=>{ _calRef=new Date(y,m+1,1); renderCalendar(); };
   const _ct=document.getElementById('calToday');
