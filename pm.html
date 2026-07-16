@@ -1661,6 +1661,8 @@ body[data-density="compact"] .board{padding:12px 16px}
 .ehs-detail{padding:24px;min-width:0}
 .ehs-d-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .ehs-d-head h2{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:0}
+.pj-name-inp{font-family:inherit;font-size:19px;font-weight:800;letter-spacing:-.025em;color:var(--ink);
+  border:1px solid var(--accent) !important;border-radius:8px !important;background:#fff;padding:2px 8px;margin:-3px -9px;outline:none;min-width:260px}
 .ehs-d-sub{font-size:12px;color:var(--ink-2);margin:5px 0 0;font-weight:500}
 .ehs-d-sub b{font-family:ui-monospace,Menlo,monospace;font-weight:600;color:var(--ink)}
 .ehs-d-stats{display:grid;gap:0;background:#fff;border:1px solid var(--line);border-radius:6px !important;overflow:hidden;margin:18px 0 22px}
@@ -5469,7 +5471,7 @@ function renderProjects(){
   if(hp) subBits.push(`<b class="hot">${hp}</b> high priority`);
   if(pj) subBits.push(`<b>${esc(pj.key)}</b>`);
   if(ui.pjSel==='__none') subBits.push('not filed under any project');
-  const dHead=`<div class="ehs-d-head"><div><h2>${esc(dTitle)}</h2>
+  const dHead=`<div class="ehs-d-head"><div><h2 id="pjDetailTitle">${esc(dTitle)}</h2>
       <p class="ehs-d-sub">${subBits.join(' \u00b7 ')}</p></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prNewTk" type="button">New ticket</button>
@@ -5504,7 +5506,10 @@ function renderProjects(){
   const kb=document.getElementById('pjKebab'), mn=document.getElementById('pjMenu');
   if(kb&&mn){
     kb.onclick=e=>{ e.stopPropagation(); mn.classList.toggle('on'); };
-    document.addEventListener('click',e=>{ if(!e.target.closest('.pp-menu-wrap')) mn.classList.remove('on'); });
+    // one delegated listener, not a new one per render
+    if(!window._pjMenuWired){ window._pjMenuWired=true;
+      document.addEventListener('click',e=>{ if(!e.target.closest('.pp-menu-wrap')){
+        const m=document.getElementById('pjMenu'); if(m) m.classList.remove('on'); } }); }
     mn.querySelectorAll('button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation(); mn.classList.remove('on');
       const act=btn.dataset.act, pid=ui.pjSel;
       if(act==='open') openProjectPop(pid);
@@ -5525,11 +5530,17 @@ function projRowsHtml(pid){
     </div>`; }).join('')||'<div class="pp-empty">No tickets yet. Add one to start.</div>';
 }
 function renameProjectInline(pid){
-  const t=document.getElementById('ppTitle'); const p=store.project(pid); if(!t||!p) return;
-  const inp=document.createElement('input'); inp.className='pp-name-inp'; inp.id='ppTitle'; inp.value=p.name; inp.spellcheck=false;
+  // #ppTitle only exists inside the project pop-up. The Projects page now renders
+  // a detail <h2> instead, so fall back to that — otherwise rename silently did
+  // nothing from the page's own kebab.
+  const t=document.getElementById('ppTitle') || document.getElementById('pjDetailTitle');
+  const p=store.project(pid); if(!t||!p) return;
+  const inPopup = t.id==='ppTitle';
+  const inp=document.createElement('input'); inp.className=inPopup?'pp-name-inp':'pj-name-inp'; inp.id=t.id; inp.value=p.name; inp.spellcheck=false;
   t.replaceWith(inp); inp.focus(); inp.select(); let done=false;
   const save=commit=>{ if(done) return; done=true; const v=inp.value.trim();
     if(commit&&v&&v!==p.name){ store.updateProject(pid,{name:v}); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); }
+    if(!inPopup){ renderProjects(); return; }           // the page re-renders itself
     const nd=document.createElement('div'); nd.className='ti'; nd.id='ppTitle'; nd.textContent=(commit&&v)?v:p.name; inp.replaceWith(nd); };
   inp.onkeydown=e=>{ if(e.key==='Enter') save(true); else if(e.key==='Escape') save(false); };
   inp.onblur=()=>save(true);
