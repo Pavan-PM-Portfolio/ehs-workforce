@@ -104,7 +104,7 @@ input,select{font-family:inherit}
 .tb-link:hover{background:var(--surface-2)}
 .tb-link.on{color:var(--accent)}
 .tb-tools-wrap{position:relative;flex:none}
-.tb-tools-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:60;min-width:250px;background:#fff;
+.tb-tools-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:640;min-width:250px;background:#fff;
   border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 50px -18px rgba(16,26,51,.36);padding:6px;display:none}
 .tb-tools-menu.on{display:block}
 .tb-tools-menu .tm-h{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:8px 10px 6px}
@@ -144,11 +144,8 @@ input,select{font-family:inherit}
 .ti-om-a{transform-origin:8.6px 9.4px;animation:ti-oma 6s linear infinite}
 .ti-om-b{transform-origin:16.4px 16px;animation:ti-omb 4s linear infinite}
 /* Coming soon */
-.tb-tool.tb-ws{justify-content:center}
 .tb-tool.tb-soon{cursor:default}
 .tb-tool.tb-soon:hover{background:none}
-.tb-tool.tb-soon .tm-ico,.tb-tool.tb-soon .tn{opacity:.5}
-.tm-soon{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
   color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:3px 7px;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){
   .ti-pm-t,.ti-dh-body,.ti-dh-w1,.ti-dh-w2,.ti-sa-b,.ti-sa-a,.ti-pl-r,.ti-pl-t,.ti-om-a,.ti-om-b{animation:none}
@@ -743,8 +740,7 @@ function buildToolsMenu(){
   const rows=TOOLS.filter(t=>t.status!=='live' || ids.includes(t.id)).map(t=>{
     const icon=`<span class="tm-ico">${TOOL_ICON[t.id]||''}</span>`;
     if(t.status!=='live')
-      return `<div class="tb-tool tb-soon">${icon}<span class="tn">${esc(t.name)}</span>
-        <span class="tm-soon">Coming soon</span></div>`;
+      return `<div class="tb-tool tb-soon">${icon}<span class="tn">${esc(t.name)}</span></div>`;
     const cur=t.file===here;
     return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}"${cur?'':' target="_blank" rel="noopener noreferrer"'}>${icon}
       <span class="tn">${esc(t.name)}</span>
