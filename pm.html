@@ -229,6 +229,9 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .sb-done-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px !important}
 .sb-done-t{font-size:13px;font-weight:700}
 .sb-done-d{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pj-swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center;height:38px}
+.pj-sw{width:22px;height:22px;border-radius:6px !important;border:2px solid transparent;cursor:pointer;padding:0}
+.pj-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
 .epm-h{display:flex;align-items:center;justify-content:space-between}
 .epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
 .epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
@@ -2349,6 +2352,22 @@ body[data-density="compact"] .board{padding:12px 16px}
       </div>
     </div>
     <div class="modal-f"><button class="btn ghost" id="epCancel" type="button">Cancel</button><button class="btn primary" id="epSubmit" type="button">Create epic</button></div>
+  </div>
+</div>
+
+<!-- Create project dialog -->
+<div class="modal-wrap" id="projWrap">
+  <div class="modal sub-modal" style="width:440px">
+    <div class="modal-h">Create project<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Group tickets under a name and a key.</div></div>
+    <div class="modal-b">
+      <div class="field" style="margin-bottom:14px"><label>Project name</label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
+      <div class="fgrid2">
+        <div class="field"><label>Key</label><input id="pjKey" placeholder="MKT" maxlength="10" autocomplete="off"/></div>
+        <div class="field"><label>Colour</label><div class="pj-swatches" id="pjSwatches"></div></div>
+      </div>
+      <div class="loghint" style="margin-top:14px">The key prefixes every ticket in this project. It is filled in from the name \u2014 change it if you like.</div>
+    </div>
+    <div class="modal-f"><button class="btn" id="pjCancel">Cancel</button><button class="btn primary" id="pjCreate">Create project</button></div>
   </div>
 </div>
 
@@ -5400,7 +5419,7 @@ function renderProjects(){
   // These were counted in the strip but belonged to no row in the rail, which is
   // why the totals never reconciled.
   const orphans=allK.filter(t=>!t.project || !store.project(t.project));
-  const addFn=()=>{ store.addProject('New project'); ui.pjSel=null; renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); };
+  const addFn=()=>openProjModal();
 
   const head=`<div class="ehs-page-head"><h1>Projects</h1><button class="ehs-btn" id="prAddProj" type="button">Add project</button></div>`;
   if(!projects.length && !orphans.length){
@@ -5529,6 +5548,42 @@ function projRowsHtml(pid){
       <span class="pp-stat">${s?esc(s.name):esc(k.status)}</span>
     </div>`; }).join('')||'<div class="pp-empty">No tickets yet. Add one to start.</div>';
 }
+/* ---------- Create project dialog ---------- */
+let _pjColor=null, _pjKeyTouched=false;
+function openProjModal(){
+  _pjColor=SWATCHES[store.projects().length % SWATCHES.length];
+  _pjKeyTouched=false;
+  const nm=document.getElementById('pjName'), ky=document.getElementById('pjKey');
+  nm.value=''; ky.value='';
+  document.getElementById('pjSwatches').innerHTML=SWATCHES.map(c=>
+    `<button type="button" class="pj-sw ${c===_pjColor?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
+  document.querySelectorAll('#pjSwatches .pj-sw').forEach(b=>b.onclick=()=>{ _pjColor=b.dataset.c;
+    document.querySelectorAll('#pjSwatches .pj-sw').forEach(x=>x.classList.toggle('on', x.dataset.c===_pjColor)); });
+  // key follows the name until the user edits it themselves
+  nm.oninput=()=>{ if(_pjKeyTouched) return;
+    ky.value=(nm.value.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase()); };
+  ky.oninput=()=>{ _pjKeyTouched=true; ky.value=ky.value.toUpperCase().replace(/[^A-Z0-9]/g,''); };
+  nm.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); saveProjModal(); } };
+  ky.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); saveProjModal(); } };
+  document.getElementById('projWrap').classList.add('on');
+  setTimeout(()=>nm.focus(),40);
+}
+function closeProjModal(){ const w=document.getElementById('projWrap'); if(w) w.classList.remove('on'); }
+function saveProjModal(){
+  const name=document.getElementById('pjName').value.trim();
+  if(!name){ toast('Give the project a name'); return; }
+  if(store.projects().some(p=>p.name.toLowerCase()===name.toLowerCase())){ toast('A project called that already exists'); return; }
+  const key=(document.getElementById('pjKey').value.trim().toUpperCase())
+            || name.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase() || 'PRJ';
+  const id=store.addProject(name);
+  store.updateProject(id,{key, color:_pjColor||SWATCHES[0]});
+  closeProjModal();
+  ui.pjSel=id;                       // land on the project you just made
+  if(ui.view==='projects') renderProjects(); else renderAll();
+  if(window.renderProjectSwitch) renderProjectSwitch();
+  toast('Project created');
+}
+
 function renameProjectInline(pid){
   // #ppTitle only exists inside the project pop-up. The Projects page now renders
   // a detail <h2> instead, so fall back to that — otherwise rename silently did
@@ -5633,7 +5688,7 @@ function renderOperations(){
       <div class="op-sec-h"><h3>People</h3><button class="btn" id="opAddUser"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Add teammate</button></div>
       <div class="op-list">${userRows}</div>
     </div>`;
-  document.getElementById('opAddProj').onclick=()=>{ const id=store.addProject('New project'); renderOperations(); renderProjectSwitch&&renderProjectSwitch();
+  document.getElementById('opAddProj').onclick=()=>{ openProjModal(); return; const id=store.addProject('New project'); renderOperations(); renderProjectSwitch&&renderProjectSwitch();
     const inp=document.querySelector(`.op-row[data-proj="${id}"] .op-name`); if(inp){ inp.focus(); inp.select(); } };
   document.getElementById('opAddUser').onclick=()=>{ const id=store.addUser('New teammate'); renderOperations();
     const inp=document.querySelector(`.op-row[data-user="${id}"] .op-name`); if(inp){ inp.focus(); inp.select(); } };
@@ -6375,6 +6430,12 @@ document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#na
 (function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>document.body.classList.toggle('nav-collapsed'); })();
 document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
 document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>{ ui.analyticsTab=it.dataset.atab; setView('analytics'); });
+(function(){ const pc=document.getElementById('pjCancel'), pv=document.getElementById('pjCreate'), pw=document.getElementById('projWrap');
+  if(pc) pc.onclick=closeProjModal;
+  if(pv) pv.onclick=saveProjModal;
+  if(pw) pw.onclick=e=>{ if(e.target===pw) closeProjModal(); };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && pw && pw.classList.contains('on')) closeProjModal(); });
+})();
 (function(){ const c=document.getElementById('sbCancel'), sv=document.getElementById('sbSave'), w=document.getElementById('subWrap');
   if(c) c.onclick=closeSubModal;
   if(sv) sv.onclick=saveSubModal;
