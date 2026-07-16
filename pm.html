@@ -232,6 +232,9 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .pj-swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center;height:38px}
 .pj-sw{width:22px;height:22px;border-radius:6px !important;border:2px solid transparent;cursor:pointer;padding:0}
 .pj-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
+.bs-dirty{display:none;font-size:11px;font-weight:700;color:var(--warn);background:#FFF4E5;border-radius:20px !important;padding:3px 9px}
+.bs-dirty.on{display:inline-flex}
+.ehs-btn:disabled{opacity:.45;cursor:not-allowed}
 .epm-h{display:flex;align-items:center;justify-content:space-between}
 .epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
 .epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
@@ -568,6 +571,8 @@ body.nav-collapsed .side-head{justify-content:center;padding:10px 0 6px}
 .scroll{flex:1;overflow:auto;min-height:0}
 body.view-board .scroll{background:var(--grid-bg)}
 body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[data-view="settings"] .stickyhead{display:none}
+body[data-view="boardsettings"] #newTaskBtn{display:none !important}
+body[data-view="boardsettings"] .topbar{border-bottom:0}
 .stickyhead{flex:none;background:var(--bg)}
 .board{display:flex;gap:14px;padding:18px 20px;min-width:max-content;align-items:flex-start}
 .board.grouped{flex-direction:column;align-items:stretch;gap:0;padding:8px 0 20px;min-width:0}
@@ -945,6 +950,11 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 .sub-edit:hover{background:var(--surface-3);color:var(--ink-2)}
 .subs-empty{font-size:12.5px;color:var(--faint);padding:2px 0 12px}
 .fv-input:focus{background:var(--surface);border-color:var(--accent)}
+.dt-v .fv-input{width:auto;max-width:100%;text-align:right;padding:4px 8px;margin:0 -8px;border-radius:7px !important;border:1px solid transparent !important}
+.dt-v input.fv-input{min-width:70px}
+.dt-v .fv-input:hover{background:var(--surface-3)}
+.dt-v input.fv-input:focus{background:#fff;border-color:var(--accent) !important;box-shadow:0 0 0 3px var(--accent-soft)}
+.dt-v span.fv-input:hover{background:none}   /* locked value — not a control */
 .ov{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--surface);border:1px solid var(--line);
   border-radius:14px !important;overflow:hidden;margin-bottom:22px}
 .ov-i{display:flex;flex-direction:column;gap:9px;min-width:0;padding:16px 18px;
@@ -2235,6 +2245,7 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="pagewrap" id="velocitywrap" style="display:none"></div>
       <div class="pagewrap" id="usersedwrap" style="display:none"></div>
       <div class="pagewrap" id="settingswrap" style="display:none"></div>
+      <div class="pagewrap" id="boardsettingswrap" style="display:none"></div>
       <div class="pagewrap" id="teamwrap" style="display:none"></div>
       <div class="pagewrap" id="soonwrap" style="display:none"></div>
     </div>
@@ -2433,26 +2444,6 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="loghint">Changes sync to your workspace. This updates the member's profile email — not their Supabase login email (that must be changed in Supabase → Authentication).</div>
     </div>
     <div class="modal-f"><button class="btn" id="ueCancel">Cancel</button><button class="btn primary" id="ueSave">Save changes</button></div>
-  </div>
-</div>
-
-<!-- Board & workflow modal -->
-<div class="modal-wrap" id="bsWrap">
-  <div class="modal" style="width:660px">
-    <div class="modal-h">Board &amp; workflow
-      <div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Add boards, choose their columns, and define which status can move to which.</div>
-    </div>
-    <div style="padding:14px 22px 0"><div class="subtabs" id="bsTabs">
-      <button data-bt="boards" class="on">Boards</button>
-      <button data-bt="columns">Columns</button>
-      <button data-bt="flow">Transitions</button>
-      <button data-bt="fields">Fields</button>
-    </div></div>
-    <div class="modal-b" id="bsBody" style="min-height:320px"></div>
-    <div class="modal-f" style="justify-content:space-between">
-      <button class="btn" id="bsAdd">+ Add</button>
-      <button class="btn primary" id="bsDone">Done</button>
-    </div>
   </div>
 </div>
 
@@ -4195,37 +4186,93 @@ function renameBoardInline(id){
 function addBoardFromSide(){ const id=store.addBoard('New board'); ui.board=id; setView('board'); bsTab='boards'; openBoardSettings();
   setTimeout(()=>{ const inp=document.querySelector('.brd-row.active .brd-name'); if(inp){ inp.focus(); inp.select(); } },30); }
 let bsTab='boards';
-function openBoardSettings(){ renderBoardSettings(); document.getElementById('bsWrap').classList.add('on'); }
-function closeBoardSettings(){ document.getElementById('bsWrap').classList.remove('on'); renderAll(); fillFilters(); }
+function openBoardSettings(){ ui.view='boardsettings'; setView('boardsettings'); }
+function closeBoardSettings(){ renderAll(); fillFilters(); }
 function renderBoardSettings(){
-  document.querySelectorAll('#bsTabs button').forEach(b=>b.classList.toggle('on', b.dataset.bt===bsTab));
-  const addBtn=document.getElementById('bsAdd');
-  addBtn.style.display = bsTab==='flow'?'none':'inline-flex';
-  addBtn.textContent = bsTab==='boards'?'+ Add board':bsTab==='fields'?'+ Add field':'+ New status';
-  const body=document.getElementById('bsBody');
+  const el=document.getElementById('boardsettingswrap'); if(!el) return;
+  try{ urlSync(); }catch(e){}
   const b=activeBoard();
-  if(bsTab==='boards') body.innerHTML=bsBoards();
-  else if(bsTab==='columns') body.innerHTML=bsColumns(b);
-  else if(bsTab==='fields') body.innerHTML=bsFields();
-  else body.innerHTML=bsFlow(b);
+  const SECS=[
+    {k:'boards',  n:'Boards',      d:'Add or rename the boards in this workspace'},
+    {k:'columns', n:'Columns',     d:'Which statuses appear on this board'},
+    {k:'flow',    n:'Transitions', d:'Which status can move to which'},
+    {k:'fields',  n:'Fields',      d:'Custom fields on every ticket'},
+  ];
+  if(!SECS.find(x=>x.k===bsTab)) bsTab='boards';
+  const cur=SECS.find(x=>x.k===bsTab);
+  const addLbl = bsTab==='boards'?'Add board' : bsTab==='fields'?'Add field' : bsTab==='columns'?'New status' : null;
+  const dirty = bsTab==='flow' && _flowDirty;
+
+  const rail=SECS.map(x=>`<button type="button" class="ehs-li" data-bs="${x.k}" aria-current="${bsTab===x.k}">
+      <span class="ehs-li-n">${esc(x.n)}</span></button>`).join('');
+  let body='';
+  if(bsTab==='boards') body=bsBoards();
+  else if(bsTab==='columns') body=bsColumns(b);
+  else if(bsTab==='fields') body=bsFields();
+  else body=bsFlow(b);
+
+  el.innerHTML=`<div class="ehs-page-head"><h1>Board &amp; workflow</h1></div>
+    <div class="ehs-pane">
+      <aside class="ehs-rail"><nav class="ehs-rail-list" id="bsRail" style="padding-top:10px">${rail}</nav></aside>
+      <section class="ehs-detail">
+        <div class="ehs-d-head"><div><h2>${esc(cur.n)}</h2><p class="ehs-d-sub">${esc(cur.d)}</p></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${addLbl?`<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="bsAdd" type="button">${addLbl}</button>`:''}
+            ${bsTab==='flow'?`<span class="bs-dirty ${dirty?'on':''}" id="bsDirty">Unsaved changes</span>
+              <button class="ehs-btn ehs-btn--sm" id="bsSave" type="button" ${dirty?'':'disabled'}>Save changes</button>`:''}
+          </div></div>
+        <div id="bsBody">${body}</div>
+      </section>
+    </div>`;
+
+  el.querySelectorAll('#bsRail .ehs-li').forEach(btn=>btn.onclick=()=>{
+    if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
+    if(_flowDirty) flowDraftReset();
+    bsTab=btn.dataset.bs; renderBoardSettings();
+  });
+  const add=document.getElementById('bsAdd');
+  if(add) add.onclick=()=>{
+    if(bsTab==='boards'){ const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch();
+      const inp=document.querySelector('.brd-row.active .brd-name'); if(inp){ inp.focus(); inp.select(); } }
+    else if(bsTab==='columns'){ store.addStatus('New status');
+      const nid=store.statuses()[store.statuses().length-1].id;
+      store.toggleBoardColumn(activeBoard(), nid, true); renderBoardSettings();
+      const rows=document.querySelectorAll('#bsBody .bsrow'); const last=rows[rows.length-1];
+      if(last){ const inp=last.querySelector('.bsname'); if(inp){ inp.focus(); inp.select(); } } }
+    else if(bsTab==='fields'){ store.addField('New field','text'); renderBoardSettings();
+      const rows=document.querySelectorAll('#bsBody .fld-row'); const last=rows[rows.length-1];
+      if(last){ const inp=last.querySelector('.fld-name'); if(inp){ inp.focus(); inp.select(); } } }
+  };
+  const sv=document.getElementById('bsSave');
+  if(sv) sv.onclick=flowSave;
   wireBoardSettings(b);
 }
-const FIELD_TYPES={text:'Text',number:'Number',date:'Date',select:'Dropdown',multi:'Multi-select',check:'Checkbox'};
-function bsFields(){
-  const rows=store.fields().map(f=>{
-    const needsOpts=f.type==='select'||f.type==='multi';
-    return `<div class="fld-row" data-fid="${f.id}">
-      <div class="fld-top">
-        <input class="fld-name" value="${esc(f.name)}"/>
-        <select class="fld-type">${Object.entries(FIELD_TYPES).map(([v,t])=>`<option value="${v}" ${f.type===v?'selected':''}>${t}</option>`).join('')}</select>
-        <label class="fld-oncard"><input type="checkbox" class="fld-card" ${f.onCard?'checked':''}/> Show on card</label>
-        <button class="fld-del" title="Delete field">✕</button>
-      </div>
-      ${needsOpts?`<div class="fld-opts"><div class="fld-opts-lbl">Options</div><div class="fld-chips">${(f.options||[]).map((o,i)=>`<span class="fld-chip">${esc(o)}<button class="fld-opt-del" data-i="${i}">✕</button></span>`).join('')}<input class="fld-opt-add" placeholder="Add option, press Enter"/></div></div>`:''}
-    </div>`;
-  }).join('')||'<div style="font-size:12px;color:var(--muted)">No custom fields yet. Add one to track extra info (sprint, story points, environment…) on every ticket.</div>';
-  return rows;
+
+/* ---------- Transitions: edit a draft, save on demand ----------
+   Every chip click used to write straight to the store and _persist(). With a
+   grid of chips that meant a burst of pushes, and boards have no self-push
+   guard, so a realtime echo could land on top of edits you had just made —
+   which is why only one row appeared to stick. Now nothing is written until
+   Save. */
+let _flowDraft=null, _flowDirty=false;
+function flowDraftFor(b){
+  if(!_flowDraft || _flowDraft.__board!==b.id){
+    _flowDraft={ __board:b.id, enforce:!!b.enforce,
+                 transitions:JSON.parse(JSON.stringify(b.transitions||{})) };
+    _flowDirty=false;
+  }
+  return _flowDraft;
 }
+function flowDraftReset(){ _flowDraft=null; _flowDirty=false; }
+function flowSave(){
+  const b=activeBoard(); if(!b||!_flowDraft) return;
+  store.updateBoard(b.id, { enforce:_flowDraft.enforce,
+                            transitions:JSON.parse(JSON.stringify(_flowDraft.transitions)) });
+  flowDraftReset();
+  renderBoardSettings(); renderBoardSwitch(); refreshViews();
+  toast('Workflow saved');
+}
+
 function bsBoards(){
   return store.boards().map(bd=>{
     const active=bd.id===ui.board; const cols=(bd.columns||[]).length;
@@ -4257,16 +4304,18 @@ function bsColumns(b){
 }
 function bsFlow(b){
   const cols=store.boardColumns(b);
-  const enf=`<div class="flow-enforce"><label class="tgl"><input type="checkbox" id="flowEnforce" ${b.enforce?'checked':''}/><span class="tgl-t"></span></label>
+  const d=flowDraftFor(b);
+  const enf=`<div class="flow-enforce"><label class="tgl"><input type="checkbox" id="flowEnforce" ${d.enforce?'checked':''}/><span class="tgl-t"></span></label>
     <div><div style="font-size:13px;font-weight:600">Enforce this workflow</div><div style="font-size:11.5px;color:var(--muted)">When on, cards can only move along the transitions you allow below.</div></div></div>`;
-  const rows=cols.map(s=>{
-    const allowed=allowedTargets(b,s.id);
-    const targets=cols.filter(x=>x.id!==s.id).map(x=>`<button class="tchip ${allowed.includes(x.id)?'on':''}" data-from="${s.id}" data-to="${x.id}">${esc(x.name)}</button>`).join('');
-    return `<div class="flow-row"><div class="flow-from"><span class="col-dot" style="background:${s.color}"></span>${esc(s.name)}<span style="font-size:11px;color:var(--faint);font-weight:400">can move to →</span></div>
+  const rows=cols.map(st=>{
+    const allowed=(d.transitions&&d.transitions[st.id])||[];
+    const targets=cols.filter(x=>x.id!==st.id).map(x=>`<button class="tchip ${allowed.includes(x.id)?'on':''}" data-from="${st.id}" data-to="${x.id}">${esc(x.name)}</button>`).join('');
+    return `<div class="flow-row"><div class="flow-from"><span class="col-dot" style="background:${st.color}"></span>${esc(st.name)}<span style="font-size:11.5px;color:var(--faint);font-weight:400">can move to \u2192</span></div>
       <div class="flow-targets">${targets||'<span style="font-size:11.5px;color:var(--faint)">No other columns.</span>'}</div></div>`;
   }).join('');
   return enf+rows;
 }
+
 function wireBoardSettings(b){
   const body=document.getElementById('bsBody');
   if(bsTab==='boards'){
@@ -4297,9 +4346,19 @@ function wireBoardSettings(b){
       row.querySelectorAll('.fld-opt-del').forEach(x=>x.onclick=()=>{ const f=store.fields().find(y=>y.id===fid); const opts=(f.options||[]).slice(); opts.splice(+x.dataset.i,1); store.updateField(fid,{options:opts}); renderBoardSettings(); });
     });
   } else if(bsTab==='flow'){
-    document.getElementById('flowEnforce').onchange=e=>{ store.updateBoard(b.id,{enforce:e.target.checked}); renderBoardSwitch(); };
+    const d=flowDraftFor(b);
+    const markDirty=()=>{ _flowDirty=true;
+      const dot=document.getElementById('bsDirty'); if(dot) dot.classList.add('on');
+      const sv=document.getElementById('bsSave'); if(sv) sv.disabled=false; };
+    const fe=document.getElementById('flowEnforce');
+    if(fe) fe.onchange=e=>{ d.enforce=e.target.checked; markDirty(); };
     body.querySelectorAll('.tchip[data-from]').forEach(chip=>chip.onclick=()=>{
-      const on=!chip.classList.contains('on'); store.setTransition(b, chip.dataset.from, chip.dataset.to, on); chip.classList.toggle('on'); });
+      const from=chip.dataset.from, to=chip.dataset.to;
+      d.transitions[from]=d.transitions[from]||[];
+      const on=!chip.classList.contains('on');
+      if(on){ if(!d.transitions[from].includes(to)) d.transitions[from].push(to); }
+      else { d.transitions[from]=d.transitions[from].filter(x=>x!==to); }
+      chip.classList.toggle('on'); markDirty(); });
   }
 }
 document.addEventListener('click',()=>document.querySelectorAll('.bspal').forEach(p=>p.classList.remove('on')));
@@ -4310,10 +4369,11 @@ document.addEventListener('click',()=>document.querySelectorAll('.bspal').forEac
 function refreshViews(){ const v=ui.view;
   if(v==='board') renderBoard(); else if(v==='list') renderList(); else if(v==='epics') renderEpics();
   else if(v==='overview') renderOverview(); else if(v==='team') renderTeam(); else if(v==='analytics') renderAnalytics();
+  else if(v==='boardsettings') renderBoardSettings();;
   renderProjectSwitch(); renderSideCard(); updateCount(); try{ urlSync(); }catch(e){} }
 function updateCount(){ return; }
 
-const VIEW_TITLE={overview:'Overview',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
+const VIEW_TITLE={overview:'Overview',boardsettings:'Board & workflow',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
   analytics:'Analytics',reports:'Reports',operations:'Operations',settings:'Settings'};
 const SOON_VIEWS={};
 function setHeadHeight(){ const h=document.querySelector('.stickyhead'); if(h) document.documentElement.style.setProperty('--head-h', h.offsetHeight+'px'); }
@@ -4349,6 +4409,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   show('dashboardwrap', v==='dashboard');
   show('velocitywrap', v==='velocity');
   show('settingswrap', v==='settings');
+  show('boardsettingswrap', v==='boardsettings');
   show('teamwrap', v==='team');
   show('usersedwrap', v==='users');
   show('soonwrap', !!SOON_VIEWS[v]);
@@ -4359,6 +4420,7 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   renderBoardSwitch();
   if(v==='board') renderBoard(); else if(v==='list') renderList(); else if(v==='epics') renderEpics();
   else if(v==='overview') renderOverview(); else if(v==='team') renderTeam(); else if(v==='analytics') renderAnalytics();
+  else if(v==='boardsettings') renderBoardSettings();
   else if(v==='reports') renderReports();
   else if(v==='deployments') renderDeployments();
   else if(v==='operations') renderOperations();
@@ -6445,7 +6507,6 @@ document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>
 document.querySelectorAll('#boardMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
   const menu=document.getElementById('boardMenu'); const id=menu.dataset.board; menu.classList.remove('on'); boardAction(id, btn.dataset.act); });
 document.addEventListener('click',()=>document.getElementById('boardMenu').classList.remove('on'));
-document.querySelectorAll('#bsTabs button').forEach(b=>b.onclick=()=>{ bsTab=b.dataset.bt; renderBoardSettings(); });
 (function(){ const sw=document.getElementById('spSwitch'); if(sw) sw.onclick=()=>backToSpaces(); })();
 document.getElementById('search').oninput=e=>{ ui.filters.search=e.target.value; refreshViews(); };
 document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ if(ui.view==='overview'){ ui.ovRange=btn.dataset.p; } else { ui.filters.period=btn.dataset.p; } fillFilters(); refreshViews(); });
@@ -6475,16 +6536,6 @@ document.getElementById('umEditWrap').addEventListener('click',e=>{ if(e.target.
 document.getElementById('clearFilters').onclick=()=>{ ui.filters={search:'',assignee:'all',status:'all',priority:'all',type:'all',time:'all',epic:'all',period:'all',from:'',to:''};
   document.getElementById('search').value=''; fillFilters(); renderFilterChips(); refreshViews(); };
 const _ntb=document.getElementById('newTaskBtn'); if(_ntb) _ntb.onclick=openModal;
-document.getElementById('bsAdd').onclick=()=>{
-  if(bsTab==='boards'){ const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch();
-    const inp=document.querySelector('.brd-row.active .brd-name'); if(inp){ inp.focus(); inp.select(); } }
-  else if(bsTab==='columns'){ store.addStatus('New status'); const nid=store.statuses()[store.statuses().length-1].id; store.toggleBoardColumn(activeBoard(), nid, true); renderBoardSettings();
-    const rows=document.querySelectorAll('#bsBody .bsrow'); const last=rows[rows.length-1]; if(last){ const inp=last.querySelector('.bsname'); inp.focus(); inp.select(); } }
-  else if(bsTab==='fields'){ store.addField('New field','text'); renderBoardSettings();
-    const rows=document.querySelectorAll('#bsBody .fld-row'); const last=rows[rows.length-1]; if(last){ const inp=last.querySelector('.fld-name'); inp.focus(); inp.select(); } }
-};
-document.getElementById('bsDone').onclick=closeBoardSettings;
-document.getElementById('bsWrap').onclick=e=>{ if(e.target.id==='bsWrap') closeBoardSettings(); };
 document.getElementById('ntCancel').onclick=closeModal;
 { const _x=document.getElementById('ntX'); if(_x) _x.onclick=closeModal; }
 document.getElementById('ntCreate').onclick=createTask;
