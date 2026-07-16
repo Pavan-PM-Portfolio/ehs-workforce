@@ -1819,6 +1819,12 @@ body[data-density="compact"] .board{padding:12px 16px}
 .stx-roleseg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.12)}
 .stx-rolechip{font-size:11px;font-weight:800;letter-spacing:.03em;padding:5px 11px;border-radius:999px !important;background:var(--accent-soft);color:var(--accent);flex:none;white-space:nowrap}
 .stx-rolechip.master{background:#1A1A1A;color:#fff}
+.stx-clone{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px}
+.stx-clone-l{min-width:0}
+.stx-clone-r{display:flex;align-items:center;gap:8px;flex:none}
+.stx-clone-r select{height:34px;border:1px solid var(--line) !important;border-radius:8px !important;background:#fff;
+  padding:0 9px;font-family:inherit;font-size:12.5px;color:var(--ink);outline:none;max-width:190px}
+.stx-clone-r select:focus{border-color:var(--accent) !important}
 .ehs-rail-sep{height:1px;background:var(--line);margin:8px 11px}
 .ehs-rail-none{padding:16px 11px;font-size:12px;color:var(--muted);font-weight:500}
 .ehs-li-cb{width:14px;height:14px;flex:none;accent-color:var(--accent);cursor:pointer;margin:0}
@@ -5143,6 +5149,43 @@ async function syncSuitePeople(){
   }catch(e){ console.warn('suite sync failed', e); return false; }
 }
 
+/* ---------- Copy a teammate's setup ----------
+   Field permissions + capabilities + workspace access, staged like every other
+   Settings edit so nothing lands until Save. The PM role is deliberately NOT
+   copied: cloning from an admin should never silently make someone an admin. */
+function cloneUserSetup(fromId, toId){
+  const s=store.settings();
+  const src=store.user(fromId), dst=store.user(toId);
+  if(!src||!dst) return null;
+
+  // 1. field permissions — fall back to the source's role defaults if unset
+  const sf=(s.fieldPerms&&s.fieldPerms[fromId])||{};
+  const fp=Object.assign({}, s.fieldPerms||{});
+  const rec={}; STX_FALL.forEach(k=>{ rec[k]=sf[k]||'edit'; });
+  fp[toId]=rec;
+
+  // 2. capabilities
+  const su=(s.userPerms&&s.userPerms[fromId]) || DEFAULT_ROLE_PERMS[permOf(src)] || {};
+  const up=Object.assign({}, s.userPerms||{});
+  up[toId]=JSON.parse(JSON.stringify(su));
+
+  Object.assign(s, {fieldPerms:fp, userPerms:up});
+
+  // 3. workspace access — match the source, space by space
+  let wsAdd=0, wsRem=0;
+  store.spaces().forEach(sp=>{
+    const m=new Set(sp.members||[]);
+    const srcIn=m.has(fromId), dstIn=m.has(toId);
+    if(srcIn && !dstIn){ m.add(toId); wsAdd++; }
+    else if(!srcIn && dstIn){ m.delete(toId); wsRem++; }
+    else return;
+    store.updateSpace(sp.id,{members:[...m]});
+  });
+
+  setMarkDirty();
+  return { fields:Object.keys(rec).length, caps:Object.keys(up[toId]).length, wsAdd, wsRem };
+}
+
 function renderSettings(){
   try{ urlSync(); }catch(e){}
   if(IS_ADMIN && !_suiteSynced){ _suiteSynced=true;
@@ -5268,6 +5311,15 @@ function renderSettings(){
           : '<b>Admin</b> manages every workspace here and bypasses the limits below. <b>User</b> gets exactly what you grant. This only affects the Project Hub \u2014 it never grants Master Admin.'}</div></div>
         ${euMaster?'<span class="stx-rolechip master">Master Admin</span>'
           :`<div class="stx-roleseg"><button type="button" class="${isAdm?'':'on'}" data-role="user">User</button><button type="button" class="${isAdm?'on':''}" data-role="admin">Admin</button></div>`}</div></div>
+        ${euMaster?'':`<div class="stx-card pad stx-clone">
+          <div class="stx-clone-l"><div class="stx-acc-t">Copy setup from a teammate</div>
+            <div class="stx-acc-d">Brings across their <b>field permissions</b>, <b>actions</b> and <b>workspace access</b> in one go.
+              The Project Hub role above is left alone \u2014 set that deliberately.</div></div>
+          <div class="stx-clone-r">
+            <select id="stxCloneFrom"><option value="">Choose a teammate\u2026</option>${
+              umUsers.filter(u=>u.id!==editUser).map(u=>`<option value="${u.id}">${esc(u.name)}${isMasterUser(u)||u.master?' \u00b7 Master':(u.toolRole==='admin'?' \u00b7 Admin':'')}</option>`).join('')}</select>
+            <button class="ehs-btn ehs-btn--sm" id="stxCloneGo" type="button">Copy</button>
+          </div></div>`}
         <div${dim}>${wsBlocks}
           ${modBlocks}
           <div class="stx-lbl" style="margin-top:20px">Actions</div><div class="stx-note">What this teammate can do across the Hub.</div>${actionBlocks}
@@ -5330,6 +5382,19 @@ function renderSettings(){
       </section>
     </div>`;
   el.querySelectorAll('#setRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.setSel=b.dataset.sec; renderSettings(); });
+  const _cg=document.getElementById('stxCloneGo');
+  if(_cg) _cg.onclick=()=>{
+    const from=document.getElementById('stxCloneFrom').value;
+    if(!from){ toast('Pick who to copy from'); return; }
+    const src=store.user(from), dst=store.user(editUser);
+    if(!confirm(`Copy ${src.name}\u2019s field permissions, actions and workspace access onto ${dst.name}?\n\nThis replaces ${dst.name}\u2019s current setup. Their Project Hub role is not changed.`)) return;
+    const r=cloneUserSetup(from, editUser);
+    if(!r){ toast('Could not copy that setup'); return; }
+    renderSettings();
+    const bits=[r.fields+' fields', r.caps+' actions'];
+    if(r.wsAdd||r.wsRem) bits.push((r.wsAdd?'+'+r.wsAdd:'')+(r.wsAdd&&r.wsRem?'/':'')+(r.wsRem?'-'+r.wsRem:'')+' workspaces');
+    toast('Copied from '+src.name+' \u00b7 '+bits.join(', ')+' \u2014 Save to apply');
+  };
   const _ss=document.getElementById('setSave'); if(_ss) _ss.onclick=setSaveNow;
   const _sd=document.getElementById('setDiscard'); if(_sd) _sd.onclick=()=>{ if(confirm('Discard your unsaved changes?')) setDiscard(); };
 
