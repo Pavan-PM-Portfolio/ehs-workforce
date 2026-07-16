@@ -5554,7 +5554,7 @@ function renderDashboard(){
 }
 
 /* ---------- Calendar (by due date) ---------- */
-let _calRef=null, _calSel=null, _calScroll=0, _calWheelLock=false;
+let _calRef=null, _calSel=null;
 
 /* ---------- Notes ----------
    Day-scoped scribbles. Stored on the author's own person record (prefs.notes),
@@ -5768,20 +5768,6 @@ function renderCalendar(){
 
   wireCalPops();
   wireNotes();
-  // Scroll sideways over the grid to step through months — trackpad swipe or
-  // shift+wheel. Debounced so one gesture moves one month, not five.
-  const _calWheelEl=document.getElementById('calGrid');
-  if(_calWheelEl) _calWheelEl.onwheel=e=>{
-    const dx = Math.abs(e.deltaX)>Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
-    if(!dx) return;                                  // vertical scroll: leave the page alone
-    e.preventDefault();
-    _calScroll=(_calScroll||0)+dx;
-    if(Math.abs(_calScroll)<90) return;              // ignore the small stuff
-    const dir=_calScroll>0?1:-1; _calScroll=0;
-    if(_calWheelLock) return;
-    _calWheelLock=true; setTimeout(()=>{ _calWheelLock=false; }, 260);
-    _calRef=new Date(y, m+dir, 1); renderCalendar();
-  };
   document.getElementById('calPrev').onclick=()=>{ _calRef=new Date(y,m-1,1); renderCalendar(); };
   document.getElementById('calNext').onclick=()=>{ _calRef=new Date(y,m+1,1); renderCalendar(); };
   const _ct=document.getElementById('calToday');
