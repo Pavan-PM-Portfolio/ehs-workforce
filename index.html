@@ -115,7 +115,48 @@ input,select{font-family:inherit}
 .tb-tool.cur{background:var(--surface-2)}
 .tb-tool .tc{width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:7px;font-size:10px;font-weight:800;color:#fff}
 .tb-tool .tn{font-size:12.8px;font-weight:600;line-height:1.2}
-.tb-tool .tt{font-size:11px;color:var(--muted);margin-top:1px}
+.tm-ico{width:26px;height:26px;flex:none;display:grid;place-items:center}
+.tm-ico svg{width:22px;height:22px;display:block;overflow:visible}
+/* Project Hub — ticks draw in sequence */
+@keyframes ti-pm{0%,8%{stroke-dashoffset:9;opacity:0}22%,72%{stroke-dashoffset:0;opacity:1}86%,100%{stroke-dashoffset:9;opacity:0}}
+.ti-pm-t{stroke-dasharray:9;animation:ti-pm 3.2s ease-in-out infinite}
+.ti-pm-t:nth-of-type(2){animation-delay:.42s}
+.ti-pm-t:nth-of-type(3){animation-delay:.84s}
+/* Delivery Hub — truck rolls */
+@keyframes ti-dh{0%,100%{transform:translateX(-1.6px)}50%{transform:translateX(1.6px)}}
+@keyframes ti-dhw{to{transform:rotate(360deg)}}
+.ti-dh-body{animation:ti-dh 2.4s ease-in-out infinite}
+.ti-dh-w1{transform-origin:7.5px 17.5px;animation:ti-dhw 1.1s linear infinite}
+.ti-dh-w2{transform-origin:17px 17.5px;animation:ti-dhw 1.1s linear infinite}
+/* Sales Analytics — bars rise, trend cuts across */
+@keyframes ti-sa{0%,100%{transform:scaleY(.35)}52%{transform:scaleY(1)}}
+.ti-sa-b{transform-origin:center bottom;animation:ti-sa 2.8s ease-in-out infinite}
+.ti-sa-b:nth-of-type(2){animation-delay:.16s}
+.ti-sa-b:nth-of-type(3){animation-delay:.32s}
+@keyframes ti-saa{0%,14%{stroke-dashoffset:24;opacity:0}44%,84%{stroke-dashoffset:0;opacity:1}96%,100%{stroke-dashoffset:24;opacity:0}}
+.ti-sa-a{stroke-dasharray:24;animation:ti-saa 2.8s ease-out infinite}
+/* Products & Licenses — shield draws, tick lands */
+@keyframes ti-plr{0%,8%{stroke-dashoffset:58}40%,100%{stroke-dashoffset:0}}
+.ti-pl-r{stroke-dasharray:58;animation:ti-plr 3.2s ease-out infinite}
+@keyframes ti-plt{0%,26%{stroke-dashoffset:11}54%,82%{stroke-dashoffset:0}96%,100%{stroke-dashoffset:11}}
+.ti-pl-t{stroke-dasharray:11;animation:ti-plt 3.2s cubic-bezier(.5,0,.3,1) infinite}
+/* Operations — gears counter-rotate */
+@keyframes ti-oma{to{transform:rotate(360deg)}}
+@keyframes ti-omb{to{transform:rotate(-360deg)}}
+.ti-om-a{transform-origin:8.6px 9.4px;animation:ti-oma 6s linear infinite}
+.ti-om-b{transform-origin:16.4px 16px;animation:ti-omb 4s linear infinite}
+/* Coming soon */
+.tb-tool.tb-ws{justify-content:center}
+.tb-tool.tb-soon{cursor:default}
+.tb-tool.tb-soon:hover{background:none}
+.tb-tool.tb-soon .tm-ico,.tb-tool.tb-soon .tn{opacity:.5}
+.tm-soon{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:3px 7px;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){
+  .ti-pm-t,.ti-dh-body,.ti-dh-w1,.ti-dh-w2,.ti-sa-b,.ti-sa-a,.ti-pl-r,.ti-pl-t,.ti-om-a,.ti-om-b{animation:none}
+}
+.tb-tool .tc-mark{background:none !important;padding:0}
+.tb-tool .tc-mark img{height:19px;width:auto;display:block}
 .tb-tool .cur-dot{margin-left:auto;font-size:10px;font-weight:700;color:var(--muted)}
 .tb-tools-none{padding:14px 12px;font-size:12px;color:var(--muted);text-align:center}
 .tb-acct{display:flex;align-items:center;gap:9px;padding:6px 8px;cursor:pointer;transition:background .12s}
@@ -269,7 +310,17 @@ tr:last-child td{border-bottom:0}
 .mfoot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
 /* ---- People & Access — master-detail ---- */
 .pa-page{max-width:1180px;margin:0 auto}
-.pa-split{display:grid;grid-template-columns:400px 1fr;gap:16px;margin-top:8px;align-items:start}
+.pa-split{display:grid;grid-template-columns:300px 1fr;gap:0;margin-top:8px;align-items:stretch;
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.pa-split .pa-list-pane{background:var(--surface-2);border-right:1px solid var(--line);border-radius:0;border-width:0 1px 0 0}
+.pa-split .pa-detail-pane{background:var(--surface);border:0;border-radius:0}
+.ehs-page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.ehs-page-head h1{font-size:16px;font-weight:600;letter-spacing:-.02em;margin:0}
+/* unsaved-changes bar */
+.pa-savebar{display:flex;align-items:center;gap:9px}
+.pa-dirty{display:none;font-size:11px;font-weight:700;color:#B96A00;background:#FFF4E5;border-radius:20px;padding:3px 9px}
+.pa-dirty.on{display:inline-flex}
+.btn:disabled{opacity:.45;cursor:not-allowed}
 .pa-list-pane,.pa-detail-pane{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .pa-list-h{padding:14px 16px 12px;border-bottom:1px solid var(--line-2)}
 .pa-list-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -479,14 +530,20 @@ const TOOLS = [
     head:{a:'Every concern,', b:'handled with care.'},
     body:'Delivery Hub turns scattered requests into a clean pipeline. A public intake form captures every concern, routes it to the right category, and feeds live dashboards — so nothing slips through the cracks.',
     features:['A public intake form with zero friction','Category-scoped dashboards','Tabbed ticket detail and activity','Reports with live charts'],
-    accent:'#0E8F5A', status:'live',    file:'delivery.html' },
-  { id:'products', code:'PD', name:'Product Hub',        tagline:'Catalog & licensing',
+    accent:'#0E8F5A', status:'planned', file:'delivery.html' },
+  { id:'sales',    code:'SA', name:'Sales Analytics',    tagline:'Pipeline & revenue',
+    desc:'Track pipeline, conversion and revenue across the sales team.',
+    head:{a:'See the pipeline,', b:'not just the total.'},
+    body:'Sales Analytics turns CRM and call data into something you can act on \u2014 pipeline by stage, conversion by agent, and revenue trends that update as the team works.',
+    features:['Pipeline by stage and owner','Conversion and win-rate trends','Agent-level activity and call data','Revenue against target'],
+    accent:'#BA7517', status:'planned', file:'sales.html' },
+  { id:'products', code:'PD', name:'Products & Licenses',tagline:'Catalog & licensing',
     desc:'Manage the course catalog and the licences, vouchers, and seats issued.',
     head:{a:'Your catalog,', b:'under control.'},
     body:'Product Hub will be the single source of truth for what EduHubSpot sells — every course, licence, voucher, and seat in one place, with issuance and usage tracked end to end.',
     features:['The full course catalog','Licences, vouchers and seats','Issuance tracking','Usage and renewals at a glance'],
     accent:'#C2410C', status:'planned', file:'products.html' },
-  { id:'ops',      code:'OH', name:'Operations Hub',     tagline:'Day-to-day ops',
+  { id:'ops',      code:'OH', name:'Operations Management',tagline:'Day-to-day ops',
     desc:'Coordinate batches, trainers, and resources across delivery.',
     head:{a:'Operations,', b:'running like clockwork.'},
     body:'Operations Hub will coordinate the moving parts of delivery — batches, trainers, and resources — so every session is staffed, scheduled, and on track, without the spreadsheet scramble.',
@@ -633,6 +690,48 @@ function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.
 /* ---------- All tools menu ----------
    Lists only what this person can actually open: master admins see every live
    tool, everyone else sees exactly what tool_access grants them. */
+/* Animated tool icons. Each hints at what the tool does; all pause under
+   prefers-reduced-motion. */
+const TOOL_ICON={
+  pm:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="3.4" stroke="#3B6FE0" stroke-width="1.6" opacity=".28"/>
+      <path d="M7 8.4h9M7 12h9M7 15.6h9" stroke="#3B6FE0" stroke-width="1.5" stroke-linecap="round" opacity=".2"/>
+      <path class="ti-pm-t" d="M6.6 8.4l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="ti-pm-t" d="M6.6 12l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="ti-pm-t" d="M6.6 15.6l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  delivery:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <g class="ti-dh-body">
+        <path d="M2 6.6h11v9H2z" fill="#0E8F5A" opacity=".2"/>
+        <path d="M2 6.6h11v9H2z" stroke="#0E8F5A" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M13 9.6h4.2L21 12.8v2.8h-8z" fill="#0E8F5A" opacity=".2"/>
+        <path d="M13 9.6h4.2L21 12.8v2.8h-8z" stroke="#0E8F5A" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+      <circle class="ti-dh-w1" cx="7.5" cy="17.5" r="2.2" stroke="#0E8F5A" stroke-width="1.6" stroke-dasharray="2.4 2.4"/>
+      <circle class="ti-dh-w2" cx="17" cy="17.5" r="2.2" stroke="#0E8F5A" stroke-width="1.6" stroke-dasharray="2.4 2.4"/>
+    </svg>`,
+  sales:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect class="ti-sa-b" x="3.6" y="12" width="3.6" height="8" rx="1.2" fill="#BA7517" opacity=".45"/>
+      <rect class="ti-sa-b" x="9" y="9" width="3.6" height="11" rx="1.2" fill="#BA7517" opacity=".68"/>
+      <rect class="ti-sa-b" x="14.4" y="6" width="3.6" height="14" rx="1.2" fill="#BA7517"/>
+      <path class="ti-sa-a" d="M4 15.4L9.6 10l3.4 2.6L20.4 5" stroke="#BA7517" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  products:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2.6l8 3v6.2c0 4.6-3.4 8.4-8 9.6-4.6-1.2-8-5-8-9.6V5.6z" fill="#C2410C" opacity=".16"/>
+      <path class="ti-pl-r" d="M12 2.6l8 3v6.2c0 4.6-3.4 8.4-8 9.6-4.6-1.2-8-5-8-9.6V5.6z" stroke="#C2410C" stroke-width="1.6" stroke-linejoin="round"/>
+      <path class="ti-pl-t" d="M8.2 11.8l2.6 2.6 5-5.4" stroke="#C2410C" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  ops:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <g class="ti-om-a">
+        <path d="M9.2 1.8l.5 2.2 2 .9 2-1.1 1.6 1.6-1.1 2 .9 2 2.2.5v2.2l-2.2.5-.9 2 1.1 2-1.6 1.6-2-1.1-2 .9-.5 2.2H7l-.5-2.2-2-.9-2 1.1L.9 16.5l1.1-2-.9-2L-1.1 12V9.8l2.2-.5.9-2-1.1-2L2.5 3.7l2 1.1 2-.9L7 1.8z" transform="translate(2.6 2.4) scale(.72)" fill="#7C3AED" opacity=".22"/>
+        <circle cx="8.6" cy="9.4" r="2.4" stroke="#7C3AED" stroke-width="1.7"/>
+      </g>
+      <g class="ti-om-b">
+        <circle cx="16.4" cy="16" r="4.6" stroke="#7C3AED" stroke-width="1.7" stroke-dasharray="2.6 2.2"/>
+        <circle cx="16.4" cy="16" r="1.5" fill="#7C3AED"/>
+      </g>
+    </svg>`
+};
 function myTools(){
   const ids=EHS.myToolIds(TOOLS.map(t=>t.id));
   return TOOLS.filter(t=>t.status==='live' && ids.includes(t.id));
@@ -640,19 +739,24 @@ function myTools(){
 function buildToolsMenu(){
   const m=document.getElementById('tbToolsMenu'); if(!m) return;
   const here=(location.pathname.split('/').pop()||'index.html');
-  const mine=myTools();
-  m.innerHTML = mine.length
-    ? `<div class="tm-h">Your tools</div>` + mine.map(t=>{
-        const cur = t.file===here;
-        return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">
-          <span class="tc" style="background:${t.accent}">${t.code}</span>
-          <span><span class="tn">${esc(t.name)}</span><span class="tt">${esc(t.tagline||'')}</span></span>
-          ${cur?'<span class="cur-dot">Current</span>':''}</a>`; }).join('')
-      + `<div style="height:1px;background:var(--line-2);margin:6px 8px"></div>
-         <a class="tb-tool" href="index.html"><span class="tc" style="background:var(--ink)">EHS</span>
-           <span><span class="tn">EHS Workspace</span><span class="tt">All tools</span></span></a>`
-    : '<div class="tb-tools-none">No tools granted yet.</div>';
+  const ids=EHS.myToolIds(TOOLS.map(t=>t.id));
+  // live tools are gated on access; coming-soon tools are shown to everyone
+  const rows=TOOLS.filter(t=>t.status!=='live' || ids.includes(t.id)).map(t=>{
+    const icon=`<span class="tm-ico">${TOOL_ICON[t.id]||''}</span>`;
+    if(t.status!=='live')
+      return `<div class="tb-tool tb-soon">${icon}<span class="tn">${esc(t.name)}</span>
+        <span class="tm-soon">Coming soon</span></div>`;
+    const cur=t.file===here;
+    return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">${icon}
+      <span class="tn">${esc(t.name)}</span>
+      ${cur?'<span class="cur-dot">Current</span>':''}</a>`;
+  }).join('');
+  m.innerHTML=`<div class="tm-h">Your tools</div>${rows}
+    <div style="height:1px;background:var(--line-2);margin:6px 8px"></div>
+    <a class="tb-tool tb-ws" href="index.html"><span class="tc tc-mark"><img src="data:image/png;base64,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" alt=""></span>
+      <span class="tn">Workspace</span></a>`;
 }
+
 function toggleToolsMenu(e){
   if(e) e.stopPropagation();
   const m=document.getElementById('tbToolsMenu'); if(!m) return;
@@ -674,7 +778,7 @@ function topbar(title, sub){
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
       <div class="tb-tools-menu" id="tbToolsMenu"></div>
     </div>
-    ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
+    ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Users</div>`:''}
     <div class="tb-acct" onclick="openAccount(event)"><span class="tb-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
       <div><div class="who">${esc(dn)}</div>
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
@@ -862,13 +966,17 @@ async function renderPeople(){
   if(!_selPerson || !_users.find(u=>u.id===_selPerson)) _selPerson=(_users[0]||{}).id||null;
   const searchSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
   root().innerHTML=`<div class="shell">${topbar()}<div class="page pa-page">
-    <div class="people-head"><div><h1>People &amp; Access</h1>
-      <p>Pick a person to manage their role, tool access, and password.</p></div></div>
-    <div class="pa-split">
+    <div class="ehs-page-head"><h1>Users</h1>
+      <div class="pa-savebar">
+        <span class="pa-dirty ${_paDirty?'on':''}" id="pa_dirty">Unsaved changes</span>
+        <button class="btn sm" id="pa_discard" onclick="paDiscard()" ${_paDirty?'':'style="display:none"'}>Discard</button>
+        <button class="btn accent sm" id="pa_save" onclick="paSaveAll()" ${_paDirty?'':'disabled'}>Save changes</button>
+        <button class="btn accent sm" onclick="openInvite()">New user</button>
+      </div></div>
+    <div class="pa-split ehs-pane-look">
       <div class="pa-list-pane">
         <div class="pa-list-h">
-          <div class="pa-list-top"><div class="pa-count">${_users.length} ${_users.length===1?'person':'people'}</div>
-            <button class="btn accent sm" onclick="openInvite()">${ic('plus')} New user</button></div>
+          <div class="pa-list-top"><div class="pa-count">${_users.length} ${_users.length===1?'person':'people'}</div></div>
           <div class="pa-search">${searchSvg}<input id="pa_q" placeholder="Search people" oninput="paFilter(this.value)"></div></div>
         <div class="pa-list" id="pa_list">${_users.map(paRow).join('')}</div>
       </div>
@@ -877,7 +985,9 @@ async function renderPeople(){
   </div></div>`;
 }
 function paSub(u){
-  return u.is_master_admin
+  const d=_paDraft[u.id];
+  const isM = d?d.is_master_admin:u.is_master_admin;
+  return isM
     ? '<div class="pa-sub master">Master Admin</div>'
     : '<div class="pa-sub">Member</div>';
 }
@@ -885,7 +995,9 @@ function paRow(u){ return `<button class="pa-row ${u.id===_selPerson?'on':''}" o
   <div class="pa-nm">${esc(u.full_name||'\u2014')}</div>${paSub(u)}<div class="pa-em">${esc(u.email)}</div></button>`; }
 function paDetail(id){
   const u=_users.find(x=>x.id===id); if(!u) return '<div class="pa-empty">Select a person to manage.</div>';
-  const master=!!u.is_master_admin; const acc=(u.tool_access||[]); const meId=EHS.me()&&EHS.me().id;
+  const d=_paDraft[id];                                   // show staged edits, if any
+  const master=d?d.is_master_admin:!!u.is_master_admin;
+  const acc=(d?d.tool_access:u.tool_access)||[]; const meId=EHS.me()&&EHS.me().id;
   const parts=(u.full_name||'').trim().split(/\s+/); const first=parts[0]||'\u2014'; const last=parts.slice(1).join(' ')||'\u2014';
   const status=(u.status||'active'); const statusLabel=status.charAt(0).toUpperCase()+status.slice(1);
   const mailSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>';
@@ -928,20 +1040,71 @@ function paDetail(id){
     </div>
     ${id!==meId?`<div class="pa-drule"></div><div class="pa-dsec"><button class="pa-delete" onclick="doDeleteUser('${u.id}')">Delete user</button></div>`:''}`;
 }
-function paRefresh(){ const l=document.getElementById('pa_list'); if(l) l.innerHTML=_users.map(paRow).join(''); const d=document.getElementById('pa_detail'); if(d) d.innerHTML=paDetail(_selPerson); }
+function paRefresh(){ const l=document.getElementById('pa_list'); if(l) l.innerHTML=_users.map(paRow).join('');
+  const d=document.getElementById('pa_detail'); if(d) d.innerHTML=paDetail(_selPerson);
+  paSyncBar(); }
+function paSyncBar(){
+  // the save bar lives outside the panes, so paRefresh has to keep it in step
+  const p=document.getElementById('pa_dirty'); if(p) p.classList.toggle('on', _paDirty);
+  const b=document.getElementById('pa_save'); if(b){ b.disabled=!_paDirty; b.textContent='Save changes'; }
+  const c=document.getElementById('pa_discard'); if(c) c.style.display=_paDirty?'':'none';
+}
 function paPick(id){ _selPerson=id; paRefresh(); }
 function paFilter(q){ q=(q||'').toLowerCase().trim(); const list=_users.filter(u=>!q||(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));
   document.getElementById('pa_list').innerHTML=list.length?list.map(paRow).join(''):'<div class="pa-empty2">No matches</div>'; }
-async function paSetMaster(id,val){ const u=_users.find(x=>x.id===id); if(!u||!!u.is_master_admin===val) return;
-  try{ await EHS.setMaster(id,val); u.is_master_admin=val; toast(val?'Now a Master Admin':'Master Admin removed'); paRefresh(); }
-  catch(e){ toast('Failed: '+e.message); } }
-async function paSetAccess(id,tid,role){ const u=_users.find(x=>x.id===id); if(!u) return;
-  u.tool_access=u.tool_access||[]; const had=(u.tool_access.find(x=>x.tool_id===tid)||{}).role||'none';
+/* ---------- Users: stage edits, save once ----------
+   Every seg click used to fire its own API call (setMaster / grantAccess /
+   revokeAccess) and re-render — slow, and a burst of writes if you changed a
+   few things quickly. Now edits are staged against the loaded user and pushed
+   in one go on Save. */
+let _paDraft={}, _paDirty=false;
+function paDraftFor(id){
+  const u=_users.find(x=>x.id===id); if(!u) return null;
+  if(!_paDraft[id]) _paDraft[id]={ is_master_admin:!!u.is_master_admin,
+                                   tool_access:JSON.parse(JSON.stringify(u.tool_access||[])) };
+  return _paDraft[id];
+}
+function paMarkDirty(){
+  _paDirty=true;
+  const d=document.getElementById('pa_dirty'); if(d) d.classList.add('on');
+  const b=document.getElementById('pa_save'); if(b) b.disabled=false;
+  const c=document.getElementById('pa_discard'); if(c) c.style.display='';
+}
+function paSetMaster(id,val){
+  const d=paDraftFor(id); if(!d || d.is_master_admin===val) return;
+  d.is_master_admin=val; paMarkDirty(); paRefresh();
+}
+function paSetAccess(id,tid,role){
+  const d=paDraftFor(id); if(!d) return;
+  const had=(d.tool_access.find(x=>x.tool_id===tid)||{}).role||'none';
   if(had===role) return;
-  try{ if(role==='none'){ await EHS.revokeAccess(id,tid); u.tool_access=u.tool_access.filter(x=>x.tool_id!==tid); }
-       else { await EHS.grantAccess(id,tid,role); const e=u.tool_access.find(x=>x.tool_id===tid); if(e) e.role=role; else u.tool_access.push({tool_id:tid,role}); }
-       paRefresh(); }
-  catch(e){ toast('Failed: '+e.message); } }
+  if(role==='none') d.tool_access=d.tool_access.filter(x=>x.tool_id!==tid);
+  else { const e=d.tool_access.find(x=>x.tool_id===tid); if(e) e.role=role; else d.tool_access.push({tool_id:tid, role}); }
+  paMarkDirty(); paRefresh();
+}
+async function paSaveAll(){
+  const btn=document.getElementById('pa_save'); if(btn){ btn.disabled=true; btn.textContent='Saving\u2026'; }
+  let n=0;
+  try{
+    for(const id of Object.keys(_paDraft)){
+      const u=_users.find(x=>x.id===id); const d=_paDraft[id]; if(!u||!d) continue;
+      if(!!u.is_master_admin!==d.is_master_admin){ await EHS.setMaster(id, d.is_master_admin); u.is_master_admin=d.is_master_admin; n++; }
+      const before=u.tool_access||[], after=d.tool_access||[];
+      for(const b of before){ if(!after.find(a=>a.tool_id===b.tool_id)){ await EHS.revokeAccess(id,b.tool_id); n++; } }
+      for(const a of after){ const b=before.find(x=>x.tool_id===a.tool_id);
+        if(!b || b.role!==a.role){ await EHS.grantAccess(id,a.tool_id,a.role); n++; } }
+      u.tool_access=JSON.parse(JSON.stringify(after));
+    }
+    _paDraft={}; _paDirty=false;
+    toast(n?`Saved ${n} change${n===1?'':'s'}`:'Nothing to save');
+    paRefresh();
+  }catch(e){
+    toast('Couldn\u2019t save: '+e.message);
+    if(btn){ btn.disabled=false; btn.textContent='Save changes'; }
+  }
+}
+function paDiscard(){ _paDraft={}; _paDirty=false; paRefresh(); }
+
 function paGenPw(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; let p=''; for(let i=0;i<12;i++)p+=c[Math.floor(Math.random()*c.length)]; const el=document.getElementById('pa_pw'); if(el) el.value=p+'!7'; }
 async function paDoReset(id){ const el=document.getElementById('pa_pw'); const pw=(el&&el.value||'').trim(); const req=!!(document.getElementById('pa_req')&&document.getElementById('pa_req').checked);
   if(pw&&pw.length<6){ toast('Password must be at least 6 characters'); return; }
