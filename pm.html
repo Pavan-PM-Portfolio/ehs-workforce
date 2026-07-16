@@ -5643,6 +5643,7 @@ let _calPops={};
 function wireCalPops(){
   const pop=document.getElementById('ovPop'); if(!pop) return;
   pop.onmouseenter=null; pop.onmouseleave=null;
+  const hide=()=>pop.classList.remove('on');
   // one delegated closer: clicking anywhere else, or Esc, dismisses it
   if(!window._calPopWired){ window._calPopWired=true;
     document.addEventListener('click',e=>{ const p=document.getElementById('ovPop');
