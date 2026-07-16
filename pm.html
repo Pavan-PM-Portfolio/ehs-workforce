@@ -56,24 +56,43 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .tb-tool .tn{font-size:12.8px;font-weight:600;line-height:1.2;display:block}
 .tm-ico{width:26px;height:26px;flex:none;display:grid;place-items:center}
 .tm-ico svg{width:22px;height:22px;display:block;overflow:visible}
-/* card steps across the three columns, then resets */
-@keyframes tm-pj-move{
-  0%,14%   {transform:translate(0,0)}
-  28%,42%  {transform:translate(7.2px,4.8px)}
-  56%,72%  {transform:translate(14.4px,8.8px)}
-  86%,100% {transform:translate(0,0)}
-}
-.tm-pj-card{animation:tm-pj-move 4.2s cubic-bezier(.65,0,.35,1) infinite}
-/* parcel drops into the tray */
-@keyframes tm-dh-drop{
-  0%      {transform:translateY(-5px);opacity:0}
-  22%     {opacity:1}
-  48%,74% {transform:translateY(4.6px);opacity:1}
-  90%,100%{transform:translateY(-5px);opacity:0}
-}
-.tm-dh-box{animation:tm-dh-drop 3.4s cubic-bezier(.5,0,.3,1) infinite}
+/* Project Hub — ticks draw in sequence */
+@keyframes ti-pm{0%,8%{stroke-dashoffset:9;opacity:0}22%,72%{stroke-dashoffset:0;opacity:1}86%,100%{stroke-dashoffset:9;opacity:0}}
+.ti-pm-t{stroke-dasharray:9;animation:ti-pm 3.2s ease-in-out infinite}
+.ti-pm-t:nth-of-type(2){animation-delay:.42s}
+.ti-pm-t:nth-of-type(3){animation-delay:.84s}
+/* Delivery Hub — truck rolls */
+@keyframes ti-dh{0%,100%{transform:translateX(-1.6px)}50%{transform:translateX(1.6px)}}
+@keyframes ti-dhw{to{transform:rotate(360deg)}}
+.ti-dh-body{animation:ti-dh 2.4s ease-in-out infinite}
+.ti-dh-w1{transform-origin:7.5px 17.5px;animation:ti-dhw 1.1s linear infinite}
+.ti-dh-w2{transform-origin:17px 17.5px;animation:ti-dhw 1.1s linear infinite}
+/* Sales Analytics — bars rise, trend cuts across */
+@keyframes ti-sa{0%,100%{transform:scaleY(.35)}52%{transform:scaleY(1)}}
+.ti-sa-b{transform-origin:center bottom;animation:ti-sa 2.8s ease-in-out infinite}
+.ti-sa-b:nth-of-type(2){animation-delay:.16s}
+.ti-sa-b:nth-of-type(3){animation-delay:.32s}
+@keyframes ti-saa{0%,14%{stroke-dashoffset:24;opacity:0}44%,84%{stroke-dashoffset:0;opacity:1}96%,100%{stroke-dashoffset:24;opacity:0}}
+.ti-sa-a{stroke-dasharray:24;animation:ti-saa 2.8s ease-out infinite}
+/* Products & Licenses — shield draws, tick lands */
+@keyframes ti-plr{0%,8%{stroke-dashoffset:58}40%,100%{stroke-dashoffset:0}}
+.ti-pl-r{stroke-dasharray:58;animation:ti-plr 3.2s ease-out infinite}
+@keyframes ti-plt{0%,26%{stroke-dashoffset:11}54%,82%{stroke-dashoffset:0}96%,100%{stroke-dashoffset:11}}
+.ti-pl-t{stroke-dasharray:11;animation:ti-plt 3.2s cubic-bezier(.5,0,.3,1) infinite}
+/* Operations — gears counter-rotate */
+@keyframes ti-oma{to{transform:rotate(360deg)}}
+@keyframes ti-omb{to{transform:rotate(-360deg)}}
+.ti-om-a{transform-origin:8.6px 9.4px;animation:ti-oma 6s linear infinite}
+.ti-om-b{transform-origin:16.4px 16px;animation:ti-omb 4s linear infinite}
+/* Coming soon */
+.tb-tool.tb-ws{justify-content:center}
+.tb-tool.tb-soon{cursor:default}
+.tb-tool.tb-soon:hover{background:none}
+.tb-tool.tb-soon .tm-ico,.tb-tool.tb-soon .tn{opacity:.5}
+.tm-soon{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:3px 7px;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){
-  .tm-pj-card,.tm-dh-box{animation:none}
+  .ti-pm-t,.ti-dh-body,.ti-dh-w1,.ti-dh-w2,.ti-sa-b,.ti-sa-a,.ti-pl-r,.ti-pl-t,.ti-om-a,.ti-om-b{animation:none}
 }
 .tb-tool .tc-mark{background:none !important;padding:0}
 .tb-tool .tc-mark img{height:19px;width:auto;display:block}
@@ -7194,28 +7213,54 @@ window.addEventListener('popstate',  ()=>{ if(!_urlApplying) urlApply(); });
    Mirrors the launcher's registry. Only tools this person can actually open are
    listed: master admins see every live tool, everyone else sees exactly what
    tool_access grants. Planned tools are never shown. */
+/* Animated tool icons. Each hints at what the tool does; all pause under
+   prefers-reduced-motion. */
 const TOOL_ICON={
   pm:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="2"    y="4" width="5.6" height="16" rx="1.6" fill="#3B6FE0" opacity=".16"/>
-        <rect x="9.2"  y="4" width="5.6" height="16" rx="1.6" fill="#3B6FE0" opacity=".16"/>
-        <rect x="16.4" y="4" width="5.6" height="16" rx="1.6" fill="#3B6FE0" opacity=".16"/>
-        <rect class="tm-pj-card" x="2.9" y="6.2" width="3.8" height="3" rx="1" fill="#3B6FE0"/>
-        <rect x="10.1" y="11" width="3.8" height="2.4" rx="1" fill="#3B6FE0" opacity=".38"/>
-        <rect x="17.3" y="15" width="3.8" height="2.4" rx="1" fill="#3B6FE0" opacity=".38"/>
-      </svg>`,
+      <rect x="3" y="3" width="18" height="18" rx="3.4" stroke="#3B6FE0" stroke-width="1.6" opacity=".28"/>
+      <path d="M7 8.4h9M7 12h9M7 15.6h9" stroke="#3B6FE0" stroke-width="1.5" stroke-linecap="round" opacity=".2"/>
+      <path class="ti-pm-t" d="M6.6 8.4l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="ti-pm-t" d="M6.6 12l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="ti-pm-t" d="M6.6 15.6l1.5 1.5 2.6-2.9" stroke="#3B6FE0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
   delivery:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect class="tm-dh-box" x="9.4" y="2.6" width="5.2" height="5.2" rx="1.3" fill="#0E8F5A"/>
-        <path d="M3 13.4h4.6l1.5 2.4h5.8l1.5-2.4H21v4.9a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 18.3z"
-              fill="#0E8F5A" opacity=".18"/>
-        <path d="M3 13.4h4.6l1.5 2.4h5.8l1.5-2.4H21v4.9a2.2 2.2 0 0 1-2.2 2.2H5.2A2.2 2.2 0 0 1 3 18.3z"
-              stroke="#0E8F5A" stroke-width="1.5" stroke-linejoin="round"/>
-      </svg>`
+      <g class="ti-dh-body">
+        <path d="M2 6.6h11v9H2z" fill="#0E8F5A" opacity=".2"/>
+        <path d="M2 6.6h11v9H2z" stroke="#0E8F5A" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M13 9.6h4.2L21 12.8v2.8h-8z" fill="#0E8F5A" opacity=".2"/>
+        <path d="M13 9.6h4.2L21 12.8v2.8h-8z" stroke="#0E8F5A" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+      <circle class="ti-dh-w1" cx="7.5" cy="17.5" r="2.2" stroke="#0E8F5A" stroke-width="1.6" stroke-dasharray="2.4 2.4"/>
+      <circle class="ti-dh-w2" cx="17" cy="17.5" r="2.2" stroke="#0E8F5A" stroke-width="1.6" stroke-dasharray="2.4 2.4"/>
+    </svg>`,
+  sales:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect class="ti-sa-b" x="3.6" y="12" width="3.6" height="8" rx="1.2" fill="#BA7517" opacity=".45"/>
+      <rect class="ti-sa-b" x="9" y="9" width="3.6" height="11" rx="1.2" fill="#BA7517" opacity=".68"/>
+      <rect class="ti-sa-b" x="14.4" y="6" width="3.6" height="14" rx="1.2" fill="#BA7517"/>
+      <path class="ti-sa-a" d="M4 15.4L9.6 10l3.4 2.6L20.4 5" stroke="#BA7517" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  products:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2.6l8 3v6.2c0 4.6-3.4 8.4-8 9.6-4.6-1.2-8-5-8-9.6V5.6z" fill="#C2410C" opacity=".16"/>
+      <path class="ti-pl-r" d="M12 2.6l8 3v6.2c0 4.6-3.4 8.4-8 9.6-4.6-1.2-8-5-8-9.6V5.6z" stroke="#C2410C" stroke-width="1.6" stroke-linejoin="round"/>
+      <path class="ti-pl-t" d="M8.2 11.8l2.6 2.6 5-5.4" stroke="#C2410C" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  ops:`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <g class="ti-om-a">
+        <path d="M9.2 1.8l.5 2.2 2 .9 2-1.1 1.6 1.6-1.1 2 .9 2 2.2.5v2.2l-2.2.5-.9 2 1.1 2-1.6 1.6-2-1.1-2 .9-.5 2.2H7l-.5-2.2-2-.9-2 1.1L.9 16.5l1.1-2-.9-2L-1.1 12V9.8l2.2-.5.9-2-1.1-2L2.5 3.7l2 1.1 2-.9L7 1.8z" transform="translate(2.6 2.4) scale(.72)" fill="#7C3AED" opacity=".22"/>
+        <circle cx="8.6" cy="9.4" r="2.4" stroke="#7C3AED" stroke-width="1.7"/>
+      </g>
+      <g class="ti-om-b">
+        <circle cx="16.4" cy="16" r="4.6" stroke="#7C3AED" stroke-width="1.7" stroke-dasharray="2.6 2.2"/>
+        <circle cx="16.4" cy="16" r="1.5" fill="#7C3AED"/>
+      </g>
+    </svg>`
 };
 const SUITE_TOOLS=[
-  {id:'pm',       code:'PJ', name:'Project Hub',    tagline:'Cadence Tracker',           accent:'#3B6FE0', status:'live',    file:'pm.html'},
-  {id:'delivery', code:'DH', name:'Delivery Hub',   tagline:'Concern intake & delivery', accent:'#0E8F5A', status:'live',    file:'delivery.html'},
-  {id:'products', code:'PD', name:'Product Hub',    tagline:'Catalog & licensing',       accent:'#C2410C', status:'planned', file:'products.html'},
-  {id:'ops',      code:'OH', name:'Operations Hub', tagline:'Day-to-day ops',            accent:'#7C3AED', status:'planned', file:'ops.html'},
+  {id:'pm',       name:'Project Hub',           status:'live', file:'pm.html'},
+  {id:'delivery', name:'Delivery Hub',          status:'soon'},
+  {id:'sales',    name:'Sales Analytics',       status:'soon'},
+  {id:'products', name:'Products & Licenses',   status:'soon'},
+  {id:'ops',      name:'Operations Management', status:'soon'},
 ];
 let _myToolIds=null;
 async function loadMyToolIds(){
@@ -7230,19 +7275,22 @@ async function loadMyToolIds(){
 }
 function buildToolsMenu(ids){
   const m=document.getElementById('tnToolsMenu'); if(!m) return;
-  const mine=SUITE_TOOLS.filter(t=>t.status==='live' && ids.includes(t.id));
-  m.innerHTML = mine.length
-    ? `<div class="tm-h">Your tools</div>` + mine.map(t=>{
-        const cur = t.file==='pm.html';
-        return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">
-          <span class="tm-ico">${TOOL_ICON[t.id]||''}</span>
-          <span class="tn">${esc(t.name)}</span>
-          ${cur?'<span class="cur-dot">Current</span>':''}</a>`; }).join('')
-      + `<div style="height:1px;background:var(--line-2);margin:6px 8px"></div>
-         <a class="tb-tool" href="index.html"><span class="tc tc-mark"><img src="data:image/png;base64,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" alt=""></span>
-           <span class="tn">EHS Workspace</span></a>`
-    : '<div class="tb-tools-none">No tools granted yet.</div>';
+  const rows=SUITE_TOOLS.filter(t=>t.status!=='live' || ids.includes(t.id)).map(t=>{
+    const icon=`<span class="tm-ico">${TOOL_ICON[t.id]||''}</span>`;
+    if(t.status!=='live')
+      return `<div class="tb-tool tb-soon">${icon}<span class="tn">${esc(t.name)}</span>
+        <span class="tm-soon">Coming soon</span></div>`;
+    const cur = t.file==='pm.html';
+    return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">${icon}
+      <span class="tn">${esc(t.name)}</span>
+      ${cur?'<span class="cur-dot">Current</span>':''}</a>`;
+  }).join('');
+  m.innerHTML=`<div class="tm-h">Your tools</div>${rows}
+    <div style="height:1px;background:var(--line-2);margin:6px 8px"></div>
+    <a class="tb-tool tb-ws" href="index.html"><span class="tc tc-mark"><img src="data:image/png;base64,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" alt=""></span>
+      <span class="tn">Workspace</span></a>`;
 }
+
 async function toggleToolsMenu(e){
   if(e) e.stopPropagation();
   const m=document.getElementById('tnToolsMenu'); if(!m) return;
