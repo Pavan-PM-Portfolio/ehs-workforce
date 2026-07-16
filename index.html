@@ -102,9 +102,22 @@ input,select{font-family:inherit}
 .tb-crumb .sep{color:var(--faint)}
 .tb-spacer{flex:1}
 .tb-link{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2);
-  padding:7px 11px;border:1px solid var(--line);transition:background .12s}
-.tb-link:hover{background:var(--surface-3)}
-.tb-link.on{border-color:var(--accent);color:var(--accent)}
+  padding:7px 11px;border:0;border-radius:8px;cursor:pointer;transition:background .12s}
+.tb-link:hover{background:var(--surface-2)}
+.tb-link.on{color:var(--accent)}
+.tb-tools-wrap{position:relative;flex:none}
+.tb-tools-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:60;min-width:250px;background:#fff;
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 22px 50px -18px rgba(16,26,51,.36);padding:6px;display:none}
+.tb-tools-menu.on{display:block}
+.tb-tools-menu .tm-h{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:8px 10px 6px}
+.tb-tool{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit}
+.tb-tool:hover{background:var(--surface-2)}
+.tb-tool.cur{background:var(--surface-2)}
+.tb-tool .tc{width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:7px;font-size:10px;font-weight:800;color:#fff}
+.tb-tool .tn{font-size:12.8px;font-weight:600;line-height:1.2}
+.tb-tool .tt{font-size:11px;color:var(--muted);margin-top:1px}
+.tb-tool .cur-dot{margin-left:auto;font-size:10px;font-weight:700;color:var(--muted)}
+.tb-tools-none{padding:14px 12px;font-size:12px;color:var(--muted);text-align:center}
 .tb-acct{display:flex;align-items:center;gap:9px;padding:6px 8px;cursor:pointer;transition:background .12s}
 .tb-acct:hover{background:var(--surface-3)}
 .tb-acct .av-sq{width:30px;height:30px;font-size:11px}
@@ -617,6 +630,38 @@ function avColor(s){ let h=0; for(const c of (s||'?')) h=(h*31+c.charCodeAt(0))>
 function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.25;
   return `<span class="av-sq" style="width:${size}px;height:${size}px;background:${c}20;border:${bw}px solid ${c};color:${c};font-size:${Math.max(10,Math.round(size*0.4))}px">${esc(initials(name))}</span>`; }
 
+/* ---------- All tools menu ----------
+   Lists only what this person can actually open: master admins see every live
+   tool, everyone else sees exactly what tool_access grants them. */
+function myTools(){
+  const ids=EHS.myToolIds(TOOLS.map(t=>t.id));
+  return TOOLS.filter(t=>t.status==='live' && ids.includes(t.id));
+}
+function buildToolsMenu(){
+  const m=document.getElementById('tbToolsMenu'); if(!m) return;
+  const here=(location.pathname.split('/').pop()||'index.html');
+  const mine=myTools();
+  m.innerHTML = mine.length
+    ? `<div class="tm-h">Your tools</div>` + mine.map(t=>{
+        const cur = t.file===here;
+        return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">
+          <span class="tc" style="background:${t.accent}">${t.code}</span>
+          <span><span class="tn">${esc(t.name)}</span><span class="tt">${esc(t.tagline||'')}</span></span>
+          ${cur?'<span class="cur-dot">Current</span>':''}</a>`; }).join('')
+      + `<div style="height:1px;background:var(--line-2);margin:6px 8px"></div>
+         <a class="tb-tool" href="index.html"><span class="tc" style="background:var(--ink)">EHS</span>
+           <span><span class="tn">EHS Workspace</span><span class="tt">All tools</span></span></a>`
+    : '<div class="tb-tools-none">No tools granted yet.</div>';
+}
+function toggleToolsMenu(e){
+  if(e) e.stopPropagation();
+  const m=document.getElementById('tbToolsMenu'); if(!m) return;
+  if(!m.classList.contains('on')) buildToolsMenu();
+  m.classList.toggle('on');
+}
+document.addEventListener('click',e=>{ const m=document.getElementById('tbToolsMenu');
+  if(m && m.classList.contains('on') && !e.target.closest('.tb-tools-wrap')) m.classList.remove('on'); });
+
 function topbar(title, sub){
   const u=EHS.me();
   const dn=(u.full_name&&u.full_name.trim())?u.full_name.trim():friendlyName(u);
@@ -624,6 +669,11 @@ function topbar(title, sub){
     <div class="tb-brand" onclick="go('#/')"><img class="ehs-logo" src="${LOGO}" alt="EduHubSpot">
       <span class="tb-div"></span><span class="tb-wf">Workforce</span></div>
     <div class="tb-spacer"></div>
+    <div class="tb-tools-wrap">
+      <div class="tb-link" id="tbTools" onclick="toggleToolsMenu(event)">${ic('grid')} All tools
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+      <div class="tb-tools-menu" id="tbToolsMenu"></div>
+    </div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Admin Panel</div>`:''}
     <div class="tb-acct" onclick="openAccount(event)"><span class="tb-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
       <div><div class="who">${esc(dn)}</div>
