@@ -4030,6 +4030,26 @@ function closeModal(){ document.getElementById('modalWrap').classList.remove('on
 
 /* ---------- Jira-style Log time modal ---------- */
 let logTaskId=null;
+/* ---------- Settings: draft + explicit save ----------
+   Every control used to call store.updateUser()/updateSettings() on change,
+   which fired a persist + DB push per keystroke — hence the lag when changing
+   several fields quickly. Now the edits stay local and go up in one write. */
+let _setDirty=false;
+function setMarkDirty(){
+  _setDirty=true;
+  const p=document.getElementById('setDirty'); if(p) p.classList.add('on');
+  const b=document.getElementById('setSave'); if(b) b.disabled=false;
+}
+function setSaveNow(){
+  const u=meUser();
+  if(u) store.updateUser(u.id,{prefs:u.prefs});     // one write for prefs
+  store.updateSettings({});                          // flush perms/field edits
+  _setDirty=false;
+  renderSettings(); applyPrefs(); renderAll();
+  toast('Settings saved');
+}
+function setDiscard(){ _setDirty=false; if(REMOTE){ location.reload(); return; } renderSettings(); }
+
 /* ---------- Subtask dialog ----------
    Captures assignee + estimate + done. The estimate rolls into the parent's
    original estimate by DELTA, so a manually-set estimate is never clobbered. */
@@ -5029,22 +5049,31 @@ function renderSettings(){
   const setRail=SETSECS.map(x=>`<button type="button" class="ehs-li${x.danger?' is-danger':''}" data-sec="${x.k}" aria-current="${ui.setSel===x.k}">
       <span class="ehs-li-n">${esc(x.n)}</span></button>`).join('');
 
+  const canSave = curSec.k!=='data' && curSec.k!=='danger';
   el.innerHTML=`<div class="ehs-page-head"><h1>Settings</h1></div>
     <div class="ehs-pane">
       <aside class="ehs-rail"><nav class="ehs-rail-list" id="setRail" style="padding-top:10px">${setRail}</nav></aside>
       <section class="ehs-detail">
         <div class="ehs-d-head"><div><h2${curSec.danger?' style="color:var(--crit)"':''}>${esc(curSec.n)}</h2>
-          <p class="ehs-d-sub">${esc(curSec.d)}</p></div></div>
+          <p class="ehs-d-sub">${esc(curSec.d)}</p></div>
+          ${canSave?`<div style="display:flex;align-items:center;gap:8px">
+            <span class="bs-dirty ${_setDirty?'on':''}" id="setDirty">Unsaved changes</span>
+            <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="setDiscard" type="button" ${_setDirty?'':'style="display:none"'}>Discard</button>
+            <button class="ehs-btn ehs-btn--sm" id="setSave" type="button" ${_setDirty?'':'disabled'}>Save changes</button>
+          </div>`:''}</div>
         ${curSec.html}
       </section>
     </div>`;
   el.querySelectorAll('#setRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.setSel=b.dataset.sec; renderSettings(); });
+  const _ss=document.getElementById('setSave'); if(_ss) _ss.onclick=setSaveNow;
+  const _sd=document.getElementById('setDiscard'); if(_sd) _sd.onclick=()=>{ if(confirm('Discard your unsaved changes?')) setDiscard(); };
 
   const _g=id=>document.getElementById(id);
   // preferences wiring (current user)
   el.querySelectorAll('[data-pref]').forEach(node=>{
     const path=node.dataset.pref;
-    const setVal=v=>{ const u=meUser(); if(!u) return; u.prefs=u.prefs||{}; const parts=path.split('.'); let o=u.prefs; for(let i=0;i<parts.length-1;i++){ o[parts[i]]=o[parts[i]]||{}; o=o[parts[i]]; } o[parts[parts.length-1]]=v; store.updateUser(u.id,{prefs:u.prefs}); toast('Saved'); };
+    const setVal=v=>{ const u=meUser(); if(!u) return; u.prefs=u.prefs||{}; const parts=path.split('.'); let o=u.prefs; for(let i=0;i<parts.length-1;i++){ o[parts[i]]=o[parts[i]]||{}; o=o[parts[i]]; }
+      o[parts[parts.length-1]]=v; setMarkDirty(); };   /* saved on Save, not on every keystroke */
     if(node.classList.contains('stx-tgl')){ node.onclick=()=>{ node.classList.toggle('on'); setVal(node.classList.contains('on')); applyPrefs(); renderAll(); }; }
     else if(node.tagName==='SELECT'){ node.onchange=()=>{ setVal(node.value); applyPrefs(); renderAll(); }; }
     else if(node.tagName==='INPUT'){ node.onchange=()=>{ setVal(node.value); applyPrefs(); if(typeof updateBell==='function') updateBell(); }; }
@@ -5082,11 +5111,11 @@ function renderSettings(){
     } else { toast(role==='admin'?'Now a Project Hub admin':'Now a Project Hub user'); }
   });
   // field Read/Edit/Hide
-  el.querySelectorAll('.stx-seg button').forEach(btn=>btn.onclick=()=>{ const fk=btn.dataset.fp, v=btn.dataset.v; const fpm=Object.assign({}, s.fieldPerms||{}); const rec=Object.assign({}, fpm[editUser]||{}); rec[fk]=v; fpm[editUser]=rec; store.updateSettings({fieldPerms:fpm}); const seg=btn.parentElement; seg.querySelectorAll('button').forEach(b=>b.className=''); btn.className='on '+v; });
+  el.querySelectorAll('.stx-seg button').forEach(btn=>btn.onclick=()=>{ const fk=btn.dataset.fp, v=btn.dataset.v; const fpm=Object.assign({}, s.fieldPerms||{}); const rec=Object.assign({}, fpm[editUser]||{}); rec[fk]=v; fpm[editUser]=rec; Object.assign(store.settings(),{fieldPerms:fpm}); setMarkDirty(); const seg=btn.parentElement; seg.querySelectorAll('button').forEach(b=>b.className=''); btn.className='on '+v; });
   // bulk set
-  el.querySelectorAll('[data-bulk]').forEach(b=>b.onclick=()=>{ const v=b.dataset.bulk; const fpm=Object.assign({}, s.fieldPerms||{}); const rec={}; STX_FALL.forEach(k=>rec[k]=v); fpm[editUser]=rec; store.updateSettings({fieldPerms:fpm}); renderSettings(); toast('Fields set to '+v); });
+  el.querySelectorAll('[data-bulk]').forEach(b=>b.onclick=()=>{ const v=b.dataset.bulk; const fpm=Object.assign({}, s.fieldPerms||{}); const rec={}; STX_FALL.forEach(k=>rec[k]=v); fpm[editUser]=rec; Object.assign(store.settings(),{fieldPerms:fpm}); setMarkDirty(); renderSettings(); toast('Fields set to '+v); });
   // module visibility (existing cap system)
-  el.querySelectorAll('.stx-mod').forEach(node=>node.onclick=()=>{ const cap=node.dataset.cap; const base=Object.assign({}, s.userPerms||{}); const rec=Object.assign({}, base[editUser]||{}); const on=!node.classList.contains('on'); rec[cap]=on; base[editUser]=rec; store.updateSettings({userPerms:base}); node.classList.toggle('on'); });
+  el.querySelectorAll('.stx-mod').forEach(node=>node.onclick=()=>{ const cap=node.dataset.cap; const base=Object.assign({}, s.userPerms||{}); const rec=Object.assign({}, base[editUser]||{}); const on=!node.classList.contains('on'); rec[cap]=on; base[editUser]=rec; Object.assign(store.settings(),{userPerms:base}); setMarkDirty(); node.classList.toggle('on'); });
   // visible workspaces
   el.querySelectorAll('.stx-ws').forEach(node=>node.onclick=()=>{ const sp=store.space(node.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); const on=!node.classList.contains('on'); on?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); node.classList.toggle('on'); toast('Workspace access updated'); });
   // data + danger (unchanged handlers)
