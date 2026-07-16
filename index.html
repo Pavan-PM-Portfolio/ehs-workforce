@@ -746,7 +746,7 @@ function buildToolsMenu(){
       return `<div class="tb-tool tb-soon">${icon}<span class="tn">${esc(t.name)}</span>
         <span class="tm-soon">Coming soon</span></div>`;
     const cur=t.file===here;
-    return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}">${icon}
+    return `<a class="tb-tool ${cur?'cur':''}" href="${t.file}"${cur?'':' target="_blank" rel="noopener noreferrer"'}>${icon}
       <span class="tn">${esc(t.name)}</span>
       ${cur?'<span class="cur-dot">Current</span>':''}</a>`;
   }).join('');
