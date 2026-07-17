@@ -4271,7 +4271,7 @@ function openPanel(id, keepScroll){
   const proj=store.project(t.project);
   const stObj=store.status(t.status); const stCat=stObj?stObj.cat:'todo';
   const remaining = (t.estimate||0) - tot.total;
-  const peopleOpts=(cur)=>`<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}" ${u.id===cur?'selected':''}>${u.name}</option>`).join('');
+  const peopleOpts=(cur)=>`<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}" ${u.id===cur?'selected':''}>${esc(u.name)}</option>`).join('');
   const ovChip=(uid)=>{ const u=store.user(uid); return u?`<span class="ov-p">${avatar(u,24)}<span class="ov-nm">${esc(u.name)}</span></span>`:'<span class="ov-none">Unassigned</span>'; };
   const cdBtn=(field)=>`<button class="cdate p-cd" data-id="${id}" data-field="${field}">${t[field]?fdate(t[field]):'<span class="cf-muted">Set date</span>'}<svg class="cfchev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>`;
   const peopleSel=[{v:'',t:'Unassigned'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
@@ -4788,9 +4788,9 @@ function openModal(presetType, presetParent, presetProject){
   const isEpic=presetType==='Epic';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
   setSel('ntProject', `<option value="">No project</option>`+store.projects().map((p,i)=>`<option value="${p.id}" ${i===0?'selected':''}>${esc(p.name)}</option>`).join(''));
-  setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${u.name}</option>`).join(''));
+  setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   if(curPrefs().autoAssign){ const mu=myUid(); if(mu&&store.user(mu)) document.getElementById('ntAssignee').value=mu; }
-  setSel('ntReporter', store.users().map(u=>`<option value="${u.id}" ${u.role==='PM'?'selected':''}>${u.name}</option>`).join(''));
+  setSel('ntReporter', store.users().map(u=>`<option value="${u.id}" ${u.role==='PM'?'selected':''}>${esc(u.name)}</option>`).join(''));
   setSel('ntStatus', STATUSES.map((s,i)=>`<option value="${s.id}" ${i===0?'selected':''}>${esc(s.name)}</option>`).join(''));
   fillParentOptions();
   document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject'); };
@@ -4905,7 +4905,7 @@ function openLogModal(taskId, presetCat){
   const _logMe=myUid();
   const _logList=((can('time_log_others')||curPrefs().logOthers)?store.users():store.users().filter(u=>u.id===_logMe));
   const _logSel=document.getElementById('logWho');
-  _logSel.innerHTML=_logList.map(u=>`<option value="${u.id}" ${u.id===_logMe?'selected':''}>${u.name}${u.role!=='Developer'?' · '+u.role:''}</option>`).join('');
+  _logSel.innerHTML=_logList.map(u=>`<option value="${u.id}" ${u.id===_logMe?'selected':''}>${esc(u.name)}${u.role!=='Developer'?' · '+esc(u.role):''}</option>`).join('');
   if(_logList.some(u=>u.id===_logMe)) _logSel.value=_logMe;   // belt and braces
   document.getElementById('logSpent').value='';
   document.getElementById('logRem').value= est? jiraDur(remaining) : '';
@@ -7303,7 +7303,7 @@ function scanNoteMentions(){
       const a=store.user(n.user);
       const snip=n.text.length>70?n.text.slice(0,70)+'\u2026':n.text;
       addNotif({ type:'mention', taskId:n.ticket||null, actorId:n.user,
-                 text:`mentioned you in a note: "${esc(snip)}"`, at:n.at, dedup:'note:'+n.id });
+                 text:`mentioned you in a note: "${snip}"`, at:n.at, dedup:'note:'+n.id });
     });
   }catch(e){}
 }
@@ -9788,7 +9788,7 @@ function notifyTaskChange(oldDoc, newDoc){
     if(!inv) return;   // remaining events only if I'm involved
     if(oldDoc.status!==newDoc.status){ const st=store.status(newDoc.status);
       if(st && (store.status(newDoc.status)||{}).cat==='done') addNotif({type:'resolved', taskId:id, text:`${key} was marked ${esc(st.name)}`});
-      else addNotif({type:'status', taskId:id, text:`${key} moved to ${st?esc(st.name):newDoc.status}`}); }
+      else addNotif({type:'status', taskId:id, text:`${key} moved to ${st?st.name:newDoc.status}`}); }
     if(oldDoc.priority!==newDoc.priority) addNotif({type:'priority', taskId:id, text:`${key} priority set to ${newDoc.priority||'—'}`});
     if(!oldDoc.flagged && newDoc.flagged) addNotif({type:'flag', taskId:id, text:`${key} was flagged`});
     // comments (mentions / replies)
@@ -9797,8 +9797,8 @@ function notifyTaskChange(oldDoc, newDoc){
       const meU=store.user(me); const nm=meU?meU.name:''; const txt=(last&&last.text)||'';
       const mentioned = nm && new RegExp('@\\s*'+nm.split(/\s+/)[0], 'i').test(txt);
       const snip = txt.length>70?txt.slice(0,70)+'…':txt;
-      if(mentioned) addNotif({type:'mention', taskId:id, actorId:actor, text:`mentioned you: "${esc(snip)}"`});
-      else addNotif({type:'reply', taskId:id, actorId:actor, text:`commented on ${key}: "${esc(snip)}"`});
+      if(mentioned) addNotif({type:'mention', taskId:id, actorId:actor, text:`mentioned you: "${snip}"`});
+      else addNotif({type:'reply', taskId:id, actorId:actor, text:`commented on ${key}: "${snip}"`});
     }}
   }catch(e){ console.warn('notif', e); }
 }
@@ -9841,7 +9841,7 @@ function renderNotifDrawer(){
   const rows=n=>{ const grp=nset().group;
     return `<div class="ni ${n.read?'rd':''}" data-nid="${n.id}" data-task="${n.taskId||''}"><span class="undot"></span>${niAvatar(n)}
       <div class="bd"><div class="top"><span class="nm">${niName(n)}</span>${n.taskId&&store.task(n.taskId)?`<span class="key">${store.task(n.taskId).key}</span>`:''}</div>
-      <div class="txt">${n.text}</div>
+      <div class="txt">${esc(n.text)}</div>
       <div class="tm"><span>${timeAgo(n.at)}</span><span class="dot"></span><span class="exact">${fdatetime(n.at)}</span></div></div></div>`; };
   const newer=list.filter(n=>!n.read || (now-Date.parse(n.at))<dayMs);
   const older=list.filter(n=>!(!n.read || (now-Date.parse(n.at))<dayMs));
