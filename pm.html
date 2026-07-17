@@ -1423,7 +1423,9 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .fxe.on .fxe-l text{fill:var(--accent)}
 
 .fxs-hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;
-  font-weight:600;padding:8px 14px;border-radius:9px !important;display:flex;gap:8px;z-index:6}
+  font-weight:600;padding:8px 14px;border-radius:9px !important;display:flex;gap:8px;z-index:6;
+  pointer-events:none}                       /* never swallow a click meant for a status */
+.fxs-hint button{pointer-events:auto}
 .fxs-hint button{border:0;background:none;color:#8FB4FF;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline}
 .fxs-mini{position:absolute;right:14px;bottom:14px;width:196px;background:#fff;border:1px solid var(--line);
   border-radius:10px !important;box-shadow:0 10px 30px -12px rgba(16,26,51,.3);overflow:hidden;z-index:5}
