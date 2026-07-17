@@ -8666,7 +8666,13 @@ function renderSoon(name){
     <p>This section is scaffolded and ready. We'll build ${name.toLowerCase()} out once the core tracker is wired to shared storage.</p></div></div>`;
 }
 
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ // Escapes quotes too: this value is dropped into attributes as often
+  // as into text (value="${esc(x)}", title="${esc(x)}"), and without the quote
+  // escapes a title of  x" onfocus="..."  closed the attribute and injected a
+  // live event handler.
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 let toastT; function toast(msg, ms){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'), ms||2200); }
 
 // events
@@ -8896,7 +8902,7 @@ async function renderUsers(){
   const box=document.getElementById('usersRoster'); if(box) box.innerHTML = rows.length ? rows.map(u=>`<div class="um-row">
     <div class="um-ava" style="background:${avColor(u.name)}20;border:1.5px solid ${avColor(u.name)};color:${avColor(u.name)}">${_in(u.name)}</div>
     <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
-    <span class="um-rolebadge ${bcls(u.role)}">${u.role}</span>
+    <span class="um-rolebadge ${bcls(u.role)}">${esc(u.role)}</span>
   </div>`).join('') : '<p class="ov-cap">No one has Project Hub access yet.</p>';
 }
 function applyDefaults(){
