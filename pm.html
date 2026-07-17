@@ -4156,7 +4156,7 @@ function openEpicModal(){
   setTimeout(()=>document.getElementById('epmTitle').focus(),40);
 }
 function closeEpicModal(){ document.getElementById('epicWrap').classList.remove('on'); }
-function submitEpic(){
+async function submitEpic(){
   const title=document.getElementById('epmTitle').value.trim();
   if(!title){ toast('Give the epic a name'); document.getElementById('epmTitle').focus(); return; }
   const pid=document.getElementById('epmProject').value||null;
@@ -4166,20 +4166,22 @@ function submitEpic(){
   const ws=(ui.space||'ws_main');
   const todoStatus=(STATUSES.find(s=>(s.cat||'todo')==='todo')||STATUSES[0]||{}).id;
   const eid='e'+Date.now();
-  const epic={ id:eid, ws, project:pid, key:computeNextKey(pid), title, type:'Epic', status:todoStatus,
+  const epic={ id:eid, ws, project:pid, key:await allocateKey(), title, type:'Epic', status:todoStatus,
     priority:'Medium', assignee:lead, reporter:CURRENT_UID||lead, parent:null,
     color:SWATCHES[2+(store.epics().length%6)], due, start:null, estimate:0,
     resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(), updatedAt:today(), resolvedAt:null, desc };
   store._applyResolution(epic); store.addTask(epic);
   let n=0;
-  document.querySelectorAll('#epmTasks .epm-task').forEach((row,i)=>{
-    const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) return;
-    const t={ id:newTaskId('t'), ws, project:pid, key:computeNextKey(pid), title:tt, type:'Task', status:todoStatus,
+  // A real loop, not forEach: await inside forEach does not wait, so every
+  // ticket would race for the same number — the bug we are removing.
+  for(const row of [...document.querySelectorAll('#epmTasks .epm-task')]){
+    const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) continue;
+    const t={ id:newTaskId('t'), ws, project:pid, key:await allocateKey(), title:tt, type:'Task', status:todoStatus,
       priority:'Medium', assignee:row.querySelector('.epm-tasg').value||null, reporter:CURRENT_UID||null, parent:eid,
       due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
       updatedAt:today(), resolvedAt:null, desc:'' };
     store._applyResolution(t); store.addTask(t); n++;
-  });
+  }
   closeEpicModal(); refreshViews();
   toast('Epic created'+(n?' with '+n+' task'+(n!==1?'s':''):''));
 }
@@ -4730,6 +4732,24 @@ function keyPrefix(){
 function newTaskId(prefix){
   return (prefix||'t')+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 }
+/* Ask Postgres for the number.
+   computeNextKey() below reads THIS browser's task list and returns max+1 —
+   two browsers both see 118 and both mint _119. pm_next_key() increments a
+   counter row inside the database, so concurrent callers queue and each gets a
+   distinct number. The local path stays as an offline fallback only. */
+async function allocateKey(){
+  const prefix = keyPrefix();
+  const space  = (typeof ui!=='undefined' && ui.space) || 'ws_main';
+  if(typeof sb!=='undefined' && sb && WS){
+    try{
+      const {data, error} = await sb.rpc('pm_next_key', { p_ws:WS, p_space:space, p_prefix:prefix });
+      if(!error && Number.isFinite(data)) return prefix+'_'+String(data).padStart(3,'0');
+      console.warn('[key] allocator unavailable, falling back locally', error);
+    }catch(e){ console.warn('[key] allocator threw, falling back locally', e); }
+  }
+  return computeNextKey();          // offline / local mode
+}
+
 function computeNextKey(pid){
   const sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
   const prefix=keyPrefix();
@@ -4911,7 +4931,7 @@ function saveLog(){
   if(remStr!=='' && _preLogged===0 && !_hadEst){ const rem=parseDur(remStr); if(rem!=null){ store.updateTask(id,{estimate:taskTotals(id).total+rem}); } }
   closeLogModal(); openPanel(id,true); refreshViews(); toast(`Logged ${hm(spent)} · ${cat}`);
 }
-function createTask(){
+async function createTask(){
   const title=document.getElementById('ntTitle').value.trim();
   if(!title){ toast('Give the ticket a title'); return; }
   const pid=document.getElementById('ntProject').value;
@@ -4919,7 +4939,12 @@ function createTask(){
   const statusId=document.getElementById('ntStatus').value;
   const type=document.getElementById('ntType').value;
   const isEpic=type==='Epic';
-  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), project:pid, key:computeNextKey(pid), title,
+  const btn=document.getElementById('ntCreate');
+  if(btn) btn.disabled=true;                       // no double-allocating on a double click
+  let allocated;
+  try{ allocated=await allocateKey(); }
+  finally{ if(btn) btn.disabled=false; }
+  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), project:pid, key:allocated, title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
     reporter:document.getElementById('ntReporter').value||null,
