@@ -8952,18 +8952,45 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 // push of them is spurious — attempting it just triggers "row-level security"
 // rejections. Skip them rather than fail the whole save.
 const ADMIN_ONLY_TABLES = new Set(['settings','statuses','projects','teams','boards','spaces']);
+/* Which top-level fields changed between the last synced copy and now.
+   Shallow on purpose: it mirrors Postgres's `doc || patch`, which is also a
+   shallow merge. Two people editing different FIELDS both survive; two people
+   editing the same field is still last-write-wins, which is expected. */
+function docDiff(prev, next){
+  const patch={};
+  Object.keys(next).forEach(k=>{
+    if(JSON.stringify(next[k])!==JSON.stringify(prev[k])) patch[k]=next[k];
+  });
+  Object.keys(prev).forEach(k=>{ if(!(k in next)) patch[k]=null; });   // field removed
+  return patch;
+}
+
 async function diffPush(){
   if(!sb||!WS) return;
   const amAdmin = (typeof IS_ADMIN!=='undefined' && IS_ADMIN);
   const jobs=[];
   for(const [k,t] of Object.entries(TBL)){
-    const arr=store.data[k]||[]; const cur=new Map(); const ups=[];
+    const arr=store.data[k]||[]; const cur=new Map(); const ups=[]; const patches=[];
+    const prevMap=snap[t]||new Map();
     arr.forEach((d,i)=>{ const js=JSON.stringify(d); cur.set(d.id, js);
-      if((snap[t]||new Map()).get(d.id)!==js){ const row={workspace_id:WS, id:d.id, doc:d}; if(t==='statuses'||t==='boards') row.sort=i; ups.push(row); if(t==='tasks'){ try{ markSelfPushed(d.id); }catch(e){} } } });
-    const del=[...(snap[t]||new Map()).keys()].filter(id=>!cur.has(id));
-    if(!ups.length && !del.length){ snap[t]=cur; continue; }   // nothing to send
+      const prev=prevMap.get(d.id);
+      if(prev===js) return;                                  // unchanged
+      if(t==='tasks'){ try{ markSelfPushed(d.id); }catch(e){} }
+      if(prev===undefined || t==='statuses' || t==='boards'){
+        // brand new row, or a table where row order (sort) matters — send it whole
+        const row={workspace_id:WS, id:d.id, doc:d};
+        if(t==='statuses'||t==='boards') row.sort=i;
+        ups.push(row); return;
+      }
+      // existing row: send ONLY the fields that changed, so a concurrent edit to
+      // a different field is not overwritten by our copy of it
+      const patch=docDiff(JSON.parse(prev), d);
+      if(Object.keys(patch).length) patches.push({id:d.id, patch});
+    });
+    const del=[...prevMap.keys()].filter(id=>!cur.has(id));
+    if(!ups.length && !patches.length && !del.length){ snap[t]=cur; continue; }
     if(!amAdmin && ADMIN_ONLY_TABLES.has(t)){ snap[t]=cur; continue; }   // not ours to write
-    jobs.push({t, cur, ups, del});
+    jobs.push({t, cur, ups, patches, del});
   }
   const sjs=JSON.stringify(store.data.settings);
   const pushSettings = (sjs!==snap.settings) && amAdmin;   // settings are admin-only
@@ -8972,6 +8999,15 @@ async function diffPush(){
   const runOne=async j=>{
     try{
       if(j.ups.length){ const r=await sb.from(j.t).upsert(j.ups); if(r&&r.error) throw r.error; }
+      for(const pt of (j.patches||[])){
+        const r=await sb.rpc('pm_patch_doc', { p_table:j.t, p_ws:WS, p_id:pt.id, p_patch:pt.patch });
+        if(r&&r.error) throw r.error;
+        if(r && r.data===0){
+          // the row is not there (deleted elsewhere, or never inserted) — insert it whole
+          const doc=(store.data[Object.keys(TBL).find(k=>TBL[k]===j.t)]||[]).find(x=>x.id===pt.id);
+          if(doc){ const r2=await sb.from(j.t).upsert([{workspace_id:WS, id:pt.id, doc}]); if(r2&&r2.error) throw r2.error; }
+        }
+      }
       if(j.del.length){ const r=await sb.from(j.t).delete().eq('workspace_id',WS).in('id',j.del); if(r&&r.error) throw r.error; }
       snap[j.t]=j.cur;                      // commit the snapshot ONLY once the DB accepted it
     }catch(e){ failed.push({t:j.t, e}); }   // leave snap alone so the change is retried, not lost
@@ -9005,7 +9041,11 @@ function subscribeRealtime(){
     else if(p.new&&p.new.doc){ const doc=p.new.doc; const i=arr.findIndex(x=>x.id===doc.id);
       if(k==='tasks'){ try{ notifyTaskChange(i>=0?arr[i]:null, doc); }catch(e){} }
       if(i>=0) arr[i]=doc; else arr.push(doc); }
-    const m=new Map(); store.data[k].forEach(d=>m.set(d.id, JSON.stringify(d))); snap[t]=m;
+    // Only re-snapshot the row that actually arrived. Rebuilding the whole
+    // table's snapshot from LOCAL data folded any unsaved local edit into snap,
+    // and diffPush then saw no diff and never pushed it — the edit vanished.
+    if(p.eventType==='DELETE'){ const id=p.old&&p.old.id; if(id && snap[t]) snap[t].delete(id); }
+    else if(p.new&&p.new.doc){ if(!snap[t]) snap[t]=new Map(); snap[t].set(p.new.doc.id, JSON.stringify(p.new.doc)); }
     scheduleRerender();
   }); });
   ch.on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:'workspace_id=eq.'+WS},p=>{ if(p.new&&p.new.doc){ store.data.settings=p.new.doc; snap.settings=JSON.stringify(p.new.doc); scheduleRerender(); }});
