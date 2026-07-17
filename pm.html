@@ -1286,12 +1286,334 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .brd-del{border:0;background:none;color:var(--faint);width:26px;height:26px;border-radius:6px;font-size:14px}
 .brd-del:hover{color:var(--crit);background:var(--surface-2)}
 /* flow builder */
-.flow-enforce{display:flex;align-items:center;gap:12px;padding:4px 0 14px;border-bottom:1px solid var(--line-2);margin-bottom:6px}
-.flow-row{padding:12px 0;border-bottom:1px solid var(--line-2)}
-.flow-from{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:9px}
-.flow-targets{display:flex;flex-wrap:wrap;gap:6px;padding-left:16px}
-.tchip{font-size:11px;padding:4px 10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;border-radius:0;display:inline-flex;align-items:center}
-.tchip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+/* ---------- Workflow editor: full screen ---------- */
+.wf-screen{position:fixed;inset:0;background:var(--bg);z-index:560;display:none;flex-direction:column}
+.wf-screen.on{display:flex}
+.wf-top{flex:none;display:flex;align-items:center;gap:18px;height:60px;padding:0 20px;background:#fff;border-bottom:1px solid var(--ink)}
+.wf-title{display:flex;flex-direction:column;line-height:1.15;flex:none}
+.wf-t1{font-size:13px;font-weight:800;letter-spacing:-.01em}
+.wf-board{border:0;background:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--accent);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:0;text-align:left}
+.wf-tools{display:flex;align-items:flex-start;gap:4px;margin:0 auto}
+.wf-tool{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;font-family:inherit;
+  font-size:11px;font-weight:600;color:var(--ink-2);cursor:pointer;padding:6px 12px;border-radius:8px !important;min-width:74px}
+.wf-tool:hover{background:var(--surface-2);color:var(--ink)}
+.wf-tool svg{width:17px;height:17px}
+.wf-tool:disabled{opacity:.4;cursor:not-allowed}
+.wf-actions{display:flex;align-items:center;gap:8px;flex:none}
+
+.wf-body{flex:1;display:grid;grid-template-columns:1fr 320px;min-height:0}
+.wf-stage{position:relative;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+.wf-bar{flex:none;display:flex;align-items:center;gap:10px;padding:12px 16px}
+.wf-chk{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.wf-chk input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.wf-canvas{flex:1;position:relative;overflow:auto;background:
+  radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/24px 24px, #FCFDFE}
+.wf-canvas svg{display:block}
+
+/* nodes */
+.wf-node{cursor:grab}
+.wf-node:active{cursor:grabbing}
+.wf-node rect.bx{fill:#fff;stroke:var(--line);stroke-width:1.5}
+.wf-node text{font-family:inherit;font-size:10.5px;font-weight:800;letter-spacing:.04em;fill:var(--ink);pointer-events:none}
+.wf-node:hover rect.bx{stroke:var(--faint)}
+.wf-node.is-sel rect.bx{stroke:var(--accent);stroke-width:2}
+.wf-node.is-src rect.bx{stroke:var(--accent);stroke-dasharray:5 4}
+.wf-node.cat-todo rect.bx{fill:var(--surface-2)}
+.wf-node.cat-inprogress rect.bx{fill:var(--accent-soft)}
+.wf-node.cat-done rect.bx{fill:#E4F3EC}
+.wf-start circle{fill:var(--ink)}
+.wf-start text{fill:#fff;font-size:7.5px;font-weight:800}
+
+/* edges: right angles, like Jira */
+.wf-edge path{fill:none;stroke:#C8CCD4;stroke-width:1.4}
+.wf-edge.is-on path{stroke:var(--accent);stroke-width:1.9}
+.wf-elbl rect{fill:#fff;stroke:var(--line);stroke-width:1}
+.wf-elbl text{font-family:inherit;font-size:9px;font-weight:600;fill:var(--ink-2);letter-spacing:0}
+.wf-edge.is-on .wf-elbl rect{stroke:var(--accent)}
+.wf-edge.is-on .wf-elbl text{fill:var(--accent)}
+.wf-hide-lbl .wf-elbl{display:none}
+
+.wf-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
+.wf-empty div{pointer-events:auto;max-width:340px}
+.wf-empty h3{font-size:15px;font-weight:800;margin:0 0 6px}
+.wf-empty p{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 14px}
+
+.wf-mini{position:absolute;right:14px;bottom:14px;width:200px;background:#fff;border:1px solid var(--line);
+  border-radius:10px !important;box-shadow:0 10px 30px -12px rgba(16,26,51,.4);padding:6px;z-index:4}
+.wf-mini-c{height:104px;border:1px solid var(--line-2);border-radius:6px !important;overflow:hidden;background:#FCFDFE}
+.wf-mini-c svg{width:100%;height:100%}
+.wf-mini-n{fill:var(--faint)}
+.wf-mini-n.on{fill:var(--accent)}
+.wf-zoomrow{display:flex;align-items:center;gap:6px;padding:6px 2px 2px}
+.wf-zoomrow button{width:22px;height:22px;border:0;background:none;color:var(--ink-2);cursor:pointer;border-radius:5px !important;font-size:13px;font-weight:700}
+.wf-zoomrow button:hover{background:var(--surface-2)}
+.wf-zoomrow input{flex:1;accent-color:var(--ink);cursor:pointer}
+
+.wf-side{background:var(--surface-2);overflow:auto;padding:16px}
+.wf-sug{margin-top:8px}
+.wf-sug-i{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px !important;cursor:pointer;font-size:12.5px;font-weight:600}
+.wf-sug-i:hover{background:var(--surface-2)}
+.wf-sug-d{width:9px;height:9px;border-radius:3px !important;flex:none}
+.wf-sug-n{margin-left:auto;font-size:10px;color:var(--faint);font-weight:700}
+.wf-sug-note{font-size:11.5px;color:var(--muted);background:var(--surface-2);border-radius:8px !important;padding:9px 11px;margin-top:8px}
+.wf-sug-note b{color:var(--ink)}
+/* ---------- Workflow builder: full screen ---------- */
+.fxs{position:fixed;inset:0;z-index:660;background:var(--bg);display:none;flex-direction:column}
+.fxs.on{display:flex}
+.fxs-top{flex:none;display:flex;align-items:center;gap:20px;height:62px;padding:0 20px;background:#fff;border-bottom:1px solid var(--ink)}
+.fxs-title{display:flex;align-items:baseline;gap:7px;min-width:0}
+.fxs-title span{font-size:12px;color:var(--muted);font-weight:600}
+.fxs-title b{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.fxs-meta{font-size:11px !important;color:var(--faint) !important;margin-left:4px}
+.fxs-tools{display:flex;gap:4px;margin:0 auto}
+.fxs-tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 14px;border:0;background:none;
+  font-family:inherit;font-size:10.5px;font-weight:600;color:var(--ink-2);cursor:pointer;border-radius:8px !important}
+.fxs-tool svg{width:19px;height:19px}
+.fxs-tool:hover{background:var(--surface-2);color:var(--ink)}
+.fxs-right{display:flex;align-items:center;gap:8px;flex:none}
+.fxs-dirty{display:none;font-size:10.5px;font-weight:700;color:#B96A00;background:#FFF4E5;border-radius:20px !important;padding:3px 9px}
+.fxs-dirty.on{display:inline-flex}
+.fxs-body{flex:1;display:grid;grid-template-columns:1fr 322px;min-height:0;transition:grid-template-columns .22s cubic-bezier(.4,0,.2,1)}
+.fxs-body.closed{grid-template-columns:1fr 0px}
+.fxs-body.closed .fxs-side-in{opacity:0;pointer-events:none}
+.fxs-side{position:relative}
+.fxs-side-in{transition:opacity .16s;height:100%}
+.fxs-collapse{position:absolute;left:-42px;top:58px;z-index:4;box-shadow:0 3px 10px -4px rgba(16,26,51,.2);background:#fff !important}
+.fxs-main{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+.fxs-bar{flex:none;display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line-2);background:#fff}
+.fxs-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px !important;padding:2px}
+.fxs-seg button{border:0;background:none;font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);padding:5px 14px;border-radius:7px !important;cursor:pointer}
+.fxs-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+.fxs-enf{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.fxs-cb{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.fxs-cb input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.fxs-canvas{flex:1;position:relative;overflow:auto;background:
+  radial-gradient(circle at 1px 1px, #E3E6EB 1px, transparent 0) 0 0/24px 24px, #FBFCFD}
+.fxs-svg{display:block}
+
+.fxn{cursor:grab}
+.fxn:active{cursor:grabbing}
+.fxn-bg{fill:#fff;stroke-width:1.8}
+.fxn text{font-family:inherit;font-size:10.5px;font-weight:600;fill:#1E3A5F;pointer-events:none}
+/* To do — data/waiting, amber */
+.fxn.cat-todo .fxn-bg{stroke:#C79A3A}
+/* In progress — process, blue */
+.fxn.cat-inprogress .fxn-bg{stroke:#4A86C8}
+/* Done — terminator, green */
+.fxn.cat-done .fxn-bg{stroke:#8CB84B}
+.fxn:hover .fxn-bg{filter:drop-shadow(0 2px 6px rgba(16,26,51,.14))}
+.fxn.sel .fxn-bg{stroke-width:2.8;filter:drop-shadow(0 4px 12px rgba(59,111,224,.3))}
+.fxn.sel text{font-weight:800}
+.fxn.src .fxn-bg{stroke-dasharray:5 4}
+.fxn.pick{cursor:crosshair}
+.fxn.pick .fxn-bg{stroke:var(--accent);stroke-width:2.2}
+.fxn.pick:hover .fxn-bg{fill:var(--accent-soft)}
+.fxs-start{cursor:grab}
+.fxs-start:active{cursor:grabbing}
+.fxs-start circle{fill:var(--ink)}
+.fxs-start text{font-family:inherit;font-size:6px;font-weight:800;letter-spacing:.06em;fill:#fff}
+.fxe path{fill:none;stroke:#9AA1AC;stroke-width:1.3}
+.fxe.on path{stroke:var(--accent);stroke-width:1.9}
+.fxe-l rect{fill:#fff;stroke:#D6DAE1;stroke-width:1}
+.fxe-l text{font-family:inherit;font-size:8.5px;font-weight:600;fill:var(--ink-2)}
+.fxe.on .fxe-l rect{stroke:var(--accent)}
+.fxe.on .fxe-l text{fill:var(--accent)}
+
+.fxs-hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;
+  font-weight:600;padding:8px 14px;border-radius:9px !important;display:flex;gap:8px;z-index:6}
+.fxs-hint button{border:0;background:none;color:#8FB4FF;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline}
+.fxs-mini{position:absolute;right:14px;bottom:14px;width:196px;background:#fff;border:1px solid var(--line);
+  border-radius:10px !important;box-shadow:0 10px 30px -12px rgba(16,26,51,.3);overflow:hidden;z-index:5}
+.fxs-mini > svg{display:block;width:100%;height:104px;background:#FBFCFD}
+.mm-n{fill:#C9D3E4}.mm-n.on{fill:var(--accent)}
+.fxs-zoomrow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-top:1px solid var(--line-2)}
+.fxs-zoomrow button{width:22px;height:22px;border:0;background:none;color:var(--ink-2);cursor:pointer;display:grid;place-items:center;border-radius:5px !important}
+.fxs-zoomrow button:hover{background:var(--surface-2)}
+.fxs-zoomrow svg{width:14px;height:14px}
+.fxs-zoomrow input{flex:1;accent-color:var(--accent);height:3px;cursor:pointer}
+
+.fxs-blank{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:30px}
+.fxs-blank-ic{width:56px;height:56px;border-radius:15px !important;background:var(--accent-soft);color:var(--accent);
+  display:grid;place-items:center;margin:0 auto 14px}
+.fxs-blank-ic svg{width:26px;height:26px}
+.fxs-blank h3{font-size:16px;font-weight:800;margin:0 0 6px}
+.fxs-blank p{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:40ch;margin:0 auto 16px}
+
+.fxs-side{background:var(--surface-2);overflow:visible}
+.fxs-side-in{padding:16px;overflow:auto}
+.fxs-side-h h2{font-size:17px;font-weight:800;letter-spacing:-.02em;margin:0}
+.fxs-side-h p{font-size:11.5px;color:var(--muted);line-height:1.5;margin:3px 0 16px}
+.fxs-f{margin-bottom:14px}
+.fxs-f-h{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.fxs-f-h span{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.fxs-edit{margin-left:auto;width:22px;height:22px;border:0;background:none;color:var(--faint);cursor:pointer;border-radius:5px !important;display:grid;place-items:center}
+.fxs-edit:hover{background:var(--surface-3);color:var(--accent)}
+.fxs-edit svg{width:13px;height:13px}
+.fxs-f-v{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--ink);
+  background:#fff;border:1px solid var(--line);border-radius:8px !important;padding:9px 11px}
+.fxs-cat{width:12px;height:12px;border-radius:3px !important;flex:none;border:1px solid rgba(0,0,0,.08)}
+.fxs-cat.cat-todo{background:#DCE0E6}
+.fxs-cat.cat-inprogress{background:#9CC0FF}
+.fxs-cat.cat-done{background:#9BE3BE}
+.fxs-danger{margin-top:4px}
+.fxs-rm{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:1px solid var(--line);background:#fff;
+  border-radius:8px !important;font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.fxs-rm:hover{border-color:#FECACA;background:#FEF2F2;color:var(--crit)}
+.fxs-rm svg{width:13px;height:13px}
+.fxs-side-h2{margin:18px 0 12px;padding-top:14px;border-top:1px solid var(--line)}
+.fxs-side-h2 h3{font-size:13.5px;font-weight:800;margin:0}
+.fxs-side-h2 p{font-size:11px;color:var(--muted);line-height:1.5;margin:3px 0 0}
+.fxs-grp{margin-bottom:14px}
+.fxs-grp-h{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.fxs-grp-h > span:first-child{font-size:11px;font-weight:800;color:var(--ink)}
+.fxs-n{font-size:10px;font-weight:700;color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:1px 7px}
+.fxs-plus{margin-left:auto;width:22px;height:22px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  font-size:13px;font-weight:700;cursor:pointer;border-radius:6px !important;line-height:1}
+.fxs-plus:hover{border-color:var(--accent);color:var(--accent)}
+.fxs-tr{background:#fff;border:1px solid var(--line);border-radius:9px !important;padding:9px 10px;margin-bottom:7px}
+.fxs-tr-n{width:100%;border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);outline:none;padding:0 0 7px}
+.fxs-tr-n:focus{color:var(--accent)}
+.fxs-tr-p{display:flex;align-items:center;gap:5px}
+.fxs-tr-p svg{width:12px;height:12px;color:var(--faint);flex:none}
+.fxs-pill{font-size:9px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2);
+  background:var(--surface-3);border-radius:4px !important;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
+.fxs-pill.on{background:var(--accent-soft);color:var(--accent)}
+.fxs-tr-x{margin-left:auto;width:20px;height:20px;border:0;background:none;color:var(--faint);font-size:11px;cursor:pointer;border-radius:5px !important;flex:none}
+.fxs-tr-x:hover{background:#FEF2F2;color:var(--crit)}
+.fxs-none{font-size:11.5px;color:var(--faint);font-weight:600;margin:0;padding:4px 0}
+.fxs-side-empty{text-align:center;padding:44px 14px}
+.fxs-side-empty h3{font-size:13.5px;font-weight:800;margin:0 0 5px}
+.fxs-side-empty p{font-size:11.5px;color:var(--muted);line-height:1.55;margin:0}
+
+/* text mode */
+.fxs-text{padding:16px 18px}
+.fxs-trow{padding:13px 0;border-bottom:1px solid var(--line-2)}
+.fxs-trow:last-child{border-bottom:0}
+.fxs-trow-h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.fxs-trow-h b{font-size:13px;font-weight:700}
+.fxs-trow-h span:not(.fxs-cat):not(.fxs-n){font-size:11px;color:var(--faint);font-weight:600}
+.fxs-trow-h .fxs-n{margin-left:auto}
+.fxs-chips{display:flex;flex-wrap:wrap;gap:6px}
+.fxs-chip{font-size:11.5px;font-weight:600;padding:6px 11px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  cursor:pointer;border-radius:8px !important;font-family:inherit}
+.fxs-chip:hover{border-color:var(--faint);background:var(--surface-2)}
+.fxs-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+
+/* pickers */
+.stp-list{max-height:210px;overflow:auto;margin-top:8px;display:flex;flex-direction:column;gap:3px}
+.stp-row{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:1px solid transparent;background:none;
+  border-radius:8px !important;cursor:pointer;font-family:inherit;text-align:left}
+.stp-row:hover{background:var(--surface-2)}
+.stp-row.on{background:var(--accent-soft);border-color:var(--accent)}
+.stp-n{font-size:13px;font-weight:600;color:var(--ink);flex:1}
+.stp-c{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stp-plus{width:16px;text-align:center;font-weight:800;color:var(--accent)}
+.stp-new .stp-n b{color:var(--accent)}
+.stp-none{font-size:12px;color:var(--faint);font-weight:600;text-align:center;padding:18px 0;margin:0}
+.stp-msg{font-size:12px;color:var(--ink-2);background:var(--surface-2);border-radius:8px !important;padding:11px 12px;margin-top:8px;line-height:1.5}
+.stp-msg:empty{display:none}
+.tr-route{display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:9px !important;padding:11px 12px}
+.tr-route svg{width:14px;height:14px;color:var(--faint);flex:none}
+.tr-route b{font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2);
+  background:#fff;border:1px solid var(--line);border-radius:6px !important;padding:4px 8px}
+.tr-route b.to{border-color:var(--accent);color:var(--accent)}
+.cf-body{font-size:13px;color:var(--ink-2);line-height:1.6;margin:0;white-space:pre-line}
+/* ---------- Workflow builder (inline) ---------- */
+.fx-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.fx-count{font-size:11.5px;color:var(--muted);font-weight:600}
+.fx-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px !important;padding:2px;flex:none;margin-right:6px}
+.fx-seg button{border:0;background:none;font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);padding:5px 13px;border-radius:7px !important;cursor:pointer}
+.fx-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+.fx-tb{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border:1px solid var(--line);background:#fff;
+  border-radius:8px !important;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.fx-tb:hover{background:var(--surface-2);border-color:var(--faint);color:var(--ink)}
+.fx-tb svg{width:14px;height:14px}
+
+.fx-wrap{display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start}
+.fx-canvas{position:relative;border:1px solid var(--line);border-radius:12px !important;background:
+  radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/22px 22px, #fff;
+  height:520px;overflow:auto}
+.fx-canvas svg{display:block;min-height:100%}
+
+.fx-node rect{fill:#fff;stroke:var(--line);stroke-width:1.5}
+.fx-node text{font-family:inherit;font-size:12.5px;font-weight:700;fill:var(--ink);pointer-events:none}
+.fx-node{cursor:grab}
+.fx-node:active{cursor:grabbing}
+.fx-node:hover rect{stroke:var(--faint)}
+.fx-node.is-sel rect{stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 3px 10px rgba(59,111,224,.22))}
+.fx-node.is-src rect{stroke:var(--accent);stroke-dasharray:5 4}
+.fx-node .fx-band{stroke:none}
+
+.fx-edge path{fill:none;stroke:var(--line);stroke-width:1.6}
+.fx-edge.is-on path{stroke:var(--accent);stroke-width:2}
+.fx-lbl rect{fill:#fff;stroke:var(--line);stroke-width:1}
+.fx-lbl text{font-family:inherit;font-size:9.5px;font-weight:700;fill:var(--muted)}
+.fx-edge.is-on .fx-lbl rect{stroke:var(--accent)}
+.fx-edge.is-on .fx-lbl text{fill:var(--accent)}
+
+.fx-hint{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+  font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px !important;display:flex;align-items:center;gap:8px;z-index:5}
+.fx-hint button{border:0;background:none;color:#8FB4FF;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline}
+.fx-zoom{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:2px;background:#fff;
+  border:1px solid var(--line);border-radius:9px !important;padding:3px;box-shadow:0 6px 18px -8px rgba(16,26,51,.3);z-index:5}
+.fx-zoom button{width:26px;height:26px;border:0;background:none;font-family:inherit;font-size:14px;font-weight:700;
+  color:var(--ink-2);cursor:pointer;border-radius:6px !important}
+.fx-zoom button:hover{background:var(--surface-2)}
+.fx-zoom #fxPct{font-size:10.5px;font-weight:700;color:var(--muted);min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
+.fx-zoom .fx-fit{width:auto;padding:0 8px;font-size:11px}
+
+.fx-side{border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2);padding:14px;
+  max-height:520px;overflow:auto}
+.fx-side-h h2{font-size:15px;font-weight:800;letter-spacing:-.02em;margin:0}
+.fx-side-h p{font-size:11.5px;color:var(--muted);line-height:1.5;margin:3px 0 14px}
+.fx-lbl2{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);display:block;margin:12px 0 5px}
+.fx-inp{width:100%;height:34px;border:1px solid var(--line) !important;border-radius:8px !important;background:#fff;
+  padding:0 10px;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);outline:none}
+.fx-inp:focus{border-color:var(--accent) !important;box-shadow:0 0 0 3px var(--accent-soft)}
+.fx-cat{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink);
+  background:#fff;border:1px solid var(--line);border-radius:8px !important;padding:8px 10px}
+.fx-cat-dot{width:11px;height:11px;border-radius:3px !important;flex:none}
+.fx-side-h2{margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+.fx-side-h2 h3{font-size:13px;font-weight:800;margin:0}
+.fx-side-h2 p{font-size:11px;color:var(--muted);line-height:1.5;margin:3px 0 0}
+.fx-grp{margin-bottom:14px}
+.fx-grp-h{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.fx-grp-h span:first-child{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.fx-n{font-size:10px;font-weight:700;color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:1px 7px}
+.fx-grp-h .ehs-btn{margin-left:auto}
+.fx-tr{background:#fff;border:1px solid var(--line);border-radius:9px !important;padding:9px 10px;margin-bottom:7px}
+.fx-tr-n{width:100%;border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--ink);outline:none;padding:0 0 6px}
+.fx-tr-n:focus{color:var(--accent)}
+.fx-tr-p{display:flex;align-items:center;gap:5px}
+.fx-tr-p svg{width:12px;height:12px;color:var(--faint);flex:none}
+.fx-pill{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2);
+  background:var(--surface-3);border-radius:5px !important;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96px}
+.fx-tr-x{margin-left:auto;width:20px;height:20px;border:0;background:none;color:var(--faint);font-size:11px;
+  cursor:pointer;border-radius:5px !important;flex:none}
+.fx-tr-x:hover{background:#FEF2F2;color:var(--crit)}
+.fx-none{font-size:11.5px;color:var(--faint);font-weight:600;margin:0;padding:4px 0}
+.fx-actrow{display:flex;gap:6px;margin:2px 0 4px}
+.fx-rm{color:var(--crit) !important;border-color:#FECACA !important}
+.fx-rm:hover{background:#FEF2F2 !important}
+.fx-empty{text-align:center;padding:40px 14px}
+.fx-empty h3{font-size:13.5px;font-weight:800;margin:0 0 5px}
+.fx-empty p{font-size:11.5px;color:var(--muted);line-height:1.55;margin:0}
+@media(max-width:1100px){ .fx-wrap{grid-template-columns:1fr} .fx-side{max-height:none} }
+.flow-enforce{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.flow-row{padding:14px 0;border-bottom:1px solid var(--line-2)}
+.flow-row:last-child{border-bottom:0}
+.flow-from{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.flow-name{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.flow-arrow{font-size:11px;color:var(--faint);font-weight:600}
+.flow-n{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+  background:var(--surface-3);border-radius:20px !important;padding:2px 8px}
+.flow-targets{display:flex;flex-wrap:wrap;gap:6px}
+.flow-none{font-size:11.5px;color:var(--faint);font-weight:600}
+.tchip{font-size:11.5px;font-weight:600;padding:6px 11px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  cursor:pointer;border-radius:8px !important;display:inline-flex;align-items:center;font-family:inherit;transition:.12s}
+.tchip:hover{border-color:var(--faint);background:var(--surface-2);color:var(--ink)}
+.tchip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
 .tchip:hover{border-color:var(--faint)}
 .tgl{position:relative;display:inline-block;width:38px;height:22px;flex:none;cursor:pointer}
 .tgl input{opacity:0;width:0;height:0}
@@ -2556,6 +2878,61 @@ body[data-density="compact"] .board{padding:12px 16px}
 </div>
 
 <!-- Create project dialog -->
+<!-- Workflow builder (full screen) -->
+<div class="fxs" id="fxScreen"></div>
+
+<!-- Name a transition -->
+<div class="modal-wrap" id="trNameWrap">
+  <div class="modal sub-modal" style="width:420px">
+    <div class="modal-h">Name this transition<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">
+      This is what people see on the board and in the chart.</div></div>
+    <div class="modal-b">
+      <div class="tr-route" id="trRoute"></div>
+      <div class="field" style="margin-top:14px"><label>Transition name</label>
+        <input id="trNameIn" autocomplete="off" placeholder="e.g. Start Development"/></div>
+    </div>
+    <div class="modal-f"><button class="btn" id="trNameCancel">Cancel</button>
+      <button class="btn primary" id="trNameOk">Add transition</button></div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="modal-wrap" id="cfWrap">
+  <div class="modal sub-modal" style="width:400px">
+    <div class="modal-h" id="cfTitle">Are you sure?</div>
+    <div class="modal-b"><p class="cf-body" id="cfBody"></p></div>
+    <div class="modal-f"><button class="btn" id="cfNo">Cancel</button>
+      <button class="btn primary" id="cfYes">Confirm</button></div>
+  </div>
+</div>
+
+<!-- Add a status -->
+<div class="modal-wrap" id="stPickWrap">
+  <div class="modal sub-modal" style="width:460px">
+    <div class="modal-h">Add a status<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">
+      Statuses capture the stages of your working process. Add more to represent different stages in your team\u2019s process.</div></div>
+    <div class="modal-b">
+      <div class="field"><label>Search for a status</label><input id="stPickIn" placeholder="Type to search or create\u2026" autocomplete="off"/></div>
+      <div class="stp-msg" id="stPickMsg"></div>
+      <div class="stp-list" id="stPickList"></div>
+    </div>
+    <div class="modal-f"><button class="btn" id="stPickCancel">Cancel</button><button class="btn primary" id="stPickAdd">Add</button></div>
+  </div>
+</div>
+
+<!-- Edit a status -->
+<div class="modal-wrap" id="stEdWrap">
+  <div class="modal sub-modal" style="width:420px">
+    <div class="modal-h">Edit status</div>
+    <div class="modal-b">
+      <div class="field" style="margin-bottom:14px"><label>Status category</label>
+        <select id="stEdCat"><option value="todo">To do</option><option value="inprogress">In progress</option><option value="done">Done</option></select></div>
+      <div class="field"><label>Status name</label><input id="stEdName" autocomplete="off"/></div>
+    </div>
+    <div class="modal-f"><button class="btn" id="stEdCancel">Cancel</button><button class="btn primary" id="stEdSave">Update</button></div>
+  </div>
+</div>
+
 <div class="modal-wrap" id="projWrap">
   <div class="modal sub-modal" style="width:440px">
     <div class="modal-h">Create project<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Group tickets under a name and a key.</div></div>
@@ -2568,6 +2945,93 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="loghint" style="margin-top:14px">The key prefixes every ticket in this project. It is filled in from the name \u2014 change it if you like.</div>
     </div>
     <div class="modal-f"><button class="btn" id="pjCancel">Cancel</button><button class="btn primary" id="pjCreate">Create project</button></div>
+  </div>
+</div>
+
+<!-- Workflow editor (full screen) -->
+<div class="wf-screen" id="wfScreen">
+  <header class="wf-top">
+    <div class="wf-title"><span class="wf-t1">Workflow for</span>
+      <button class="wf-board" id="wfBoardName" type="button"></button></div>
+    <nav class="wf-tools" id="wfTools"></nav>
+    <div class="wf-actions">
+      <span class="bs-dirty" id="wfDirty">Unsaved changes</span>
+      <button class="ehs-btn ehs-btn--sm" id="wfSave" type="button" disabled>Update workflow</button>
+      <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="wfDiscard" type="button">Close</button>
+    </div>
+  </header>
+  <div class="wf-body">
+    <div class="wf-stage" id="wfStage">
+      <div class="wf-bar">
+        <div class="fx-seg" id="wfMode">
+          <button type="button" data-fm="diagram">Diagram</button>
+          <button type="button" data-fm="text">Text</button>
+        </div>
+        <span style="flex:1"></span>
+        <label class="wf-chk"><input type="checkbox" id="wfLabels" checked/><span>Show transition labels</span></label>
+      </div>
+      <div class="wf-canvas" id="wfCanvas"></div>
+    </div>
+    <aside class="wf-side" id="wfSide"></aside>
+  </div>
+</div>
+
+<!-- Name a transition -->
+<div class="modal-wrap" id="trNameWrap">
+  <div class="modal sub-modal" style="width:420px">
+    <div class="modal-h">Name this transition<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">
+      This is what people see on the board and in the chart.</div></div>
+    <div class="modal-b">
+      <div class="tr-route" id="trRoute"></div>
+      <div class="field" style="margin-top:14px"><label>Transition name</label>
+        <input id="trNameIn" autocomplete="off" placeholder="e.g. Start Development"/></div>
+    </div>
+    <div class="modal-f"><button class="btn" id="trNameCancel">Cancel</button>
+      <button class="btn primary" id="trNameOk">Add transition</button></div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="modal-wrap" id="cfWrap">
+  <div class="modal sub-modal" style="width:400px">
+    <div class="modal-h" id="cfTitle">Are you sure?</div>
+    <div class="modal-b"><p class="cf-body" id="cfBody"></p></div>
+    <div class="modal-f"><button class="btn" id="cfNo">Cancel</button>
+      <button class="btn primary" id="cfYes">Confirm</button></div>
+  </div>
+</div>
+
+<!-- Add a status -->
+<div class="modal-wrap" id="wfAddWrap">
+  <div class="modal sub-modal" style="width:460px">
+    <div class="modal-h">Add a status<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">
+      Statuses capture the stages of your working process.</div></div>
+    <div class="modal-b">
+      <div class="field"><label>Search for a status</label>
+        <input id="wfAddName" placeholder="e.g. Code Review" autocomplete="off"/></div>
+      <div class="wf-sug" id="wfAddSug"></div>
+      <div class="fgrid2" style="margin-top:14px">
+        <div class="field"><label>Category</label><select id="wfAddCat">
+          <option value="todo">To do</option><option value="inprogress">In progress</option><option value="done">Done</option>
+        </select></div>
+        <div class="field"><label>Colour</label><div class="pj-swatches" id="wfAddSw"></div></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn" id="wfAddCancel">Cancel</button><button class="btn primary" id="wfAddGo">Add</button></div>
+  </div>
+</div>
+
+<!-- Edit status -->
+<div class="modal-wrap" id="wfEditWrap">
+  <div class="modal sub-modal" style="width:440px">
+    <div class="modal-h">Edit status</div>
+    <div class="modal-b">
+      <div class="field" style="margin-bottom:14px"><label>Status category</label>
+        <select id="wfEdCat"><option value="todo">To do</option><option value="inprogress">In progress</option><option value="done">Done</option></select></div>
+      <div class="field" style="margin-bottom:14px"><label>Status name</label><input id="wfEdName"/></div>
+      <div class="field"><label>Colour</label><div class="pj-swatches" id="wfEdSw"></div></div>
+    </div>
+    <div class="modal-f"><button class="btn" id="wfEdCancel">Cancel</button><button class="btn primary" id="wfEdGo">Update</button></div>
   </div>
 </div>
 
@@ -2935,7 +3399,11 @@ const store = {
   updateSpace(id, patch){ const s=this.space(id); if(s){ Object.assign(s, patch); this._persist(); } },
   removeSpace(id){ this.data.spaces=(this.data.spaces||[]).filter(s=>s.id!==id); this._persist(); },
   addBoard(name){ const id='b'+Date.now().toString(36);
-    this.data.boards.push({id, name, ws:(typeof ui!=='undefined'&&ui.space)||'ws_main', enforce:false, columns:this.data.statuses.map(s=>s.id), transitions:{}}); this._persist(); return id; },
+    // A workflow starts at its first To-do status and grows from there — not
+    // empty (nowhere to begin) and not pre-loaded with every status that exists.
+    const first=(this.data.statuses.find(x=>x.cat==='todo')||this.data.statuses[0]||{}).id;
+    this.data.boards.push({id, name, ws:(typeof ui!=='undefined'&&ui.space)||'ws_main', enforce:false,
+      columns:first?[first]:[], transitions:{}}); this._persist(); return id; },
   updateBoard(id, patch){ Object.assign(this.board(id), patch); this._persist(); },
   removeBoard(id){ this.data.boards=this.data.boards.filter(b=>b.id!==id); this._persist(); },
   boardColumns(b){ return (b.columns||[]).map(id=>this.status(id)).filter(Boolean); },
@@ -4513,7 +4981,9 @@ function renderBoardSettings(){
   el.querySelectorAll('#bsRail .ehs-li').forEach(btn=>btn.onclick=()=>{
     if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
     if(_flowDirty) flowDraftReset();
-    bsTab=btn.dataset.bs; renderBoardSettings();
+    bsTab=btn.dataset.bs;
+    if(bsTab==='flow'){ renderBoardSettings(); openFlowScreen(activeBoard().id); return; }
+    renderBoardSettings();
   });
   const add=document.getElementById('bsAdd');
   if(add) add.onclick=()=>{
@@ -4533,6 +5003,1065 @@ function renderBoardSettings(){
   wireBoardSettings(b);
 }
 
+/* ================== Workflow editor ==================
+   Full-screen, and empty until you add statuses — a board's workflow is
+   something you build, not something it inherits. Edits stage in _flowDraft
+   and only land on Update.  */
+let _wfBoard=null, _wfLabels=true, _wfAddSw=null, _wfEdSw=null, _wfEdit=null;
+const WFW=168, WFH=38;
+
+function openWorkflow(bid){
+  _wfBoard = bid || ui.board;
+  const b=store.board(_wfBoard); if(!b) return;
+  _flowSel=null; _flowLink=null; flowDraftReset();
+  document.getElementById('wfScreen').classList.add('on');
+  renderWorkflow();
+}
+function closeWorkflow(){
+  if(_flowDirty && !confirm('You have unsaved workflow changes. Close without updating?')) return;
+  flowDraftReset();
+  document.getElementById('wfScreen').classList.remove('on');
+  renderAll();
+}
+
+const WF_IC={
+  st:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="8.5" width="18" height="7" rx="3.5"/></svg>',
+  tr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v8a4 4 0 0 0 4 4h8"/><path d="M14 12l4 4-4 4"/></svg>',
+  cl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  fit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'
+};
+
+/* Right-angle routing: leave the source, run the corridor, enter the target. */
+function wfPath(p1,p2){
+  const a={x:p1.x+WFW/2, y:p1.y+WFH/2}, b={x:p2.x+WFW/2, y:p2.y+WFH/2};
+  const dx=b.x-a.x, dy=b.y-a.y;
+  let s,e,mid;
+  if(Math.abs(dx)>Math.abs(dy)){
+    s={x:p1.x+(dx>0?WFW:0), y:a.y}; e={x:p2.x+(dx>0?0:WFW), y:b.y};
+    mid=(s.x+e.x)/2;
+    return { d:`M${s.x} ${s.y} H${mid} V${e.y} H${e.x}`, lx:mid, ly:(s.y+e.y)/2 };
+  }
+  s={x:a.x, y:p1.y+(dy>0?WFH:0)}; e={x:b.x, y:p2.y+(dy>0?0:WFH)};
+  mid=(s.y+e.y)/2;
+  return { d:`M${s.x} ${s.y} V${mid} H${e.x} V${e.y}`, lx:(s.x+e.x)/2, ly:mid };
+}
+
+function wfCols(b){ return store.boardColumns(b); }
+
+function renderWorkflow(){
+  const b=store.board(_wfBoard); if(!b) return;
+  const d=flowDraftFor(b);
+  const cols=wfCols(b);
+
+  document.getElementById('wfBoardName').textContent=b.name;
+  document.getElementById('wfTools').innerHTML=`
+    <button class="wf-tool" id="wfAdd" type="button">${WF_IC.st}Add status</button>
+    <button class="wf-tool" id="wfLink" type="button" ${_flowSel?'':'disabled'}>${WF_IC.tr}Add transition</button>
+    <button class="wf-tool" id="wfClone" type="button" ${store.boards().length>1?'':'disabled'}>${WF_IC.cl}Clone flow</button>
+    <button class="wf-tool" id="wfFit" type="button">${WF_IC.fit}Fit</button>`;
+  document.querySelectorAll('#wfMode button').forEach(x=>x.classList.toggle('on', x.dataset.fm===_flowMode));
+  document.getElementById('wfLabels').checked=_wfLabels;
+  document.getElementById('wfDirty').classList.toggle('on', _flowDirty);
+  document.getElementById('wfSave').disabled=!_flowDirty;
+
+  const canvas=document.getElementById('wfCanvas');
+  if(!cols.length){
+    canvas.innerHTML=`<div class="wf-empty"><div>
+      <h3>This workflow is empty</h3>
+      <p>A board's workflow starts blank on purpose \u2014 add only the statuses this team actually uses, then connect them.</p>
+      <button class="ehs-btn ehs-btn--sm" id="wfAdd2" type="button">Add your first status</button></div></div>`;
+    document.getElementById('wfAdd2').onclick=openWfAdd;
+    document.getElementById('wfSide').innerHTML=flowInspector(b);
+    wireWorkflowChrome();
+    return;
+  }
+  const tn=Object.values(d.transitions||{}).reduce((a,x)=>a+x.length,0);
+  const open=`<div class="stx-card pad flow-enforce" style="margin-top:10px">
+      <div><div class="stx-acc-t">Workflow editor</div>
+        <div class="stx-acc-d">${cols.length
+          ? `<b>${cols.length} statuses</b> and <b>${tn} transitions</b> on this board. Open the editor to lay them out and connect them.`
+          : `This board has <b>no statuses yet</b>. Open the editor to build its workflow.`}</div></div>
+      <button class="ehs-btn ehs-btn--sm" id="fxOpen" type="button">Open editor</button>
+    </div>`;
+  if(_flowMode==='text'){
+    canvas.innerHTML=`<div style="padding:18px 20px">${bsFlow(b)}</div>`;
+    document.getElementById('wfSide').innerHTML=flowInspector(b);
+    wireWorkflowChrome(); wireBoardSettings(b);
+    return;
+  }
+
+  const pos=flowPos(d, cols);
+  const byId={}; cols.forEach(s=>byId[s.id]=s);
+  const first=cols[0];
+
+  const edges=[];
+  Object.keys(d.transitions||{}).forEach(from=>{
+    (d.transitions[from]||[]).forEach(to=>{
+      if(!byId[from]||!byId[to]) return;
+      const g=wfPath(pos[from], pos[to]);
+      const on=_flowSel&&(from===_flowSel||to===_flowSel);
+      const nm=flowLabel(d,from,to)||byId[to].name;
+      const w=Math.min(150, 10+nm.length*5.4);
+      edges.push(`<g class="wf-edge ${on?'is-on':''}" data-from="${from}" data-to="${to}">
+        <path d="${g.d}" marker-end="url(#wfAr${on?'On':''})"/>
+        <g class="wf-elbl" transform="translate(${g.lx},${g.ly})">
+          <rect x="${-w/2}" y="-9" width="${w}" height="18" rx="9"/>
+          <text text-anchor="middle" dy="3.5">${esc(nm.length>24?nm.slice(0,23)+'\u2026':nm)}</text></g></g>`);
+    });
+  });
+
+  const nodes=cols.map(st=>{
+    const p=pos[st.id];
+    const cat=(st.cat||'todo');
+    return `<g class="wf-node cat-${cat} ${st.id===_flowSel?'is-sel':''} ${_flowLink===st.id?'is-src':''}"
+        data-node="${st.id}" transform="translate(${p.x},${p.y})">
+      <rect class="bx" width="${WFW}" height="${WFH}" rx="5"/>
+      <text x="${WFW/2}" y="${WFH/2}" dy="3.5" text-anchor="middle">${esc(st.name.toUpperCase().slice(0,20))}</text></g>`;
+  }).join('');
+
+  // START marker, pointing at whatever the first column is
+  const fp=pos[first.id];
+  const sx=Math.max(10, fp.x-92), sy=fp.y+WFH/2;
+  const start=`<g class="wf-start"><circle cx="${sx}" cy="${sy}" r="13"/>
+      <text x="${sx}" y="${sy}" dy="2.5" text-anchor="middle">START</text></g>
+    <g class="wf-edge"><path d="M${sx+13} ${sy} H${fp.x}" marker-end="url(#wfAr)"/>
+      <g class="wf-elbl" transform="translate(${(sx+13+fp.x)/2},${sy})">
+        <rect x="-22" y="-9" width="44" height="18" rx="9"/><text text-anchor="middle" dy="3.5">Create</text></g></g>`;
+
+  const maxX=Math.max(...cols.map(s=>pos[s.id].x))+WFW+120;
+  const maxY=Math.max(...cols.map(s=>pos[s.id].y))+WFH+120;
+  const W=Math.max(1200,maxX), H=Math.max(560,maxY);
+
+  canvas.innerHTML=`<svg id="wfSvg" width="${Math.round(W*_flowZoom)}" height="${Math.round(H*_flowZoom)}"
+      viewBox="0 0 ${W} ${H}" class="${_wfLabels?'':'wf-hide-lbl'}">
+      <defs>
+        <marker id="wfAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#C8CCD4"/></marker>
+        <marker id="wfArOn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+      </defs>
+      ${start}${edges.join('')}${nodes}
+    </svg>
+    <div class="wf-mini"><div class="wf-mini-c">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+          ${cols.map(st=>`<rect class="wf-mini-n ${st.id===_flowSel?'on':''}" x="${pos[st.id].x}" y="${pos[st.id].y}" width="${WFW}" height="${WFH}" rx="6"/>`).join('')}
+        </svg></div>
+      <div class="wf-zoomrow"><button type="button" id="wfZo">\u2212</button>
+        <input type="range" id="wfZr" min="40" max="160" value="${Math.round(_flowZoom*100)}"/>
+        <button type="button" id="wfZi">+</button></div></div>`;
+
+  document.getElementById('wfSide').innerHTML=flowInspector(b);
+  wireWorkflowChrome();
+  wireWfCanvas(b);
+  wireFlowInspector(b);
+}
+
+function wireWorkflowChrome(){
+  const b=store.board(_wfBoard);
+  const g=id=>document.getElementById(id);
+  g('wfAdd').onclick=openWfAdd;
+  g('wfFit').onclick=()=>{ _flowZoom=1; renderWorkflow(); };
+  g('wfLink').onclick=()=>{ if(!_flowSel) return; _flowLink=_flowSel; renderWorkflow(); };
+  g('wfClone').onclick=wfClone;
+  g('wfLabels').onchange=e=>{ _wfLabels=e.target.checked; renderWorkflow(); };
+  document.querySelectorAll('#wfMode button').forEach(x=>x.onclick=()=>{ _flowMode=x.dataset.fm; renderWorkflow(); });
+  g('wfSave').onclick=()=>{ flowSave(); renderWorkflow(); };
+  g('wfDiscard').onclick=closeWorkflow;
+  g('wfBoardName').onclick=()=>{ closeWorkflow(); };
+}
+
+function wireWfCanvas(b){
+  const d=flowDraftFor(b);
+  const svg=document.getElementById('wfSvg'); if(!svg) return;
+  const dirty=()=>{ _flowDirty=true; };
+
+  svg.querySelectorAll('.wf-node').forEach(n=>{
+    n.onclick=e=>{
+      e.stopPropagation();
+      const id=n.dataset.node;
+      if(_flowLink && _flowLink!==id){
+        d.transitions[_flowLink]=d.transitions[_flowLink]||[];
+        if(!d.transitions[_flowLink].includes(id)){ d.transitions[_flowLink].push(id); dirty(); }
+        _flowSel=_flowLink; _flowLink=null; renderWorkflow(); return;
+      }
+      if(_flowLink===id){ _flowLink=null; renderWorkflow(); return; }
+      _flowSel=id; renderWorkflow();
+    };
+    n.ondblclick=e=>{ e.stopPropagation(); _flowSel=n.dataset.node; openWfEdit(); };
+  });
+
+  let drag=null;
+  svg.addEventListener('pointerdown', e=>{
+    const g=e.target.closest('.wf-node'); if(!g) return;
+    const id=g.dataset.node; const r=svg.getBoundingClientRect();
+    const sc=svg.viewBox.baseVal.width/r.width;
+    drag={ id, sx:e.clientX, sy:e.clientY, ox:d.pos[id].x, oy:d.pos[id].y, sc, moved:false };
+    g.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!drag) return;
+    const dx=(e.clientX-drag.sx)*drag.sc, dy=(e.clientY-drag.sy)*drag.sc;
+    if(Math.abs(dx)>2||Math.abs(dy)>2) drag.moved=true;
+    d.pos[drag.id]={ x:Math.max(0,Math.round(drag.ox+dx)), y:Math.max(0,Math.round(drag.oy+dy)) };
+    const g=svg.querySelector(`.wf-node[data-node="${drag.id}"]`);
+    if(g) g.setAttribute('transform', `translate(${d.pos[drag.id].x},${d.pos[drag.id].y})`);
+  });
+  svg.addEventListener('pointerup', ()=>{ if(drag&&drag.moved){ _flowDirty=true; renderWorkflow(); } drag=null; });
+
+  const zi=document.getElementById('wfZi'), zo=document.getElementById('wfZo'), zr=document.getElementById('wfZr');
+  const setZ=v=>{ _flowZoom=Math.min(1.6,Math.max(.4,v)); renderWorkflow(); };
+  if(zi) zi.onclick=()=>setZ(_flowZoom+0.1);
+  if(zo) zo.onclick=()=>setZ(_flowZoom-0.1);
+  if(zr) zr.oninput=()=>setZ(parseInt(zr.value,10)/100);
+}
+
+function wireFlowInspector(b){
+  const d=flowDraftFor(b);
+  const nm=document.getElementById('fxName');
+  if(nm) nm.onchange=()=>{ const v=nm.value.trim(); if(v&&_flowSel){ store.updateStatus(_flowSel,{name:v}); renderWorkflow(); } };
+  document.querySelectorAll('.fx-tr-n').forEach(i=>i.onchange=()=>{
+    d.labels=d.labels||{}; const v=i.value.trim();
+    if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
+    _flowDirty=true; renderWorkflow();
+  });
+  document.querySelectorAll('#wfSide [data-del]').forEach(x=>x.onclick=()=>{
+    const [f,t]=x.dataset.del.split('>');
+    d.transitions[f]=(d.transitions[f]||[]).filter(y=>y!==t);
+    if(d.labels) delete d.labels[x.dataset.del];
+    _flowDirty=true; renderWorkflow();
+  });
+  const add=document.getElementById('fxAddTr');
+  if(add) add.onclick=()=>{ _flowLink=_flowSel; renderWorkflow(); };
+  const ed=document.getElementById('fxEdit'); if(ed) ed.onclick=openWfEdit;
+  const rm=document.getElementById('fxRemove');
+  if(rm) rm.onclick=()=>{
+    const st=store.status(_flowSel); if(!st) return;
+    if(!confirm(`Remove \u201c${st.name}\u201d from this workflow?\n\nThe status itself stays \u2014 it is just no longer part of ${store.board(_wfBoard).name}.`)) return;
+    store.toggleBoardColumn(store.board(_wfBoard), _flowSel, false);
+    delete d.transitions[_flowSel];
+    Object.keys(d.transitions).forEach(k=>{ d.transitions[k]=(d.transitions[k]||[]).filter(x=>x!==_flowSel); });
+    _flowSel=null; _flowDirty=true; renderWorkflow();
+  };
+}
+
+/* ---------- Add a status ---------- */
+function openWfAdd(){
+  _wfAddSw=SWATCHES[0];
+  const n=document.getElementById('wfAddName'); n.value='';
+  document.getElementById('wfAddCat').value='todo';
+  document.getElementById('wfAddSw').innerHTML=SWATCHES.map(c=>
+    `<button type="button" class="pj-sw ${c===_wfAddSw?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
+  document.querySelectorAll('#wfAddSw .pj-sw').forEach(x=>x.onclick=()=>{ _wfAddSw=x.dataset.c;
+    document.querySelectorAll('#wfAddSw .pj-sw').forEach(y=>y.classList.toggle('on', y===x)); });
+  n.oninput=()=>wfAddSug(n.value);
+  wfAddSug('');
+  document.getElementById('wfAddWrap').classList.add('on');
+  setTimeout(()=>n.focus(),40);
+}
+function wfAddSug(q){
+  const b=store.board(_wfBoard);
+  const mine=new Set(b.columns||[]);
+  const term=(q||'').trim().toLowerCase();
+  const free=store.statuses().filter(s=>!mine.has(s.id) && (!term||s.name.toLowerCase().includes(term)));
+  const clash=store.statuses().find(s=>mine.has(s.id) && s.name.toLowerCase()===term);
+  const box=document.getElementById('wfAddSug');
+  let html='';
+  if(clash) html+=`<div class="wf-sug-note">This workflow already contains a status called <b>${esc(clash.name)}</b>.</div>`;
+  if(free.length) html+=free.slice(0,5).map(s=>`<div class="wf-sug-i" data-use="${s.id}">
+      <span class="wf-sug-d" style="background:${s.color}"></span>${esc(s.name)}<span class="wf-sug-n">reuse</span></div>`).join('');
+  else if(term && !clash) html+=`<div class="wf-sug-note">No existing status matches \u2014 <b>Add</b> creates \u201c${esc(q)}\u201d.</div>`;
+  box.innerHTML=html;
+  box.querySelectorAll('[data-use]').forEach(x=>x.onclick=()=>{
+    store.toggleBoardColumn(store.board(_wfBoard), x.dataset.use, true);
+    _flowSel=x.dataset.use; _flowDirty=true;
+    document.getElementById('wfAddWrap').classList.remove('on');
+    renderWorkflow();
+  });
+}
+function wfAddGo(){
+  const name=(document.getElementById('wfAddName').value||'').trim();
+  if(!name){ toast('Name the status first'); return; }
+  const b=store.board(_wfBoard);
+  const mine=new Set(b.columns||[]);
+  if(store.statuses().some(s=>mine.has(s.id) && s.name.toLowerCase()===name.toLowerCase())){
+    toast('This workflow already has a status called '+name); return; }
+  const ex=store.statuses().find(s=>s.name.toLowerCase()===name.toLowerCase());
+  let id;
+  if(ex){ id=ex.id; }
+  else { store.addStatus(name); id=store.statuses()[store.statuses().length-1].id;
+    store.updateStatus(id,{ cat:document.getElementById('wfAddCat').value, color:_wfAddSw||SWATCHES[0] }); }
+  store.toggleBoardColumn(b, id, true);
+  _flowSel=id; _flowDirty=true;
+  document.getElementById('wfAddWrap').classList.remove('on');
+  renderWorkflow();
+  toast(ex?'Added '+ex.name+' to this workflow':'Created '+name);
+}
+
+/* ---------- Edit a status ---------- */
+function openWfEdit(){
+  const st=store.status(_flowSel); if(!st) return;
+  _wfEdSw=st.color||SWATCHES[0];
+  document.getElementById('wfEdName').value=st.name;
+  document.getElementById('wfEdCat').value=st.cat||'todo';
+  document.getElementById('wfEdSw').innerHTML=SWATCHES.map(c=>
+    `<button type="button" class="pj-sw ${c===_wfEdSw?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
+  document.querySelectorAll('#wfEdSw .pj-sw').forEach(x=>x.onclick=()=>{ _wfEdSw=x.dataset.c;
+    document.querySelectorAll('#wfEdSw .pj-sw').forEach(y=>y.classList.toggle('on', y===x)); });
+  document.getElementById('wfEditWrap').classList.add('on');
+}
+function wfEditGo(){
+  const v=(document.getElementById('wfEdName').value||'').trim();
+  if(!v){ toast('Give the status a name'); return; }
+  store.updateStatus(_flowSel, { name:v, cat:document.getElementById('wfEdCat').value, color:_wfEdSw });
+  document.getElementById('wfEditWrap').classList.remove('on');
+  renderWorkflow(); renderAll();
+  toast('Status updated');
+}
+
+function wfClone(){
+  const b=store.board(_wfBoard);
+  const others=store.boards().filter(x=>x.id!==b.id);
+  if(!others.length) return;
+  const pick=prompt('Clone a workflow onto \u201c'+b.name+'\u201d.\n\nThis replaces its transitions.\n'
+    +others.map((x,i)=>` ${i+1}. ${x.name} (${(x.columns||[]).length} statuses)`).join('\n')+'\n\nType a number:');
+  if(!pick) return;
+  const src=others[parseInt(pick,10)-1];
+  if(!src){ toast('No board with that number'); return; }
+  const d=flowDraftFor(b);
+  // bring the statuses across too — a workflow is meaningless without them
+  (src.columns||[]).forEach(id=>{ if(!(b.columns||[]).includes(id)) store.toggleBoardColumn(b, id, true); });
+  d.transitions=JSON.parse(JSON.stringify(src.transitions||{}));
+  d.labels=JSON.parse(JSON.stringify(src.tlabels||{}));
+  d.pos=JSON.parse(JSON.stringify(src.flowPos||{}));
+  d.enforce=!!src.enforce;
+  _flowDirty=true; renderWorkflow();
+  toast(`Cloned ${src.name} \u00b7 ${(src.columns||[]).length} statuses \u2014 Update to apply`);
+}
+
+/* ---------- In-page dialogs ----------
+   prompt()/confirm() are blocked in sandboxed iframes — they return null/false,
+   which this code read as "cancelled", so transitions silently never happened.
+   These are real dialogs, so they work wherever the app is embedded. */
+let _trNameCb=null, _cfCb=null;
+function askTransitionName(fromName, toName, dflt){
+  return new Promise(res=>{
+    document.getElementById('trRoute').innerHTML=
+      `<b>${esc(fromName)}</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h13M13 6l6 6-6 6"/></svg><b class="to">${esc(toName)}</b>`;
+    const i=document.getElementById('trNameIn'); i.value=dflt||'';
+    document.getElementById('trNameWrap').classList.add('on');
+    setTimeout(()=>{ i.focus(); i.select(); },40);
+    _trNameCb=res;
+  });
+}
+function closeTrName(v){ document.getElementById('trNameWrap').classList.remove('on');
+  const cb=_trNameCb; _trNameCb=null; if(cb) cb(v); }
+function askConfirm(title, body, okLabel){
+  return new Promise(res=>{
+    document.getElementById('cfTitle').textContent=title;
+    document.getElementById('cfBody').textContent=body||'';
+    document.getElementById('cfYes').textContent=okLabel||'Confirm';
+    document.getElementById('cfWrap').classList.add('on');
+    _cfCb=res;
+  });
+}
+function closeCf(v){ document.getElementById('cfWrap').classList.remove('on');
+  const cb=_cfCb; _cfCb=null; if(cb) cb(v); }
+
+/* ================== Workflow builder (full screen) ================== */
+let _fxBoard=null, _fxSel=null, _fxLink=null, _fxLabels=true, _fxMode='diagram', _fxSideOpen=true;
+let _fxPick=null;   // null | 'from' | 'to' | 'into' — the connect steps
+let _fxInto=null;   // in 'into' mode, the status being moved INTO
+let _fxDragged=false;
+let _fxZoom=1, _fxPanX=0, _fxPanY=0;
+const FXW=150, FXH=34, FXGX=210, FXGY=86;
+
+function fxKey(a,b){ return a+'>'+b; }
+function fxLbl(d,a,b){ return (d.labels&&d.labels[fxKey(a,b)])||''; }
+function fxDraft(){ return flowDraftFor(_fxBoard); }
+function fxCols(){ return store.boardColumns(_fxBoard); }
+
+function fxAutoPos(cols){
+  const p={}; cols.forEach((st,i)=>{ const r=Math.floor(i/4), c=i%4;
+    p[st.id]={ x:150+c*FXGX, y:70+r*FXGY }; }); return p;
+}
+function fxPos(){
+  const d=fxDraft(), cols=fxCols(); d.pos=d.pos||{};
+  const a=fxAutoPos(cols);
+  cols.forEach(s=>{ if(!d.pos[s.id]) d.pos[s.id]=a[s.id]; });
+  return d.pos;
+}
+
+/* Orthogonal routing — Jira's edges turn at right angles, never curve. */
+function fxRoute(p1,p2){
+  const x1=p1.x+FXW/2, y1=p1.y+FXH/2, x2=p2.x+FXW/2, y2=p2.y+FXH/2;
+  const dx=x2-x1, dy=y2-y1;
+  let sx,sy,ex,ey,d,lx,ly;
+  if(Math.abs(dx)>Math.abs(dy)){
+    sx = x1 + (dx>0?FXW/2:-FXW/2); sy = y1;
+    ex = x2 - (dx>0?FXW/2+8:-(FXW/2+8)); ey = y2;
+    const mx=(sx+ex)/2;
+    d = `M${sx} ${sy} H${mx} V${ey} H${ex}`;
+    lx=mx; ly=(sy+ey)/2;
+  } else {
+    sx = x1; sy = y1 + (dy>0?FXH/2:-FXH/2);
+    ex = x2; ey = y2 - (dy>0?FXH/2+8:-(FXH/2+8));
+    const my=(sy+ey)/2;
+    d = `M${sx} ${sy} V${my} H${ex} V${ey}`;
+    lx=(sx+ex)/2; ly=my;
+  }
+  return {d,lx,ly};
+}
+
+function fxDiagram(){
+  const d=fxDraft(), cols=fxCols(), pos=fxPos();
+  if(!cols.length) return `<div class="fxs-blank">
+      <div class="fxs-blank-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M12 10v4"/></svg></div>
+      <h3>No statuses yet</h3>
+      <p>A workflow starts empty. Add the stages your team actually works through \u2014 then connect them.</p>
+      <button class="ehs-btn ehs-btn--sm" id="fxBlankAdd" type="button">Add your first status</button>
+    </div>`;
+
+  const byId={}; cols.forEach(s=>byId[s.id]=s);
+  const edges=[];
+  Object.keys(d.transitions||{}).forEach(from=>{
+    (d.transitions[from]||[]).forEach(to=>{
+      if(!byId[from]||!byId[to]) return;
+      const g=fxRoute(pos[from],pos[to]);
+      const on=_fxSel&&(from===_fxSel||to===_fxSel);
+      edges.push(`<g class="fxe ${on?'on':''}" data-e="${fxKey(from,to)}">
+        <path d="${g.d}" marker-end="url(#fxa${on?'On':''})"/>
+        ${_fxLabels?`<g class="fxe-l" transform="translate(${g.lx},${g.ly})">
+          <rect x="-56" y="-10" width="112" height="20" rx="10"/>
+          <text text-anchor="middle" dy="4">${esc((fxLbl(d,from,to)||byId[to].name).slice(0,18))}</text></g>`:''}
+      </g>`);
+    });
+  });
+
+  // START -> the first status, the way Jira anchors a workflow
+  let start='';
+  if(cols.length){
+    const f=pos[cols[0].id];
+    d.pos.__start = d.pos.__start || { x:24, y:f.y+FXH/2-13 };
+    const sp=d.pos.__start, cx=sp.x+13, cy=sp.y+13;
+    start=`<g class="fxe"><path d="M${cx+13} ${cy} H${f.x-7}" marker-end="url(#fxa)"/>
+        ${_fxLabels?`<g class="fxe-l" transform="translate(${(cx+13+f.x)/2},${cy})">
+          <rect x="-26" y="-9" width="52" height="18" rx="9"/><text text-anchor="middle" dy="3.5">Create</text></g>`:''}</g>
+      <g class="fxs-start" data-n="__start" transform="translate(${sp.x},${sp.y})">
+        <circle cx="13" cy="13" r="12.5"/><text x="13" y="13" dy="3" text-anchor="middle">START</text></g>`;
+  }
+
+  // Classic flowchart language: the outline colour and the silhouette carry the
+  // meaning, on a white fill — a terminator is a stadium, a process is a box,
+  // a wait/hold is a parallelogram.
+  const shape=(cat,w,h)=>{
+    if(cat==='done')       return `<rect class="fxn-bg" width="${w}" height="${h}" rx="${h/2}"/>`;               // terminator
+    if(cat==='inprogress') return `<rect class="fxn-bg" width="${w}" height="${h}" rx="2"/>`;                     // process
+    return `<path class="fxn-bg" d="M11 0 H${w} L${w-11} ${h} H0 Z"/>`;                                           // data / waiting
+  };
+  const nodes=cols.map(st=>{
+    const p=pos[st.id], sel=st.id===_fxSel, src=_fxLink===st.id;
+    const pick=!!_fxPick && !src && st.id!==_fxInto;
+    const cat=(st.cat||'todo');
+    return `<g class="fxn ${sel?'sel':''} ${src?'src':''} ${pick?'pick':''} cat-${cat}" data-n="${st.id}" transform="translate(${p.x},${p.y})">
+      ${shape(cat,FXW,FXH)}
+      <text x="${FXW/2}" y="${FXH/2}" dy="3.6" text-anchor="middle">${esc(st.name.slice(0,19))}</text>
+    </g>`;
+  }).join('');
+
+  const maxX=Math.max(...cols.map(s=>pos[s.id].x))+FXW+120;
+  const maxY=Math.max(...cols.map(s=>pos[s.id].y))+FXH+120;
+  const vw=Math.max(1200,maxX), vh=Math.max(560,maxY);
+
+  const mini=cols.map(st=>{ const p=pos[st.id];
+    return `<rect x="${p.x/vw*100}%" y="${p.y/vh*100}%" width="${FXW/vw*100}%" height="${FXH/vh*100}%" rx="1"
+      class="mm-n ${st.id===_fxSel?'on':''}"/>`; }).join('');
+
+  return `<svg id="fxSvg" class="fxs-svg" width="${vw}" height="${vh}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMinYMin meet">
+      <defs>
+        <marker id="fxa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#9AA1AC"/></marker>
+        <marker id="fxaOn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+      </defs>
+      <g transform="scale(${_fxZoom}) translate(${_fxPanX},${_fxPanY})">
+        ${edges.join('')}${start}${nodes}
+      </g></svg>
+    <div class="fxs-mini"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${mini}</svg>
+      <div class="fxs-zoomrow">
+        <button type="button" id="fxZo" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/></svg></button>
+        <input type="range" id="fxZr" min="40" max="160" value="${Math.round(_fxZoom*100)}"/>
+        <button type="button" id="fxZi" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-4-4"/></svg></button>
+      </div></div>`;
+}
+
+function fxSide(){
+  const d=fxDraft();
+  const st=_fxSel?store.status(_fxSel):null;
+  if(!st) return `<div class="fxs-side-empty"><h3>Nothing selected</h3>
+    <p>Pick a status to see how work moves in and out of it.</p></div>`;
+  const nm=n=>((store.status(n)||{}).name)||n;
+  const inc=[], out=[];
+  Object.keys(d.transitions||{}).forEach(f=>(d.transitions[f]||[]).forEach(t=>{
+    if(t===st.id) inc.push({f,t}); if(f===st.id) out.push({f,t}); }));
+  const CATL={todo:'To do', inprogress:'In progress', done:'Done'};
+  const row=x=>`<div class="fxs-tr">
+      <input class="fxs-tr-n" value="${esc(fxLbl(d,x.f,x.t)||nm(x.t))}" data-lbl="${fxKey(x.f,x.t)}" placeholder="Name this transition"/>
+      <div class="fxs-tr-p"><span class="fxs-pill">${esc(nm(x.f))}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        <span class="fxs-pill on">${esc(nm(x.t))}</span>
+        <button class="fxs-tr-x" data-del="${fxKey(x.f,x.t)}" title="Remove">\u2715</button></div></div>`;
+  return `<div class="fxs-side-h"><h2>Status</h2>
+      <p>Statuses capture the stages of your working process.</p></div>
+    <div class="fxs-f"><div class="fxs-f-h"><span>Name</span>
+      <button class="fxs-edit" id="fxEditSt" title="Edit status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
+      <div class="fxs-f-v">${esc(st.name)}</div></div>
+    <div class="fxs-f"><div class="fxs-f-h"><span>Category</span></div>
+      <div class="fxs-f-v"><span class="fxs-cat cat-${st.cat||'todo'}"></span>${CATL[st.cat||'todo']}</div></div>
+    <div class="fxs-danger"><button class="fxs-rm" id="fxRemove" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+        Remove from workflow</button></div>
+    <div class="fxs-side-h2"><h3>Transitions</h3>
+      <p>Transitions connect statuses. They represent actions people take to move work through your workflow.</p></div>
+    <div class="fxs-grp"><div class="fxs-grp-h"><span>Incoming</span><span class="fxs-n">${inc.length}</span>
+      <button class="fxs-plus" id="fxAddIn" title="Add an incoming transition">+</button></div>
+      ${inc.length?inc.map(row).join(''):'<p class="fxs-none">Nothing moves into this status yet.</p>'}</div>
+    <div class="fxs-grp"><div class="fxs-grp-h"><span>Outgoing</span><span class="fxs-n">${out.length}</span>
+      <button class="fxs-plus" id="fxAddOut" title="Add an outgoing transition">+</button></div>
+      ${out.length?out.map(row).join(''):'<p class="fxs-none">This status is a dead end \u2014 nothing leaves it.</p>'}</div>`;
+}
+
+function fxText(){
+  const d=fxDraft(), cols=fxCols();
+  if(!cols.length) return '<p class="fxs-none" style="padding:20px">No statuses yet.</p>';
+  return `<div class="fxs-text">`+cols.map(st=>{
+    const al=(d.transitions&&d.transitions[st.id])||[];
+    return `<div class="fxs-trow"><div class="fxs-trow-h"><span class="fxs-cat cat-${st.cat||'todo'}"></span>
+        <b>${esc(st.name)}</b><span>can move to</span><span class="fxs-n">${al.length||'none'}</span></div>
+      <div class="fxs-chips">${cols.filter(x=>x.id!==st.id).map(x=>
+        `<button class="fxs-chip ${al.includes(x.id)?'on':''}" data-from="${st.id}" data-to="${x.id}">${esc(x.name)}</button>`).join('')}</div></div>`;
+  }).join('')+`</div>`;
+}
+
+function openFlowScreen(boardId){
+  _fxBoard=store.board(boardId)||activeBoard();
+  _fxSel=null; _fxLink=null; _fxZoom=1; _fxPanX=0; _fxPanY=0;
+  flowDraftReset();
+  const sc=document.getElementById('fxScreen');
+  sc.classList.add('on');
+  document.body.style.overflow='hidden';
+  fxRender();
+}
+function closeFlowScreen(){
+  if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
+  flowDraftReset();
+  document.getElementById('fxScreen').classList.remove('on');
+  document.body.style.overflow='';
+  if(ui.view==='boardsettings') renderBoardSettings();
+  renderAll();
+}
+function fxSave(){
+  const d=fxDraft();
+  store.updateBoard(_fxBoard.id, { enforce:d.enforce,
+    transitions:JSON.parse(JSON.stringify(d.transitions)),
+    tlabels:JSON.parse(JSON.stringify(d.labels||{})),
+    flowPos:JSON.parse(JSON.stringify(d.pos||{})) });
+  _flowDirty=false; fxRender(); renderBoardSwitch(); refreshViews();
+  toast('Workflow updated');
+}
+function fxDirty(){ _flowDirty=true; const b=document.getElementById('fxSaveBtn'); if(b) b.disabled=false;
+  const p=document.getElementById('fxDirtyPill'); if(p) p.classList.add('on'); }
+
+function fxRender(){
+  const d=fxDraft(), cols=fxCols();
+  const nT=Object.values(d.transitions||{}).reduce((a,x)=>a+x.length,0);
+  const others=store.boards().filter(x=>x.id!==_fxBoard.id);
+  const IC={
+    st:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.5" y="9" width="19" height="6.5" rx="3.2"/></svg>',
+    tr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3v10a4 4 0 0 0 4 4h8"/><path d="M14 13.5 18.5 17 14 20.5"/></svg>',
+    cl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'
+  };
+  document.getElementById('fxScreen').innerHTML=`
+    <header class="fxs-top">
+      <div class="fxs-title"><span>Workflow for</span><b>${esc(_fxBoard.name)}</b>
+        <span class="fxs-meta">${cols.length} status${cols.length===1?'':'es'} \u00b7 ${nT} transition${nT===1?'':'s'}</span></div>
+      <div class="fxs-tools">
+        <button class="fxs-tool" id="fxTAdd" type="button">${IC.st}<span>Add status</span></button>
+        <button class="fxs-tool" id="fxTTr" type="button">${IC.tr}<span>Add transition</span></button>
+        ${others.length?`<button class="fxs-tool" id="fxTClone" type="button">${IC.cl}<span>Clone workflow</span></button>`:''}
+      </div>
+      <div class="fxs-right">
+        <span class="fxs-dirty" id="fxDirtyPill">Unsaved</span>
+        <button class="ehs-btn ehs-btn--sm" id="fxSaveBtn" type="button" ${_flowDirty?'':'disabled'}>Update workflow</button>
+        <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="fxCloseBtn" type="button">Close</button>
+      </div>
+    </header>
+    <div class="fxs-body ${_fxSideOpen?'':'closed'}">
+      <div class="fxs-main">
+        <div class="fxs-bar">
+          <div class="fxs-seg">
+            <button type="button" class="${_fxMode==='diagram'?'on':''}" data-m="diagram">Diagram</button>
+            <button type="button" class="${_fxMode==='text'?'on':''}" data-m="text">Text</button>
+          </div>
+          <span style="flex:1"></span>
+          <label class="fxs-enf"><button type="button" class="stx-tgl ${d.enforce?'on':''}" id="fxEnf" role="switch" aria-checked="${d.enforce}"></button>
+            <span>Enforce this workflow</span></label>
+          ${_fxMode==='diagram'?`<label class="fxs-cb"><input type="checkbox" id="fxLblCb" ${_fxLabels?'checked':''}/><span>Show transition labels</span></label>`:''}
+        </div>
+        <div class="fxs-canvas" id="fxCanvas">${_fxMode==='diagram'?fxDiagram():fxText()}
+          ${_fxPick?`<div class="fxs-hint">
+            ${_fxPick==='from'?'<b>1/2</b> Click the status it moves FROM'
+             :_fxPick==='into'?`Click the status that moves <b>into ${esc((store.status(_fxInto)||{}).name||'')}</b>`
+             :'<b>2/2</b> Now click the status it moves TO'}
+            \u2014 <button type="button" id="fxCancel">cancel</button></div>`:''}
+        </div>
+      </div>
+      <aside class="fxs-side">
+        <button class="nav-toggle fxs-collapse" id="fxSideBtn" type="button" title="${_fxSideOpen?'Hide panel':'Show panel'}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>
+        </button>
+        <div class="fxs-side-in">${fxSide()}</div>
+      </aside>
+    </div>`;
+  wireFx();
+}
+
+function wireFx(){
+  const d=fxDraft();
+  const R=()=>fxRender();
+  const g=id=>document.getElementById(id);
+  g('fxCloseBtn').onclick=closeFlowScreen;
+  const sb=g('fxSideBtn'); if(sb) sb.onclick=()=>{ _fxSideOpen=!_fxSideOpen; R(); };
+  g('fxSaveBtn').onclick=fxSave;
+  const enf=g('fxEnf'); if(enf) enf.onclick=()=>{ d.enforce=!d.enforce; fxDirty(); R(); };
+  const cb=g('fxLblCb'); if(cb) cb.onchange=()=>{ _fxLabels=cb.checked; R(); };
+  document.querySelectorAll('.fxs-seg button').forEach(b=>b.onclick=()=>{ _fxMode=b.dataset.m; R(); });
+  const add=()=>openStatusPicker();
+  g('fxTAdd').onclick=add;
+  const ba=g('fxBlankAdd'); if(ba) ba.onclick=add;
+  g('fxTTr').onclick=()=>{
+    // No need to pre-select: step 1 asks for the source, step 2 for the target.
+    if(_fxSel){ _fxLink=_fxSel; _fxPick='to'; } else { _fxLink=null; _fxPick='from'; }
+    R();
+  };
+  const cl=g('fxTClone'); if(cl) cl.onclick=fxClone;
+  const cn=g('fxCancel'); if(cn) cn.onclick=()=>{ _fxLink=null; _fxPick=null; _fxInto=null; R(); };
+  const ed=g('fxEditSt'); if(ed) ed.onclick=()=>openStatusEdit(_fxSel);
+  const rm=g('fxRemove');
+  if(rm) rm.onclick=()=>{
+    const st=store.status(_fxSel); if(!st) return;
+    const id=_fxSel;
+    const n=Object.keys(d.transitions||{}).reduce((a,f)=>a+((d.transitions[f]||[]).includes(id)?1:0),0)
+          + ((d.transitions[id]||[]).length);
+    askConfirm(`Remove \u201c${st.name}\u201d?`,
+      (n?`Its ${n} transition${n===1?'':'s'} go with it.\n\n`:'')+'The status itself stays available for other boards.',
+      'Remove').then(ok=>{ if(!ok) return; fxDoRemove(id); });
+  };
+  function fxDoRemove(id){
+    store.toggleBoardColumn(_fxBoard, id, false);
+    delete d.transitions[id];
+    Object.keys(d.transitions).forEach(f=>{ d.transitions[f]=(d.transitions[f]||[]).filter(t=>t!==id); });
+    Object.keys(d.labels||{}).forEach(k=>{ const [a,bq]=k.split('>'); if(a===id||bq===id) delete d.labels[k]; });
+    if(d.pos) delete d.pos[id];
+    _fxSel=null; fxDirty(); fxRender();
+    toast('Removed \u2014 Update workflow to apply');
+  }
+  // Right-panel shortcuts. Incoming asks for the source; Outgoing asks for the
+  // target — previously both made an OUTGOING transition, so Incoming was wrong.
+  const ai=g('fxAddIn');
+  if(ai) ai.onclick=()=>{ _fxInto=_fxSel; _fxLink=null; _fxPick='into'; R(); };
+  const ao=g('fxAddOut');
+  if(ao) ao.onclick=()=>{ _fxLink=_fxSel; _fxInto=null; _fxPick='to'; R(); };
+
+  // nodes
+  document.querySelectorAll('#fxSvg .fxn').forEach(n=>n.onclick=e=>{
+    e.stopPropagation(); const id=n.dataset.n;
+    if(_fxDragged){ _fxDragged=false; return; }        // that was a drag, not a click
+    if(_fxPick==='from'){ _fxLink=id; _fxSel=id; _fxPick='to'; R(); return; }
+    if(_fxPick==='into'){
+      if(id===_fxInto){ toast('Pick a different status'); return; }
+      if((d.transitions[id]||[]).includes(_fxInto)){ toast('Those are already connected'); _fxPick=null; _fxInto=null; R(); return; }
+      const into=_fxInto, a=store.status(id), bq=store.status(into);
+      askTransitionName(a.name, bq.name, bq.name).then(nm=>{
+        if(nm===null){ _fxPick=null; _fxInto=null; R(); return; }
+        d.transitions[id]=d.transitions[id]||[];
+        d.transitions[id].push(into);
+        d.labels=d.labels||{}; d.labels[fxKey(id,into)]=nm;
+        fxDirty(); _fxSel=into; _fxPick=null; _fxInto=null; R();
+      });
+      return;
+    }
+    if(_fxLink && _fxLink!==id){
+      const from=_fxLink, a=store.status(from), bq=store.status(id);
+      if((d.transitions[from]||[]).includes(id)){ toast('Those are already connected'); _fxLink=null; _fxPick=null; R(); return; }
+      askTransitionName(a.name, bq.name, bq.name).then(nm=>{
+        if(nm===null){ _fxLink=null; _fxPick=null; R(); return; }
+        d.transitions[from]=d.transitions[from]||[];
+        d.transitions[from].push(id);
+        d.labels=d.labels||{}; d.labels[fxKey(from,id)]=nm;
+        fxDirty(); _fxSel=from; _fxLink=null; _fxPick=null; R();
+      });
+      return;
+    }
+    _fxSel=id; _fxLink=null; _fxPick=null; _fxInto=null; R();
+  });
+  // drag
+  const svg=g('fxSvg'); let dr=null;
+  if(svg){
+    svg.addEventListener('pointerdown',e=>{ const n=e.target.closest('.fxn, .fxs-start'); if(!n) return;
+      const id=n.dataset.n, r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
+      if(!d.pos[id]) return;
+      dr={id, sx:e.clientX, sy:e.clientY, ox:d.pos[id].x, oy:d.pos[id].y, sc:vb.width/r.width, moved:false};
+      n.setPointerCapture(e.pointerId); });
+    svg.addEventListener('pointermove',e=>{ if(!dr) return;
+      const dx=(e.clientX-dr.sx)*dr.sc/_fxZoom, dy=(e.clientY-dr.sy)*dr.sc/_fxZoom;
+      if(Math.abs(dx)>4||Math.abs(dy)>4) dr.moved=true;
+      d.pos[dr.id]={x:Math.max(0,Math.round(dr.ox+dx)), y:Math.max(0,Math.round(dr.oy+dy))};
+      const n=svg.querySelector(`[data-n="${dr.id}"]`);
+      if(n) n.setAttribute('transform',`translate(${d.pos[dr.id].x},${d.pos[dr.id].y})`); });
+    svg.addEventListener('pointerup',()=>{ if(dr&&dr.moved){ _fxDragged=true; fxDirty(); R();
+      setTimeout(()=>{ _fxDragged=false; },0); }            // never leave it latched
+      dr=null; });
+  }
+  // inspector
+  document.querySelectorAll('.fxs-tr-n').forEach(i=>i.onchange=()=>{
+    d.labels=d.labels||{}; const v=i.value.trim();
+    if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
+    fxDirty(); R(); });
+  document.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{
+    const [f,t]=x.dataset.del.split('>');
+    d.transitions[f]=(d.transitions[f]||[]).filter(y=>y!==t);
+    if(d.labels) delete d.labels[x.dataset.del];
+    fxDirty(); R(); });
+  // text mode chips
+  document.querySelectorAll('.fxs-chip').forEach(c=>c.onclick=()=>{
+    const f=c.dataset.from, t=c.dataset.to;
+    d.transitions[f]=d.transitions[f]||[];
+    if(d.transitions[f].includes(t)) d.transitions[f]=d.transitions[f].filter(x=>x!==t);
+    else d.transitions[f].push(t);
+    fxDirty(); R(); });
+  // zoom
+  const zr=g('fxZr');
+  if(zr) zr.oninput=()=>{ _fxZoom=parseInt(zr.value,10)/100; const s=document.querySelector('#fxSvg > g');
+    if(s) s.setAttribute('transform',`scale(${_fxZoom}) translate(${_fxPanX},${_fxPanY})`); };
+  const zi=g('fxZi'), zo=g('fxZo');
+  if(zi) zi.onclick=()=>{ _fxZoom=Math.min(1.6,_fxZoom+0.1); R(); };
+  if(zo) zo.onclick=()=>{ _fxZoom=Math.max(0.4,_fxZoom-0.1); R(); };
+}
+
+function fxClone(){
+  const others=store.boards().filter(x=>x.id!==_fxBoard.id);
+  const names=others.map((x,i)=>` ${i+1}. ${x.name}`).join('\n');
+  const pick=prompt('Clone a workflow onto \u201c'+_fxBoard.name+'\u201d.\n\nThis replaces its transitions.\n'+names+'\n\nType a number:');
+  if(!pick) return;
+  const src=others[parseInt(pick,10)-1];
+  if(!src){ toast('No board with that number'); return; }
+  const mine=new Set(_fxBoard.columns||[]);
+  const d=fxDraft(); const t={}; let kept=0, skip=0;
+  Object.keys(src.transitions||{}).forEach(f=>{
+    if(!mine.has(f)){ skip+=(src.transitions[f]||[]).length; return; }
+    const to=(src.transitions[f]||[]).filter(x=>mine.has(x));
+    skip+=(src.transitions[f]||[]).length-to.length;
+    if(to.length){ t[f]=to; kept+=to.length; } });
+  const lb={}; Object.keys(src.tlabels||{}).forEach(k=>{ const [a,b]=k.split('>');
+    if(mine.has(a)&&mine.has(b)) lb[k]=src.tlabels[k]; });
+  d.transitions=t; d.labels=lb; d.enforce=!!src.enforce;
+  fxDirty(); fxRender();
+  toast(`Cloned from ${src.name} \u00b7 ${kept} transitions${skip?` \u00b7 ${skip} skipped`:''} \u2014 Update to apply`);
+}
+
+/* ---------- Add a status ---------- */
+function openStatusPicker(){
+  const w=document.getElementById('stPickWrap');
+  const inp=document.getElementById('stPickIn');
+  inp.value=''; _stPickSel=null;
+  document.getElementById('stPickMsg').textContent='';
+  document.getElementById('stPickAdd').disabled=true;
+  stPickDraw('');
+  w.classList.add('on');
+  setTimeout(()=>inp.focus(),40);
+}
+let _stPickSel=null;
+function stPickDraw(raw){
+  const typed=(raw||'').trim();          // what they actually typed, for display
+  const q=typed.toLowerCase();           // lowercased, for matching only
+  const onBoard=new Set(_fxBoard.columns||[]);
+  const all=store.statuses();
+  const hits=all.filter(s=>!q||s.name.toLowerCase().includes(q));
+  const list=document.getElementById('stPickList');
+  const msg=document.getElementById('stPickMsg');
+  const dupe=q && all.find(s=>s.name.toLowerCase()===q && onBoard.has(s.id));
+  if(dupe){
+    msg.innerHTML=`Your workflow already contains a status called <b>${esc(dupe.name)}</b>`;
+    list.innerHTML=''; document.getElementById('stPickAdd').disabled=true; return;
+  }
+  msg.textContent='';
+  const rows=hits.filter(s=>!onBoard.has(s.id)).map(s=>
+    `<button type="button" class="stp-row ${_stPickSel===s.id?'on':''}" data-s="${s.id}">
+      <span class="fxs-cat cat-${s.cat||'todo'}"></span><span class="stp-n">${esc(s.name)}</span>
+      <span class="stp-c">${(s.cat==='inprogress'?'In progress':s.cat==='done'?'Done':'To do')}</span></button>`).join('');
+  const canNew = q && !all.some(s=>s.name.toLowerCase()===q);
+  list.innerHTML = (rows||'') + (canNew?`<button type="button" class="stp-row stp-new ${_stPickSel==='__new'?'on':''}" data-s="__new">
+      <span class="stp-plus">+</span><span class="stp-n">Create <b>${esc(typed)}</b></span></button>`:'')
+    || '<p class="stp-none">Every status is already on this workflow.</p>';
+  list.querySelectorAll('.stp-row').forEach(r=>r.onclick=()=>{
+    _stPickSel=r.dataset.s; stPickDraw(document.getElementById('stPickIn').value);
+    document.getElementById('stPickAdd').disabled=false; });
+}
+function stPickAdd(){
+  const q=document.getElementById('stPickIn').value.trim();
+  if(!_stPickSel) return;
+  let id=_stPickSel;
+  if(id==='__new'){
+    if(!q){ toast('Give the status a name'); return; }
+    store.addStatus(q); id=store.statuses()[store.statuses().length-1].id;
+  }
+  store.toggleBoardColumn(_fxBoard, id, true);
+  _fxSel=id; fxDirty();
+  document.getElementById('stPickWrap').classList.remove('on');
+  fxRender();
+}
+
+/* ---------- Edit a status ---------- */
+let _stEditId=null;
+function openStatusEdit(id){
+  const st=store.status(id); if(!st) return;
+  _stEditId=id;
+  document.getElementById('stEdName').value=st.name;
+  document.getElementById('stEdCat').value=st.cat||'todo';
+  document.getElementById('stEdWrap').classList.add('on');
+  setTimeout(()=>document.getElementById('stEdName').focus(),40);
+}
+function stEditSave(){
+  const nm=document.getElementById('stEdName').value.trim();
+  const cat=document.getElementById('stEdCat').value;
+  if(!nm){ toast('Give the status a name'); return; }
+  const dupe=store.statuses().find(s=>s.id!==_stEditId && s.name.toLowerCase()===nm.toLowerCase());
+  if(dupe){ toast('Another status is already called that'); return; }
+  store.updateStatus(_stEditId,{name:nm, cat});
+  document.getElementById('stEdWrap').classList.remove('on');
+  fxRender(); renderAll();
+  toast('Status updated');
+}
+
+/* ================== Workflow builder (inline) ==================
+   Per board: statuses are nodes, transitions are labelled edges. Everything is
+   edited against _flowDraft and only written on Save, same as before.
+   Draft shape: { enforce, transitions:{from:[to]}, labels:{'from>to':name}, pos:{id:{x,y}} }
+*/
+let _flowMode='diagram';      // 'diagram' | 'text'
+let _flowSel=null;            // selected status id
+let _flowLink=null;           // when connecting: the source status id
+let _flowZoom=1, _flowPan={x:0,y:0};
+const FLOW_W=196, FLOW_H=44, FLOW_GAPX=250, FLOW_GAPY=104;
+
+function flowKey(a,b){ return a+'>'+b; }
+function flowLabel(d,a,b){ return (d.labels&&d.labels[flowKey(a,b)]) || ''; }
+
+/* Lay statuses out in the board's own column order when nothing is saved:
+   left-to-right in rows of four, which reads like a pipeline. */
+function flowAutoPos(cols){
+  const pos={};
+  cols.forEach((st,i)=>{ const r=Math.floor(i/4), c=i%4;
+    pos[st.id]={ x:60+c*FLOW_GAPX, y:60+r*FLOW_GAPY + (c%2?26:0) }; });
+  return pos;
+}
+function flowPos(d, cols){
+  d.pos=d.pos||{};
+  const auto=flowAutoPos(cols);
+  cols.forEach(st=>{ if(!d.pos[st.id]) d.pos[st.id]=auto[st.id]; });
+  return d.pos;
+}
+
+/* Edge from the edge of one box to the edge of the next, not centre to centre. */
+function flowEdge(p1,p2){
+  const x1=p1.x+FLOW_W/2, y1=p1.y+FLOW_H/2, x2=p2.x+FLOW_W/2, y2=p2.y+FLOW_H/2;
+  const dx=x2-x1, dy=y2-y1;
+  const hx=FLOW_W/2+7, hy=FLOW_H/2+7;
+  const clip=(dx,dy)=>{ if(!dx&&!dy) return {x:0,y:0};
+    const sx=dx?hx/Math.abs(dx):Infinity, sy=dy?hy/Math.abs(dy):Infinity;
+    const s=Math.min(sx,sy); return {x:dx*s, y:dy*s}; };
+  const a=clip(dx,dy), bq=clip(-dx,-dy);
+  const sx=x1+a.x, sy=y1+a.y, ex=x2+bq.x, ey=y2+bq.y;
+  const mx=(sx+ex)/2, my=(sy+ey)/2;
+  const nx=-(ey-sy), ny=(ex-sx);
+  const len=Math.hypot(nx,ny)||1;
+  const bow=Math.min(38, Math.hypot(ex-sx,ey-sy)*0.18);
+  const cx=mx+(nx/len)*bow, cy=my+(ny/len)*bow;
+  return { d:`M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}`, lx:(sx+2*cx+ex)/4, ly:(sy+2*cy+ey)/4 };
+}
+
+function flowDiagram(b){
+  const cols=store.boardColumns(b);
+  const d=flowDraftFor(b);
+  const pos=flowPos(d, cols);
+  const byId={}; cols.forEach(s=>byId[s.id]=s);
+
+  const edges=[];
+  Object.keys(d.transitions||{}).forEach(from=>{
+    (d.transitions[from]||[]).forEach(to=>{
+      if(!byId[from]||!byId[to]) return;
+      const g=flowEdge(pos[from], pos[to]);
+      const on = _flowSel && (from===_flowSel || to===_flowSel);
+      edges.push(`<g class="fx-edge ${on?'is-on':''}" data-from="${from}" data-to="${to}">
+        <path d="${g.d}" marker-end="url(#fxArrow${on?'On':''})"/>
+        <g class="fx-lbl" transform="translate(${g.lx},${g.ly})">
+          <rect x="-52" y="-10" width="104" height="20" rx="10"/>
+          <text text-anchor="middle" dy="4">${esc((flowLabel(d,from,to)||byId[to].name).slice(0,17))}</text>
+        </g></g>`);
+    });
+  });
+
+  const nodes=cols.map(st=>{
+    const p=pos[st.id];
+    const sel = st.id===_flowSel, src = _flowLink===st.id;
+    return `<g class="fx-node ${sel?'is-sel':''} ${src?'is-src':''}" data-node="${st.id}" transform="translate(${p.x},${p.y})">
+      <rect width="${FLOW_W}" height="${FLOW_H}" rx="9"/>
+      <rect class="fx-band" width="4" height="${FLOW_H}" rx="2" fill="${st.color||'var(--faint)'}"/>
+      <text x="16" y="${FLOW_H/2}" dy="4.5">${esc(st.name.length>20?st.name.slice(0,19)+'\u2026':st.name)}</text>
+    </g>`;
+  }).join('');
+
+  const maxX=Math.max(...cols.map(s=>pos[s.id].x))+FLOW_W+80;
+  const maxY=Math.max(...cols.map(s=>pos[s.id].y))+FLOW_H+80;
+
+  return `<div class="fx-wrap">
+    <div class="fx-canvas" id="fxCanvas">
+      <svg id="fxSvg" width="100%" height="100%" viewBox="0 0 ${Math.max(1000,maxX)} ${Math.max(460,maxY)}" preserveAspectRatio="xMinYMin meet">
+        <defs>
+          <marker id="fxArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--faint)"/></marker>
+          <marker id="fxArrowOn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
+        </defs>
+        <g id="fxZoom" transform="scale(${_flowZoom}) translate(${_flowPan.x},${_flowPan.y})">
+          ${edges.join('')}
+          ${nodes}
+        </g>
+      </svg>
+      ${_flowLink?`<div class="fx-hint">Pick the status this moves to \u2014 <button type="button" id="fxCancelLink">cancel</button></div>`:''}
+      <div class="fx-zoom">
+        <button type="button" id="fxOut" aria-label="Zoom out">\u2212</button>
+        <span id="fxPct">${Math.round(_flowZoom*100)}%</span>
+        <button type="button" id="fxIn" aria-label="Zoom in">+</button>
+        <button type="button" id="fxFit" class="fx-fit">Fit</button>
+      </div>
+    </div>
+    <aside class="fx-side" id="fxSide">${flowInspector(b)}</aside>
+  </div>`;
+}
+
+function flowInspector(b){
+  const d=flowDraftFor(b);
+  const st=_flowSel?store.status(_flowSel):null;
+  if(!st) return `<div class="fx-empty"><h3>Nothing selected</h3>
+    <p>Pick a status in the diagram to see how work moves in and out of it.</p></div>`;
+  const cols=store.boardColumns(b);
+  const name=n=>((store.status(n)||{}).name)||n;
+  const inc=[], out=[];
+  Object.keys(d.transitions||{}).forEach(from=>{
+    (d.transitions[from]||[]).forEach(to=>{
+      if(to===st.id) inc.push({from,to});
+      if(from===st.id) out.push({from,to});
+    });
+  });
+  const row=(t,dir)=>`<div class="fx-tr" data-tr="${flowKey(t.from,t.to)}">
+      <input class="fx-tr-n" value="${esc(flowLabel(d,t.from,t.to)||name(t.to))}" data-lbl="${flowKey(t.from,t.to)}" placeholder="Name this transition"/>
+      <div class="fx-tr-p"><span class="fx-pill">${esc(name(t.from))}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span class="fx-pill">${esc(name(t.to))}</span>
+        <button class="fx-tr-x" data-del="${flowKey(t.from,t.to)}" title="Remove">\u2715</button></div>
+    </div>`;
+  const cat=(store.status(st.id)||{}).cat||'todo';
+  const CATL={todo:'To do', inprogress:'In progress', done:'Done'};
+  return `<div class="fx-side-h"><h2>Status</h2>
+      <p>Statuses capture the stages of your working process.</p></div>
+    <div class="fx-actrow"><button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="fxEdit" type="button">Edit</button>
+      <button class="ehs-btn ehs-btn--ghost ehs-btn--sm fx-rm" id="fxRemove" type="button">Remove</button></div>
+    <label class="fx-lbl2">Name</label>
+    <input class="fx-inp" id="fxName" value="${esc(st.name)}"/>
+    <label class="fx-lbl2">Category</label>
+    <div class="fx-cat"><span class="fx-cat-dot" style="background:${st.color}"></span>${CATL[cat]||cat}</div>
+    <div class="fx-side-h2"><h3>Transitions</h3>
+      <p>Transitions connect statuses. They are the moves people can make.</p></div>
+    <div class="fx-grp"><div class="fx-grp-h"><span>Incoming</span><span class="fx-n">${inc.length}</span></div>
+      ${inc.length?inc.map(t=>row(t,'in')).join(''):'<p class="fx-none">Nothing moves into this status yet.</p>'}</div>
+    <div class="fx-grp"><div class="fx-grp-h"><span>Outgoing</span><span class="fx-n">${out.length}</span>
+        <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="fxAddTr" type="button">Add</button></div>
+      ${out.length?out.map(t=>row(t,'out')).join(''):'<p class="fx-none">This status is a dead end \u2014 nothing leaves it.</p>'}</div>`;
+}
+
+function wireFlow(b){
+  const d=flowDraftFor(b);
+  const dirty=()=>{ _flowDirty=true;
+    const p=document.getElementById('bsDirty'); if(p) p.classList.add('on');
+    const s=document.getElementById('bsSave'); if(s) s.disabled=false; };
+  const redraw=()=>{ const body=document.getElementById('bsBody');
+    if(body){ body.innerHTML=bsFlow(b); wireBoardSettings(b); } };
+
+  // --- node click: select, or complete a link ---
+  document.querySelectorAll('#fxSvg .fx-node').forEach(n=>{
+    n.onclick=e=>{
+      e.stopPropagation();
+      const id=n.dataset.node;
+      if(_flowLink && _flowLink!==id){
+        d.transitions[_flowLink]=d.transitions[_flowLink]||[];
+        if(!d.transitions[_flowLink].includes(id)){ d.transitions[_flowLink].push(id); dirty(); }
+        _flowSel=_flowLink; _flowLink=null; redraw(); return;
+      }
+      if(_flowLink===id){ _flowLink=null; redraw(); return; }
+      _flowSel=id; redraw();
+    };
+  });
+  const cancel=document.getElementById('fxCancelLink');
+  if(cancel) cancel.onclick=()=>{ _flowLink=null; redraw(); };
+
+  // --- drag a status around ---
+  let drag=null;
+  const svg=document.getElementById('fxSvg');
+  if(svg){
+    svg.addEventListener('pointerdown', e=>{
+      const g=e.target.closest('.fx-node'); if(!g) return;
+      const id=g.dataset.node; const r=svg.getBoundingClientRect();
+      const vb=svg.viewBox.baseVal; const sc=vb.width/r.width;
+      drag={ id, sx:e.clientX, sy:e.clientY, ox:d.pos[id].x, oy:d.pos[id].y, sc, moved:false };
+      g.setPointerCapture(e.pointerId);
+    });
+    svg.addEventListener('pointermove', e=>{
+      if(!drag) return;
+      const dx=(e.clientX-drag.sx)*drag.sc/_flowZoom, dy=(e.clientY-drag.sy)*drag.sc/_flowZoom;
+      if(Math.abs(dx)>2||Math.abs(dy)>2) drag.moved=true;
+      d.pos[drag.id]={ x:Math.max(0,Math.round(drag.ox+dx)), y:Math.max(0,Math.round(drag.oy+dy)) };
+      const g=svg.querySelector(`.fx-node[data-node="${drag.id}"]`);
+      if(g) g.setAttribute('transform', `translate(${d.pos[drag.id].x},${d.pos[drag.id].y})`);
+    });
+    svg.addEventListener('pointerup', ()=>{ if(drag && drag.moved){ dirty(); redraw(); } drag=null; });
+  }
+
+  // --- inspector ---
+  const nm=document.getElementById('fxName');
+  if(nm) nm.onchange=()=>{ const v=nm.value.trim(); if(v && _flowSel){ store.updateStatus(_flowSel,{name:v}); redraw(); renderAll(); } };
+  document.querySelectorAll('.fx-tr-n').forEach(i=>i.onchange=()=>{
+    d.labels=d.labels||{}; const v=i.value.trim();
+    if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
+    dirty(); redraw();
+  });
+  document.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{
+    const [from,to]=x.dataset.del.split('>');
+    d.transitions[from]=(d.transitions[from]||[]).filter(t=>t!==to);
+    if(d.labels) delete d.labels[x.dataset.del];
+    dirty(); redraw();
+  });
+  const add=document.getElementById('fxAddTr');
+  if(add) add.onclick=()=>{ _flowLink=_flowSel; redraw(); };
+
+  // --- zoom ---
+  const setZ=z=>{ _flowZoom=Math.min(1.6, Math.max(.4, Math.round(z*10)/10)); redraw(); };
+  const zi=document.getElementById('fxIn'), zo=document.getElementById('fxOut'), zf=document.getElementById('fxFit');
+  if(zi) zi.onclick=()=>setZ(_flowZoom+0.1);
+  if(zo) zo.onclick=()=>setZ(_flowZoom-0.1);
+  if(zf) zf.onclick=()=>{ _flowZoom=1; _flowPan={x:0,y:0}; redraw(); };
+}
+
 /* ---------- Transitions: edit a draft, save on demand ----------
    Every chip click used to write straight to the store and _persist(). With a
    grid of chips that meant a burst of pushes, and boards have no self-push
@@ -4543,16 +6072,21 @@ let _flowDraft=null, _flowDirty=false;
 function flowDraftFor(b){
   if(!_flowDraft || _flowDraft.__board!==b.id){
     _flowDraft={ __board:b.id, enforce:!!b.enforce,
-                 transitions:JSON.parse(JSON.stringify(b.transitions||{})) };
+                 transitions:JSON.parse(JSON.stringify(b.transitions||{})),
+                 labels:JSON.parse(JSON.stringify(b.tlabels||{})),
+                 pos:JSON.parse(JSON.stringify(b.flowPos||{})) };
     _flowDirty=false;
   }
   return _flowDraft;
 }
 function flowDraftReset(){ _flowDraft=null; _flowDirty=false; }
 function flowSave(){
-  const b=activeBoard(); if(!b||!_flowDraft) return;
+  const b = (_flowDraft && _flowDraft.__board) ? store.board(_flowDraft.__board) : activeBoard();
+  if(!b||!_flowDraft) return;
   store.updateBoard(b.id, { enforce:_flowDraft.enforce,
-                            transitions:JSON.parse(JSON.stringify(_flowDraft.transitions)) });
+                            transitions:JSON.parse(JSON.stringify(_flowDraft.transitions)),
+                            tlabels:JSON.parse(JSON.stringify(_flowDraft.labels||{})),
+                            flowPos:JSON.parse(JSON.stringify(_flowDraft.pos||{})) });
   flowDraftReset();
   renderBoardSettings(); renderBoardSwitch(); refreshViews();
   toast('Workflow saved');
@@ -4589,16 +6123,13 @@ function bsColumns(b){
 }
 function bsFlow(b){
   const cols=store.boardColumns(b);
-  const d=flowDraftFor(b);
-  const enf=`<div class="flow-enforce"><label class="tgl"><input type="checkbox" id="flowEnforce" ${d.enforce?'checked':''}/><span class="tgl-t"></span></label>
-    <div><div style="font-size:13px;font-weight:600">Enforce this workflow</div><div style="font-size:11.5px;color:var(--muted)">When on, cards can only move along the transitions you allow below.</div></div></div>`;
-  const rows=cols.map(st=>{
-    const allowed=(d.transitions&&d.transitions[st.id])||[];
-    const targets=cols.filter(x=>x.id!==st.id).map(x=>`<button class="tchip ${allowed.includes(x.id)?'on':''}" data-from="${st.id}" data-to="${x.id}">${esc(x.name)}</button>`).join('');
-    return `<div class="flow-row"><div class="flow-from"><span class="col-dot" style="background:${st.color}"></span>${esc(st.name)}<span style="font-size:11.5px;color:var(--faint);font-weight:400">can move to \u2192</span></div>
-      <div class="flow-targets">${targets||'<span style="font-size:11.5px;color:var(--faint)">No other columns.</span>'}</div></div>`;
-  }).join('');
-  return enf+rows;
+  const nT=Object.values(b.transitions||{}).reduce((a,x)=>a+x.length,0);
+  return `<div class="ehs-empty" style="padding:34px 20px">
+      <p style="margin-bottom:4px"><b>${cols.length} status${cols.length===1?'':'es'} \u00b7 ${nT} transition${nT===1?'':'s'}</b> on <b>${esc(b.name)}</b>.
+        ${b.enforce?'Cards can only move along the allowed transitions.':'Cards can move anywhere \u2014 enforcement is off.'}</p>
+      <p style="margin-bottom:14px">Every board has its own workflow. Build it on a full canvas.</p>
+      <button class="ehs-btn ehs-btn--sm" id="bsOpenFlow" type="button">Open workflow builder</button>
+    </div>`;
 }
 
 function wireBoardSettings(b){
@@ -4631,19 +6162,8 @@ function wireBoardSettings(b){
       row.querySelectorAll('.fld-opt-del').forEach(x=>x.onclick=()=>{ const f=store.fields().find(y=>y.id===fid); const opts=(f.options||[]).slice(); opts.splice(+x.dataset.i,1); store.updateField(fid,{options:opts}); renderBoardSettings(); });
     });
   } else if(bsTab==='flow'){
-    const d=flowDraftFor(b);
-    const markDirty=()=>{ _flowDirty=true;
-      const dot=document.getElementById('bsDirty'); if(dot) dot.classList.add('on');
-      const sv=document.getElementById('bsSave'); if(sv) sv.disabled=false; };
-    const fe=document.getElementById('flowEnforce');
-    if(fe) fe.onchange=e=>{ d.enforce=e.target.checked; markDirty(); };
-    body.querySelectorAll('.tchip[data-from]').forEach(chip=>chip.onclick=()=>{
-      const from=chip.dataset.from, to=chip.dataset.to;
-      d.transitions[from]=d.transitions[from]||[];
-      const on=!chip.classList.contains('on');
-      if(on){ if(!d.transitions[from].includes(to)) d.transitions[from].push(to); }
-      else { d.transitions[from]=d.transitions[from].filter(x=>x!==to); }
-      chip.classList.toggle('on'); markDirty(); });
+    const ob=document.getElementById('bsOpenFlow');
+    if(ob) ob.onclick=()=>openFlowScreen(b.id);
   }
 }
 document.addEventListener('click',()=>document.querySelectorAll('.bspal').forEach(p=>p.classList.remove('on')));
@@ -7072,6 +8592,43 @@ document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#na
 document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
 document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>{ ui.analyticsTab=it.dataset.atab; setView('analytics'); });
 (function(){ const t=document.getElementById('tnTools'); if(t) t.onclick=toggleToolsMenu; })();
+(function(){
+  const g=id=>document.getElementById(id);
+  if(g('wfAddCancel')) g('wfAddCancel').onclick=()=>g('wfAddWrap').classList.remove('on');
+  if(g('wfAddGo')) g('wfAddGo').onclick=wfAddGo;
+  if(g('wfAddWrap')) g('wfAddWrap').onclick=e=>{ if(e.target.id==='wfAddWrap') g('wfAddWrap').classList.remove('on'); };
+  if(g('wfEdCancel')) g('wfEdCancel').onclick=()=>g('wfEditWrap').classList.remove('on');
+  if(g('wfEdGo')) g('wfEdGo').onclick=wfEditGo;
+  if(g('wfEditWrap')) g('wfEditWrap').onclick=e=>{ if(e.target.id==='wfEditWrap') g('wfEditWrap').classList.remove('on'); };
+  const nm=g('wfAddName'); if(nm) nm.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); wfAddGo(); } };
+  const en=g('wfEdName'); if(en) en.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); wfEditGo(); } };
+})();
+(function(){
+  const tw=document.getElementById('trNameWrap'), ti=document.getElementById('trNameIn');
+  const tc=document.getElementById('trNameCancel'), tk=document.getElementById('trNameOk');
+  const okName=()=>{ const v=(ti.value||'').trim(); if(!v){ toast('Give the transition a name'); ti.focus(); return; } closeTrName(v); };
+  if(tk) tk.onclick=okName;
+  if(tc) tc.onclick=()=>closeTrName(null);
+  if(tw) tw.onclick=e=>{ if(e.target===tw) closeTrName(null); };
+  if(ti) ti.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); okName(); } if(e.key==='Escape') closeTrName(null); };
+  const cy=document.getElementById('cfYes'), cn=document.getElementById('cfNo'), cw=document.getElementById('cfWrap');
+  if(cy) cy.onclick=()=>closeCf(true);
+  if(cn) cn.onclick=()=>closeCf(false);
+  if(cw) cw.onclick=e=>{ if(e.target===cw) closeCf(false); };
+  document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
+    if(tw && tw.classList.contains('on')) closeTrName(null);
+    if(cw && cw.classList.contains('on')) closeCf(false); });
+})();
+(function(){
+  const pi=document.getElementById('stPickIn');
+  if(pi) pi.oninput=()=>stPickDraw(pi.value);
+  const pc=document.getElementById('stPickCancel'); if(pc) pc.onclick=()=>document.getElementById('stPickWrap').classList.remove('on');
+  const pa=document.getElementById('stPickAdd'); if(pa) pa.onclick=stPickAdd;
+  const pw=document.getElementById('stPickWrap'); if(pw) pw.onclick=e=>{ if(e.target===pw) pw.classList.remove('on'); };
+  const ec=document.getElementById('stEdCancel'); if(ec) ec.onclick=()=>document.getElementById('stEdWrap').classList.remove('on');
+  const es=document.getElementById('stEdSave'); if(es) es.onclick=stEditSave;
+  const ew=document.getElementById('stEdWrap'); if(ew) ew.onclick=e=>{ if(e.target===ew) ew.classList.remove('on'); };
+})();
 (function(){ const pc=document.getElementById('pjCancel'), pv=document.getElementById('pjCreate'), pw=document.getElementById('projWrap');
   if(pc) pc.onclick=closeProjModal;
   if(pv) pv.onclick=saveProjModal;
