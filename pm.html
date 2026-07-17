@@ -4174,7 +4174,7 @@ function submitEpic(){
   let n=0;
   document.querySelectorAll('#epmTasks .epm-task').forEach((row,i)=>{
     const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) return;
-    const t={ id:'t'+Date.now()+'_'+i, ws, project:pid, key:computeNextKey(pid), title:tt, type:'Task', status:todoStatus,
+    const t={ id:newTaskId('t'), ws, project:pid, key:computeNextKey(pid), title:tt, type:'Task', status:todoStatus,
       priority:'Medium', assignee:row.querySelector('.epm-tasg').value||null, reporter:CURRENT_UID||null, parent:eid,
       due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
       updatedAt:today(), resolvedAt:null, desc:'' };
@@ -4711,16 +4711,39 @@ function wireNtVals(){
 }
 document.addEventListener('click',e=>{ const m=document.getElementById('ntMenu'); if(m&&m.classList.contains('on')&&!e.target.closest('#ntMenu')&&!e.target.closest('.nt-val')) closeNtMenu(); });
 window.addEventListener('scroll',(e)=>{ const m=document.getElementById('ntMenu'); if(m&&m.classList.contains('on')&&!(e.target&&e.target.closest&&e.target.closest('#ntMenu'))) closeNtMenu(); }, true);
-function computeNextKey(pid){
-  const proj = pid ? store.project(pid) : null;
-  if(proj && proj.key){ const n=store.tasks().filter(t=>t.project===pid).length+1; return proj.key+'-'+(100+n); }
-  const sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
-  const tks=store.data.tasks.filter(t=>(t.ws||'ws_main')===sp && t.key);
-  const counts={}; let best='',bestN=0;
-  tks.forEach(t=>{ const m=(t.key||'').match(/^(.*)-(\d+)$/); if(m){ counts[m[1]]=(counts[m[1]]||0)+1; if(counts[m[1]]>bestN){bestN=counts[m[1]];best=m[1];} } });
-  if(best){ let mx=100; tks.forEach(t=>{ const m=(t.key||'').match(/^(.*)-(\d+)$/); if(m&&m[1]===best) mx=Math.max(mx,+m[2]); }); return best+'-'+(mx+1); }
-  return 'TASK-'+(tks.length+1);
+/* Ticket keys.  PREFIX_001, PREFIX_002 …
+   The old version used (100 + number-of-tickets), so deleting a ticket handed
+   the next one a number that was already taken — and two clients with the same
+   count minted identical keys. This walks the highest number actually in use
+   and then guarantees the result is free. */
+function keyPrefix(){
+  // One sequence per workspace, not per project: Tech_001, Tech_002 …
+  const sp=(typeof ui!=='undefined'&&ui.space) ? store.space(ui.space) : null;
+  const nm=(sp&&sp.name)||'Task';
+  const first=(nm.trim().split(/\s+/)[0]||'Task').replace(/[^A-Za-z0-9]/g,'');
+  const p=first.slice(0,4)||'Task';
+  return p.charAt(0).toUpperCase()+p.slice(1);   // "Technical Project Management" -> "Tech"
 }
+/* Ids must be unique across clients — Date.now() alone collides when two people
+   create a ticket in the same millisecond, and the DB upsert then silently
+   overwrites one of them. */
+function newTaskId(prefix){
+  return (prefix||'t')+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
+function computeNextKey(pid){
+  const sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
+  const prefix=keyPrefix();
+  const scope=store.data.tasks.filter(t=>(t.ws||'ws_main')===sp);
+  const taken=new Set(scope.map(t=>t.key).filter(Boolean));
+  // highest number already used by this prefix, whatever the separator
+  const re=new RegExp('^'+prefix.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[-_ ]?(\\d+)$','i');
+  let mx=0;
+  scope.forEach(t=>{ const m=(t.key||'').match(re); if(m) mx=Math.max(mx, parseInt(m[1],10)||0); });
+  let n=mx+1, key;
+  do { key=prefix+'_'+String(n).padStart(3,'0'); n++; } while(taken.has(key));
+  return key;
+}
+
 function parseEstimate(str){
   if(str==null) return null; str=(''+str).trim().toLowerCase(); if(!str) return null;
   let mins=0, matched=false;
@@ -4896,7 +4919,7 @@ function createTask(){
   const statusId=document.getElementById('ntStatus').value;
   const type=document.getElementById('ntType').value;
   const isEpic=type==='Epic';
-  const t={ id:(isEpic?'e':'t')+Date.now(), ws:(ui.space||'ws_main'), project:pid, key:computeNextKey(pid), title,
+  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), project:pid, key:computeNextKey(pid), title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
     reporter:document.getElementById('ntReporter').value||null,
