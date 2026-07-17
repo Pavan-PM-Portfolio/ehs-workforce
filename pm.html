@@ -1360,6 +1360,8 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .wf-sug-note b{color:var(--ink)}
 /* ---------- Workflow builder: full screen ---------- */
 .fxs{position:fixed;inset:0;z-index:660;background:var(--bg);display:none;flex-direction:column}
+/* dialogs launched from inside the builder must sit above it */
+#trNameWrap,#cfWrap,#stPickWrap,#stEdWrap{z-index:680}
 .fxs.on{display:flex}
 .fxs-top{flex:none;display:flex;align-items:center;gap:20px;height:62px;padding:0 20px;background:#fff;border-bottom:1px solid var(--ink)}
 .fxs-title{display:flex;align-items:baseline;gap:7px;min-width:0}
