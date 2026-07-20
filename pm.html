@@ -1692,12 +1692,12 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .ov-card h3{font-size:13.5px;font-weight:600;margin:0 0 3px}
 .ov-card .cap{font-size:11.5px;color:var(--muted);margin:0 0 16px}
 /* overview hover popover */
-body[data-view="overview"] #newTaskBtn,body[data-view="analytics"] #newTaskBtn,body[data-view="deployments"] #newTaskBtn,body[data-view="team"] #newTaskBtn,body[data-view="calendar"] #newTaskBtn{display:none !important}
+body[data-view="overview"] #newTaskBtn,body[data-view="analytics"] #newTaskBtn,body[data-view="deployments"] #newTaskBtn,body[data-view="qa"] #newTaskBtn,body[data-view="team"] #newTaskBtn,body[data-view="calendar"] #newTaskBtn{display:none !important}
 #newTeamBtn{display:none}
 body[data-view="team"] #newTeamBtn{display:inline-flex}
 body[data-view="team"] .topbar{border-bottom:0}
 /* Deployments has its own filter row right below, so the title rule just doubles up */
-body[data-view="deployments"] .topbar,body[data-view="analytics"] .topbar{border-bottom:0}
+body[data-view="deployments"] .topbar,body[data-view="qa"] .topbar,body[data-view="analytics"] .topbar{border-bottom:0}
 [data-pop]{cursor:pointer}
 .sb-kpi[data-pop]:hover,.ov-leg[data-pop]:hover,.hbar-row[data-pop]:hover{background:var(--surface-2)}
 .ovpop{position:fixed;width:322px;background:#fff;border:1px solid var(--line);border-radius:13px !important;box-shadow:0 26px 60px -22px rgba(16,26,51,.42);z-index:400;overflow:hidden;display:none}
@@ -2414,7 +2414,116 @@ body[data-density="compact"] .board{padding:12px 16px}
   .proj-switch,.brand .cx{display:none}
 }
 /* ---- Sharp edges across the entire app (buttons, fields, dropdowns, dialogs, cards, etc.) ---- */
-.dep-grid{display:flex;flex-direction:column;gap:12px}
+.dep-grid{display:flex;flex-direction:column;gap:16px}
+.dep-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#0E8F5A18;color:#0E8F5A}
+.dep-stats{display:flex;align-items:center;gap:18px;flex:1;min-width:280px}
+.dep-st{flex:1 1 0;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.dep-st-v{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.dep-st-l{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.dep-key{color:var(--accent);font-weight:800;font-size:15px;letter-spacing:-.01em;cursor:pointer;text-decoration:none}
+.dep-key:hover{text-decoration:underline}
+.dep-verify{display:inline-flex;align-items:center;gap:5px;border:1px solid #CE2F2655;background:#CE2F260D;color:#CE2F26;font-family:inherit;font-size:12px;font-weight:700;padding:5px 12px;border-radius:6px !important;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.dep-verify svg{width:13px;height:13px}
+.dep-verify:hover{border-color:#CE2F26}
+.dep-verify.part{border-color:#CE2F2699}
+.dep-verify.ok{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
+.dep-verify.ok:hover{border-color:#0E8F5A}
+.dvf-hint{font-size:12.5px;color:var(--ink-2);line-height:1.55;margin:0 0 14px}
+.dvf-list{display:flex;flex-direction:column;gap:8px}
+.dvf-row{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid var(--line);border-radius:11px !important;cursor:pointer;transition:border-color .15s,background .15s}
+.dvf-row:hover{border-color:var(--line-2);background:var(--surface-2)}
+.dvf-row.on{border-color:#0E8F5A55;background:#0E8F5A0D}
+.dvf-box{width:20px;height:20px;border-radius:6px !important;border:2px solid var(--line-2);flex:none;display:grid;place-items:center;color:#fff;transition:background .15s,border-color .15s}
+.dvf-box svg{width:13px;height:13px}
+.dvf-row.on .dvf-box{background:#0E8F5A;border-color:#0E8F5A}
+.dvf-tx{font-size:13px;font-weight:600;color:var(--ink)}
+.dvf-status{margin-top:15px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}
+.dvf-status.ok{color:#0E8F5A}
+.dvf-status svg{width:14px;height:14px}
+.dep-team{display:flex;flex-direction:column}
+.dep-team-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.dep-team-row:last-child{border-bottom:0}
+.dep-role{font-size:12px;font-weight:600;color:var(--muted)}
+.dep-who{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink);min-width:0}
+.dep-who-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dep-who-none{font-size:12px;color:var(--faint)}
+.dep-open2{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--accent);text-decoration:none}
+.dep-open2:hover{text-decoration:underline}
+.dep-ep .ep-right{min-width:280px}
+.qa-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#2743E014;color:#2743E0}
+.qa-ep .ep-right{min-width:320px}
+.qa-cases{display:flex;flex-direction:column;gap:7px}
+.qa-empty-cases{font-size:12px;color:var(--faint);padding:6px 2px}
+.qa-case{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
+.qa-kind{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px !important;flex:none}
+.qa-kind.test{background:#2743E014;color:#2743E0}
+.qa-kind.use{background:#7C3AED14;color:#7C3AED}
+.qa-case-tx{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa-status{flex:none;border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px !important;cursor:pointer;color:var(--muted);transition:background .15s,border-color .15s,color .15s}
+.qa-status:hover{border-color:var(--ink-2)}
+.qa-status.pass{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
+.qa-status.fail{background:#CE2F2614;border-color:#CE2F2655;color:#CE2F26}
+.qa-del{flex:none;width:26px;height:26px;border:0;background:none;color:var(--faint);border-radius:7px !important;cursor:pointer;display:grid;place-items:center}
+.qa-del:hover{color:var(--crit);background:var(--surface-2)}
+.qa-add{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line-2)}
+.qa-kind-tog{display:flex;border:1px solid var(--line);border-radius:8px !important;overflow:hidden;flex:none}
+.qa-kind-tog button{border:0;border-right:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer;color:var(--muted)}
+.qa-kind-tog button:last-child{border-right:0}
+.qa-kind-tog button.on{background:var(--accent);color:#fff}
+.qa-add-in{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px !important;padding:8px 11px;font-family:inherit;font-size:12.5px;outline:none;color:var(--ink)}
+.qa-add-in:focus{border-color:var(--accent)}
+.qa-add-btn{flex:none;border:1px solid var(--ink);background:var(--ink);color:#fff;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px !important;cursor:pointer}
+.qa-add-btn:hover{opacity:.9}
+.qvf-sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px}
+.qvf-sec-h span{font-size:11px;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
+.qvf-hint{font-size:11.5px;color:var(--muted);line-height:1.5;margin:-4px 0 12px}
+.qvf-cases,.qvf-bugs{display:flex;flex-direction:column;gap:7px}
+.qvf-case{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
+.qvf-case-tx{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qvf-bug{display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
+.qvf-bug.fixed{opacity:.6}
+.qvf-bug.fixed .qvf-bug-tx{text-decoration:line-through}
+.qvf-sev{flex:none;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px !important}
+.qvf-sev.low{background:var(--surface-3);color:var(--muted)}
+.qvf-sev.med{background:#B96A0018;color:#B96A00}
+.qvf-sev.high{background:#CE2F2618;color:#CE2F26}
+.qvf-bug-main{flex:1;min-width:0}
+.qvf-bug-tx{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+.qvf-bug-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.qvf-bug-tog{flex:none;border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px !important;cursor:pointer;color:var(--ink-2)}
+.qvf-bug-tog:hover{border-color:var(--good,#0E8F5A);color:var(--good,#0E8F5A)}
+.qvf-bug-del{flex:none;width:26px;height:26px;border:0;background:none;color:var(--faint);border-radius:7px !important;cursor:pointer;display:grid;place-items:center}
+.qvf-bug-del:hover{color:var(--crit);background:var(--surface-2)}
+.qvf-compose{margin-top:10px;border:1px solid var(--line);border-radius:11px !important;background:var(--surface-2);padding:10px}
+.qvf-in{width:100%;border:0;background:none;resize:vertical;min-height:52px;font-family:inherit;font-size:13px;outline:none;color:var(--ink)}
+.qvf-compose-b{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.qvf-sevpick{display:flex;gap:6px}
+.qvf-sevb{border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:5px 11px;border-radius:7px !important;cursor:pointer;color:var(--muted)}
+.qvf-sevb.on.low{background:var(--surface-3);color:var(--ink);border-color:var(--muted)}
+.qvf-sevb.on.med{background:#B96A0018;color:#B96A00;border-color:#B96A0055}
+.qvf-sevb.on.high{background:#CE2F2618;color:#CE2F26;border-color:#CE2F2655}
+.qvf-send{border:1px solid var(--ink);background:var(--ink);color:#fff;font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px !important;cursor:pointer}
+.qvf-send:hover{opacity:.9}
+.qbug-list{display:flex;flex-direction:column;gap:8px}
+.qbug{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px !important;background:var(--surface)}
+.qbug.fixed{opacity:.62}
+.qbug.fixed .qbug-tx{text-decoration:line-through}
+.qbug-main{flex:1;min-width:0}
+.qbug-tx{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4}
+.qbug-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.qbug-fix{flex:none;border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:8px !important;cursor:pointer;color:var(--ink-2)}
+.qbug-fix:hover{border-color:var(--good,#0E8F5A);color:var(--good,#0E8F5A)}
+.qbug-empty{font-size:12.5px;color:var(--muted);line-height:1.55;padding:2px 0}
+.pn-rl-flex{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pn-badge{flex:none;min-width:18px;height:18px;padding:0 6px;display:inline-grid;place-items:center;background:var(--crit,#CE2F26);color:#fff;font-size:10.5px;font-weight:800;border-radius:20px !important;line-height:1}
+.qafix-head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px}
+.qafix-head h3{font-size:15px;font-weight:800;margin:0}
+.qafix-pill{font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:3px 9px;border-radius:20px !important}
+.qafix-pill.open{background:#CE2F2618;color:#CE2F26}
+.qafix-pill.done{background:#0E8F5A18;color:#0E8F5A}
+.qafix-list{margin-top:14px}
+.qafix-empty{margin-top:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;color:var(--muted);font-size:12.5px;line-height:1.5;padding:18px}
+.qafix-empty-ic{width:52px;height:52px;border-radius:14px !important;display:grid;place-items:center;background:var(--surface-2);color:var(--faint)}
 .dep-card{display:flex;align-items:center;gap:24px;background:var(--surface);border:1px solid var(--line);padding:15px 18px}
 .dep-main{width:240px;flex:none;min-width:0}
 .dep-title{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -2709,6 +2818,7 @@ body[data-density="compact"] .board{padding:12px 16px}
       </div>
       <div id="navBoards" class="board-sublist"></div>
       <button class="nav-item" data-view="list"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>List View</button>
+      <button class="nav-item" data-view="qa"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v5.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 7.5V2"/><path d="M7.5 14h9"/></svg>QA &amp; Testing</button>
       <button class="nav-item" data-view="deployments"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>Deployments</button>
       <button class="nav-item" data-view="epics"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Epics</button>
       <button class="nav-item" data-view="projects"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projects</button>
@@ -2791,6 +2901,7 @@ body[data-density="compact"] .board{padding:12px 16px}
       <div class="listwrap" id="listwrap" style="display:none"></div>
       <div class="listwrap" id="epicswrap" style="display:none"></div>
       <div class="pagewrap" id="overviewwrap" style="display:none"></div>
+      <div class="pagewrap" id="qawrap" style="display:none"></div>
       <div class="pagewrap" id="deploymentswrap" style="display:none"></div>
       <div class="pagewrap" id="analyticswrap" style="display:none"></div>
       <div class="pagewrap" id="reportswrap" style="display:none"></div>
@@ -2896,6 +3007,25 @@ body[data-density="compact"] .board{padding:12px 16px}
   <button data-act="rename"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Rename</button>
   <div class="bn-pop-sep"></div>
   <button class="danger" data-act="delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Delete board</button>
+</div>
+<div class="bn-pop" id="depMenu">
+  <button data-act="open"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Open ticket</button>
+  <div class="bn-pop-sep"></div>
+  <button class="danger" data-act="del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>Remove from tracker</button>
+</div>
+<div class="modal-wrap" id="depVerifyWrap">
+  <div class="modal sub-modal" style="width:470px">
+    <div class="modal-h" id="depVfHead">Deployment verification</div>
+    <div class="modal-b" id="depVfBody"></div>
+    <div class="modal-f"><button class="btn" id="depVfClose">Done</button></div>
+  </div>
+</div>
+<div class="modal-wrap" id="qaVerifyWrap">
+  <div class="modal sub-modal" style="width:540px">
+    <div class="modal-h" id="qaVfHead">QA sign-off</div>
+    <div class="modal-b" id="qaVfBody"></div>
+    <div class="modal-f"><button class="btn" id="qaVfClose">Done</button></div>
+  </div>
 </div>
 
 <!-- Create Epic modal -->
@@ -3400,6 +3530,20 @@ const store = {
   // writes
   moveTask(id, statusId){ const t=this.task(id); if(!t) return; t.status=statusId; this._applyResolution(t); const isDone=(this.status(t.status)||{}).cat==='done'; if(isDone){ if(!t.deployed){ t.deployed=true; t.deployedAt=new Date().toISOString(); } } else { t.deployed=false; t.deployedAt=null; } t.updatedAt=today(); this._persist(); },
   deleteDeployment(id){ const t=this.task(id); if(!t) return; t.deployed=false; t.deployedAt=null; this._persist(); },
+  verifyDeployment(id, checks, verified){ const t=this.task(id); if(!t) return; t.verifyChecks=checks||{}; t.verified=!!verified;
+    t.verifiedAt=verified?new Date().toISOString():null; t.verifiedBy=verified?((typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null):null; this._persist(); },
+  addQaCase(taskId, kind, title){ const t=this.task(taskId); if(!t||!title) return; if(!t.qaCases) t.qaCases=[];
+    t.qaCases.push({id:'qc'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), kind:kind==='use'?'use':'test', title, status:'pending'}); this._persist(); },
+  updateQaCase(taskId, cid, patch){ const t=this.task(taskId); if(!t||!t.qaCases) return; const c=t.qaCases.find(x=>x.id===cid); if(c){ Object.assign(c, patch); this._persist(); } },
+  removeQaCase(taskId, cid){ const t=this.task(taskId); if(!t||!t.qaCases) return; t.qaCases=t.qaCases.filter(x=>x.id!==cid); this._persist(); },
+  addQaBug(taskId, text, severity){ const t=this.task(taskId); if(!t||!text) return; if(!t.qaBugs) t.qaBugs=[];
+    const b={id:'qb'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), text, severity:severity||'med', status:'open', by:((typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null), at:new Date().toISOString()};
+    t.qaBugs.push(b); try{ this._pushActivity(taskId, 'QA flagged a fix needed: '+text); }catch(e){}
+    try{ if(typeof addNotif==='function' && t.assignee) addNotif({type:'flag', taskId:taskId, actorId:b.by, text:`QA needs a fix · ${t.key}: ${text}`, dedup:'qabug:'+b.id}); }catch(e){}
+    this._persist(); return b; },
+  updateQaBug(taskId, bugId, patch){ const t=this.task(taskId); if(!t||!t.qaBugs) return; const b=t.qaBugs.find(x=>x.id===bugId); if(b){ const was=b.status; Object.assign(b, patch);
+    if(patch.status==='fixed' && was!=='fixed'){ try{ this._pushActivity(taskId, 'marked a QA fix as resolved'); }catch(e){} } this._persist(); } },
+  removeQaBug(taskId, bugId){ const t=this.task(taskId); if(!t||!t.qaBugs) return; t.qaBugs=t.qaBugs.filter(x=>x.id!==bugId); this._persist(); },
   _applyResolution(t){ const s=this.status(t.status); const cat=s?s.cat:'todo';
     if(cat==='done'){ t.resolution='Done'; if(!t.resolvedAt){ t.resolvedAt=today(); t.resolvedTs=new Date().toISOString(); } }
     else { t.resolution='Unresolved'; t.resolvedAt=null; } },
@@ -3532,7 +3676,8 @@ function _depTime(key){ let n=0; (key||'x').split('').forEach(c=>n=(n*31+c.charC
 ============================================================ */
 const ui = { view:'overview', space:null, project:'all', openTask:null, board:'main', groupBy:'none', analyticsTab:'productivity', anPeriod:'all', anFrom:'', anTo:'', ovRange:'all', ovFrom:'', ovTo:'', prSel:[], prQuery:'', prRows:10, dlSel:null, dlQuery:'', piSel:null, piQuery:'', setSel:null, epSel:null, epQuery:'',
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
-  depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', group:'none' },
+  depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', verified:'all' },
+  qaFilter:{ project:'all', priority:'all', qa:'all', status:'all' },
   listBoard:'all', listGroup:'none',
   report:{ kind:'summary', groupBy:'assignee', measure:'count',
     fields:['key','title','status','priority','assignee','due','logged'],
@@ -3936,10 +4081,16 @@ function openCardMenu(anchor, id){
       else if(a==='archive'){ store.updateTask(id,{archived:true}); refreshViews(); toast(`${t.key} archived`); }
       else if(a==='delete'){ if(confirm(`Delete ${t.key}? This can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
       closeCardMenu(); }); };
-  const statusMenu=()=>{ menu.innerHTML=`<button class="cm-item cm-back" data-back="1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back</button><div class="cm-sep"></div>`+
-      STATUSES.map(s=>`<button class="cm-item" data-s="${s.id}">${t.status===s.id?'<span class="cm-dot"></span>':'<span class="cm-dot cm-dot-off"></span>'}${esc(s.name)}</button>`).join('');
+  const statusMenu=()=>{ const bd=activeBoard(); const enf=!!(bd&&bd.enforce);
+    const allow = enf ? [t.status, ...allowedTargets(bd, t.status)] : STATUSES.map(s=>s.id);
+    const opts = STATUSES.filter(s=>allow.includes(s.id));
+    menu.innerHTML=`<button class="cm-item cm-back" data-back="1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back</button><div class="cm-sep"></div>`+
+      opts.map(s=>`<button class="cm-item" data-s="${s.id}">${t.status===s.id?'<span class="cm-dot"></span>':'<span class="cm-dot cm-dot-off"></span>'}${esc(s.name)}</button>`).join('')+
+      (enf?'<div class="cm-sep"></div><div style="padding:7px 12px 4px;font-size:10.5px;color:var(--muted)">Only allowed transitions for this board</div>':'');
     menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
-    menu.querySelectorAll('[data-s]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); store.moveTask(id,b.dataset.s); closeCardMenu(); refreshViews(); toast(`${t.key} → ${store.status(b.dataset.s).name}`); }); };
+    menu.querySelectorAll('[data-s]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const bd2=activeBoard();
+      if(bd2&&bd2.enforce&&!canMove(bd2,t.status,b.dataset.s)){ toast(`${store.status(t.status).name} → ${store.status(b.dataset.s).name} isn't an allowed transition`); return; }
+      store.moveTask(id,b.dataset.s); closeCardMenu(); refreshViews(); toast(`${t.key} → ${store.status(b.dataset.s).name}`); }); };
   const colourMenu=()=>{ menu.innerHTML=`<button class="cm-item cm-back" data-back="1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back</button><div class="cm-sep"></div>`+
       `<div class="cm-swatches">${SWATCHES.map(c=>`<button class="cm-sw${t.color===c?' on':''}" style="background:${c}" data-c="${c}" title="${c}"></button>`).join('')}</div>`+
       `<div class="cm-sep"></div><button class="cm-item" data-c="">${t.color?'Remove colour':'No colour'}</button>`;
@@ -4405,6 +4556,7 @@ function openPanel(id, keepScroll){
           <aside class="pn-rail">
             <button type="button" class="pn-rl ${panelSub==='worklog'?'on':''}" data-sub="worklog">Work log</button>
             <button type="button" class="pn-rl ${panelSub==='cat'?'on':''}" data-sub="cat">Time spent by category</button>
+            <button type="button" class="pn-rl pn-rl-flex ${panelSub==='qafix'?'on':''}" data-sub="qafix">QA Fixes${(function(){ const o=(t.qaBugs||[]).filter(b=>b.status!=='fixed').length; return o?`<span class="pn-badge">${o}</span>`:''; })()}</button>
           </aside>
           <section class="pn-det">
             ${panelSub==='cat'?`<div class="tsb tsb-bare">
@@ -4424,6 +4576,16 @@ function openPanel(id, keepScroll){
             ${catBlocks}
             <div class="contrib"><h3>Contributors on this ticket</h3>${contribRows}</div>
 `:''}
+            ${panelSub==='qafix'?(function(){ const qb=t.qaBugs||[]; const open=qb.filter(b=>b.status!=='fixed').length; const fixed=qb.length-open;
+              const rows=qb.slice().reverse().map(b=>{ const bu=store.user(b.by); return `<div class="qbug ${b.status}">
+                  <span class="qvf-sev ${b.severity}">${QA_SEV[b.severity]||'Med'}</span>
+                  <div class="qbug-main"><div class="qbug-tx">${esc(b.text)}</div><div class="qbug-meta">${bu?esc(bu.name):'QA'} \u00b7 ${timeAgo(b.at)}${b.status==='fixed'?' \u00b7 resolved':''}</div></div>
+                  <button class="qbug-fix" data-qbugfix="${t.id}|${b.id}">${b.status==='fixed'?'Reopen':'Mark complete'}</button>
+                </div>`; }).join('');
+              return `<div class="qafix-head"><h3>QA Fixes</h3>${qb.length?`<span class="qafix-pill ${open?'open':'done'}">${open?open+' open':'All resolved'}</span>`:''}</div>
+                <p class="tt-sub" style="text-align:center">Fixes raised by QA. Mark each complete when done \u2014 it updates on the QA card so QA can track it.</p>
+                ${qb.length?`<div class="qbug-list qafix-list">${rows}</div>`:`<div class="qafix-empty"><div class="qafix-empty-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>No QA fixes yet. When QA flags a fix, it lands here for you to resolve.</div>`}`;
+            })():''}
           </section>
         </div>
         ${store.fields().length?`<div class="pb-sec"><div class="pb-h">Custom fields</div><div class="meta-grid pf-grid">${store.fields().map(f=>`<div class="meta-item"><div class="l">${esc(f.name)}</div><div class="v">${cfControl(t,f)}</div></div>`).join('')}</div></div>`:''}
@@ -4490,6 +4652,7 @@ function openPanel(id, keepScroll){
   // wire panel
   const F=(elid,cap)=>{ const el=document.getElementById(elid); return (el && can(cap)) ? el : {set onclick(v){}, set onchange(v){}}; };
   document.getElementById('panelClose').onclick=closePanel;
+  panel.querySelectorAll('[data-qbugfix]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qbugfix.split('|'); const bug=(store.task(p[0]).qaBugs||[]).find(x=>x.id===p[1]); store.updateQaBug(p[0],p[1],{status:bug&&bug.status==='fixed'?'open':'fixed'}); openPanel(p[0], true); });
   F('pStatus','field_status').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, statusSel, t.status, v=>{ store.updateTask(id,{status:v}); refreshViews(); openPanel(id,true); toast('Status updated'); }); };
   F('pPriority','field_priority').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, prioSel, t.priority, v=>{ store.updateTask(id,{priority:v}); refreshViews(); openPanel(id,true); }); };
   F('pAssignee','role_developer').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, peopleSel, t.assignee||'', v=>{ store.updateTask(id,{assignee:v||null}); refreshViews(); openPanel(id,true); }); };
@@ -4534,6 +4697,109 @@ function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return
   if(pr) return ds>=pr.from && ds<=pr.to;
   if(f.mode==='custom'){ if(f.from && ds<f.from) return false; if(f.to && ds>f.to) return false; return true; }
   return true; }
+function renderQA(){
+  const el=document.getElementById('qawrap'); if(!el) return;
+  const f=ui.qaFilter;
+  let list=store.standardTasks().filter(t=>t.qa);
+  if(f.project!=='all') list=list.filter(t=>t.project===f.project);
+  if(f.priority!=='all') list=list.filter(t=>t.priority===f.priority);
+  if(f.qa!=='all') list=list.filter(t=>t.qa===f.qa);
+  if(f.status==='untested') list=list.filter(t=>{ const c=t.qaCases||[]; return !c.length||c.some(x=>x.status==='pending'); });
+  else if(f.status==='passing') list=list.filter(t=>{ const c=t.qaCases||[]; return c.length&&c.every(x=>x.status==='pass'); });
+  else if(f.status==='failing') list=list.filter(t=>(t.qaCases||[]).some(x=>x.status==='fail'));
+  list=list.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+
+  const SLABEL={pending:'Pending', pass:'Pass', fail:'Fail'};
+  const caseRow=(t,c)=>`<div class="qa-case" data-cid="${c.id}">
+      <span class="qa-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use':'Test'}</span>
+      <span class="qa-case-tx">${esc(c.title)}</span>
+      <button class="qa-status ${c.status||'pending'}" data-cy="${t.id}|${c.id}" title="Click to cycle status">${SLABEL[c.status]||'Pending'}</button>
+      <button class="qa-del" data-del="${t.id}|${c.id}" title="Delete case"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>`;
+  const cardHTML=t=>{ const cases=t.qaCases||[]; const total=cases.length;
+    const passed=cases.filter(c=>c.status==='pass').length; const failed=cases.filter(c=>c.status==='fail').length;
+    const openBugs=(t.qaBugs||[]).filter(b=>b.status!=='fixed').length;
+    const verified=total>0 && passed===total;
+    const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+    const verifyBtn=`<button class="dep-verify ${verified?'ok':(passed?'part':'')}" data-qav="${t.id}">${verified?CHK+' Verified':SHIELD+' '+passed+'/'+total}</button>`;
+    const qaU=store.user(t.qa); const stName=(store.status(t.status)||{}).name||'';
+    return `<div class="ep-card qa-ep" data-qa="${t.id}">
+      <div class="ep-left">
+        <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
+        <div class="ep-mid">
+          <div class="qa-badge"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v5.5L5.5 18a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 7.5V2"/><path d="M7.5 14h9"/></svg></div>
+          <div><div class="ep-state">${esc(stName)||'In QA'}</div><div class="ep-statesub">${qaU?'QA: '+esc(qaU.name):'No QA assigned'}</div></div>
+        </div>
+        <div class="dep-stats">
+          <div class="dep-st"><span class="dep-st-v">${total}</span><span class="dep-st-l">Cases</span></div>
+          <div class="dep-st"><span class="dep-st-v" style="color:#0E8F5A">${passed}</span><span class="dep-st-l">Passed</span></div>
+          <div class="dep-st"><span class="dep-st-v" style="${failed?'color:#CE2F26':''}">${failed}</span><span class="dep-st-l">Failed</span></div>
+          <div class="dep-st"><span class="dep-st-v" style="${openBugs?'color:#B96A00':''}">${openBugs}</span><span class="dep-st-l">Open bugs</span></div>
+          <div class="dep-st">${verifyBtn}<span class="dep-st-l">QA Verified</span></div>
+        </div>
+      </div>
+      <div class="ep-right">
+        <div class="ehs-sec-head" style="margin-bottom:10px"><span class="ehs-eyebrow">Test &amp; use cases</span>
+          <a class="dep-open2" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open ticket <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+        <div class="qa-cases">${total?cases.map(c=>caseRow(t,c)).join(''):'<div class="qa-empty-cases">No cases yet. Add the first test or use case below.</div>'}</div>
+        <div class="qa-add" data-add="${t.id}">
+          <div class="qa-kind-tog"><button data-k="test" class="on">Test</button><button data-k="use">Use case</button></div>
+          <input class="qa-add-in" placeholder="Describe a test or use case\u2026"/>
+          <button class="qa-add-btn">Add</button>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  let body;
+  if(!list.length){ body='<div class="dep-none">No QA work yet. When a QA is assigned to a ticket, it appears here automatically.</div>'; }
+  else { body=`<div class="dep-grid">${list.map(cardHTML).join('')}</div>`; }
+
+  const chip=(id,ico,label,val,active)=>`<button class="chip ${active?'active':''}" id="${id}">${ico}<span class="chip-lbl">${label}</span><span class="chip-val">${esc(val)}</span>${CHEV_SVG}</button>`;
+  const projOpts=[{v:'all',t:'All projects'}].concat(store.projects().map(p=>({v:p.id,t:p.name})));
+  const priOpts=[{v:'all',t:'All priorities'}].concat(Object.keys(PRIORITIES).map(p=>({v:p,t:p,dot:PRIORITIES[p]})));
+  const qaPeople=[...new Set(store.standardTasks().filter(t=>t.qa).map(t=>t.qa))];
+  const qaOpts=[{v:'all',t:'All QAs'}].concat(qaPeople.map(uid=>{ const u=store.user(uid); return {v:uid,t:u?u.name:uid, ava:u?avatar(u,18):''}; }));
+  const stOpts=[{v:'all',t:'All'},{v:'untested',t:'Not tested'},{v:'passing',t:'All passing'},{v:'failing',t:'Has failures'}];
+  const ICO_PROJ='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#7C3AED"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+  const ICO_PRI='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#CA8A04"><path d="M4 21V4M4 4h13l-2 5 2 5H4"/></svg>';
+  const ICO_QA='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#2743E0"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+  const ICO_ST='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0E8F5A"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+  const projVal=f.project==='all'?'All':((store.project(f.project)||{}).name||'All');
+  const priVal=f.priority==='all'?'All':f.priority;
+  const qaVal=f.qa==='all'?'All':((store.user(f.qa)||{}).name||'All');
+  const stVal=(stOpts.find(o=>o.v===f.status)||{}).t||'All';
+
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('qaProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('qaPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('qaQaBtn',ICO_QA,'QA',qaVal,f.qa!=='all')}${chip('qaStBtn',ICO_ST,'Status',stVal,f.status!=='all')}</div></div>${body}`;
+
+  document.getElementById('qaProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.qaFilter.project=v; renderQA(); }); };
+  document.getElementById('qaPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.qaFilter.priority=v; renderQA(); }); };
+  document.getElementById('qaQaBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, qaOpts, f.qa, v=>{ ui.qaFilter.qa=v; renderQA(); }); };
+  document.getElementById('qaStBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, stOpts, f.status, v=>{ ui.qaFilter.status=v; renderQA(); }); };
+
+  el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
+  el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaVerify(b.dataset.qav); });
+  el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
+    const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQA(); });
+  el.querySelectorAll('.qa-del[data-del]').forEach(b=>b.onclick=()=>{ const p=b.dataset.del.split('|'); store.removeQaCase(p[0],p[1]); renderQA(); });
+  el.querySelectorAll('.qa-add').forEach(row=>{ const tid=row.dataset.add;
+    const kindBtns=row.querySelectorAll('.qa-kind-tog button');
+    kindBtns.forEach(kb=>kb.onclick=()=>{ kindBtns.forEach(x=>x.classList.remove('on')); kb.classList.add('on'); });
+    const input=row.querySelector('.qa-add-in');
+    const add=()=>{ const v=input.value.trim(); if(!v) return; const onBtn=row.querySelector('.qa-kind-tog button.on'); const kind=onBtn?onBtn.dataset.k:'test';
+      store.addQaCase(tid, kind, v); renderQA();
+      const nx=document.querySelector('.qa-add[data-add="'+tid+'"] .qa-add-in'); if(nx) nx.focus(); };
+    row.querySelector('.qa-add-btn').onclick=add;
+    input.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } };
+  });
+}
+const VERIFY_ITEMS=[
+  {k:'smoke',    t:'Smoke test passed on production'},
+  {k:'flows',    t:'Critical user flows verified end-to-end'},
+  {k:'logs',     t:'No new errors in logs / monitoring'},
+  {k:'perf',     t:'Performance & response times within limits'},
+];
 function renderDeployments(){
   if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page filter change → reflect in URL
   const el=document.getElementById('deploymentswrap'); if(!el) return;
@@ -4542,65 +4808,79 @@ function renderDeployments(){
   if(f.project!=='all') done=done.filter(t=>t.project===f.project);
   if(f.priority!=='all') done=done.filter(t=>t.priority===f.priority);
   if(f.assignee!=='all') done=done.filter(t=>t.assignee===f.assignee);
+  if(f.verified==='yes') done=done.filter(t=>t.verified);
+  else if(f.verified==='no') done=done.filter(t=>!t.verified);
   done=done.sort((a,b)=>{ const _t=x=>new Date(x.deployedAt||'2000-01-01').getTime()||0; return _t(b)-_t(a); });
   const pfld=(label,uid)=>{ const u=store.user(uid); return `<div class="dep-fld"><span class="dep-fld-l">${label}</span><span class="dep-fld-v">${u?`${avatar(u,20)}<span class="dep-fld-nm">${esc(u.name)}</span>`:'<span class="dep-fld-none">—</span>'}</span></div>`; };
   const dfld=(label,val,green)=>`<div class="dep-fld"><span class="dep-fld-l">${label}</span><span class="dep-fld-v"><span class="dep-fld-dt" ${green?'style="color:var(--good,#0E8F5A);font-weight:600"':''}>${val||'—'}</span></span></div>`;
   const cardHTML=t=>{ const proj=store.project(t.project);
-    const dep=t.deployedAt?fdatetime(t.deployedAt):'';
-    return `<div class="dep-card">
-      <div class="dep-main"><div class="dep-title">${esc(t.title)}</div><div class="dep-sub">${esc(t.key)} · ${proj?esc(proj.name):'No project'}</div></div>
-      <div class="dep-fields">
-        ${pfld('Developer',t.assignee)}
-        ${pfld('Quality Analyst',t.qa)}
-        ${pfld('Code Reviewer',t.reviewer)}
-        ${pfld('Deployer',t.deployer)}
-        ${dfld('Start date', t.start?fdate(t.start):'')}
-        ${dfld('Deployed', dep, true)}
+    const depDT=t.deployedAt?fdatetime(t.deployedAt):'—';
+    const depD=t.deployedAt?fdate(t.deployedAt):'—';
+    const startISO=t.start||t.createdAt||t.createdTs;
+    let cycle='—'; if(t.deployedAt&&startISO){ const d=Math.max(0,Math.round((new Date(t.deployedAt)-new Date(startISO))/864e5)); cycle=d+'d'; }
+    const role=(label,uid)=>{ const u=store.user(uid);
+      return `<div class="dep-team-row"><span class="dep-role">${label}</span>${u?`<span class="dep-who">${avatar(u,22)}<span class="dep-who-nm">${esc(u.name)}</span></span>`:'<span class="dep-who-none">Unassigned</span>'}</div>`; };
+    const checks=t.verifyChecks||{}; const doneN=VERIFY_ITEMS.filter(it=>checks[it.k]).length; const total=VERIFY_ITEMS.length; const verified=!!t.verified;
+    const logged=store.worklogs(t.id).reduce((a,w)=>a+(w.min||0),0);
+    const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+    const verifyBtn=`<button class="dep-verify ${verified?'ok':(doneN?'part':'')}" data-verify="${t.id}">${verified?CHK+' Verified':(doneN?SHIELD+' '+doneN+'/'+total:SHIELD+' Verify')}</button>`;
+    return `<div class="ep-card dep-ep" data-dep="${t.id}" style="position:relative">
+      <button class="ep-kebab" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+      <div class="ep-left">
+        <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
+        <div class="ep-mid">
+          <div class="dep-badge"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg></div>
+          <div><div class="ep-state">Deployed</div><div class="ep-statesub">${depDT}</div></div>
+        </div>
+        <div class="dep-stats">
+          <div class="dep-st"><span class="dep-st-v">${depD}</span><span class="dep-st-l">Deployed on</span></div>
+          <div class="dep-st"><span class="dep-st-v">${cycle}</span><span class="dep-st-l">Cycle time</span></div>
+          <div class="dep-st"><span class="dep-st-v">${esc(t.priority||'\u2014')}</span><span class="dep-st-l">Priority</span></div>
+          <div class="dep-st"><span class="dep-st-v">${hm(logged)}</span><span class="dep-st-l">Total hrs</span></div>
+          <div class="dep-st">${verifyBtn}<span class="dep-st-l">Deployed &amp; verified</span></div>
+        </div>
       </div>
-      <div class="dep-actions">
-        <a class="dep-open" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
-        <button class="dep-del" data-del="${t.id}" title="Delete deployment log"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg></button>
+      <div class="ep-right">
+        <div class="ehs-sec-head" style="margin-bottom:10px"><span class="ehs-eyebrow">Delivery team</span>
+          <a class="dep-open2" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open ticket <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+        <div class="dep-team">
+          ${role('Developer',t.assignee)}
+          ${role('Code Reviewer',t.reviewer)}
+          ${role('Quality Analyst',t.qa)}
+          ${role('Deployer',t.deployer)}
+        </div>
       </div>
     </div>`;
   };
-  const GROUPS={ none:'No grouping', project:'Project', priority:'Priority', assignee:'Developer', deployer:'Deployer', day:'Deploy date' };
-  const groupKey=t=>{ const g=f.group;
-    if(g==='project'){ const p=store.project(t.project); return p?p.name:'No project'; }
-    if(g==='priority') return t.priority||'No priority';
-    if(g==='assignee'){ const u=store.user(t.assignee); return u?u.name:'Unassigned'; }
-    if(g==='deployer'){ const u=store.user(t.deployer); return u?u.name:'No deployer'; }
-    if(g==='day') return t.deployedAt?fdate(t.deployedAt):'—';
-    return ''; };
   let body;
-  if(!done.length){ body='<div class="dep-none">No deployments in this range. When a ticket is marked <b>Done</b>, it appears here automatically.</div>'; }
-  else if(f.group==='none'){ body=`<div class="dep-grid">${done.map(cardHTML).join('')}</div>`; }
-  else { const gm={}; done.forEach(t=>{ const k=groupKey(t); (gm[k]=gm[k]||[]).push(t); });
-    const order=['Highest','High','Medium','Low'];
-    const keys=Object.keys(gm).sort((a,b)=>{ if(f.group==='priority'){ return order.indexOf(a)-order.indexOf(b); } return a.localeCompare(b); });
-    body=keys.map(k=>`<div class="dep-group"><div class="dep-group-h">${esc(k)}<span class="dep-group-n">${gm[k].length}</span></div><div class="dep-grid">${gm[k].map(cardHTML).join('')}</div></div>`).join(''); }
+  if(!done.length){ body='<div class="dep-none">No deployments match these filters. When a ticket is marked <b>Done</b>, it appears here automatically.</div>'; }
+  else { body=`<div class="dep-grid">${done.map(cardHTML).join('')}</div>`; }
   const projOpts=[{v:'all',t:'All projects'}].concat(store.projects().map(p=>({v:p.id,t:p.name})));
   const priOpts=[{v:'all',t:'All priorities'}].concat(Object.keys(PRIORITIES).map(p=>({v:p,t:p,dot:PRIORITIES[p]})));
   const asgOpts=[{v:'all',t:'All assignees'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
-  const grpOpts=Object.entries(GROUPS).map(([v,t])=>({v,t}));
+  const verOpts=[{v:'all',t:'All'},{v:'yes',t:'Verified'},{v:'no',t:'Not verified'}];
   const ICO_PROJ='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#7C3AED"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
   const ICO_PRI='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="color:#CA8A04"><path d="M4 21V4M4 4h13l-2 5 2 5H4"/></svg>';
   const ICO_ASG='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#2743E0"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
-  const ICO_GRP='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#0891B2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+  const ICO_VER='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0E8F5A"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>';
   const projVal=f.project==='all'?'All':((store.project(f.project)||{}).name||'All');
   const priVal=f.priority==='all'?'All':f.priority;
   const asgVal=f.assignee==='all'?'All':((store.user(f.assignee)||{}).name||'All');
-  const grpVal=f.group==='none'?'None':GROUPS[f.group];
+  const verVal=f.verified==='yes'?'Verified':(f.verified==='no'?'Not verified':'All');
   const chip=(id,ico,label,val,active)=>`<button class="chip ${active?'active':''}" id="${id}">${ico}<span class="chip-lbl">${label}</span><span class="chip-val">${esc(val)}</span>${CHEV_SVG}</button>`;
   const seg=(m,label)=>`<button class="dep-seg ${f.mode===m?'on':''}" data-mode="${m}">${label}</button>`;
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depGrpBtn',ICO_GRP,'Group',grpVal,f.group!=='none')}</div><div class="period-box"><div class="dep-filter">${seg('all','All')}${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depVerBtn',ICO_VER,'Verified',verVal,f.verified&&f.verified!=='all')}</div><div class="period-box"><div class="dep-filter">${seg('all','All')}${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
     ${body}`;
   document.getElementById('depProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.depFilter.project=v; renderDeployments(); }); };
   document.getElementById('depPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.depFilter.priority=v; renderDeployments(); }); };
   document.getElementById('depAsgBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, asgOpts, f.assignee, v=>{ ui.depFilter.assignee=v; renderDeployments(); }); };
-  document.getElementById('depGrpBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, grpOpts, f.group, v=>{ ui.depFilter.group=v; renderDeployments(); }); };
+  document.getElementById('depVerBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, verOpts, f.verified||'all', v=>{ ui.depFilter.verified=v; renderDeployments(); }); };
   el.querySelectorAll('.dep-seg').forEach(b=>b.onclick=()=>{ ui.depFilter.mode=b.dataset.mode; renderDeployments(); });
   if(f.mode==='custom') wirePeriodCustom('dep', f.from, f.to, v=>{ ui.depFilter.from=v; renderDeployments(); }, v=>{ ui.depFilter.to=v; renderDeployments(); });
-  el.querySelectorAll('[data-del]').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(b.dataset.del); renderDeployments(); } });
+  el.querySelectorAll('.ep-kebab[data-dep]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepMenu(b.dataset.dep, b); });
+  el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
+  el.querySelectorAll('.dep-verify[data-verify]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepVerify(b.dataset.verify); });
 }
 let _urlTicketOpened=false;
 function openTicketFromURL(){ if(_urlTicketOpened) return; try{ const k=new URLSearchParams(location.search).get('ticket'); if(!k||!store.data) return;
@@ -5011,6 +5291,93 @@ function openBoardMenu(id, btn){
   m.style.left=Math.min(r.right-180, window.innerWidth-190)+'px';
   m.style.top=(r.bottom+5)+'px';
   m.classList.add('on');
+}
+function openDepMenu(id, btn){
+  const m=document.getElementById('depMenu'); m.dataset.dep=id;
+  const r=btn.getBoundingClientRect();
+  m.style.left=Math.min(r.right-180, window.innerWidth-190)+'px';
+  m.style.top=(r.bottom+5)+'px';
+  m.classList.add('on');
+}
+function depAction(id, act){
+  const t=store.task(id); if(!t) return;
+  if(act==='open'){ openPanel(id); }
+  else if(act==='del'){ if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
+}
+let _depVfId=null;function openDepVerify(id){ _depVfId=id; renderDepVerify();
+  const w=document.getElementById('depVerifyWrap'); w.classList.add('on');
+  document.getElementById('depVfClose').onclick=()=>{ w.classList.remove('on'); renderDeployments(); };
+  w.onclick=e=>{ if(e.target===w){ w.classList.remove('on'); renderDeployments(); } };
+}
+function renderDepVerify(){
+  const t=store.task(_depVfId); if(!t) return;
+  const proj=store.project(t.project);
+  const checks=t.verifyChecks||{};
+  const doneN=VERIFY_ITEMS.filter(it=>checks[it.k]).length, total=VERIFY_ITEMS.length;
+  const allDone=doneN===total;
+  const vBy=t.verifiedBy?store.user(t.verifiedBy):null;
+  document.getElementById('depVfHead').innerHTML=`Deployment verification
+    <div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px"><b style="color:var(--accent);font-weight:700">${esc(t.key)}</b>${proj?' \u00b7 '+esc(proj.name):''} \u2014 ${esc(t.title)}</div>`;
+  const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const rows=VERIFY_ITEMS.map(it=>`<label class="dvf-row ${checks[it.k]?'on':''}" data-k="${it.k}"><span class="dvf-box">${checks[it.k]?CHK:''}</span><span class="dvf-tx">${esc(it.t)}</span></label>`).join('');
+  document.getElementById('depVfBody').innerHTML=`
+    <p class="dvf-hint">QA sign-off. Confirm the mandatory post-deployment sanity checks before this deployment is marked verified.</p>
+    <div class="dvf-list">${rows}</div>
+    <div class="dvf-status ${allDone?'ok':''}">${allDone?(CHK+' Verified'+(vBy?' by '+esc(vBy.name):'')):(doneN+' of '+total+' checks complete')}</div>`;
+  document.querySelectorAll('#depVfBody .dvf-row').forEach(r=>r.onclick=e=>{ e.preventDefault();
+    const tk=store.task(_depVfId); const c=Object.assign({}, tk.verifyChecks||{}); c[r.dataset.k]=!c[r.dataset.k];
+    const verified=VERIFY_ITEMS.every(it=>c[it.k]);
+    store.verifyDeployment(_depVfId, c, verified); renderDepVerify(); });
+}
+const QA_SEV={low:'Low', med:'Med', high:'High'};
+let _qaVfId=null, _qaSev='med';
+function openQaVerify(id){ _qaVfId=id; _qaSev='med'; renderQaVerify();
+  const w=document.getElementById('qaVerifyWrap'); w.classList.add('on');
+  document.getElementById('qaVfClose').onclick=()=>{ w.classList.remove('on'); renderQA(); };
+  w.onclick=e=>{ if(e.target===w){ w.classList.remove('on'); renderQA(); } };
+}
+function renderQaVerify(){
+  const t=store.task(_qaVfId); if(!t) return;
+  const proj=store.project(t.project); const dev=store.user(t.assignee);
+  const cases=t.qaCases||[]; const passed=cases.filter(c=>c.status==='pass').length; const total=cases.length;
+  const verified=total>0 && passed===total; const bugs=t.qaBugs||[];
+  const SL={pending:'Pending',pass:'Pass',fail:'Fail'};
+  const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  document.getElementById('qaVfHead').innerHTML=`QA sign-off
+    <div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px"><b style="color:var(--accent);font-weight:700">${esc(t.key)}</b>${proj?' \u00b7 '+esc(proj.name):''} \u2014 ${esc(t.title)}</div>`;
+  const caseRows = cases.length ? cases.map(c=>`<div class="qvf-case">
+      <span class="qa-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use':'Test'}</span>
+      <span class="qvf-case-tx">${esc(c.title)}</span>
+      <button class="qa-status ${c.status||'pending'}" data-qcy="${t.id}|${c.id}">${SL[c.status]||'Pending'}</button>
+    </div>`).join('') : '<div class="qa-empty-cases">No cases yet. Add them on the QA card first.</div>';
+  const bugRows = bugs.length ? bugs.map(b=>{ const bu=store.user(b.by); return `<div class="qvf-bug ${b.status}">
+      <span class="qvf-sev ${b.severity}">${QA_SEV[b.severity]||'Med'}</span>
+      <div class="qvf-bug-main"><div class="qvf-bug-tx">${esc(b.text)}</div>
+        <div class="qvf-bug-meta">${bu?esc(bu.name):'QA'} \u00b7 ${timeAgo(b.at)}${b.status==='fixed'?' \u00b7 fixed':''}</div></div>
+      <button class="qvf-bug-tog" data-bugtog="${t.id}|${b.id}">${b.status==='fixed'?'Reopen':'Resolve'}</button>
+      <button class="qvf-bug-del" data-bugdel="${t.id}|${b.id}" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>`; }).join('') : '<div class="qa-empty-cases">No fixes reported yet.</div>';
+  const sevBtn=k=>`<button class="qvf-sevb ${k} ${_qaSev===k?'on':''}" data-sev="${k}">${QA_SEV[k]}</button>`;
+  document.getElementById('qaVfBody').innerHTML=`
+    <div class="qvf-sec-h">Test &amp; use cases <span>${passed}/${total} passing</span></div>
+    <div class="qvf-cases">${caseRows}</div>
+    <div class="qvf-sec-h" style="margin-top:18px">Bugs &amp; fixes for the developer${dev?' \u00b7 <span>'+esc(dev.name)+'</span>':''}</div>
+    <div class="qvf-hint">Anything you send shows up on the ticket for the developer, in their notifications, and on the ticket timeline.</div>
+    <div class="qvf-bugs">${bugRows}</div>
+    <div class="qvf-compose">
+      <textarea class="qvf-in" id="qvfIn" placeholder="Describe the bug or the fix needed\u2026"></textarea>
+      <div class="qvf-compose-b"><div class="qvf-sevpick">${sevBtn('low')}${sevBtn('med')}${sevBtn('high')}</div>
+        <button class="qvf-send" id="qvfSend">Send to developer</button></div>
+    </div>
+    <div class="dvf-status ${verified?'ok':''}">${verified?(CHK+' QA verified \u2014 all cases passing'):(total?passed+' of '+total+' cases passing':'Add and pass cases to verify')}</div>`;
+  document.querySelectorAll('#qaVfBody .qa-status[data-qcy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qcy.split('|'); const tk=store.task(p[0]); const c=(tk&&tk.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
+    const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQaVerify(); });
+  document.querySelectorAll('#qaVfBody .qvf-sevb').forEach(b=>b.onclick=()=>{ _qaSev=b.dataset.sev; document.querySelectorAll('#qaVfBody .qvf-sevb').forEach(x=>x.classList.toggle('on', x===b)); });
+  document.querySelectorAll('#qaVfBody .qvf-bug-tog').forEach(b=>b.onclick=()=>{ const p=b.dataset.bugtog.split('|'); const bug=(store.task(p[0]).qaBugs||[]).find(x=>x.id===p[1]); store.updateQaBug(p[0],p[1],{status:bug&&bug.status==='fixed'?'open':'fixed'}); renderQaVerify(); });
+  document.querySelectorAll('#qaVfBody .qvf-bug-del').forEach(b=>b.onclick=()=>{ const p=b.dataset.bugdel.split('|'); store.removeQaBug(p[0],p[1]); renderQaVerify(); });
+  const send=()=>{ const ta=document.getElementById('qvfIn'); const v=(ta.value||'').trim(); if(!v) return; store.addQaBug(_qaVfId, v, _qaSev); renderQaVerify(); const nt=document.getElementById('qvfIn'); if(nt) nt.focus(); try{ toast('Sent to developer'); }catch(e){} };
+  document.getElementById('qvfSend').onclick=send;
+  document.getElementById('qvfIn').onkeydown=e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); send(); } };
 }
 function boardAction(id, act){
   const inSettings = ui.view==='boardsettings';
@@ -6486,7 +6853,7 @@ function refreshViews(){ const v=ui.view;
   renderProjectSwitch(); renderSideCard(); updateCount(); }
 function updateCount(){ return; }
 
-const VIEW_TITLE={overview:'Overview',boardsettings:'Board & workflow',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
+const VIEW_TITLE={overview:'Overview',boardsettings:'Board & workflow',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',qa:'QA & Testing',
   analytics:'Analytics',reports:'Reports',operations:'Operations',settings:'Settings'};
 const SOON_VIEWS={};
 function setHeadHeight(){ const h=document.querySelector('.stickyhead'); if(h) document.documentElement.style.setProperty('--head-h', h.offsetHeight+'px'); }
@@ -6514,6 +6881,7 @@ function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-bo
   show('listwrap', v==='list');
   show('epicswrap', v==='epics');
   show('overviewwrap', v==='overview');
+  show('qawrap', v==='qa');
   show('deploymentswrap', v==='deployments');
   show('analyticswrap', v==='analytics');
   show('reportswrap', v==='reports');
@@ -6540,6 +6908,7 @@ function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-bo
   else if(v==='boardsettings') renderBoardSettings();
   else if(v==='reports') renderReports();
   else if(v==='deployments') renderDeployments();
+  else if(v==='qa') renderQA();
   else if(v==='operations') renderOperations();
   else if(v==='projects') renderProjects();
   else if(v==='backlog') renderBacklog();
@@ -8962,6 +9331,9 @@ document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>
 document.querySelectorAll('#boardMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
   const menu=document.getElementById('boardMenu'); const id=menu.dataset.board; menu.classList.remove('on'); boardAction(id, btn.dataset.act); });
 document.addEventListener('click',()=>document.getElementById('boardMenu').classList.remove('on'));
+document.querySelectorAll('#depMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
+  const menu=document.getElementById('depMenu'); const id=menu.dataset.dep; menu.classList.remove('on'); depAction(id, btn.dataset.act); });
+document.addEventListener('click',()=>document.getElementById('depMenu').classList.remove('on'));
 (function(){ const sw=document.getElementById('spSwitch'); if(sw) sw.onclick=()=>backToSpaces(); })();
 document.getElementById('search').oninput=e=>{ ui.filters.search=e.target.value; refreshViews(); };
 document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ if(ui.view==='overview'){ ui.ovRange=btn.dataset.p; } else { ui.filters.period=btn.dataset.p; } fillFilters(); refreshViews(); });
