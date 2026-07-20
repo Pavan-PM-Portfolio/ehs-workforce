@@ -677,8 +677,8 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
   display:grid;place-items:center;flex:none;margin-left:auto}
 .card-kebab:hover{background:var(--surface-2);color:var(--ink)}
 .flag-ic{vertical-align:-1px;margin-right:3px}
-.cardmenu{position:fixed;min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
-  box-shadow:var(--shadow-md);padding:5px;z-index:320;display:none}
+.cardmenu{position:fixed;min-width:212px;background:var(--surface);border:1px solid var(--line);border-radius:13px !important;
+  box-shadow:0 18px 44px -14px rgba(16,26,51,.32);padding:6px;z-index:320;display:none}
 .cardmenu.on{display:block}
 .selx{display:inline-flex;position:relative;max-width:100%}
 .selx-btn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;font-family:inherit;font-size:inherit;color:inherit;font-weight:inherit;cursor:pointer;padding:0;max-width:100%}
@@ -692,13 +692,19 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .cm-sw{width:100%;height:24px;border:2px solid transparent;border-radius:6px !important;cursor:pointer;padding:0}
 .cm-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset}
 .cm-item{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;font-family:inherit;font-size:13px;
-  color:var(--ink);text-align:left;padding:8px 10px;border-radius:7px;cursor:pointer}
+  color:var(--ink);text-align:left;padding:9px 11px;border-radius:8px !important;cursor:pointer}
 .cm-item:hover{background:var(--surface-2)}
 .cm-item .cm-arrow{margin-left:auto;color:var(--faint)}
+.cm-check{margin-left:auto;color:var(--accent);flex:none}
+.cm-cur{font-weight:700}
 .cm-danger{color:var(--crit)}
 .cm-danger:hover{background:var(--crit);color:#fff}
 .cm-back{color:var(--muted);font-weight:600}
 .cm-sep{height:1px;background:var(--line);margin:4px 6px}
+.cm-label{padding:8px 12px 4px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.cm-move{gap:9px}
+.cm-sdot{width:9px;height:9px;border-radius:50% !important;flex:none}
+.cm-none{padding:6px 12px 8px;font-size:11.5px;color:var(--muted)}
 .cm-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
 .cm-dot-off{background:transparent}
 .card-strip{height:4px;width:100%;flex:none}
@@ -2417,6 +2423,49 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-grid{display:flex;flex-direction:column;gap:16px}
 .dep-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#0E8F5A18;color:#0E8F5A}
 .dep-stats{display:flex;align-items:center;gap:18px;flex:1;min-width:280px}
+.dep-ep .ep-kebab,.qa-ep .ep-kebab{top:10px;right:12px}
+.scroll{padding-bottom:62px}
+.sidebar{padding-bottom:58px}
+.botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
+.bb-left,.bb-right{display:flex;align-items:center;gap:3px;flex:none}
+.bb-nav{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;font-family:inherit;font-size:10px;font-weight:600;color:var(--muted);padding:6px 13px;border-radius:10px !important;cursor:pointer;position:relative;transition:background .15s,color .15s}
+.bb-nav svg{width:18px;height:18px}
+.bb-nav:hover{background:var(--surface-2);color:var(--ink)}
+.bb-dot{position:absolute;top:3px;right:7px;min-width:16px;height:16px;padding:0 4px;background:var(--crit,#CE2F26);color:#fff;font-size:9px;font-weight:800;border-radius:20px !important;display:grid;place-items:center}
+.bb-cmd{flex:1;max-width:540px;margin:0 auto;display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface-2);border-radius:12px !important;padding:9px 14px;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s}
+.bb-cmd:hover{border-color:var(--line-2);background:var(--surface)}
+.bb-cmd svg{width:16px;height:16px;flex:none;color:var(--muted)}
+.bb-cmd-ph{flex:1;text-align:left;font-size:13px;color:var(--muted)}
+.bb-cmd-k{font-size:10px;font-weight:700;color:var(--faint);border:1px solid var(--line);border-radius:6px !important;padding:2px 7px;white-space:nowrap}
+.bb-ic{position:relative;width:36px;height:36px;border:0;background:none;color:var(--ink-2);border-radius:10px !important;display:grid;place-items:center;cursor:pointer;transition:background .15s,color .15s}
+.bb-ic svg{width:18px;height:18px}
+.bb-ic:hover{background:var(--surface-2);color:var(--ink)}
+.bb-badge{position:absolute;top:2px;right:3px;min-width:15px;height:15px;padding:0 4px;background:var(--crit,#CE2F26);color:#fff;font-size:8.5px;font-weight:800;border-radius:20px !important;display:grid;place-items:center}
+.bb-help{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--accent);color:#fff;font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 15px;border-radius:10px !important;cursor:pointer;margin-left:6px;transition:opacity .15s}
+.bb-help svg{width:16px;height:16px}
+.bb-help:hover{opacity:.92}
+.cmdk-scrim{position:fixed;inset:0;background:rgba(16,20,30,.42);display:none;align-items:flex-start;justify-content:center;padding-top:12vh;z-index:650}
+.cmdk-scrim.on{display:flex}
+.cmdk{width:600px;max-width:92vw;background:var(--surface);border:1px solid var(--line);border-radius:16px !important;box-shadow:0 30px 70px -20px rgba(16,26,51,.5);overflow:hidden}
+.cmdk-in-wrap{display:flex;align-items:center;gap:11px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.cmdk-in-wrap svg{width:18px;height:18px;color:var(--muted);flex:none}
+#cmdkInput{flex:1;border:0;background:none;outline:none;font-family:inherit;font-size:15px;color:var(--ink)}
+.cmdk-esc{font-size:10px;font-weight:700;color:var(--faint);border:1px solid var(--line);border-radius:6px !important;padding:2px 7px}
+.cmdk-results{max-height:52vh;overflow:auto;padding:8px}
+.cmdk-sec{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:8px 10px 4px}
+.cmdk-row{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;font-family:inherit;font-size:13.5px;color:var(--ink);text-align:left;padding:9px 11px;border-radius:9px !important;cursor:pointer}
+.cmdk-row:hover{background:var(--surface-2)}
+.cmdk-ic{width:16px;height:16px;color:var(--muted);flex:none}
+.cmdk-key{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft,#EEF1FE);padding:2px 6px;border-radius:5px !important;flex:none}
+.cmdk-hint{margin-left:auto;font-size:10.5px;color:var(--faint)}
+.cmdk-none{padding:26px;text-align:center;color:var(--muted);font-size:13px}
+.kbd-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 2px;border-bottom:1px solid var(--line-2);font-size:13px;color:var(--ink)}
+.kbd-row:last-child{border-bottom:0}
+.kbd-row kbd{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:6px !important;padding:3px 8px;color:var(--ink-2)}
+.help-p{font-size:13px;color:var(--ink-2);line-height:1.6;margin:0 0 12px}
+.help-row{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line-2)}
+.help-row svg{width:17px;height:17px;color:var(--accent);flex:none;margin-top:1px}
+.help-row b{font-weight:700;color:var(--ink)}
 .dep-st{flex:1 1 0;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .dep-st-v{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .dep-st-l{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
@@ -2929,6 +2978,37 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div id="acctScrim" class="acd-scrim"></div>
 <div id="projPopScrim" class="pp-scrim"><div id="projPop" class="pp"></div></div>
 <button class="chat-fab" id="chatFab" title="Tech-Talk" aria-label="Open Tech-Talk"><svg class="chat-fab-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg><span class="chat-fab-label">Tech-Talk</span><span class="chat-fab-badge" id="chatFabBadge" style="display:none"></span></button>
+<div class="botbar" id="botbar">
+  <div class="bb-left">
+    <button class="bb-nav" data-bb="techtalk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg><span>Tech-Talk</span><span class="bb-dot" id="botTtBadge" style="display:none"></span></button>
+    <button class="bb-nav" data-bb="board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg><span>Board</span></button>
+    <button class="bb-nav" data-bb="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 3l9 9M5 10v10h5v-6h4v6h5V10"/></svg><span>My Work</span></button>
+  </div>
+  <button class="bb-cmd" id="botCmd" style="display:none"></button>
+  <div class="bb-right">
+    <button class="bb-ic" data-bb="notif" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="bb-badge" id="botNotifBadge" style="display:none"></span></button>
+    <button class="bb-ic" data-bb="timeline" title="Activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></button>
+    <button class="bb-ic" data-bb="calendar" title="Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+    <button class="bb-ic" data-bb="shortcuts" title="Keyboard shortcuts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg></button>
+    <button class="bb-ic" data-bb="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></button>
+  </div>
+</div>
+<div class="cmdk-scrim" id="cmdkScrim">
+  <div class="cmdk">
+    <div class="cmdk-in-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="cmdkInput" placeholder="Search tickets, people, or jump to a view…" autocomplete="off"/><span class="cmdk-esc">Esc</span></div>
+    <div class="cmdk-results" id="cmdkResults"></div>
+  </div>
+</div>
+<div class="modal-wrap" id="kbdWrap"><div class="modal sub-modal" style="width:440px">
+  <div class="modal-h">Keyboard shortcuts</div>
+  <div class="modal-b" id="kbdBody"></div>
+  <div class="modal-f"><button class="btn" id="kbdClose">Close</button></div>
+</div></div>
+<div class="modal-wrap" id="helpWrap"><div class="modal sub-modal" style="width:440px">
+  <div class="modal-h">Help &amp; resources</div>
+  <div class="modal-b" id="helpBody"></div>
+  <div class="modal-f"><button class="btn" id="helpClose">Got it</button></div>
+</div></div>
 <div class="chat-win" id="chatWin"></div>
 
 <!-- New ticket modal -->
@@ -3010,8 +3090,19 @@ body[data-density="compact"] .board{padding:12px 16px}
 </div>
 <div class="bn-pop" id="depMenu">
   <button data-act="open"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Open ticket</button>
+  <button data-act="copykey"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy key</button>
+  <button data-act="copylink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>Copy link</button>
   <div class="bn-pop-sep"></div>
-  <button class="danger" data-act="del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>Remove from tracker</button>
+  <button class="danger" data-act="del"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>Remove from tracker</button>
+  <button class="danger" data-act="delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>Delete ticket</button>
+</div>
+<div class="bn-pop" id="qaMenu">
+  <button data-act="open"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>Open ticket</button>
+  <button data-act="copykey"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy key</button>
+  <button data-act="copylink"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>Copy link</button>
+  <div class="bn-pop-sep"></div>
+  <button class="danger" data-act="clear"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Clear QA cases &amp; fixes</button>
+  <button class="danger" data-act="delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>Delete ticket</button>
 </div>
 <div class="modal-wrap" id="depVerifyWrap">
   <div class="modal sub-modal" style="width:470px">
@@ -3544,6 +3635,7 @@ const store = {
   updateQaBug(taskId, bugId, patch){ const t=this.task(taskId); if(!t||!t.qaBugs) return; const b=t.qaBugs.find(x=>x.id===bugId); if(b){ const was=b.status; Object.assign(b, patch);
     if(patch.status==='fixed' && was!=='fixed'){ try{ this._pushActivity(taskId, 'marked a QA fix as resolved'); }catch(e){} } this._persist(); } },
   removeQaBug(taskId, bugId){ const t=this.task(taskId); if(!t||!t.qaBugs) return; t.qaBugs=t.qaBugs.filter(x=>x.id!==bugId); this._persist(); },
+  clearQa(taskId){ const t=this.task(taskId); if(!t) return; t.qaCases=[]; t.qaBugs=[]; this._persist(); },
   _applyResolution(t){ const s=this.status(t.status); const cat=s?s.cat:'todo';
     if(cat==='done'){ t.resolution='Done'; if(!t.resolvedAt){ t.resolvedAt=today(); t.resolvedTs=new Date().toISOString(); } }
     else { t.resolution='Unresolved'; t.resolvedAt=null; } },
@@ -4085,7 +4177,7 @@ function openCardMenu(anchor, id){
     const allow = enf ? [t.status, ...allowedTargets(bd, t.status)] : STATUSES.map(s=>s.id);
     const opts = STATUSES.filter(s=>allow.includes(s.id));
     menu.innerHTML=`<button class="cm-item cm-back" data-back="1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back</button><div class="cm-sep"></div>`+
-      opts.map(s=>`<button class="cm-item" data-s="${s.id}">${t.status===s.id?'<span class="cm-dot"></span>':'<span class="cm-dot cm-dot-off"></span>'}${esc(s.name)}</button>`).join('')+
+      opts.map(s=>`<button class="cm-item${t.status===s.id?' cm-cur':''}" data-s="${s.id}">${esc(s.name)}${t.status===s.id?'<svg class="cm-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':''}</button>`).join('')+
       (enf?'<div class="cm-sep"></div><div style="padding:7px 12px 4px;font-size:10.5px;color:var(--muted)">Only allowed transitions for this board</div>':'');
     menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
     menu.querySelectorAll('[data-s]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const bd2=activeBoard();
@@ -4700,7 +4792,8 @@ function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return
 function renderQA(){
   const el=document.getElementById('qawrap'); if(!el) return;
   const f=ui.qaFilter;
-  let list=store.standardTasks().filter(t=>t.qa);
+  const isQaStatus=sid=>{ const s=store.status(sid); return !!(s && /qa/i.test(s.name)); };
+  let list=store.standardTasks().filter(t=> isQaStatus(t.status) || (t.qaCases&&t.qaCases.length) || (t.qaBugs&&t.qaBugs.length));
   if(f.project!=='all') list=list.filter(t=>t.project===f.project);
   if(f.priority!=='all') list=list.filter(t=>t.priority===f.priority);
   if(f.qa!=='all') list=list.filter(t=>t.qa===f.qa);
@@ -4724,7 +4817,8 @@ function renderQA(){
     const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
     const verifyBtn=`<button class="dep-verify ${verified?'ok':(passed?'part':'')}" data-qav="${t.id}">${verified?CHK+' Verified':SHIELD+' '+passed+'/'+total}</button>`;
     const qaU=store.user(t.qa); const stName=(store.status(t.status)||{}).name||'';
-    return `<div class="ep-card qa-ep" data-qa="${t.id}">
+    return `<div class="ep-card qa-ep" data-qa="${t.id}" style="position:relative">
+      <button class="ep-kebab" data-qak="${t.id}" title="QA options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       <div class="ep-left">
         <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
         <div class="ep-mid">
@@ -4753,7 +4847,7 @@ function renderQA(){
   };
 
   let body;
-  if(!list.length){ body='<div class="dep-none">No QA work yet. When a QA is assigned to a ticket, it appears here automatically.</div>'; }
+  if(!list.length){ body='<div class="dep-none">No QA work yet. When a ticket moves into a <b>QA</b> status, it appears here automatically.</div>'; }
   else { body=`<div class="dep-grid">${list.map(cardHTML).join('')}</div>`; }
 
   const chip=(id,ico,label,val,active)=>`<button class="chip ${active?'active':''}" id="${id}">${ico}<span class="chip-lbl">${label}</span><span class="chip-val">${esc(val)}</span>${CHEV_SVG}</button>`;
@@ -4779,6 +4873,7 @@ function renderQA(){
   document.getElementById('qaStBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, stOpts, f.status, v=>{ ui.qaFilter.status=v; renderQA(); }); };
 
   el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
+  el.querySelectorAll('.ep-kebab[data-qak]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaMenu(b.dataset.qak, b); });
   el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaVerify(b.dataset.qav); });
   el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
     const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQA(); });
@@ -4826,7 +4921,7 @@ function renderDeployments(){
     const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
     const verifyBtn=`<button class="dep-verify ${verified?'ok':(doneN?'part':'')}" data-verify="${t.id}">${verified?CHK+' Verified':(doneN?SHIELD+' '+doneN+'/'+total:SHIELD+' Verify')}</button>`;
     return `<div class="ep-card dep-ep" data-dep="${t.id}" style="position:relative">
-      <button class="ep-kebab" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+      <button class="ep-kebab" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       <div class="ep-left">
         <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
         <div class="ep-mid">
@@ -4900,13 +4995,80 @@ function chatUnread(){ const seen=ui.chat.seen||{}; let n=0; store.chatChannels(
 function updateChatFab(){ if(!store.data) return; const n=chatUnread();
   const tt=document.getElementById('ttBadge'); if(tt){ if(n>0 && !ui.chat.open){ tt.textContent=n>9?'9+':String(n); tt.style.display='grid'; } else tt.style.display='none'; }
   const badge=document.getElementById('chatFabBadge'); if(!badge) return;
-  if(n>0 && !ui.chat.open){ badge.textContent=n>9?'9+':String(n); badge.style.display='grid'; } else badge.style.display='none'; }
+  if(n>0 && !ui.chat.open){ badge.textContent=n>9?'9+':String(n); badge.style.display='grid'; } else badge.style.display='none'; try{ syncBotBadges(); }catch(e){} }
 function renderChatFab(){ const box=document.getElementById('chatFabAvs'); if(!box||!store.data) return;
   const gen=store.chatChannel('ch_general')||store.chatChannels().find(c=>c.type==='group')||{members:[]};
   const mem=(gen.members||[]).map(id=>store.user(id)).filter(Boolean); const show=mem.slice(0,3); const extra=mem.length-show.length;
   box.innerHTML=show.map(u=>avatar(u,24)).join('')+(extra>0?`<span class="chat-fab-more">+${extra}</span>`:''); }
 function openChat(){ ui.chat.open=true; document.getElementById('chatWin').classList.add('on'); renderChat(); updateChatFab(); }
 function closeChat(){ ui.chat.open=false; document.getElementById('chatWin').classList.remove('on'); }
+function syncBotBadges(){
+  try{ const n=(typeof unreadCount==='function')?unreadCount():0; const b=document.getElementById('botNotifBadge'); if(b){ if(n>0){ b.textContent=n>99?'99+':n; b.style.display='grid'; } else b.style.display='none'; } }catch(e){}
+  try{ const c=(typeof chatUnread==='function')?chatUnread():0; const t=document.getElementById('botTtBadge'); if(t){ if(c>0 && !(ui.chat&&ui.chat.open)){ t.textContent=c>9?'9+':c; t.style.display='grid'; } else t.style.display='none'; } }catch(e){}
+}
+function openCmdk(){ const s=document.getElementById('cmdkScrim'); if(!s) return; s.classList.add('on'); const i=document.getElementById('cmdkInput'); if(i){ i.value=''; renderCmdk(''); setTimeout(()=>i.focus(),20); } }
+function closeCmdk(){ const s=document.getElementById('cmdkScrim'); if(s) s.classList.remove('on'); }
+function renderCmdk(q){
+  q=(q||'').trim().toLowerCase();
+  const res=document.getElementById('cmdkResults'); if(!res) return;
+  const VIEWS=[['overview','Overview'],['board','Board'],['list','List View'],['epics','Epics'],['qa','QA & Testing'],['deployments','Deployments'],['projects','Projects'],['team','Team'],['calendar','Calendar'],['dashboard','Dashboard'],['boardsettings','Board & workflow'],['settings','Settings']];
+  const ICO='<svg class="cmdk-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+  let html='';
+  const vm=VIEWS.filter(v=>!q||v[1].toLowerCase().includes(q));
+  if(vm.length){ html+='<div class="cmdk-sec">Jump to</div>'+vm.slice(0,q?6:8).map(v=>`<button class="cmdk-row" data-view="${v[0]}">${ICO}${esc(v[1])}<span class="cmdk-hint">View</span></button>`).join(''); }
+  if(q){
+    try{ const tix=store.standardTasks().filter(t=>((t.key||'').toLowerCase().includes(q))||((t.title||'').toLowerCase().includes(q))).slice(0,8);
+      if(tix.length){ html+='<div class="cmdk-sec">Tickets</div>'+tix.map(t=>`<button class="cmdk-row" data-tk="${t.id}"><span class="cmdk-key">${esc(t.key)}</span>${esc(t.title)}</button>`).join(''); } }catch(e){}
+    try{ const ppl=store.users().filter(u=>(u.name||'').toLowerCase().includes(q)).slice(0,4);
+      if(ppl.length){ html+='<div class="cmdk-sec">People</div>'+ppl.map(u=>`<button class="cmdk-row" data-user="${u.id}">${avatar(u,20)}${esc(u.name)}</button>`).join(''); } }catch(e){}
+  }
+  if(!html) html='<div class="cmdk-none">No matches for \u201c'+esc(q)+'\u201d</div>';
+  res.innerHTML=html;
+  res.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ closeCmdk(); setView(b.dataset.view); });
+  res.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{ closeCmdk(); openPanel(b.dataset.tk); });
+  res.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>{ closeCmdk(); setView('team'); });
+}
+function openShortcuts(){ const b=document.getElementById('kbdBody'); if(b){ const rows=[['Command / search','Ctrl / \u2318 + K'],['Open this panel','?'],['Close dialogs & menus','Esc'],['New ticket','N'],['Focus search','/']];
+  b.innerHTML=rows.map(r=>`<div class="kbd-row"><span>${esc(r[0])}</span><kbd>${esc(r[1])}</kbd></div>`).join(''); }
+  document.getElementById('kbdWrap').classList.add('on');
+  const c=document.getElementById('kbdClose'); if(c) c.onclick=()=>document.getElementById('kbdWrap').classList.remove('on'); }
+function openHelp(){ const b=document.getElementById('helpBody'); if(b){ b.innerHTML=`
+    <p class="help-p">Welcome to <b>Project Hub</b> \u2014 your team's delivery workspace.</p>
+    <div class="help-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><div><b>Command bar</b> \u2014 press <b>Ctrl / \u2318 + K</b> to jump to any ticket, person, or view.</div></div>
+    <div class="help-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div><b>Tech-Talk</b> \u2014 chat with your team without leaving the board.</div></div>
+    <div class="help-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 16h10"/></svg><div><b>Shortcuts</b> \u2014 open the keyboard shortcuts panel from the bar to move faster.</div></div>
+    <p class="help-p" style="margin-top:12px">Found a bug or have a request? Reach out to your workspace admin.</p>`; }
+  document.getElementById('helpWrap').classList.add('on');
+  const c=document.getElementById('helpClose'); if(c) c.onclick=()=>document.getElementById('helpWrap').classList.remove('on'); }
+function wireBotbar(){
+  const bb=document.getElementById('botbar'); if(!bb) return;
+  bb.querySelectorAll('[data-bb]').forEach(el=>el.onclick=()=>{ const a=el.dataset.bb;
+    if(a==='techtalk'){ (ui.chat&&ui.chat.open)?closeChat():openChat(); }
+    else if(a==='board'){ setView('board'); }
+    else if(a==='overview'){ setView('overview'); }
+    else if(a==='timeline'){ setView('timeline'); }
+    else if(a==='calendar'){ setView('calendar'); }
+    else if(a==='notif'){ if(typeof openNotifs==='function') openNotifs(); }
+    else if(a==='settings'){ setView('settings'); }
+    else if(a==='shortcuts'){ openShortcuts(); }
+    else if(a==='help'){ openHelp(); }
+  });
+  const cmd=document.getElementById('botCmd'); if(cmd) cmd.onclick=openCmdk;
+  const ci=document.getElementById('cmdkInput'); if(ci) ci.oninput=e=>renderCmdk(e.target.value);
+  const cs=document.getElementById('cmdkScrim'); if(cs) cs.onclick=e=>{ if(e.target===cs) closeCmdk(); };
+  if(!window._botKeys){ window._botKeys=true;
+    document.addEventListener('keydown',e=>{
+      if((e.metaKey||e.ctrlKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); openCmdk(); return; }
+      if(e.key==='Escape'){ closeCmdk(); return; }
+      const tag=(e.target&&e.target.tagName)||''; const typing=tag==='INPUT'||tag==='TEXTAREA'||(e.target&&e.target.isContentEditable);
+      if(typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      if(e.key==='?'){ openShortcuts(); }
+      else if(e.key==='/' ){ const s=document.querySelector('.search input'); if(s){ e.preventDefault(); s.focus(); } }
+      else if(e.key==='n'||e.key==='N'){ const nb=document.getElementById('newTaskBtn'); if(nb && nb.offsetParent!==null){ nb.click(); } }
+    });
+  }
+  syncBotBadges();
+}
 function chatScrollBottom(){ const el=document.getElementById('chatMsgs'); if(el) el.scrollTop=el.scrollHeight; }
 function chatGroupIcon(){ return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>'; }
 function chatShort(at){ const d=new Date(at); const diff=(Date.now()-d.getTime())/1000; let h=d.getHours();const m=String(d.getMinutes()).padStart(2,'0');const ap=h>=12?'PM':'AM';h=h%12||12;
@@ -5302,7 +5464,25 @@ function openDepMenu(id, btn){
 function depAction(id, act){
   const t=store.task(id); if(!t) return;
   if(act==='open'){ openPanel(id); }
+  else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
+  else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
   else if(act==='del'){ if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
+  else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
+}
+function openQaMenu(id, btn){
+  const m=document.getElementById('qaMenu'); m.dataset.qa=id;
+  const r=btn.getBoundingClientRect();
+  m.style.left=Math.min(r.right-180, window.innerWidth-190)+'px';
+  m.style.top=(r.bottom+5)+'px';
+  m.classList.add('on');
+}
+function qaAction(id, act){
+  const t=store.task(id); if(!t) return;
+  if(act==='open'){ openPanel(id); }
+  else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
+  else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
+  else if(act==='clear'){ if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
+  else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
 }
 let _depVfId=null;function openDepVerify(id){ _depVfId=id; renderDepVerify();
   const w=document.getElementById('depVerifyWrap'); w.classList.add('on');
@@ -9334,6 +9514,9 @@ document.addEventListener('click',()=>document.getElementById('boardMenu').class
 document.querySelectorAll('#depMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
   const menu=document.getElementById('depMenu'); const id=menu.dataset.dep; menu.classList.remove('on'); depAction(id, btn.dataset.act); });
 document.addEventListener('click',()=>document.getElementById('depMenu').classList.remove('on'));
+document.querySelectorAll('#qaMenu button').forEach(btn=>btn.onclick=e=>{ e.stopPropagation();
+  const menu=document.getElementById('qaMenu'); const id=menu.dataset.qa; menu.classList.remove('on'); qaAction(id, btn.dataset.act); });
+document.addEventListener('click',()=>document.getElementById('qaMenu').classList.remove('on'));
 (function(){ const sw=document.getElementById('spSwitch'); if(sw) sw.onclick=()=>backToSpaces(); })();
 document.getElementById('search').oninput=e=>{ ui.filters.search=e.target.value; refreshViews(); };
 document.querySelectorAll('#periodSeg button').forEach(btn=>btn.onclick=()=>{ if(ui.view==='overview'){ ui.ovRange=btn.dataset.p; } else { ui.filters.period=btn.dataset.p; } fillFilters(); refreshViews(); });
@@ -10288,7 +10471,7 @@ function addNotif(o){ // {type,taskId,actorId?,text,at?,dedup?}
 function notifBeep(){ try{ const A=window.AudioContext||window.webkitAudioContext; if(!A) return; const ctx=new A(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value=660; g.gain.value=.05; o.start(); setTimeout(()=>{o.stop();ctx.close();},120); }catch(e){} }
 function unreadCount(){ return loadNotifs().filter(n=>!n.read).length; }
 function updateBell(){ const s=nset(); const c=unreadCount(); const b=document.getElementById('notifBadge');
-  if(b){ if(s.badge && s.enabled && c>0){ b.textContent=c>99?'99+':c; b.style.display=''; } else b.style.display='none'; } }
+  if(b){ if(s.badge && s.enabled && c>0){ b.textContent=c>99?'99+':c; b.style.display=''; } else b.style.display='none'; } try{ syncBotBadges(); }catch(e){} }
 
 // diff a task change (old vs new) into notifications for the current user
 function notifyTaskChange(oldDoc, newDoc){
@@ -10389,6 +10572,7 @@ function markAllNotifsRead(){ const arr=loadNotifs(); arr.forEach(n=>n.read=true
 function clearAllNotifs(){ localStorage.setItem(notifKey(),'[]'); updateBell(); renderNotifDrawer(); }
 function wireNotifs(){
   const bell=document.getElementById('notifBell'); if(bell) bell.onclick=openNotifs;
+  try{ wireBotbar(); }catch(e){}
   const x=document.getElementById('notifClose'); if(x) x.onclick=closeNotifs;
   const scrim=document.getElementById('notifScrim'); if(scrim) scrim.onclick=e=>{ if(e.target===scrim) closeNotifs(); };
   const mk=document.getElementById('ndMarkAll'); if(mk) mk.onclick=markAllNotifsRead;
