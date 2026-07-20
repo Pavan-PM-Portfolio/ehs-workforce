@@ -1276,15 +1276,45 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .bsremove{border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:11px;padding:4px 9px;border-radius:0}
 .bsremove:hover{border-color:var(--crit);color:var(--crit)}
 /* boards list */
-.brd-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2)}
-.brd-pick{border:0;background:none;font-size:14px;color:var(--accent);width:20px;flex:none}
-.brd-name{flex:1;border:1px solid transparent;background:transparent;border-radius:7px;padding:6px 8px;font-size:13px;font-weight:500;color:var(--ink)}
-.brd-name:hover{background:var(--surface-2)}
-.brd-name:focus{border-color:var(--accent);background:var(--surface);outline:none}
-.brd-row.active .brd-name{font-weight:600}
-.brd-meta{font-size:11px;color:var(--muted);white-space:nowrap}
-.brd-del{border:0;background:none;color:var(--faint);width:26px;height:26px;border-radius:6px;font-size:14px}
-.brd-del:hover{color:var(--crit);background:var(--surface-2)}
+.brd-list{display:flex;flex-direction:column;gap:8px}
+.brd-card{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:13px 14px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.brd-card:hover{border-color:var(--line-2);background:var(--surface-2)}
+.brd-card.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface));box-shadow:0 0 0 1px var(--accent) inset}
+.brd-radio{width:18px;height:18px;border-radius:50% !important;border:2px solid var(--line-2);flex:none;position:relative;transition:border-color .15s}
+.brd-card.active .brd-radio{border-color:var(--accent)}
+.brd-card.active .brd-radio::after{content:"";position:absolute;inset:3px;border-radius:50% !important;background:var(--accent)}
+.brd-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.brd-nm{font-size:14px;font-weight:650;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brd-nm-edit{font-size:14px;font-weight:650;color:var(--ink);border:1px solid var(--accent);background:var(--surface);border-radius:8px !important;padding:4px 8px;outline:none;width:100%;max-width:340px;font-family:inherit}
+.brd-sub{font-size:12px;color:var(--muted)}
+.brd-actions{display:flex;align-items:center;gap:8px;flex:none}
+.brd-badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:3px 8px;border-radius:20px !important}
+.brd-kebab{border:0;background:none;color:var(--faint);width:28px;height:28px;border-radius:8px !important;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s;opacity:.7}
+.brd-card:hover .brd-kebab{opacity:1}
+.brd-kebab:hover{background:var(--surface);color:var(--ink-2)}
+.brd-hint{font-size:11.5px;color:var(--muted);margin-top:12px}
+.brd-config{margin-top:24px;padding-top:20px;border-top:1px solid var(--line-2)}
+.brd-config-h{font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:12px}
+.brd-config-h b{font-weight:700;color:var(--ink)}
+.brd-cfg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.brd-cfg{display:flex;align-items:center;gap:11px;text-align:left;padding:14px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface);cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+.brd-cfg:hover{border-color:var(--line-2);transform:translateY(-2px);box-shadow:0 12px 26px -20px rgba(16,24,45,.4)}
+.brd-cfg-ic{width:34px;height:34px;border-radius:10px !important;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--ink-2);flex:none}
+.brd-cfg-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.brd-cfg-t{font-size:13.5px;font-weight:650;color:var(--ink)}
+.brd-cfg-s{font-size:11.5px;color:var(--muted)}
+.brd-cfg-chev{color:var(--faint);flex:none}
+.brd-cfg:hover .brd-cfg-chev{color:var(--ink-2)}
+.bs-wrap{max-width:940px}
+.bs-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.bs-head-l{display:flex;align-items:center;gap:12px;min-width:0}
+.bs-back{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:10px !important;cursor:pointer;flex:none;transition:background .15s,border-color .15s,color .15s}
+.bs-back:hover{background:var(--surface-2);border-color:var(--line-2);color:var(--ink)}
+.bs-back svg{color:var(--muted)}
+.bs-head-tx{min-width:0}
+.bs-head-tx h2{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:0}
+.bs-head-tx p{font-size:12.5px;color:var(--ink-2);margin:4px 0 0;font-weight:500}
+.bs-panel{border:1px solid var(--line);border-radius:16px !important;background:var(--surface);padding:20px}
 /* flow builder */
 /* ---------- Workflow editor: full screen ---------- */
 .wf-screen{position:fixed;inset:0;background:var(--bg);z-index:560;display:none;flex-direction:column}
@@ -4983,10 +5013,29 @@ function openBoardMenu(id, btn){
   m.classList.add('on');
 }
 function boardAction(id, act){
-  if(act==='configure'){ ui.board=id; bsTab='columns'; if(ui.view!=='board'){ setView('board'); } else renderAll(); openBoardSettings(); }
-  else if(act==='rename'){ renameBoardInline(id); }
+  const inSettings = ui.view==='boardsettings';
+  if(act==='configure'){ ui.board=id; bsTab='columns';
+    if(inSettings){ renderBoardSettings(); renderBoardSwitch(); }
+    else { if(ui.view!=='board'){ setView('board'); } else renderAll(); openBoardSettings(); } }
+  else if(act==='rename'){ if(inSettings) renameBoardSettingRow(id); else renameBoardInline(id); }
   else if(act==='delete'){ if(store.boards().length<=1){ toast('Keep at least one board'); return; }
-    const nm=store.board(id).name; store.removeBoard(id); if(ui.board===id) ui.board=store.boards()[0].id; renderAll(); toast(`Deleted \u201c${nm}\u201d`); }
+    const nm=store.board(id).name; store.removeBoard(id); if(ui.board===id) ui.board=store.boards()[0].id;
+    if(inSettings){ renderBoardSettings(); renderBoardSwitch(); } else renderAll();
+    toast(`Deleted \u201c${nm}\u201d`); }
+}
+function renameBoardSettingRow(id){
+  const card=document.querySelector(`.brd-card[data-board="${id}"]`); if(!card) return;
+  const nm=card.querySelector('.brd-nm'); if(!nm) return;
+  const inp=document.createElement('input'); inp.className='brd-nm-edit'; inp.value=store.board(id).name;
+  nm.replaceWith(inp); inp.focus(); inp.select();
+  let done=false;
+  const save=commit=>{ if(done) return; done=true; const v=inp.value.trim();
+    if(commit&&v) store.updateBoard(id,{name:v});
+    renderBoardSettings(); renderBoardSwitch();
+    if(ui.view==='board'&&ui.board===id){ const t=document.getElementById('pageTitle'); if(t) t.textContent=store.board(id).name; } };
+  inp.onclick=e=>e.stopPropagation();
+  inp.onkeydown=e=>{ if(e.key==='Enter') save(true); if(e.key==='Escape') save(false); };
+  inp.onblur=()=>save(true);
 }
 function renameBoardInline(id){
   const item=document.querySelector(`.board-nav[data-board="${id}"]`); if(!item) return;
@@ -5001,7 +5050,7 @@ function renameBoardInline(id){
   inp.onblur=()=>save(true);
 }
 function addBoardFromSide(){ const id=store.addBoard('New board'); ui.board=id; setView('board'); bsTab='boards'; openBoardSettings();
-  setTimeout(()=>{ const inp=document.querySelector('.brd-row.active .brd-name'); if(inp){ inp.focus(); inp.select(); } },30); }
+  setTimeout(()=>renameBoardSettingRow(id),30); }
 let bsTab='boards';
 function openBoardSettings(){ ui.view='boardsettings'; setView('boardsettings'); }
 function closeBoardSettings(){ renderAll(); fillFilters(); }
@@ -5009,7 +5058,7 @@ function renderBoardSettings(){
   const el=document.getElementById('boardsettingswrap'); if(!el) return;
   const b=activeBoard();
   const SECS=[
-    {k:'boards',  n:'Boards',      d:'Add or rename the boards in this workspace'},
+    {k:'boards',  n:'Boards',      d:'Choose the active board, then configure it below'},
     {k:'columns', n:'Columns',     d:'Which statuses appear on this board'},
     {k:'flow',    n:'Transitions', d:'Which status can move to which'},
     {k:'fields',  n:'Fields',      d:'Custom fields on every ticket'},
@@ -5019,39 +5068,33 @@ function renderBoardSettings(){
   const addLbl = bsTab==='boards'?'Add board' : bsTab==='fields'?'Add field' : bsTab==='columns'?'New status' : null;
   const dirty = bsTab==='flow' && _flowDirty;
 
-  const rail=SECS.map(x=>`<button type="button" class="ehs-li" data-bs="${x.k}" aria-current="${bsTab===x.k}">
-      <span class="ehs-li-n">${esc(x.n)}</span></button>`).join('');
   let body='';
   if(bsTab==='boards') body=bsBoards();
   else if(bsTab==='columns') body=bsColumns(b);
   else if(bsTab==='fields') body=bsFields();
   else body=bsFlow(b);
+  const onBoards = bsTab==='boards';
 
-  el.innerHTML=`<div class="ehs-page-head"><h1>Board &amp; workflow</h1></div>
-    <div class="ehs-pane">
-      <aside class="ehs-rail"><nav class="ehs-rail-list" id="bsRail" style="padding-top:10px">${rail}</nav></aside>
-      <section class="ehs-detail">
-        <div class="ehs-d-head"><div><h2>${esc(cur.n)}</h2><p class="ehs-d-sub">${esc(cur.d)}</p></div>
-          <div style="display:flex;align-items:center;gap:8px">
-            ${addLbl?`<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="bsAdd" type="button">${addLbl}</button>`:''}
-            ${bsTab==='flow'?`<span class="bs-dirty ${dirty?'on':''}" id="bsDirty">Unsaved changes</span>
-              <button class="ehs-btn ehs-btn--sm" id="bsSave" type="button" ${dirty?'':'disabled'}>Save changes</button>`:''}
-          </div></div>
-        <div id="bsBody">${body}</div>
-      </section>
+  el.innerHTML=`<div class="bs-wrap">
+      <div class="bs-head">
+        <div class="bs-head-l">
+          ${onBoards?'':`<button class="bs-back" id="bsBack" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Boards</button>`}
+          <div class="bs-head-tx"><h2>${esc(cur.n)}</h2><p>${esc(cur.d)}</p></div>
+        </div>
+        ${addLbl?`<button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="bsAdd" type="button">${addLbl}</button>`:''}
+      </div>
+      <div id="bsBody">${onBoards?body:`<div class="bs-panel">${body}</div>`}</div>
     </div>`;
 
-  el.querySelectorAll('#bsRail .ehs-li').forEach(btn=>btn.onclick=()=>{
+  const back=document.getElementById('bsBack');
+  if(back) back.onclick=()=>{
     if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
     if(_flowDirty) flowDraftReset();
-    bsTab=btn.dataset.bs;
-    if(bsTab==='flow'){ renderBoardSettings(); openFlowScreen(activeBoard().id); return; }
-    renderBoardSettings();
-  });
+    bsTab='boards'; renderBoardSettings();
+  };
   const add=document.getElementById('bsAdd');
   if(add) add.onclick=()=>{
-    if(bsTab==='boards'){ const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch();
-      const inp=document.querySelector('.brd-row.active .brd-name'); if(inp){ inp.focus(); inp.select(); } }
+    if(bsTab==='boards'){ const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch(); renameBoardSettingRow(id); }
     else if(bsTab==='columns'){ store.addStatus('New status');
       const nid=store.statuses()[store.statuses().length-1].id;
       store.toggleBoardColumn(activeBoard(), nid, true); renderBoardSettings();
@@ -6328,15 +6371,42 @@ function flowSave(){
 }
 
 function bsBoards(){
-  return store.boards().map(bd=>{
+  const act=activeBoard();
+  const kebab=`<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>`;
+  const cards=store.boards().map(bd=>{
     const active=bd.id===ui.board; const cols=(bd.columns||[]).length;
-    return `<div class="brd-row ${active?'active':''}" data-board="${bd.id}">
-      <button class="brd-pick" title="Make active">${active?'●':'○'}</button>
-      <input class="brd-name" value="${esc(bd.name)}"/>
-      <span class="brd-meta">${cols} columns · ${bd.enforce?'flow enforced':'free moves'}</span>
-      <button class="brd-del" title="${store.boards().length<=1?'Keep at least one board':'Delete board'}">✕</button>
+    return `<div class="brd-card ${active?'active':''}" data-board="${bd.id}" role="button" tabindex="0">
+      <span class="brd-radio" aria-hidden="true"></span>
+      <span class="brd-info"><span class="brd-nm">${esc(bd.name)}</span>
+        <span class="brd-sub">${cols} column${cols===1?'':'s'} · ${bd.enforce?'Flow enforced':'Free moves'}</span></span>
+      <span class="brd-actions">${active?'<span class="brd-badge">Active</span>':''}
+        <button class="brd-kebab" type="button" title="Board options">${kebab}</button></span>
     </div>`;
-  }).join('')+`<div style="font-size:11.5px;color:var(--muted);margin-top:12px">The active board is what shows on the Board view. Set its columns and flow in the other tabs.</div>`;
+  }).join('');
+
+  let cfg='';
+  if(act){
+    const nc=(act.columns||[]).length;
+    const nT=Object.values(act.transitions||{}).reduce((a,x)=>a+x.length,0);
+    const nF=store.fields().length;
+    const chev=`<svg class="brd-cfg-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>`;
+    const icCols=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg>`;
+    const icFlow=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 3 3v6.5"/></svg>`;
+    const icFld=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>`;
+    const card=(go,ic,t,s)=>`<button class="brd-cfg" data-go="${go}" type="button">
+        <span class="brd-cfg-ic">${ic}</span>
+        <span class="brd-cfg-tx"><span class="brd-cfg-t">${t}</span><span class="brd-cfg-s">${s}</span></span>${chev}</button>`;
+    cfg=`<div class="brd-config">
+      <div class="brd-config-h">Configure <b>${esc(act.name)}</b></div>
+      <div class="brd-cfg-grid">
+        ${card('columns',icCols,'Columns', nc+' status'+(nc===1?'':'es'))}
+        ${card('flow',icFlow,'Workflow', nT+' transition'+(nT===1?'':'s')+' · '+(act.enforce?'enforced':'free'))}
+        ${card('fields',icFld,'Fields', nF+' field'+(nF===1?'':'s'))}
+      </div></div>`;
+  }
+  return `<div class="brd-list">${cards}</div>
+    <p class="brd-hint">The active board is what shows on the Board view. Selecting a board here makes it active.</p>
+    ${cfg}`;
 }
 function bsColumns(b){
   const onBoard=b.columns;
@@ -6370,12 +6440,15 @@ function bsFlow(b){
 function wireBoardSettings(b){
   const body=document.getElementById('bsBody');
   if(bsTab==='boards'){
-    body.querySelectorAll('.brd-row').forEach(row=>{ const id=row.dataset.board;
-      row.querySelector('.brd-pick').onclick=()=>{ ui.board=id; renderBoardSettings(); };
-      row.querySelector('.brd-name').onchange=e=>{ const v=e.target.value.trim(); if(v){ store.updateBoard(id,{name:v}); } else e.target.value=store.board(id).name; };
-      row.querySelector('.brd-del').onclick=()=>{ if(store.boards().length<=1){ toast('Keep at least one board'); return; }
-        store.removeBoard(id); if(ui.board===id) ui.board=store.boards()[0].id; renderBoardSettings(); };
+    body.querySelectorAll('.brd-card').forEach(card=>{ const id=card.dataset.board;
+      card.onclick=e=>{ if(e.target.closest('.brd-kebab')||e.target.closest('.brd-nm-edit')) return;
+        ui.board=id; renderBoardSettings(); renderBoardSwitch(); };
+      const keb=card.querySelector('.brd-kebab');
+      if(keb) keb.onclick=e=>{ e.stopPropagation(); openBoardMenu(id, keb); };
     });
+    body.querySelectorAll('.brd-cfg').forEach(c=>c.onclick=()=>{
+      if(c.dataset.go==='flow'){ openFlowScreen(activeBoard().id); }
+      else { bsTab=c.dataset.go; renderBoardSettings(); } });
   } else if(bsTab==='columns'){
     body.querySelectorAll('.bsrow').forEach(row=>{ const id=row.dataset.id;
       row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ store.moveBoardColumn(b,id,+btn.dataset.dir); renderBoardSettings(); });
