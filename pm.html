@@ -4963,7 +4963,7 @@ function renderQA(){
   const qaVal=f.qa==='all'?'All':((store.user(f.qa)||{}).name||'All');
   const stVal=(stOpts.find(o=>o.v===f.status)||{}).t||'All';
 
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('qaProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('qaPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('qaQaBtn',ICO_QA,'QA',qaVal,f.qa!=='all')}${chip('qaStBtn',ICO_ST,'Status',stVal,f.status!=='all')}</div></div>${body}`;
+  el.innerHTML=`<div class="ov-h" style="align-items:center"><div class="dep-filters">${chip('qaProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('qaPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('qaQaBtn',ICO_QA,'QA',qaVal,f.qa!=='all')}${chip('qaStBtn',ICO_ST,'Status',stVal,f.status!=='all')}</div><button class="eb-block" id="qaBlockBtn" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Block Test Env</button></div>${body}`;
 
   document.getElementById('qaProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.qaFilter.project=v; renderQA(); }); };
   document.getElementById('qaPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.qaFilter.priority=v; renderQA(); }); };
@@ -4974,6 +4974,7 @@ function renderQA(){
   el.querySelectorAll('.ep-kebab[data-qak]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaMenu(b.dataset.qak, b); });
   el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaVerify(b.dataset.qav); });
   el.querySelectorAll('.qa-att-btn[data-qaatt]').forEach(b=>b.onclick=()=>openQaAtt(b.dataset.qaatt));
+  { const qbb=document.getElementById('qaBlockBtn'); if(qbb) qbb.onclick=()=>openEnvBlock('test'); }
   el.querySelectorAll('.qa-att-x[data-qaattdel]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qaattdel.split('|'); store.removeQaAttachment(p[0],p[1]); renderQA(); });
   el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
     const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQA(); });
@@ -5627,9 +5628,7 @@ function renderEnvBanner(){
   host.innerHTML=`<div class="env-banner">
     ${lead}
     <div class="eb-body">${seg('staging')}<span class="eb-dv"></span>${seg('test')}</div>
-    <span class="eb-act"><button class="eb-block" id="envBlockBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Block Test Env</button></span>
   </div>`;
-  const bb=document.getElementById('envBlockBtn'); if(bb) bb.onclick=()=>openEnvBlock();
   host.querySelectorAll('[data-envrel]').forEach(b=>b.onclick=()=>{ const env=b.dataset.envrel; const r=store.releaseEnv(env); renderEnvBanner(); try{ updateBell(); }catch(e){} toast(`${ENV_NAMES[env]} released${(r&&r.next)?' \u2014 next in queue notified':''}`); });
 }
 let _envSel='test';
