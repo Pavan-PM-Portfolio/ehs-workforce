@@ -36,7 +36,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 
 /* ---------- App shell: sidebar + main ---------- */
 .appwrap{height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.topnav{flex:none;display:flex;align-items:center;gap:0;height:60px;padding:0 18px;background:#FFFFFF;border-bottom:1px solid var(--ink)}
+.topnav{flex:none;display:flex;align-items:center;gap:0;height:60px;padding:0 18px;background:#FFFFFF;box-shadow:0 1px 3px rgba(16,26,51,.07)}
 .tn-logo{display:flex;align-items:center;flex:none;text-decoration:none}
 .tn-logo-img{display:block;height:24px;width:auto}
 .tn-av{display:grid;place-items:center;width:30px;height:30px;border-radius:999px !important;background:var(--surface-3);color:var(--ink-2);box-sizing:border-box;flex:none;border:0}
@@ -2437,10 +2437,10 @@ body[data-density="compact"] .board{padding:12px 16px}
 .pb-pr-btn.done{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
 .scroll{padding-bottom:62px}
 .sidebar{padding-bottom:58px}
-.botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--ink);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
+.botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);box-shadow:0 -2px 12px -3px rgba(16,26,51,.13);z-index:200}
 .env-banner-host{flex:none}
 .env-banner-host:empty{display:none}
-.env-banner{display:flex;align-items:center;justify-content:center;gap:12px;background:#FDF1F6;border-bottom:1px solid #F5D6E4;padding:10px 20px;position:relative}
+.env-banner{display:flex;align-items:center;justify-content:center;gap:12px;background:#FDF1F6;border-bottom:1px solid var(--ink);padding:10px 20px;position:relative}
 .eb-ic{color:#D6337A;flex:none;display:grid;place-items:center}
 .eb-ic svg{width:17px;height:17px}
 .eb-ic.warn{color:var(--crit)}
