@@ -1422,6 +1422,8 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .fxe-l text{font-family:inherit;font-size:8.5px;font-weight:600;fill:var(--ink-2)}
 .fxe.on .fxe-l rect{stroke:var(--accent)}
 .fxe.on .fxe-l text{fill:var(--accent)}
+.fxe-l.on rect{stroke:var(--accent)}
+.fxe-l.on text{fill:var(--accent)}
 
 .fxs-hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;
   font-weight:600;padding:8px 14px;border-radius:9px !important;display:flex;gap:8px;z-index:6;
@@ -4045,7 +4047,6 @@ function epicHealth(e,st){ const _today=today();
   return {k:'ok',t:'On track'};
 }
 function renderEpics(){
-  try{ urlSync(); }catch(e){}
   const wrap=document.getElementById('epicswrap');
   const epics=store.epics().filter(e=>ui.project==='all'||e.project===ui.project);
   const head=`<div class="ov-h"><h2>Epics</h2><button class="btn primary" id="epCreate" style="margin-left:auto">Create epic</button></div><div class="ep-sep"></div>`;
@@ -4501,7 +4502,7 @@ function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return
   if(f.mode==='custom'){ if(f.from && ds<f.from) return false; if(f.to && ds>f.to) return false; return true; }
   return true; }
 function renderDeployments(){
-  try{ urlSync(); }catch(e){}
+  if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page filter change → reflect in URL
   const el=document.getElementById('deploymentswrap'); if(!el) return;
   const f=ui.depFilter;
   let done=store.standardTasks().filter(t=>t.deployed).filter(depInRange);
@@ -5003,7 +5004,6 @@ function openBoardSettings(){ ui.view='boardsettings'; setView('boardsettings');
 function closeBoardSettings(){ renderAll(); fillFilters(); }
 function renderBoardSettings(){
   const el=document.getElementById('boardsettingswrap'); if(!el) return;
-  try{ urlSync(); }catch(e){}
   const b=activeBoard();
   const SECS=[
     {k:'boards',  n:'Boards',      d:'Add or rename the boards in this workspace'},
@@ -5474,6 +5474,14 @@ const FXW=150, FXH=34, FXGX=210, FXGY=86;   // FXW is the minimum; nodes grow to
 /* Width that actually fits the label — a fixed box cropped "Ready for Development". */
 function fxW(name){ return Math.max(FXW, Math.min(300, Math.round((name||'').length*7.1)+38)); }
 function fxNodeW(id){ const st=store.status(id); return fxW(st?st.name:''); }
+// Real pixel width of a transition label at its own font, so the pill fits the
+// full name instead of being clipped to a fixed box.
+let _fxLblCtx=null;
+function fxLblW(s){
+  if(!_fxLblCtx){ try{ _fxLblCtx=document.createElement('canvas').getContext('2d'); }catch(e){} }
+  if(_fxLblCtx){ _fxLblCtx.font='600 8.5px Inter, system-ui, sans-serif'; return _fxLblCtx.measureText(s||'').width; }
+  return (s||'').length*4.9;
+}
 
 function fxKey(a,b){ return a+'>'+b; }
 function fxLbl(d,a,b){ return (d.labels&&d.labels[fxKey(a,b)])||''; }
@@ -5523,18 +5531,27 @@ function fxDiagram(){
     </div>`;
 
   const byId={}; cols.forEach(s=>byId[s.id]=s);
-  const edges=[];
+  const edges=[]; const labels=[];
   Object.keys(d.transitions||{}).forEach(from=>{
     (d.transitions[from]||[]).forEach(to=>{
       if(!byId[from]||!byId[to]) return;
       const g=fxRoute(pos[from],pos[to],fxNodeW(from),fxNodeW(to));
       const on=_fxSel&&(from===_fxSel||to===_fxSel);
       edges.push(`<g class="fxe ${on?'on':''}" data-e="${fxKey(from,to)}">
-        <path d="${g.d}" marker-end="url(#fxa${on?'On':''})"/>
-        ${_fxLabels?`<g class="fxe-l" transform="translate(${g.lx},${g.ly})">
-          <rect x="-56" y="-10" width="112" height="20" rx="10"/>
-          <text text-anchor="middle" dy="4">${esc((fxLbl(d,from,to)||byId[to].name).slice(0,18))}</text></g>`:''}
-      </g>`);
+        <path d="${g.d}" marker-end="url(#fxa${on?'On':''})"/></g>`);
+      if(_fxLabels){
+        const txt=fxLbl(d,from,to)||byId[to].name;
+        const w=Math.round(fxLblW(txt))+18;                 // full name, snug pill
+        // A two-way link (A->B and B->A) routes both labels to the same elbow.
+        // Nudge the pair apart up front so neither sits on top of the other.
+        let lx=g.lx, ly=g.ly;
+        if((d.transitions[to]||[]).includes(from)){
+          const horiz=Math.abs(pos[to].x-pos[from].x)>=Math.abs(pos[to].y-pos[from].y);
+          const s=(from<to)?-1:1;
+          if(horiz) ly+=s*13; else lx+=s*(w/2+10);
+        }
+        labels.push({on, text:txt, x:lx, y:ly, w, h:20});
+      }
     });
   });
 
@@ -5580,6 +5597,43 @@ function fxDiagram(){
     </g>`;
   }).join('');
 
+  // Separate any labels that still overlap each other or a status box. A small
+  // iterative push along the axis of least penetration — bounded, deterministic.
+  let labelSVG='';
+  if(labels.length){
+    const boxes=cols.map(s=>({cx:pos[s.id].x+fxW(s.name)/2, cy:pos[s.id].y+FXH/2, w:fxW(s.name), h:FXH}));
+    const GAP=7;
+    for(let it=0; it<48; it++){
+      let moved=false;
+      for(let i=0;i<labels.length;i++){
+        const A=labels[i];
+        for(let j=i+1;j<labels.length;j++){
+          const B=labels[j];
+          const ox=(A.w+B.w)/2+GAP-Math.abs(A.x-B.x);
+          const oy=(A.h+B.h)/2+GAP-Math.abs(A.y-B.y);
+          if(ox>0&&oy>0){
+            if(oy<=ox){ const s=((A.y<=B.y)?-1:1)*oy/2; A.y+=s; B.y-=s; }
+            else { const s=((A.x<=B.x)?-1:1)*ox/2; A.x+=s; B.x-=s; }
+            moved=true;
+          }
+        }
+        for(const nb of boxes){
+          const ox=(A.w+nb.w)/2+GAP-Math.abs(A.x-nb.cx);
+          const oy=(A.h+nb.h)/2+GAP-Math.abs(A.y-nb.cy);
+          if(ox>0&&oy>0){
+            if(oy<=ox) A.y+=((A.y<=nb.cy)?-1:1)*oy;
+            else       A.x+=((A.x<=nb.cx)?-1:1)*ox;
+            moved=true;
+          }
+        }
+      }
+      if(!moved) break;
+    }
+    labelSVG=labels.map(L=>`<g class="fxe-l ${L.on?'on':''}" transform="translate(${Math.round(L.x)},${Math.round(L.y)})">
+        <rect x="${-L.w/2}" y="-10" width="${L.w}" height="20" rx="10"/>
+        <text text-anchor="middle" dy="4">${esc(L.text)}</text></g>`).join('');
+  }
+
   const maxX=Math.max(...cols.map(s=>pos[s.id].x+fxW(s.name)))+120;
   const maxY=Math.max(...cols.map(s=>pos[s.id].y))+FXH+120;
   const vw=Math.max(1200,maxX), vh=Math.max(560,maxY);
@@ -5596,7 +5650,7 @@ function fxDiagram(){
           <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
       </defs>
       <g transform="scale(${_fxZoom}) translate(${_fxPanX},${_fxPanY})">
-        ${edges.join('')}${start}${nodes}
+        ${edges.join('')}${start}${nodes}${labelSVG}
         <g id="fxGuides"></g>
       </g></svg>
     <div class="fxs-mini"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${mini}</svg>
@@ -6339,7 +6393,7 @@ function refreshViews(){ const v=ui.view;
   if(v==='board') renderBoard(); else if(v==='list') renderList(); else if(v==='epics') renderEpics();
   else if(v==='overview') renderOverview(); else if(v==='team') renderTeam(); else if(v==='analytics') renderAnalytics();
   else if(v==='boardsettings') renderBoardSettings();;
-  renderProjectSwitch(); renderSideCard(); updateCount(); try{ urlSync(); }catch(e){} }
+  renderProjectSwitch(); renderSideCard(); updateCount(); }
 function updateCount(){ return; }
 
 const VIEW_TITLE={overview:'Overview',boardsettings:'Board & workflow',projects:'Projects',backlog:'Backlog',releases:'Releases',timeline:'Timeline',calendar:'Calendar',dashboard:'Dashboard',velocity:'Velocity & Burndown',board:'Board',list:'List View',epics:'Epics',team:'Team',deployments:'Deployment tracker',
@@ -6347,7 +6401,11 @@ const VIEW_TITLE={overview:'Overview',boardsettings:'Board & workflow',projects:
 const SOON_VIEWS={};
 function setHeadHeight(){ const h=document.querySelector('.stickyhead'); if(h) document.documentElement.style.setProperty('--head-h', h.offsetHeight+'px'); }
 window.addEventListener('resize', setHeadHeight);
-function renderAll(){ document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand();
+// True only while renderAll() is dispatching to a view renderer, so those views
+// can tell a navigation render (URL already synced here at the tail) apart from a
+// direct in-page re-render (e.g. an analytics rail click) that must sync itself.
+let _inRenderAll=false;
+function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand();
   renderChatFab(); updateChatFab();
   const v=ui.view;
   const _dashTitle={productivity:'Productivity Dashboard', delivery:'Delivery Dashboard', priority:'Priority Tasks Dashboard'};
@@ -6404,9 +6462,10 @@ function renderAll(){ document.body.classList.toggle('view-board', ui.view==='bo
   else if(v==='users') renderUsers();
   else if(SOON_VIEWS[v]) renderSoon(SOON_VIEWS[v]);
   updateCount(); setHeadHeight(); openTicketFromURL(); if(window.enhanceSelects) enhanceSelects(document);
+  _inRenderAll=false;
   try{ urlSync(); }catch(e){} }
 
-function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); try{ urlSync(); }catch(e){} }
+function setView(v){ if(!IS_ADMIN){ if(v==='operations'){ v='overview'; } else if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
 
 /* ---------- Side card ---------- */
 function renderSideCard(){
@@ -6865,7 +6924,7 @@ function cloneUserSetup(fromId, toId){
 }
 
 function renderSettings(){
-  try{ urlSync(); }catch(e){}
+  if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page section change → reflect in URL
   if(IS_ADMIN && !_suiteSynced){ _suiteSynced=true;
     syncSuitePeople().then(added=>{ if(added && ui.view==='settings') renderSettings(); }); }
   const el=document.getElementById('settingswrap'); const s=store.settings();
@@ -7364,7 +7423,6 @@ function wireNotes(){
 
 function renderCalendar(){
   const el=document.getElementById('calendarwrap'); if(!el) return;
-  try{ urlSync(); }catch(e){}
   if(!_calRef){ _calRef=new Date(); _calRef.setDate(1); }
   const now=new Date(_calRef); now.setDate(1);
   const y=now.getFullYear(), m=now.getMonth();
@@ -7736,7 +7794,7 @@ function ehsSearchBox(id,ph,val){
 }
 
 function renderProjects(){
-  try{ urlSync(); }catch(e){}
+  if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page project selection → reflect in URL
   const el=document.getElementById('projectswrap');
   const projects=store.projects();
   const allK=store.standardTasks();
@@ -8225,7 +8283,7 @@ function anInPeriod(ds){
 function anActive(t){ return anInPeriod(t.createdAt) || anInPeriod(t.resolvedAt) || store.worklogs(t.id).some(w=>anInPeriod(w.date)); }
 
 function renderAnalytics(){
-  try{ urlSync(); }catch(e){}
+  if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page tab/selection change → reflect in URL
   const el=document.getElementById('analyticswrap');
   const scope = ui.project==='all' ? store.standardTasks() : store.standardTasks().filter(t=>t.project===ui.project);
   const ids=scope.map(t=>t.id);
