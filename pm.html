@@ -2425,9 +2425,49 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#0E8F5A18;color:#0E8F5A}
 .dep-stats{display:flex;align-items:center;gap:18px;flex:1;min-width:280px}
 .dep-ep .ep-kebab,.qa-ep .ep-kebab{top:10px;right:12px}
+.dep-badge.pr{background:#B96A0018;color:#B96A00}
+.pb-pr{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:13px 15px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2)}
+.pb-pr.raised{border-color:#0E8F5A55;background:#0E8F5A0D}
+.pb-pr-l{display:flex;align-items:center;gap:12px;min-width:0}
+.pb-pr-ic{width:36px;height:36px;border-radius:10px !important;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);flex:none}
+.pb-pr-ic svg{width:18px;height:18px}
+.pb-pr.raised .pb-pr-ic{color:#0E8F5A;border-color:#0E8F5A44}
+.pb-pr-t{font-size:13.5px;font-weight:700;color:var(--ink)}
+.pb-pr-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pb-pr-btn{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 15px;border-radius:10px !important;cursor:pointer;transition:background .15s}
+.pb-pr-btn svg{width:14px;height:14px}
+.pb-pr-btn:hover{background:var(--surface-2)}
+.pb-pr-btn.done{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
 .scroll{padding-bottom:62px}
 .sidebar{padding-bottom:58px}
 .botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--ink);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
+.env-banner-host{flex:none}
+.env-banner-host:empty{display:none}
+.env-banner{display:flex;align-items:center;gap:12px;background:#FDF1F6;border-bottom:1px solid #F5D6E4;padding:10px 20px}
+.eb-ic{color:#D6337A;flex:none;display:grid;place-items:center}
+.eb-ic svg{width:17px;height:17px}
+.eb-body{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);flex:1;min-width:0}
+.eb-env{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--ink)}
+.eb-pill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:2px 9px;border-radius:7px !important}
+.eb-pill.inuse{background:#CE2F2618;color:#CE2F26}
+.eb-pill.free{background:#0E8F5A18;color:#0E8F5A}
+.eb-sub{color:var(--muted);font-weight:500;font-size:12px}
+.eb-rel{border:1px solid var(--crit);background:#fff;color:var(--crit);font-family:inherit;font-size:11px;font-weight:700;padding:3px 10px;border-radius:7px !important;cursor:pointer}
+.eb-rel:hover{background:#CE2F260D}
+.eb-dv{width:1px;height:16px;background:var(--line);flex:none}
+.eb-act{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
+.eb-block{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ink);background:#fff;color:var(--ink);font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px !important;cursor:pointer;transition:background .15s}
+.eb-block svg{width:14px;height:14px}
+.eb-block:hover{background:var(--surface-2)}
+.env-seg{display:inline-flex;gap:2px;background:var(--surface-3);border-radius:10px !important;padding:3px}
+.env-seg button{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:8px !important;cursor:pointer;white-space:nowrap}
+.env-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.env-avail{font-size:12.5px;color:var(--ink-2);padding:11px 13px;border-radius:10px !important;margin:14px 0;line-height:1.55}
+.env-avail.busy{background:#CE2F260D;border:1px solid #CE2F2626}
+.env-avail.free{background:#0E8F5A0D;border:1px solid #0E8F5A26}
+.env-avail b{color:var(--ink);font-weight:700}
+.env-frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.env-frow input{width:100%}
 .bb-left,.bb-right{display:flex;align-items:center;gap:3px;flex:none}
 .bb-right{margin-left:auto}
 .bb-sep{width:1px;height:24px;background:var(--line);flex:none;margin:0 8px}
@@ -2505,33 +2545,56 @@ body[data-density="compact"] .board{padding:12px 16px}
 .qa-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#2743E014;color:#2743E0}
 .qa-ep .ep-right{min-width:320px}
 .qa-cases{display:flex;flex-direction:column;gap:7px}
+.qa-cases.qa-scroll{max-height:290px;overflow-y:auto;padding-right:5px}
+.qa-cases.qa-scroll::-webkit-scrollbar{width:7px}
+.qa-cases.qa-scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:20px !important}
 .qa-empty-cases{font-size:12px;color:var(--faint);padding:6px 2px}
 .qa-case{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
-.qa-kind{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px !important;flex:none}
-.qa-kind.test{background:#2743E014;color:#2743E0}
-.qa-kind.use{background:#7C3AED14;color:#7C3AED}
-.qa-case-tx{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qa-status{flex:none;border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px !important;cursor:pointer;color:var(--muted);transition:background .15s,border-color .15s,color .15s}
+.qa-kind{font-size:11px;font-weight:700;padding:4px 11px;border-radius:8px !important;flex:none;border:1px solid var(--ink);background:#fff;color:var(--ink);white-space:nowrap}
+.qa-kind.test{background:#2743E014;color:#2743E0;border-color:#2743E040}
+.qa-kind.use{background:#7C3AED14;color:#7C3AED;border-color:#7C3AED40}
+.qa-case-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.qa-case-tx{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa-case-kind{font-size:11px;font-weight:600;letter-spacing:.01em}
+.qa-case-kind.test{color:#2743E0}
+.qa-case-kind.use{color:#7C3AED}
+.qa-status{flex:none;border:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px !important;cursor:pointer;color:var(--muted);transition:background .15s,border-color .15s,color .15s}
 .qa-status:hover{border-color:var(--ink-2)}
 .qa-status.pass{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
 .qa-status.fail{background:#CE2F2614;border-color:#CE2F2655;color:#CE2F26}
 .qa-del{flex:none;width:26px;height:26px;border:0;background:none;color:var(--faint);border-radius:7px !important;cursor:pointer;display:grid;place-items:center}
 .qa-del:hover{color:var(--crit);background:var(--surface-2)}
 .qa-add{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line-2)}
-.qa-kind-tog{display:flex;border:1px solid var(--line);border-radius:8px !important;overflow:hidden;flex:none}
-.qa-kind-tog button{border:0;border-right:1px solid var(--line);background:var(--surface);font-family:inherit;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer;color:var(--muted)}
-.qa-kind-tog button:last-child{border-right:0}
-.qa-kind-tog button.on{background:var(--accent);color:#fff}
+.qa-kind-tog{display:inline-flex;gap:2px;background:var(--surface-3);border-radius:10px !important;padding:3px;flex:none}
+.qa-kind-tog button{border:0;background:none;padding:6px 13px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:inherit;border-radius:8px !important}
+.qa-kind-tog button:hover:not(.on){background:rgba(0,0,0,.05)}
+.qa-kind-tog button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
 .qa-add-in{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px !important;padding:8px 11px;font-family:inherit;font-size:12.5px;outline:none;color:var(--ink)}
 .qa-add-in:focus{border-color:var(--accent)}
-.qa-add-btn{flex:none;border:1px solid var(--ink);background:var(--ink);color:#fff;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px !important;cursor:pointer}
-.qa-add-btn:hover{opacity:.9}
+.qa-add-btn{flex:none;border:1px solid var(--ink);background:#fff;color:var(--ink);font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px !important;cursor:pointer;transition:background .15s}
+.qa-add-btn:hover{background:var(--surface-2)}
+.qa-atts{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line-2);flex-wrap:wrap}
+.qa-att-list{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+.qa-att{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px !important;background:var(--surface);overflow:hidden}
+.qa-att a{display:inline-flex;align-items:center;gap:6px;padding:6px 4px 6px 9px;font-size:12px;font-weight:600;color:var(--ink);text-decoration:none;max-width:220px}
+.qa-att a svg{width:14px;height:14px;color:var(--accent);flex:none}
+.qa-att-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa-att a:hover{color:var(--accent)}
+.qa-att-x{border:0;background:none;color:var(--faint);cursor:pointer;font-size:15px;line-height:1;padding:0 8px 0 3px}
+.qa-att-x:hover{color:var(--crit)}
+.qa-att-btn{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);font-family:inherit;font-size:12px;font-weight:700;padding:8px 13px;border-radius:8px !important;cursor:pointer;transition:background .15s}
+.qa-att-btn svg{width:15px;height:15px}
+.qa-att-btn:hover{background:var(--surface-2)}
+.qa-att-file{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface-2)}
+.qa-att-file svg{width:22px;height:22px;color:var(--accent);flex:none}
+.qa-att-file .fn{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px}
+.qa-att-file .fs{font-size:11px;color:var(--muted);margin-top:1px}
 .qvf-sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px}
 .qvf-sec-h span{font-size:11px;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:0}
 .qvf-hint{font-size:11.5px;color:var(--muted);line-height:1.5;margin:-4px 0 12px}
 .qvf-cases,.qvf-bugs{display:flex;flex-direction:column;gap:7px}
 .qvf-case{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
-.qvf-case-tx{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qvf-case-tx{font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qvf-bug{display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:10px !important;background:var(--surface)}
 .qvf-bug.fixed{opacity:.6}
 .qvf-bug.fixed .qvf-bug-tx{text-decoration:line-through}
@@ -2788,6 +2851,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 </head>
 <body>
 <div class="appwrap">
+  <div id="envBanner" class="env-banner-host"></div>
   <nav class="topnav">
     <a class="tn-logo" href="index.html"><img class="tn-logo-img" src="data:image/png;base64,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" alt="EduHubSpot"></a>
     <span style="flex:1"></span>
@@ -3121,6 +3185,30 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="modal-f"><button class="btn" id="qaVfClose">Done</button></div>
   </div>
 </div>
+<input type="file" id="qaAttFile" accept=".pdf,.doc,.docx,.txt,.rtf,.xls,.xlsx,.ppt,.pptx,.csv,.md,.png,.jpg,.jpeg" style="display:none">
+<div class="modal-wrap" id="qaAttWrap"><div class="modal sub-modal" style="width:440px">
+  <div class="modal-h">Name this attachment</div>
+  <div class="modal-b">
+    <div class="qa-att-file" id="qaAttFileInfo"></div>
+    <div class="field" style="margin-top:14px"><label>Attachment name</label><input id="qaAttName" placeholder="e.g. Refund test cases" autocomplete="off"></div>
+  </div>
+  <div class="modal-f"><button class="btn" id="qaAttCancel">Cancel</button><button class="btn primary" id="qaAttUpload">Upload</button></div>
+</div></div>
+
+<div class="modal-wrap" id="envBlockWrap"><div class="modal sub-modal" style="width:490px">
+  <div class="modal-h">Block a test environment</div>
+  <div class="modal-b">
+    <div class="field"><label>Environment</label>
+      <div class="env-seg" id="envSeg"><button data-env="staging">Staging</button><button data-env="test">Test Environment</button></div>
+    </div>
+    <div class="env-avail" id="envAvail"></div>
+    <div class="env-frow">
+      <div class="field"><label>From</label><input type="datetime-local" id="envFrom"></div>
+      <div class="field"><label>To</label><input type="datetime-local" id="envTo"></div>
+    </div>
+  </div>
+  <div class="modal-f"><button class="btn" id="envCancel">Cancel</button><button class="btn primary" id="envSubmit">Block environment</button></div>
+</div></div>
 
 <!-- Create Epic modal -->
 <div class="modal-wrap" id="epicWrap">
@@ -3377,8 +3465,8 @@ body[data-density="compact"] .board{padding:12px 16px}
    ►► SUPABASE CONFIG — paste your two values here to go live.
    Leave as-is to run in local (single-browser) demo mode.
 ============================================================ */
-const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
-const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
+const SUPABASE_URL  = "";
+const SUPABASE_ANON = "";
 
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
@@ -3486,21 +3574,1795 @@ function applyPrefs(){ const p=curPrefs();
 let STATUSES = []; // live reference to store.data.statuses after load
 
 const SEED = {
-  settings:{ workspaceName:'EduHubSpot', defaultView:'board', defaultBoard:'main', fields:[] },
-  projects:[],
-  statuses:[],
-  boards:[],
-  users:[],
-  teams:[],
-  releases:[],
-  sprints:[],
-  tasks:[],
-  worklogs:[],
-  spaces:[],
+  "settings": {
+    "workspaceName": "EduHubSpot",
+    "defaultView": "board",
+    "defaultBoard": "bd_tech",
+    "fields": [
+      {
+        "id": "cf_env",
+        "name": "Environment",
+        "type": "select",
+        "options": [
+          "Dev",
+          "Staging",
+          "Prod"
+        ],
+        "onCard": false
+      },
+      {
+        "id": "cf_link",
+        "name": "PR Link",
+        "type": "text",
+        "options": [],
+        "onCard": false
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": "pj_lms",
+      "name": "LMS Revamp",
+      "key": "LMS",
+      "color": "#2743E0",
+      "ws": "ws_tpm"
+    },
+    {
+      "id": "pj_pay",
+      "name": "Payments Platform",
+      "key": "PAY",
+      "color": "#0E8F5A",
+      "ws": "ws_tpm"
+    },
+    {
+      "id": "pj_mob",
+      "name": "Mobile App",
+      "key": "MOB",
+      "color": "#7C3AED",
+      "ws": "ws_tpm"
+    }
+  ],
+  "statuses": [
+    {
+      "id": "st_backlog",
+      "name": "Back Log",
+      "cat": "todo",
+      "color": "#727A87"
+    },
+    {
+      "id": "st_ready",
+      "name": "Ready for Development",
+      "cat": "todo",
+      "color": "#8B6D00"
+    },
+    {
+      "id": "st_dev",
+      "name": "In Development",
+      "cat": "inprogress",
+      "color": "#2743E0"
+    },
+    {
+      "id": "st_review",
+      "name": "Code Review",
+      "cat": "inprogress",
+      "color": "#4F46E5"
+    },
+    {
+      "id": "st_qa",
+      "name": "QA Testing",
+      "cat": "inprogress",
+      "color": "#0891B2"
+    },
+    {
+      "id": "st_pm",
+      "name": "PM Review",
+      "cat": "inprogress",
+      "color": "#7C3AED"
+    },
+    {
+      "id": "st_uat",
+      "name": "UAT",
+      "cat": "inprogress",
+      "color": "#B96A00"
+    },
+    {
+      "id": "st_deploy",
+      "name": "Deploy",
+      "cat": "inprogress",
+      "color": "#DB2777"
+    },
+    {
+      "id": "st_blocked",
+      "name": "Blocked",
+      "cat": "inprogress",
+      "color": "#CE2F26"
+    },
+    {
+      "id": "st_done",
+      "name": "Done",
+      "cat": "done",
+      "color": "#0E8F5A"
+    }
+  ],
+  "boards": [
+    {
+      "id": "bd_tech",
+      "name": "Tech Delivery",
+      "ws": "ws_tpm",
+      "enforce": true,
+      "columns": [
+        "st_backlog",
+        "st_ready",
+        "st_dev",
+        "st_review",
+        "st_qa",
+        "st_pm",
+        "st_uat",
+        "st_deploy",
+        "st_blocked",
+        "st_done"
+      ],
+      "transitions": {
+        "st_backlog": [
+          "st_ready"
+        ],
+        "st_ready": [
+          "st_backlog",
+          "st_dev"
+        ],
+        "st_dev": [
+          "st_review",
+          "st_blocked",
+          "st_ready"
+        ],
+        "st_review": [
+          "st_dev",
+          "st_qa"
+        ],
+        "st_qa": [
+          "st_pm",
+          "st_dev",
+          "st_blocked"
+        ],
+        "st_pm": [
+          "st_uat",
+          "st_dev"
+        ],
+        "st_uat": [
+          "st_deploy",
+          "st_pm"
+        ],
+        "st_deploy": [
+          "st_done"
+        ],
+        "st_blocked": [
+          "st_dev",
+          "st_qa"
+        ],
+        "st_done": []
+      },
+      "tlabels": {
+        "st_backlog>st_ready": "Ready to build",
+        "st_ready>st_backlog": "Need more details",
+        "st_ready>st_dev": "Start work",
+        "st_dev>st_review": "Code review",
+        "st_dev>st_blocked": "Blocked",
+        "st_dev>st_ready": "Reopen",
+        "st_review>st_dev": "Changes requested",
+        "st_review>st_qa": "Approved",
+        "st_qa>st_pm": "QA passed",
+        "st_qa>st_dev": "Bugs found",
+        "st_qa>st_blocked": "Blocked",
+        "st_pm>st_uat": "Ready for UAT",
+        "st_pm>st_dev": "Rework",
+        "st_uat>st_deploy": "UAT approved",
+        "st_uat>st_pm": "UAT failed",
+        "st_deploy>st_done": "Deployed",
+        "st_blocked>st_dev": "Unblocked",
+        "st_blocked>st_qa": "Back to QA"
+      },
+      "flowPos": {
+        "st_backlog": {
+          "x": 60,
+          "y": 60
+        },
+        "st_ready": {
+          "x": 360,
+          "y": 60
+        },
+        "st_dev": {
+          "x": 680,
+          "y": 60
+        },
+        "st_review": {
+          "x": 680,
+          "y": 230
+        },
+        "st_qa": {
+          "x": 360,
+          "y": 380
+        },
+        "st_pm": {
+          "x": 680,
+          "y": 380
+        },
+        "st_uat": {
+          "x": 360,
+          "y": 540
+        },
+        "st_deploy": {
+          "x": 680,
+          "y": 540
+        },
+        "st_blocked": {
+          "x": 60,
+          "y": 380
+        },
+        "st_done": {
+          "x": 680,
+          "y": 700
+        }
+      }
+    },
+    {
+      "id": "bd_new",
+      "name": "Sprint Board",
+      "ws": "ws_tpm",
+      "enforce": false,
+      "columns": [
+        "st_backlog",
+        "st_ready",
+        "st_dev",
+        "st_review",
+        "st_qa",
+        "st_done"
+      ],
+      "transitions": {},
+      "tlabels": {},
+      "flowPos": {}
+    }
+  ],
+  "users": [
+    {
+      "id": "u1",
+      "name": "Pavan Kumar",
+      "role": "Product Manager",
+      "email": "pavan@eduhubspot.com",
+      "color": "#2743E0"
+    },
+    {
+      "id": "u2",
+      "name": "Aarav Sharma",
+      "role": "Senior Developer",
+      "email": "aarav@eduhubspot.com",
+      "color": "#0E8F5A"
+    },
+    {
+      "id": "u3",
+      "name": "Diya Patel",
+      "role": "Developer",
+      "email": "diya@eduhubspot.com",
+      "color": "#B96A00"
+    },
+    {
+      "id": "u4",
+      "name": "Rohan Mehta",
+      "role": "QA Engineer",
+      "email": "rohan@eduhubspot.com",
+      "color": "#7C3AED"
+    },
+    {
+      "id": "u5",
+      "name": "Ananya Iyer",
+      "role": "Developer",
+      "email": "ananya@eduhubspot.com",
+      "color": "#0891B2"
+    },
+    {
+      "id": "u6",
+      "name": "Vikram Rao",
+      "role": "DevOps Engineer",
+      "email": "vikram@eduhubspot.com",
+      "color": "#DB2777"
+    },
+    {
+      "id": "u7",
+      "name": "Sneha Nair",
+      "role": "Designer",
+      "email": "sneha@eduhubspot.com",
+      "color": "#4F46E5"
+    },
+    {
+      "id": "u8",
+      "name": "Karthik Reddy",
+      "role": "Developer",
+      "email": "karthik@eduhubspot.com",
+      "color": "#059669"
+    }
+  ],
+  "teams": [
+    {
+      "id": "tm1",
+      "name": "Delivery Squad",
+      "lead": "u1",
+      "members": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6"
+      ]
+    }
+  ],
+  "releases": [
+    {
+      "id": "rel1",
+      "name": "v2.1 – Catalog",
+      "date": "2026-07-14",
+      "status": "released",
+      "desc": "Course catalog v2 rollout"
+    },
+    {
+      "id": "rel2",
+      "name": "v2.2 – Payments",
+      "date": "2026-07-27",
+      "status": "unreleased",
+      "desc": "Razorpay payments GA"
+    }
+  ],
+  "sprints": [
+    {
+      "id": "sp1",
+      "name": "Sprint 24",
+      "goal": "Payments foundation + catalog scaffolding",
+      "state": "closed",
+      "start": "2026-06-22",
+      "end": "2026-07-06"
+    },
+    {
+      "id": "sp2",
+      "name": "Sprint 25",
+      "goal": "Ship catalog v2, harden payments",
+      "state": "active",
+      "start": "2026-07-06",
+      "end": "2026-07-20"
+    },
+    {
+      "id": "sp3",
+      "name": "Sprint 26",
+      "goal": "Mobile offline mode",
+      "state": "future",
+      "start": "2026-07-21",
+      "end": "2026-08-04"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-102",
+      "title": "Design catalog filter panel",
+      "type": "Story",
+      "status": "st_backlog",
+      "priority": "Medium",
+      "assignee": "u7",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e1",
+      "epic": "e1",
+      "due": "2026-07-29",
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t2",
+      "ws": "ws_tpm",
+      "project": "pj_mob",
+      "key": "MOB-102",
+      "title": "Spec offline cache format",
+      "type": "Task",
+      "status": "st_backlog",
+      "priority": "Low",
+      "assignee": "u5",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e3",
+      "epic": "e3",
+      "due": "2026-08-03",
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t3",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-102",
+      "title": "Audit PCI compliance checklist",
+      "type": "Task",
+      "status": "st_backlog",
+      "priority": "High",
+      "assignee": "u2",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t4",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-103",
+      "title": "Build faceted search API",
+      "type": "Story",
+      "status": "st_ready",
+      "priority": "High",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e1",
+      "epic": "e1",
+      "due": "2026-07-26",
+      "start": null,
+      "estimate": 480,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t5",
+      "ws": "ws_tpm",
+      "project": "pj_mob",
+      "key": "MOB-103",
+      "title": "Set up local SQLite store",
+      "type": "Task",
+      "status": "st_ready",
+      "priority": "Medium",
+      "assignee": "u5",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e3",
+      "epic": "e3",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t6",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-104",
+      "title": "Image-based course cards",
+      "type": "Story",
+      "status": "st_dev",
+      "priority": "High",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e1",
+      "epic": "e1",
+      "due": "2026-07-23",
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t7",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-103",
+      "title": "Order creation endpoint",
+      "type": "Task",
+      "status": "st_dev",
+      "priority": "Critical",
+      "assignee": "u2",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": "2026-07-22",
+      "start": null,
+      "estimate": 360,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t8",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-104",
+      "title": "Webhook signature verification",
+      "type": "Task",
+      "status": "st_dev",
+      "priority": "Critical",
+      "assignee": "u8",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": "2026-07-24",
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t9",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-105",
+      "title": "Catalog pagination component",
+      "type": "Task",
+      "status": "st_review",
+      "priority": "Medium",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": "u2",
+      "deployer": null,
+      "parent": "e1",
+      "epic": "e1",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "prRaised": true,
+      "prRaisedAt": "2026-07-06"
+    },
+    {
+      "id": "t10",
+      "ws": "ws_tpm",
+      "project": "pj_mob",
+      "key": "MOB-104",
+      "title": "Fix crash on lesson resume",
+      "type": "Bug",
+      "status": "st_review",
+      "priority": "High",
+      "assignee": "u5",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": "u2",
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "prRaised": true,
+      "prRaisedAt": "2026-07-06"
+    },
+    {
+      "id": "t11",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-105",
+      "title": "Refund flow end-to-end",
+      "type": "Story",
+      "status": "st_qa",
+      "priority": "High",
+      "assignee": "u8",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc1x",
+          "kind": "test",
+          "title": "Valid card completes payment",
+          "status": "pass"
+        },
+        {
+          "id": "qc2x",
+          "kind": "test",
+          "title": "Declined card shows error",
+          "status": "pass"
+        },
+        {
+          "id": "qc3x",
+          "kind": "use",
+          "title": "Refund processed within 24h",
+          "status": "fail"
+        },
+        {
+          "id": "qc4x",
+          "kind": "test",
+          "title": "Duplicate charge is prevented",
+          "status": "pending"
+        },
+        {
+          "id": "qc5x",
+          "kind": "test",
+          "title": "3-D Secure challenge completes",
+          "status": "pass"
+        },
+        {
+          "id": "qc6x",
+          "kind": "use",
+          "title": "Partial refund updates balance",
+          "status": "pending"
+        },
+        {
+          "id": "qc7x",
+          "kind": "test",
+          "title": "Expired card is rejected",
+          "status": "pass"
+        },
+        {
+          "id": "qc8x",
+          "kind": "use",
+          "title": "Receipt reflects refunded amount",
+          "status": "pending"
+        }
+      ],
+      "qaBugs": [
+        {
+          "id": "qb1y",
+          "text": "Partial refund fails with a 500 on prod",
+          "severity": "high",
+          "status": "open",
+          "by": "u4",
+          "at": "2026-07-15T23:11:29.797Z"
+        },
+        {
+          "id": "qb2y",
+          "text": "Refund confirmation email not sent",
+          "severity": "med",
+          "status": "fixed",
+          "by": "u4",
+          "at": "2026-07-15T23:11:29.797Z"
+        }
+      ]
+    },
+    {
+      "id": "t12",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-106",
+      "title": "Search relevance regression",
+      "type": "Bug",
+      "status": "st_qa",
+      "priority": "Medium",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.795Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc9x",
+          "kind": "test",
+          "title": "Search returns relevant results",
+          "status": "fail"
+        },
+        {
+          "id": "qc10x",
+          "kind": "use",
+          "title": "Empty query handled gracefully",
+          "status": "pass"
+        },
+        {
+          "id": "qc11x",
+          "kind": "test",
+          "title": "Typo tolerance works",
+          "status": "fail"
+        }
+      ],
+      "qaBugs": [
+        {
+          "id": "qb3y",
+          "text": "Search ignores exact-match phrases in quotes",
+          "severity": "med",
+          "status": "open",
+          "by": "u4",
+          "at": "2026-07-18T23:11:29.797Z"
+        },
+        {
+          "id": "qb4y",
+          "text": "Typo tolerance returns zero results",
+          "severity": "high",
+          "status": "open",
+          "by": "u4",
+          "at": "2026-07-15T23:11:29.797Z"
+        }
+      ]
+    },
+    {
+      "id": "t13",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-106",
+      "title": "Payment receipt email copy",
+      "type": "Task",
+      "status": "st_pm",
+      "priority": "Low",
+      "assignee": "u7",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": "2026-07-25",
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc12x",
+          "kind": "use",
+          "title": "Receipt email renders on mobile",
+          "status": "pass"
+        },
+        {
+          "id": "qc13x",
+          "kind": "test",
+          "title": "Amount & tax are correct",
+          "status": "pass"
+        }
+      ],
+      "prRaised": true,
+      "prRaisedAt": "2026-07-06"
+    },
+    {
+      "id": "t14",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-107",
+      "title": "Catalog UAT with content team",
+      "type": "Task",
+      "status": "st_uat",
+      "priority": "Medium",
+      "assignee": "u1",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc14x",
+          "kind": "use",
+          "title": "Content team can browse catalog",
+          "status": "pass"
+        },
+        {
+          "id": "qc15x",
+          "kind": "test",
+          "title": "Filters persist across pages",
+          "status": "pass"
+        },
+        {
+          "id": "qc16x",
+          "kind": "test",
+          "title": "Deep link opens right course",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "t15",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-107",
+      "title": "Deploy payments to staging",
+      "type": "Task",
+      "status": "st_deploy",
+      "priority": "Critical",
+      "assignee": "u6",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": "u6",
+      "parent": "e2",
+      "epic": "e2",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc17x",
+          "kind": "test",
+          "title": "Staging smoke test passes",
+          "status": "pass"
+        },
+        {
+          "id": "qc18x",
+          "kind": "test",
+          "title": "Env vars point to sandbox",
+          "status": "pass"
+        },
+        {
+          "id": "qc19x",
+          "kind": "use",
+          "title": "Rollback restores previous build",
+          "status": "pending"
+        }
+      ],
+      "qaBugs": [
+        {
+          "id": "qb5y",
+          "text": "Staging build points to prod payment keys",
+          "severity": "high",
+          "status": "open",
+          "by": "u4",
+          "at": "2026-07-18T23:11:29.797Z"
+        }
+      ]
+    },
+    {
+      "id": "t16",
+      "ws": "ws_tpm",
+      "project": "pj_mob",
+      "key": "MOB-105",
+      "title": "Push notifications (waiting on keys)",
+      "type": "Task",
+      "status": "st_blocked",
+      "priority": "Medium",
+      "assignee": "u5",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t17",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-108",
+      "title": "Settlement report (vendor delay)",
+      "type": "Task",
+      "status": "st_blocked",
+      "priority": "High",
+      "assignee": "u8",
+      "reporter": "u1",
+      "qa": null,
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": null,
+      "release": null,
+      "resolution": "Unresolved",
+      "createdAt": "2026-07-06",
+      "createdTs": "2026-07-06T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": false,
+      "resolvedAt": null,
+      "deployedAt": null,
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": ""
+    },
+    {
+      "id": "t18",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-108",
+      "title": "Catalog skeleton loading states",
+      "type": "Task",
+      "status": "st_done",
+      "priority": "Medium",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e1",
+      "epic": "e1",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp1",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-07-02",
+      "createdTs": "2026-07-02T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-14",
+      "deployedAt": "2026-07-14",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "verifyChecks": {
+        "smoke": true,
+        "flows": true
+      },
+      "verified": false,
+      "qaCases": [
+        {
+          "id": "qc20x",
+          "kind": "test",
+          "title": "Skeleton shows before data",
+          "status": "pass"
+        },
+        {
+          "id": "qc21x",
+          "kind": "use",
+          "title": "No layout shift on load",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "id": "t19",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-109",
+      "title": "Razorpay SDK setup",
+      "type": "Task",
+      "status": "st_done",
+      "priority": "High",
+      "assignee": "u2",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp1",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-06-20",
+      "createdTs": "2026-06-20T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-11",
+      "deployedAt": "2026-07-11",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "verifyChecks": {
+        "smoke": true,
+        "flows": true,
+        "logs": true,
+        "perf": true,
+        "rollback": true
+      },
+      "verified": true,
+      "verifiedBy": "u4",
+      "verifiedAt": "2026-07-11",
+      "qaCases": [
+        {
+          "id": "qc22x",
+          "kind": "test",
+          "title": "SDK loads on production",
+          "status": "pass"
+        },
+        {
+          "id": "qc23x",
+          "kind": "use",
+          "title": "Full checkout end-to-end",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "id": "t20",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-110",
+      "title": "Orders DB schema",
+      "type": "Task",
+      "status": "st_done",
+      "priority": "High",
+      "assignee": "u2",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": "e2",
+      "epic": "e2",
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp1",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-06-22",
+      "createdTs": "2026-06-22T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-12",
+      "deployedAt": "2026-07-12",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "verifyChecks": {
+        "smoke": true,
+        "flows": true,
+        "logs": true,
+        "perf": true,
+        "rollback": true
+      },
+      "verified": true,
+      "verifiedBy": "u4",
+      "verifiedAt": "2026-07-12",
+      "qaCases": [
+        {
+          "id": "qc24x",
+          "kind": "test",
+          "title": "Migration runs cleanly",
+          "status": "pass"
+        },
+        {
+          "id": "qc25x",
+          "kind": "test",
+          "title": "Indexes created",
+          "status": "pass"
+        },
+        {
+          "id": "qc26x",
+          "kind": "use",
+          "title": "Old orders still readable",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "id": "t21",
+      "ws": "ws_tpm",
+      "project": "pj_mob",
+      "key": "MOB-106",
+      "title": "App shell navigation",
+      "type": "Task",
+      "status": "st_done",
+      "priority": "Medium",
+      "assignee": "u5",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp1",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-06-25",
+      "createdTs": "2026-06-25T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-13",
+      "deployedAt": "2026-07-13",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc27x",
+          "kind": "test",
+          "title": "Tab bar navigates correctly",
+          "status": "pass"
+        },
+        {
+          "id": "qc28x",
+          "kind": "use",
+          "title": "Deep links open right screen",
+          "status": "pass"
+        },
+        {
+          "id": "qc29x",
+          "kind": "test",
+          "title": "Back gesture works on iOS",
+          "status": "fail"
+        }
+      ],
+      "qaBugs": [
+        {
+          "id": "qb6y",
+          "text": "Back gesture exits the app on iOS",
+          "severity": "med",
+          "status": "open",
+          "by": "u4",
+          "at": "2026-07-19T23:11:29.797Z"
+        },
+        {
+          "id": "qb7y",
+          "text": "Tab bar overlaps the notch on iPhone",
+          "severity": "low",
+          "status": "fixed",
+          "by": "u4",
+          "at": "2026-07-18T23:11:29.797Z"
+        }
+      ]
+    },
+    {
+      "id": "t22",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-109",
+      "title": "Course card hover polish",
+      "type": "Story",
+      "status": "st_done",
+      "priority": "Low",
+      "assignee": "u7",
+      "reporter": "u1",
+      "qa": "u7",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp2",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-07-05",
+      "createdTs": "2026-07-05T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-16",
+      "deployedAt": "2026-07-16",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc30x",
+          "kind": "use",
+          "title": "Hover state feels smooth",
+          "status": "pass"
+        },
+        {
+          "id": "qc31x",
+          "kind": "test",
+          "title": "Keyboard focus ring visible",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "t23",
+      "ws": "ws_tpm",
+      "project": "pj_pay",
+      "key": "PAY-111",
+      "title": "Fix double-charge edge case",
+      "type": "Bug",
+      "status": "st_done",
+      "priority": "Critical",
+      "assignee": "u8",
+      "reporter": "u1",
+      "qa": "u4",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp2",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-07-08",
+      "createdTs": "2026-07-08T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-17",
+      "deployedAt": "2026-07-17",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc32x",
+          "kind": "test",
+          "title": "Double click no longer charges twice",
+          "status": "pass"
+        },
+        {
+          "id": "qc33x",
+          "kind": "test",
+          "title": "Idempotency key enforced",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "id": "t24",
+      "ws": "ws_tpm",
+      "project": "pj_lms",
+      "key": "LMS-110",
+      "title": "Analytics events for catalog",
+      "type": "Task",
+      "status": "st_done",
+      "priority": "Medium",
+      "assignee": "u3",
+      "reporter": "u1",
+      "qa": "u7",
+      "reviewer": null,
+      "deployer": null,
+      "parent": null,
+      "epic": null,
+      "due": null,
+      "start": null,
+      "estimate": 120,
+      "sprint": "sp2",
+      "release": null,
+      "resolution": "Done",
+      "createdAt": "2026-07-10",
+      "createdTs": "2026-07-10T23:11:29.796Z",
+      "updatedAt": "2026-07-19",
+      "deployed": true,
+      "resolvedAt": "2026-07-18",
+      "deployedAt": "2026-07-18",
+      "subtasks": [],
+      "comments": [],
+      "activity": [],
+      "desc": "",
+      "qaCases": [
+        {
+          "id": "qc34x",
+          "kind": "test",
+          "title": "Events fire on card click",
+          "status": "pass"
+        },
+        {
+          "id": "qc35x",
+          "kind": "use",
+          "title": "No PII in analytics payload",
+          "status": "pending"
+        }
+      ],
+      "qaBugs": [
+        {
+          "id": "qb8y",
+          "text": "Analytics payload includes user email",
+          "severity": "high",
+          "status": "fixed",
+          "by": "u4",
+          "at": "2026-07-18T23:11:29.797Z"
+        }
+      ]
+    }
+  ],
+  "worklogs": [
+    {
+      "id": "wl1",
+      "task": "t6",
+      "user": "u3",
+      "min": 300,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl2",
+      "task": "t7",
+      "user": "u2",
+      "min": 420,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl3",
+      "task": "t8",
+      "user": "u8",
+      "min": 420,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl4",
+      "task": "t9",
+      "user": "u3",
+      "min": 210,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl5",
+      "task": "t10",
+      "user": "u5",
+      "min": 300,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl6",
+      "task": "t11",
+      "user": "u8",
+      "min": 300,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl7",
+      "task": "t12",
+      "user": "u3",
+      "min": 210,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl8",
+      "task": "t13",
+      "user": "u7",
+      "min": 120,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl9",
+      "task": "t14",
+      "user": "u1",
+      "min": 210,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl10",
+      "task": "t15",
+      "user": "u6",
+      "min": 420,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl11",
+      "task": "t16",
+      "user": "u5",
+      "min": 210,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl12",
+      "task": "t17",
+      "user": "u8",
+      "min": 300,
+      "date": "2026-07-06",
+      "cat": "Development"
+    },
+    {
+      "id": "wl13",
+      "task": "t18",
+      "user": "u3",
+      "min": 252,
+      "date": "2026-07-02",
+      "cat": "Development"
+    },
+    {
+      "id": "wl14",
+      "task": "t18",
+      "user": "u3",
+      "min": 126,
+      "date": "2026-07-14",
+      "cat": "Development"
+    },
+    {
+      "id": "wl15",
+      "task": "t19",
+      "user": "u2",
+      "min": 360,
+      "date": "2026-06-20",
+      "cat": "Development"
+    },
+    {
+      "id": "wl16",
+      "task": "t19",
+      "user": "u2",
+      "min": 180,
+      "date": "2026-07-11",
+      "cat": "Development"
+    },
+    {
+      "id": "wl17",
+      "task": "t20",
+      "user": "u2",
+      "min": 360,
+      "date": "2026-06-22",
+      "cat": "Development"
+    },
+    {
+      "id": "wl18",
+      "task": "t20",
+      "user": "u2",
+      "min": 180,
+      "date": "2026-07-12",
+      "cat": "Development"
+    },
+    {
+      "id": "wl19",
+      "task": "t21",
+      "user": "u5",
+      "min": 252,
+      "date": "2026-06-25",
+      "cat": "Development"
+    },
+    {
+      "id": "wl20",
+      "task": "t21",
+      "user": "u5",
+      "min": 126,
+      "date": "2026-07-13",
+      "cat": "Development"
+    },
+    {
+      "id": "wl21",
+      "task": "t22",
+      "user": "u7",
+      "min": 144,
+      "date": "2026-07-05",
+      "cat": "Development"
+    },
+    {
+      "id": "wl22",
+      "task": "t22",
+      "user": "u7",
+      "min": 72,
+      "date": "2026-07-16",
+      "cat": "Development"
+    },
+    {
+      "id": "wl23",
+      "task": "t23",
+      "user": "u8",
+      "min": 504,
+      "date": "2026-07-08",
+      "cat": "Development"
+    },
+    {
+      "id": "wl24",
+      "task": "t23",
+      "user": "u8",
+      "min": 252,
+      "date": "2026-07-17",
+      "cat": "Development"
+    },
+    {
+      "id": "wl25",
+      "task": "t24",
+      "user": "u3",
+      "min": 252,
+      "date": "2026-07-10",
+      "cat": "Development"
+    },
+    {
+      "id": "wl26",
+      "task": "t24",
+      "user": "u3",
+      "min": 126,
+      "date": "2026-07-18",
+      "cat": "Development"
+    }
+  ],
+  "spaces": [
+    {
+      "id": "ws_tpm",
+      "name": "Technical Project Management",
+      "desc": "Delivery workflows for the engineering org",
+      "color": "#2743E0",
+      "members": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ]
+    },
+    {
+      "id": "ws_main",
+      "name": "Operations",
+      "desc": "Cross-functional ops board",
+      "color": "#0E8F5A",
+      "members": [
+        "u1",
+        "u2",
+        "u3",
+        "u4"
+      ]
+    }
+  ],
+  "envBookings": {
+    "staging": [
+      {
+        "id": "ebs1",
+        "user": "u1",
+        "from": "2026-07-20T14:00:00.000Z",
+        "to": "2026-07-20T16:00:00.000Z",
+        "createdAt": "2026-07-20T09:00:00.000Z"
+      },
+      {
+        "id": "ebs2",
+        "user": "u4",
+        "from": "2026-07-20T16:00:00.000Z",
+        "to": "2026-07-20T18:00:00.000Z",
+        "createdAt": "2026-07-20T10:00:00.000Z"
+      }
+    ],
+    "test": []
+  },
+  "chatChannels": [
+    {
+      "id": "ch_general",
+      "name": "General",
+      "type": "group",
+      "members": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6",
+        "u7",
+        "u8"
+      ]
+    },
+    {
+      "id": "ch_tech",
+      "name": "Tech Delivery",
+      "type": "group",
+      "members": [
+        "u1",
+        "u2",
+        "u3",
+        "u4",
+        "u5",
+        "u6"
+      ]
+    }
+  ]
 };
 
 const store = {
-  _k:'cadence_v16',
+  _k:'cadence_preview_v1',
   data:null,
   load(){
     try{ const raw=localStorage.getItem(this._k); if(raw){ this.data=JSON.parse(raw); if(!this.data.settings) this.data.settings=JSON.parse(JSON.stringify(SEED.settings)); if(!this.data.sprints) this.data.sprints=JSON.parse(JSON.stringify(SEED.sprints)); if(!this.data.releases) this.data.releases=JSON.parse(JSON.stringify(SEED.releases)); if(!this.data._sprintSeeded){ this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true; } (this.data.users||[]).forEach(u=>u.color=avColor(u.name)); STATUSES=this.data.statuses; return; } }catch(e){}
@@ -3626,6 +5488,8 @@ const store = {
   deleteDeployment(id){ const t=this.task(id); if(!t) return; t.deployed=false; t.deployedAt=null; this._persist(); },
   verifyDeployment(id, checks, verified){ const t=this.task(id); if(!t) return; t.verifyChecks=checks||{}; t.verified=!!verified;
     t.verifiedAt=verified?new Date().toISOString():null; t.verifiedBy=verified?((typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null):null; this._persist(); },
+  setPrRaised(id, raised){ const t=this.task(id); if(!t) return; t.prRaised=!!raised; t.prRaisedAt=raised?new Date().toISOString():null;
+    try{ this._pushActivity(id, raised?'raised a PR \u2014 sent to Deployments':'unmarked the PR'); }catch(e){} this._persist(); },
   addQaCase(taskId, kind, title){ const t=this.task(taskId); if(!t||!title) return; if(!t.qaCases) t.qaCases=[];
     t.qaCases.push({id:'qc'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), kind:kind==='use'?'use':'test', title, status:'pending'}); this._persist(); },
   updateQaCase(taskId, cid, patch){ const t=this.task(taskId); if(!t||!t.qaCases) return; const c=t.qaCases.find(x=>x.id===cid); if(c){ Object.assign(c, patch); this._persist(); } },
@@ -3639,6 +5503,20 @@ const store = {
     if(patch.status==='fixed' && was!=='fixed'){ try{ this._pushActivity(taskId, 'marked a QA fix as resolved'); }catch(e){} } this._persist(); } },
   removeQaBug(taskId, bugId){ const t=this.task(taskId); if(!t||!t.qaBugs) return; t.qaBugs=t.qaBugs.filter(x=>x.id!==bugId); this._persist(); },
   clearQa(taskId){ const t=this.task(taskId); if(!t) return; t.qaCases=[]; t.qaBugs=[]; this._persist(); },
+  addQaAttachment(taskId, att){ const t=this.task(taskId); if(!t||!att) return; if(!t.qaAttachments) t.qaAttachments=[]; t.qaAttachments.push(att); this._persist(); },
+  removeQaAttachment(taskId, attId){ const t=this.task(taskId); if(!t||!t.qaAttachments) return; t.qaAttachments=t.qaAttachments.filter(a=>a.id!==attId); this._persist(); },
+  _envs(){ if(!this.data.envBookings||typeof this.data.envBookings!=='object') this.data.envBookings={}; const e=this.data.envBookings; if(!Array.isArray(e.staging)) e.staging=[]; if(!Array.isArray(e.test)) e.test=[]; return e; },
+  envList(env){ return this._envs()[env]||[]; },
+  envActive(env){ return this.envList(env)[0]||null; },
+  envQueue(env){ return this.envList(env).slice(1); },
+  blockEnv(env, from, to){ const e=this._envs(); const l=e[env]; if(!l) return null; const wasFree=l.length===0;
+    const uid=(typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||(typeof myUid==='function'&&myUid())||null;
+    const b={id:'eb'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36), user:uid, from, to, createdAt:new Date().toISOString()};
+    l.push(b); this._persist(); return {booking:b, active:wasFree, position:l.length-1}; },
+  releaseEnv(env){ const l=this._envs()[env]; if(!l||!l.length) return null; const released=l.shift(); const next=l[0]||null; this._persist();
+    if(next){ try{ addNotif({type:'env', taskId:null, text:`${env==='staging'?'Staging':'Test Environment'} is now free and reserved for you`}); }catch(e){} }
+    return {released, next}; },
+  cancelEnv(env, id){ const l=this._envs()[env]; if(!l) return; const i=l.findIndex(b=>b.id===id); if(i>=0){ l.splice(i,1); this._persist(); } },
   _applyResolution(t){ const s=this.status(t.status); const cat=s?s.cat:'todo';
     if(cat==='done'){ t.resolution='Done'; if(!t.resolvedAt){ t.resolvedAt=today(); t.resolvedTs=new Date().toISOString(); } }
     else { t.resolution='Unresolved'; t.resolvedAt=null; } },
@@ -4628,6 +6506,11 @@ function openPanel(id, keepScroll){
           <div class="ov-i"><div class="ov-l">Code Reviewer</div>${ovChip(t.reviewer)}</div>
           <div class="ov-i"><div class="ov-l">Deployer</div>${ovChip(t.deployer)}</div>
         </div>
+        <div class="pb-pr ${t.prRaised?'raised':''}">
+          <div class="pb-pr-l"><span class="pb-pr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></span>
+            <div><div class="pb-pr-t">Pull Request</div><div class="pb-pr-s">${t.prRaised?('Raised '+fdate(t.prRaisedAt)+' \u00b7 tracking in Deployments'):'Mark when the PR is raised to open a deployment ticket'}</div></div></div>
+          <button class="pb-pr-btn ${t.prRaised?'done':''}" id="prRaiseBtn">${t.prRaised?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> PR Raised':'Mark PR Raised'}</button>
+        </div>
         ${canSeeField('desc')?`<div class="pb-sec">
           <div class="pb-h">Description</div>
           <textarea id="pDesc" class="pdesc" ${canEditField('desc')?'':'readonly'} placeholder="Add a description…">${esc(t.desc||'')}</textarea>
@@ -4747,6 +6630,7 @@ function openPanel(id, keepScroll){
   // wire panel
   const F=(elid,cap)=>{ const el=document.getElementById(elid); return (el && can(cap)) ? el : {set onclick(v){}, set onchange(v){}}; };
   document.getElementById('panelClose').onclick=closePanel;
+  { const prb=document.getElementById('prRaiseBtn'); if(prb) prb.onclick=()=>{ const now=!t.prRaised; store.setPrRaised(id, now); refreshViews(); openPanel(id,true); toast(now?`${t.key} — PR raised, deployment ticket created`:'PR mark removed'); }; }
   panel.querySelectorAll('[data-qbugfix]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qbugfix.split('|'); const bug=(store.task(p[0]).qaBugs||[]).find(x=>x.id===p[1]); store.updateQaBug(p[0],p[1],{status:bug&&bug.status==='fixed'?'open':'fixed'}); openPanel(p[0], true); });
   F('pStatus','field_status').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, statusSel, t.status, v=>{ store.updateTask(id,{status:v}); refreshViews(); openPanel(id,true); toast('Status updated'); }); };
   F('pPriority','field_priority').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, prioSel, t.priority, v=>{ store.updateTask(id,{priority:v}); refreshViews(); openPanel(id,true); }); };
@@ -4786,8 +6670,8 @@ function openPanel(id, keepScroll){
 function closePanel(){ ui.openTask=null; try{ urlSync(); }catch(e){} document.getElementById('panel').classList.remove('on'); document.getElementById('overlay').classList.remove('on'); }
 
 /* ---------- Deployment tracker ---------- */
-function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; if(!t.deployedAt) return false;
-  const ds=String(t.deployedAt).slice(0,10);
+function depInRange(t){ const f=ui.depFilter; if(!f.mode||f.mode==='all') return true; const dt=t.deployedAt||t.prRaisedAt; if(!dt) return false;
+  const ds=String(dt).slice(0,10);
   const pr=periodRange(f.mode);
   if(pr) return ds>=pr.from && ds<=pr.to;
   if(f.mode==='custom'){ if(f.from && ds<f.from) return false; if(f.to && ds>f.to) return false; return true; }
@@ -4807,8 +6691,7 @@ function renderQA(){
 
   const SLABEL={pending:'Pending', pass:'Pass', fail:'Fail'};
   const caseRow=(t,c)=>`<div class="qa-case" data-cid="${c.id}">
-      <span class="qa-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use':'Test'}</span>
-      <span class="qa-case-tx">${esc(c.title)}</span>
+      <div class="qa-case-main"><span class="qa-case-tx">${esc(c.title)}</span><span class="qa-case-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use Case':'Test'}</span></div>
       <button class="qa-status ${c.status||'pending'}" data-cy="${t.id}|${c.id}" title="Click to cycle status">${SLABEL[c.status]||'Pending'}</button>
       <button class="qa-del" data-del="${t.id}|${c.id}" title="Delete case"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>`;
@@ -4839,11 +6722,15 @@ function renderQA(){
       <div class="ep-right">
         <div class="ehs-sec-head" style="margin-bottom:10px"><span class="ehs-eyebrow">Test &amp; use cases</span>
           <a class="dep-open2" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open ticket <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
-        <div class="qa-cases">${total?cases.map(c=>caseRow(t,c)).join(''):'<div class="qa-empty-cases">No cases yet. Add the first test or use case below.</div>'}</div>
+        <div class="qa-cases ${total>5?'qa-scroll':''}" data-cases="${t.id}">${total?cases.map(c=>caseRow(t,c)).join(''):'<div class="qa-empty-cases">No cases yet. Add the first test or use case below.</div>'}</div>
         <div class="qa-add" data-add="${t.id}">
-          <div class="qa-kind-tog"><button data-k="test" class="on">Test</button><button data-k="use">Use case</button></div>
+          <div class="qa-kind-tog"><button data-k="test" class="on">Test</button><button data-k="use">Use Case</button></div>
           <input class="qa-add-in" placeholder="Describe a test or use case\u2026"/>
           <button class="qa-add-btn">Add</button>
+        </div>
+        <div class="qa-atts">
+          <div class="qa-att-list">${(t.qaAttachments||[]).map(a=>`<span class="qa-att"><a href="${a.data}" download="${esc(a.orig||a.name)}" title="${esc(a.orig||a.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span class="qa-att-nm">${esc(a.name)}</span></a><button class="qa-att-x" data-qaattdel="${t.id}|${a.id}" title="Remove">\u00d7</button></span>`).join('')}</div>
+          <button class="qa-att-btn" data-qaatt="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach file</button>
         </div>
       </div>
     </div>`;
@@ -4878,6 +6765,8 @@ function renderQA(){
   el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
   el.querySelectorAll('.ep-kebab[data-qak]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaMenu(b.dataset.qak, b); });
   el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaVerify(b.dataset.qav); });
+  el.querySelectorAll('.qa-att-btn[data-qaatt]').forEach(b=>b.onclick=()=>openQaAtt(b.dataset.qaatt));
+  el.querySelectorAll('.qa-att-x[data-qaattdel]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qaattdel.split('|'); store.removeQaAttachment(p[0],p[1]); renderQA(); });
   el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
     const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQA(); });
   el.querySelectorAll('.qa-del[data-del]').forEach(b=>b.onclick=()=>{ const p=b.dataset.del.split('|'); store.removeQaCase(p[0],p[1]); renderQA(); });
@@ -4902,7 +6791,7 @@ function renderDeployments(){
   if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page filter change → reflect in URL
   const el=document.getElementById('deploymentswrap'); if(!el) return;
   const f=ui.depFilter;
-  let done=store.standardTasks().filter(t=>t.deployed).filter(depInRange);
+  let done=store.standardTasks().filter(t=>t.prRaised||t.deployed).filter(depInRange);
   if(f.project!=='all') done=done.filter(t=>t.project===f.project);
   if(f.priority!=='all') done=done.filter(t=>t.priority===f.priority);
   if(f.assignee!=='all') done=done.filter(t=>t.assignee===f.assignee);
@@ -4923,16 +6812,23 @@ function renderDeployments(){
     const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
     const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
     const verifyBtn=`<button class="dep-verify ${verified?'ok':(doneN?'part':'')}" data-verify="${t.id}">${verified?CHK+' Verified':(doneN?SHIELD+' '+doneN+'/'+total:SHIELD+' Verify')}</button>`;
+    const isDep=!!t.deployed; const prOnly=!isDep&&t.prRaised;
+    const stName2=isDep?'Deployed':(prOnly?'PR Raised':'Pending');
+    const stSub=isDep?depDT:(prOnly?fdatetime(t.prRaisedAt):'Awaiting PR');
+    const ROCKET='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>';
+    const PRICON='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>';
+    const badge=isDep?`<div class="dep-badge">${ROCKET}</div>`:`<div class="dep-badge pr">${PRICON}</div>`;
+    const depDShow=isDep?depD:(prOnly?'Pending':depD);
     return `<div class="ep-card dep-ep" data-dep="${t.id}" style="position:relative">
       <button class="ep-kebab" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       <div class="ep-left">
         <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
         <div class="ep-mid">
-          <div class="dep-badge"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg></div>
-          <div><div class="ep-state">Deployed</div><div class="ep-statesub">${depDT}</div></div>
+          ${badge}
+          <div><div class="ep-state">${stName2}</div><div class="ep-statesub">${stSub}</div></div>
         </div>
         <div class="dep-stats">
-          <div class="dep-st"><span class="dep-st-v">${depD}</span><span class="dep-st-l">Deployed on</span></div>
+          <div class="dep-st"><span class="dep-st-v">${depDShow}</span><span class="dep-st-l">Deployed on</span></div>
           <div class="dep-st"><span class="dep-st-v">${cycle}</span><span class="dep-st-l">Cycle time</span></div>
           <div class="dep-st"><span class="dep-st-v">${esc(t.priority||'\u2014')}</span><span class="dep-st-l">Priority</span></div>
           <div class="dep-st"><span class="dep-st-v">${hm(logged)}</span><span class="dep-st-l">Total hrs</span></div>
@@ -5487,6 +7383,76 @@ function qaAction(id, act){
   else if(act==='clear'){ if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
   else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
 }
+let _qaAttTask=null, _qaAttPending=null;
+function wireQaAtt(){
+  const f=document.getElementById('qaAttFile'); if(!f || f._wired) return; f._wired=true;
+  f.onchange=e=>{ const file=e.target.files&&e.target.files[0]; if(!file) return;
+    if(file.size>4*1024*1024){ try{ toast('File is too large (max 4 MB)'); }catch(_){} return; }
+    const reader=new FileReader();
+    reader.onload=()=>{ _qaAttPending={task:_qaAttTask, orig:file.name, type:file.type||'', size:file.size, data:reader.result};
+      const info=document.getElementById('qaAttFileInfo'); if(info) info.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><div><div class="fn">'+esc(file.name)+'</div><div class="fs">'+(file.size/1024).toFixed(0)+' KB</div></div>';
+      const nm=document.getElementById('qaAttName'); if(nm){ nm.value=file.name.replace(/\.[^.]+$/,''); }
+      document.getElementById('qaAttWrap').classList.add('on'); setTimeout(()=>{ if(nm){ nm.focus(); nm.select(); } },30);
+    };
+    reader.readAsDataURL(file);
+  };
+  const up=document.getElementById('qaAttUpload'); if(up) up.onclick=()=>{ if(!_qaAttPending) return;
+    const nm=(document.getElementById('qaAttName').value||'').trim()||_qaAttPending.orig;
+    store.addQaAttachment(_qaAttPending.task, {id:'at'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), name:nm, orig:_qaAttPending.orig, type:_qaAttPending.type, size:_qaAttPending.size, data:_qaAttPending.data});
+    document.getElementById('qaAttWrap').classList.remove('on'); _qaAttPending=null; renderQA(); try{ toast('Attachment uploaded'); }catch(_){} };
+  const ca=document.getElementById('qaAttCancel'); if(ca) ca.onclick=()=>{ document.getElementById('qaAttWrap').classList.remove('on'); _qaAttPending=null; };
+  const nm2=document.getElementById('qaAttName'); if(nm2) nm2.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); const up2=document.getElementById('qaAttUpload'); if(up2) up2.click(); } };
+  const w=document.getElementById('qaAttWrap'); if(w) w.onclick=e=>{ if(e.target===w){ w.classList.remove('on'); _qaAttPending=null; } };
+}
+function openQaAtt(taskId){ _qaAttTask=taskId; wireQaAtt(); const f=document.getElementById('qaAttFile'); if(f){ f.value=''; f.click(); } }
+const ENV_NAMES={staging:'Staging', test:'Test Environment'};
+function fclock(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return ''; let h=d.getHours(), m=d.getMinutes(); const ap=h>=12?'PM':'AM'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+' '+ap; }
+function envHolderName(b){ const u=b&&store.user&&store.user(b.user); return u?u.name:'Someone'; }
+function toLocalInput(d){ d=new Date(d); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
+function renderEnvBanner(){
+  const host=document.getElementById('envBanner'); if(!host||!store.data) return;
+  const me=(typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||(typeof myUid==='function'&&myUid())||null;
+  const seg=env=>{ const act=store.envActive(env); const q=store.envQueue(env); const nm=ENV_NAMES[env];
+    if(!act) return `<span class="eb-env">${nm} <span class="eb-pill free">Available</span></span>`;
+    const mine=act.user===me; const holder=mine?'You':esc(envHolderName(act)); const qtxt=q.length?` \u00b7 ${q.length} waiting`:'';
+    const rel=mine?` <button class="eb-rel" data-envrel="${env}">Release</button>`:'';
+    return `<span class="eb-env">${nm} <span class="eb-pill inuse">In use</span></span><span class="eb-sub">${holder} \u00b7 till ${fclock(act.to)}${qtxt}</span>${rel}`; };
+  host.innerHTML=`<div class="env-banner">
+    <span class="eb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/></svg></span>
+    <div class="eb-body">${seg('staging')}<span class="eb-dv"></span>${seg('test')}</div>
+    <span class="eb-act"><button class="eb-block" id="envBlockBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Block Test Env</button></span>
+  </div>`;
+  const bb=document.getElementById('envBlockBtn'); if(bb) bb.onclick=()=>openEnvBlock();
+  host.querySelectorAll('[data-envrel]').forEach(b=>b.onclick=()=>{ const env=b.dataset.envrel; const r=store.releaseEnv(env); renderEnvBanner(); try{ updateBell(); }catch(e){} toast(`${ENV_NAMES[env]} released${(r&&r.next)?' \u2014 next in queue notified':''}`); });
+}
+let _envSel='test';
+function openEnvBlock(env){ _envSel=env||'test'; wireEnvBlock(); renderEnvBlock(); const w=document.getElementById('envBlockWrap'); if(w) w.classList.add('on'); }
+function renderEnvBlock(){
+  document.querySelectorAll('#envSeg button').forEach(b=>b.classList.toggle('on', b.dataset.env===_envSel));
+  const act=store.envActive(_envSel); const q=store.envQueue(_envSel); const info=document.getElementById('envAvail'); if(!info) return; let base;
+  if(!act){ base=new Date(); info.className='env-avail free'; info.innerHTML=`<b>${ENV_NAMES[_envSel]}</b> is free right now \u2014 you'll get it immediately.`; }
+  else { base=new Date(act.to); const extra=q.length?` \u00b7 ${q.length} already queued`:''; info.className='env-avail busy';
+    info.innerHTML=`<b>${ENV_NAMES[_envSel]}</b> is in use until <b>${fclock(act.to)}</b>. Next available slot: <b>${fclock(act.to)}</b>${extra}. Your request will be queued and you'll be notified the moment it's free.`; }
+  const from=document.getElementById('envFrom'), to=document.getElementById('envTo');
+  const r=new Date(base); r.setSeconds(0,0); r.setMinutes(Math.ceil(r.getMinutes()/15)*15); if(r<new Date()) r.setTime(Date.now());
+  const t=new Date(r.getTime()+3600000);
+  if(from) from.value=toLocalInput(r); if(to) to.value=toLocalInput(t);
+  const sub=document.getElementById('envSubmit'); if(sub) sub.textContent=act?'Join queue':'Block environment';
+}
+function wireEnvBlock(){ const w=document.getElementById('envBlockWrap'); if(!w||w._wired) return; w._wired=true;
+  document.querySelectorAll('#envSeg button').forEach(b=>b.onclick=()=>{ _envSel=b.dataset.env; renderEnvBlock(); });
+  const c=document.getElementById('envCancel'); if(c) c.onclick=()=>w.classList.remove('on');
+  w.onclick=e=>{ if(e.target===w) w.classList.remove('on'); };
+  const s=document.getElementById('envSubmit'); if(s) s.onclick=()=>{
+    const fv=document.getElementById('envFrom').value, tv=document.getElementById('envTo').value;
+    if(!fv||!tv){ toast('Pick a from and to time'); return; }
+    if(new Date(tv)<=new Date(fv)){ toast('End time must be after the start'); return; }
+    const r=store.blockEnv(_envSel, new Date(fv).toISOString(), new Date(tv).toISOString());
+    w.classList.remove('on'); renderEnvBanner(); try{ updateBell(); }catch(e){}
+    if(r&&r.active) toast(`${ENV_NAMES[_envSel]} blocked ${fclock(new Date(fv).toISOString())}\u2013${fclock(new Date(tv).toISOString())}`);
+    else toast(`Queued for ${ENV_NAMES[_envSel]} \u2014 you'll be notified when it's free (position ${r?r.position:'?'})`);
+  };
+}
 let _depVfId=null;function openDepVerify(id){ _depVfId=id; renderDepVerify();
   const w=document.getElementById('depVerifyWrap'); w.classList.add('on');
   document.getElementById('depVfClose').onclick=()=>{ w.classList.remove('on'); renderDeployments(); };
@@ -5529,8 +7495,7 @@ function renderQaVerify(){
   document.getElementById('qaVfHead').innerHTML=`QA sign-off
     <div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px"><b style="color:var(--accent);font-weight:700">${esc(t.key)}</b>${proj?' \u00b7 '+esc(proj.name):''} \u2014 ${esc(t.title)}</div>`;
   const caseRows = cases.length ? cases.map(c=>`<div class="qvf-case">
-      <span class="qa-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use':'Test'}</span>
-      <span class="qvf-case-tx">${esc(c.title)}</span>
+      <div class="qa-case-main"><span class="qvf-case-tx">${esc(c.title)}</span><span class="qa-case-kind ${c.kind==='use'?'use':'test'}">${c.kind==='use'?'Use Case':'Test'}</span></div>
       <button class="qa-status ${c.status||'pending'}" data-qcy="${t.id}|${c.id}">${SL[c.status]||'Pending'}</button>
     </div>`).join('') : '<div class="qa-empty-cases">No cases yet. Add them on the QA card first.</div>';
   const bugRows = bugs.length ? bugs.map(b=>{ const bu=store.user(b.by); return `<div class="qvf-bug ${b.status}">
@@ -7045,7 +9010,7 @@ window.addEventListener('resize', setHeadHeight);
 // can tell a navigation render (URL already synced here at the tail) apart from a
 // direct in-page re-render (e.g. an analytics rail click) that must sync itself.
 let _inRenderAll=false;
-function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand();
+function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand(); try{ renderEnvBanner(); }catch(e){}
   renderChatFab(); updateChatFab();
   const v=ui.view;
   const _dashTitle={productivity:'Productivity Dashboard', delivery:'Delivery Dashboard', priority:'Priority Tasks Dashboard'};
@@ -10600,7 +12565,10 @@ async function boot(){
     if(session){ ME=session.user; await loadWorkspace(); migrateProfiles(); applyEmailFixes(); renderAll(); } else { location.href='index.html'; }
   } else {
     IS_MASTER=true;   // local/no-backend preview only: no auth to check against
-    store.load(); applyDefaults(); applyPrefs(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces(); restoreSpot(); try{ scanNoteMentions(); }catch(e){} _urlReady=true; try{ urlSync(); }catch(e){}
+    try{ localStorage.removeItem('cadence_preview_v1'); }catch(e){}
+    store.load(); try{ CURRENT_UID=(store.users()[0]||{}).id||null; }catch(e){} applyDefaults(); applyPrefs(); migrateProfiles(); applyEmailFixes(); ensureSpaces(); renderAll(); wireSpaces();
+    if(!(location.hash&&location.hash.length>2) && store.spaces && store.spaces().length){ enterSpace(store.spaces()[0].id); } else { restoreSpot(); }
+    try{ scanNoteMentions(); }catch(e){} _urlReady=true; try{ urlSync(); }catch(e){}
     const an=document.getElementById('acctName'); const u0=store.users&&store.users()[0]; if(an&&u0) an.textContent=(u0.name||'Account');
     if(u0){ const nm=u0.name||'Account'; const cc=avColor(nm); const pini=(nm.split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
       const setEl=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
