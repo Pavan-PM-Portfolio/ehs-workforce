@@ -546,7 +546,8 @@ body.nav-collapsed .side-head{justify-content:center;padding:10px 0 6px}
 .board-sublist{display:flex;flex-direction:column;gap:1px;padding-left:14px}
 .sub-item{font-size:12.5px}
 .sub-item.on svg{color:var(--accent)}
-.nav-sep{height:1px;background:var(--line-2);margin:11px 12px}
+.nav-sep{height:1px;background:var(--ink);margin:11px 12px}
+.nav-sep + .np-sec{padding-top:6px}
 .board-nav .bn-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 .bn-flow{width:6px;height:6px;border-radius:50%;background:#0E8F5A;flex:none}
 .bn-kebab{border:0;background:none;color:var(--faint);width:24px;height:24px;border-radius:6px;
@@ -2426,8 +2427,9 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-ep .ep-kebab,.qa-ep .ep-kebab{top:10px;right:12px}
 .scroll{padding-bottom:62px}
 .sidebar{padding-bottom:58px}
-.botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
+.botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--ink);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
 .bb-left,.bb-right{display:flex;align-items:center;gap:3px;flex:none}
+.bb-sep{width:1px;height:24px;background:var(--line);flex:none;margin:0 8px}
 .bb-nav{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;font-family:inherit;font-size:10px;font-weight:600;color:var(--muted);padding:6px 13px;border-radius:10px !important;cursor:pointer;position:relative;transition:background .15s,color .15s}
 .bb-nav svg{width:18px;height:18px}
 .bb-nav:hover{background:var(--surface-2);color:var(--ink)}
@@ -2871,6 +2873,7 @@ body[data-density="compact"] .board{padding:12px 16px}
       <button class="nav-item" data-view="deployments"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>Deployments</button>
       <button class="nav-item" data-view="epics"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Epics</button>
       <button class="nav-item" data-view="projects"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projects</button>
+      <div class="nav-sep"></div>
       <div class="np-sec">Insights</div>
       <div class="nav-item nav-parent open" id="navAnalyticsToggle">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l3-4 3 3 4-6"/></svg>
@@ -2882,15 +2885,13 @@ body[data-density="compact"] .board{padding:12px 16px}
         <button class="nav-item sub-item" data-atab="priority"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Priority Tasks</button>
       </div>
       <button class="nav-item" data-view="reports"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>Reports</button>
+      <div class="nav-sep"></div>
       <div class="np-sec">Manage</div>
       <button class="nav-item" data-view="team"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>Team</button>
       <button class="nav-item" data-view="users"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</button>
       <button class="nav-item" id="navColumns"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>Board settings</button>
       <button class="nav-item" data-view="settings"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
     </nav>
-    <div class="side-bottom">
-      <button class="nav-item nav-techtalk" id="navTechTalk"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg>Tech-Talk<span class="tt-badge" id="ttBadge" style="display:none"></span></button>
-    </div>
   </aside>
 
   <!-- Main -->
@@ -2981,6 +2982,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div class="botbar" id="botbar">
   <div class="bb-left">
     <button class="bb-nav" data-bb="techtalk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 9h10M7 13h6"/></svg><span>Tech-Talk</span><span class="bb-dot" id="botTtBadge" style="display:none"></span></button>
+    <div class="bb-sep"></div>
     <button class="bb-nav" data-bb="board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg><span>Board</span></button>
     <button class="bb-nav" data-bb="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 3l9 9M5 10v10h5v-6h4v6h5V10"/></svg><span>My Work</span></button>
   </div>
@@ -2990,6 +2992,7 @@ body[data-density="compact"] .board{padding:12px 16px}
     <button class="bb-ic" data-bb="timeline" title="Activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></button>
     <button class="bb-ic" data-bb="calendar" title="Calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
     <button class="bb-ic" data-bb="shortcuts" title="Keyboard shortcuts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg></button>
+    <div class="bb-sep"></div>
     <button class="bb-ic" data-bb="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></button>
   </div>
 </div>
