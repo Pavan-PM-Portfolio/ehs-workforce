@@ -2429,6 +2429,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .sidebar{padding-bottom:58px}
 .botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--ink);box-shadow:0 -10px 30px -20px rgba(16,26,51,.3);z-index:200}
 .bb-left,.bb-right{display:flex;align-items:center;gap:3px;flex:none}
+.bb-right{margin-left:auto}
 .bb-sep{width:1px;height:24px;background:var(--line);flex:none;margin:0 8px}
 .bb-nav{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;font-family:inherit;font-size:10px;font-weight:600;color:var(--muted);padding:6px 13px;border-radius:10px !important;cursor:pointer;position:relative;transition:background .15s,color .15s}
 .bb-nav svg{width:18px;height:18px}
@@ -2986,7 +2987,6 @@ body[data-density="compact"] .board{padding:12px 16px}
     <button class="bb-nav" data-bb="board"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg><span>Board</span></button>
     <button class="bb-nav" data-bb="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 3l9 9M5 10v10h5v-6h4v6h5V10"/></svg><span>My Work</span></button>
   </div>
-  <button class="bb-cmd" id="botCmd" style="display:none"></button>
   <div class="bb-right">
     <button class="bb-ic" data-bb="notif" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="bb-badge" id="botNotifBadge" style="display:none"></span></button>
     <button class="bb-ic" data-bb="timeline" title="Activity"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></button>
