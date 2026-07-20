@@ -1424,6 +1424,9 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .fxe.on .fxe-l text{fill:var(--accent)}
 .fxe-l.on rect{stroke:var(--accent)}
 .fxe-l.on text{fill:var(--accent)}
+.fxe-l[data-e]{cursor:pointer}
+.fxe-l[data-e]:hover rect{stroke:var(--accent)}
+.fxe-l[data-e]:hover text{fill:var(--accent)}
 
 .fxs-hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;
   font-weight:600;padding:8px 14px;border-radius:9px !important;display:flex;gap:8px;z-index:6;
@@ -5550,7 +5553,7 @@ function fxDiagram(){
           const s=(from<to)?-1:1;
           if(horiz) ly+=s*13; else lx+=s*(w/2+10);
         }
-        labels.push({on, text:txt, x:lx, y:ly, w, h:20});
+        labels.push({on, text:txt, x:lx, y:ly, w, h:20, key:fxKey(from,to)});
       }
     });
   });
@@ -5629,7 +5632,7 @@ function fxDiagram(){
       }
       if(!moved) break;
     }
-    labelSVG=labels.map(L=>`<g class="fxe-l ${L.on?'on':''}" transform="translate(${Math.round(L.x)},${Math.round(L.y)})">
+    labelSVG=labels.map(L=>`<g class="fxe-l ${L.on?'on':''}" data-e="${L.key}" transform="translate(${Math.round(L.x)},${Math.round(L.y)})">
         <rect x="${-L.w/2}" y="-10" width="${L.w}" height="20" rx="10"/>
         <text text-anchor="middle" dy="4">${esc(L.text)}</text></g>`).join('');
   }
@@ -5945,6 +5948,20 @@ function wireFx(){
     d.labels=d.labels||{}; const v=i.value.trim();
     if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
     fxDirty(); R(); });
+  // Click a transition's label on the diagram to rename it — same dialog as when
+  // it was first created, prefilled with the current name.
+  document.querySelectorAll('#fxSvg .fxe-l[data-e]').forEach(l=>l.onclick=e=>{
+    e.stopPropagation();
+    const key=l.dataset.e||''; const [f,t]=key.split('>');
+    const a=store.status(f), bq=store.status(t); if(!a||!bq) return;
+    askTransitionName(a.name, bq.name, fxLbl(d,f,t)||'').then(v=>{
+      if(v===null) return;                       // cancelled — leave it as-is
+      const nv=(v||'').trim();
+      d.labels=d.labels||{};
+      if(nv) d.labels[key]=nv; else delete d.labels[key];
+      fxDirty(); R();
+    });
+  });
   document.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{
     const [f,t]=x.dataset.del.split('>');
     d.transitions[f]=(d.transitions[f]||[]).filter(y=>y!==t);
@@ -9487,7 +9504,7 @@ function urlApply(){
     // 3. sub-segment: dashboard tab, or which board
     if(v==='analytics'){ const tab=seg[2]; if(['productivity','delivery','priority'].includes(tab)) ui.analyticsTab=tab; }
     if(v==='board'){ const bd=seg[2]; if(bd && store.board(bd)) ui.board=bd; }
-    if(!store.board(ui.board)){ const bds=store.boards(); ui.board=bds.length?bds[0].id:ui.board; }
+    if(!store.board(ui.board) || (store.board(ui.board).ws||'ws_main')!==ui.space){ const bds=store.boards(); ui.board=bds.length?bds[0].id:ui.board; }
 
     // 4. filters
     const g=(k,d)=>q.has(k)?q.get(k):d;
