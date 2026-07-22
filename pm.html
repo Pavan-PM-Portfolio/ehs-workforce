@@ -4714,7 +4714,7 @@ function openPanel(id, keepScroll){
           <div class="ov-i"><div class="ov-l">Code Reviewer</div>${ovChip(t.reviewer)}</div>
           <div class="ov-i"><div class="ov-l">Deployer</div>${ovChip(t.deployer)}</div>
         </div>
-        <div class="pb-pr ${t.prRaised?'raised':''}">
+        <div class="pb-pr ${t.prRaised?'raised':''}" style="${can('pr_raise')?'':'display:none'}">
           <div class="pb-pr-l"><span class="pb-pr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></span>
             <div><div class="pb-pr-t">Pull Request</div><div class="pb-pr-s">${t.prRaised?('Raised '+fdate(t.prRaisedAt)+' \u00b7 tracking in Deployments'):'Mark when the PR is raised to open a deployment ticket'}</div></div></div>
           <button class="pb-pr-btn ${t.prRaised?'done':''}" id="prRaiseBtn">${t.prRaised?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> PR Raised':'Mark PR Raised'}</button>
@@ -4938,7 +4938,7 @@ function renderQA(){
         </div>
         <div class="qa-atts">
           <div class="qa-att-list">${(t.qaAttachments||[]).map(a=>`<span class="qa-att"><a href="${a.data}" download="${esc(a.orig||a.name)}" title="${esc(a.orig||a.name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg><span class="qa-att-nm">${esc(a.name)}</span></a><button class="qa-att-x" data-qaattdel="${t.id}|${a.id}" title="Remove">\u00d7</button></span>`).join('')}</div>
-          <button class="qa-att-btn" data-qaatt="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach file</button>
+          <button class="qa-att-btn" data-qaatt="${t.id}" style="${can('qa_attach')?'':'display:none'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach file</button>
         </div>
       </div>
     </div>`;
@@ -4963,7 +4963,7 @@ function renderQA(){
   const qaVal=f.qa==='all'?'All':((store.user(f.qa)||{}).name||'All');
   const stVal=(stOpts.find(o=>o.v===f.status)||{}).t||'All';
 
-  el.innerHTML=`<div class="ov-h" style="align-items:center"><div class="dep-filters">${chip('qaProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('qaPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('qaQaBtn',ICO_QA,'QA',qaVal,f.qa!=='all')}${chip('qaStBtn',ICO_ST,'Status',stVal,f.status!=='all')}</div><button class="eb-block" id="qaBlockBtn" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Block Test Env</button></div>${body}`;
+  el.innerHTML=`<div class="ov-h" style="align-items:center"><div class="dep-filters">${chip('qaProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('qaPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('qaQaBtn',ICO_QA,'QA',qaVal,f.qa!=='all')}${chip('qaStBtn',ICO_ST,'Status',stVal,f.status!=='all')}</div>${can('env_block')?`<button class="eb-block" id="qaBlockBtn" style="margin-left:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Block Test Env</button>`:''}</div>${body}`;
 
   document.getElementById('qaProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.qaFilter.project=v; renderQA(); }); };
   document.getElementById('qaPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.qaFilter.priority=v; renderQA(); }); };
@@ -4972,18 +4972,18 @@ function renderQA(){
 
   el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
   el.querySelectorAll('.ep-kebab[data-qak]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaMenu(b.dataset.qak, b); });
-  el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openQaVerify(b.dataset.qav); });
+  el.querySelectorAll('.dep-verify[data-qav]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(!can('qa_verify')){ toast('You don\u2019t have permission to sign off QA'); return; } openQaVerify(b.dataset.qav); });
   el.querySelectorAll('.qa-att-btn[data-qaatt]').forEach(b=>b.onclick=()=>openQaAtt(b.dataset.qaatt));
   { const qbb=document.getElementById('qaBlockBtn'); if(qbb) qbb.onclick=()=>openEnvBlock('test'); }
   el.querySelectorAll('.qa-att-x[data-qaattdel]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qaattdel.split('|'); store.removeQaAttachment(p[0],p[1]); renderQA(); });
-  el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
+  el.querySelectorAll('.qa-status[data-cy]').forEach(b=>b.onclick=()=>{ if(!can('qa_status')){ toast('You don\u2019t have permission to set case status'); return; } const p=b.dataset.cy.split('|'); const t=store.task(p[0]); const c=(t&&t.qaCases||[]).find(x=>x.id===p[1]); if(!c) return;
     const nx={pending:'pass',pass:'fail',fail:'pending'}[c.status||'pending']; store.updateQaCase(p[0],p[1],{status:nx}); renderQA(); });
   el.querySelectorAll('.qa-del[data-del]').forEach(b=>b.onclick=()=>{ const p=b.dataset.del.split('|'); store.removeQaCase(p[0],p[1]); renderQA(); });
   el.querySelectorAll('.qa-add').forEach(row=>{ const tid=row.dataset.add;
     const kindBtns=row.querySelectorAll('.qa-kind-tog button');
     kindBtns.forEach(kb=>kb.onclick=()=>{ kindBtns.forEach(x=>x.classList.remove('on')); kb.classList.add('on'); });
     const input=row.querySelector('.qa-add-in');
-    const add=()=>{ const v=input.value.trim(); if(!v) return; const onBtn=row.querySelector('.qa-kind-tog button.on'); const kind=onBtn?onBtn.dataset.k:'test';
+    const add=()=>{ if(!can('qa_manage')){ toast('You don\u2019t have permission to edit test cases'); return; } const v=input.value.trim(); if(!v) return; const onBtn=row.querySelector('.qa-kind-tog button.on'); const kind=onBtn?onBtn.dataset.k:'test';
       store.addQaCase(tid, kind, v); renderQA();
       const nx=document.querySelector('.qa-add[data-add="'+tid+'"] .qa-add-in'); if(nx) nx.focus(); };
     row.querySelector('.qa-add-btn').onclick=add;
@@ -5083,7 +5083,7 @@ function renderDeployments(){
   if(f.mode==='custom') wirePeriodCustom('dep', f.from, f.to, v=>{ ui.depFilter.from=v; renderDeployments(); }, v=>{ ui.depFilter.to=v; renderDeployments(); });
   el.querySelectorAll('.ep-kebab[data-dep]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepMenu(b.dataset.dep, b); });
   el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
-  el.querySelectorAll('.dep-verify[data-verify]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepVerify(b.dataset.verify); });
+  el.querySelectorAll('.dep-verify[data-verify]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(!can('deploy_verify')){ toast('You don\u2019t have permission to verify deployments'); return; } openDepVerify(b.dataset.verify); });
 }
 let _urlTicketOpened=false;
 function openTicketFromURL(){ if(_urlTicketOpened) return; try{ const k=new URLSearchParams(location.search).get('ticket'); if(!k||!store.data) return;
@@ -5580,7 +5580,7 @@ function qaAction(id, act){
   if(act==='open'){ openPanel(id); }
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
-  else if(act==='clear'){ if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
+  else if(act==='clear'){ if(!can('qa_clear')){ toast('You don\u2019t have permission to clear QA'); return; } if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
   else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
 }
 let _qaAttTask=null, _qaAttPending=null;
@@ -5619,7 +5619,7 @@ function renderEnvBanner(){
     if(!act) return `<span class="eb-env">${nm} <span class="eb-pill free">Available</span></span>`;
     const mine=act.user===me; const holder=mine?'You':esc(envHolderName(act));
     const chips=`<span class="eb-metch">${IC_USER}${holder}</span><span class="eb-metch">${IC_CLOCK}Until ${fclock(act.to)}</span>${q.length?`<span class="eb-metch">${IC_Q}${q.length} in queue</span>`:''}`;
-    const rel=mine?` <button class="eb-rel" data-envrel="${env}">Release</button>`:'';
+    const rel=(mine&&can('env_release'))?` <button class="eb-rel" data-envrel="${env}">Release</button>`:'';
     return `<span class="eb-env">${nm} <span class="eb-pill inuse">In use</span></span>${chips}${rel}`; };
   const anyBusy=!!(store.envActive('staging')||store.envActive('test'));
   const lead=anyBusy
@@ -7573,11 +7573,13 @@ const ROLE_DESC={
   Viewer:'Read-only. Tick which modules they can view; they can’t make changes.'
 };
 const CAP_GROUPS=[
-  {g:'Views', items:[['view_board','Board'],['view_list','List'],['view_epics','Epics'],['view_overview','Overview'],['view_analytics','Analytics'],['view_reports','Reports'],['view_team','Team'],['view_operations','Operations']]},
+  {g:'Views', items:[['view_board','Board'],['view_list','List'],['view_epics','Epics'],['view_overview','Overview'],['view_qa','QA & Testing'],['view_analytics','Analytics'],['view_reports','Reports'],['view_team','Team'],['view_operations','Deployments']]},
   {g:'Tickets', items:[['ticket_create','Create tickets'],['ticket_delete','Delete tickets'],['ticket_archive','Archive tickets'],['ticket_flag','Flag / unflag'],['ticket_move','Move across columns'],['ticket_copy','Copy key / link'],['ticket_link_epic','Link to epic'],['ticket_bulk','Bulk actions']]},
   {g:'Edit ticket fields', items:[['field_title','Title'],['field_desc','Description'],['field_status','Status'],['field_priority','Priority'],['field_project','Project'],['field_start','Start date'],['field_due','Due date'],['field_estimate','Estimate'],['field_epic','Epic'],['field_resolution','Resolution'],['field_custom','Custom field values']]},
   {g:'Assign people', items:[['role_developer','Set Developer'],['role_qa','Set Quality Analyst'],['role_reviewer','Set Code Reviewer'],['role_deployer','Set Deployer'],['role_reporter','Set Reporter']]},
   {g:'View sensitive fields', items:[['see_estimate','Estimates'],['see_logged','Logged / remaining'],['see_contributors','Contributors'],['see_dates','Dates'],['see_reporter','Reporter'],['see_desc','Description'],['see_custom','Custom fields']]},
+  {g:'QA & Testing', items:[['qa_manage','Add / edit test & use cases'],['qa_status','Set case Pass / Fail'],['qa_verify','QA sign-off (verify)'],['qa_attach','Upload QA attachments'],['qa_bug','Send bugs / fixes to developer'],['qa_clear','Clear QA cases & fixes']]},
+  {g:'Release & environments', items:[['pr_raise','Mark PR raised'],['deploy_verify','Verify deployment'],['deploy_manage','Manage deployment tracker'],['env_block','Block a test environment'],['env_release','Release / manage environments']]},
   {g:'Time tracking', items:[['time_log_own','Log own time'],['time_log_others','Log time for others'],['time_edit','Edit time logs'],['time_delete','Delete time logs'],['time_view','View time logs']]},
   {g:'Boards & workflow', items:[['board_create','Create boards'],['board_columns','Edit columns'],['board_workflow','Edit workflow rules'],['board_rename','Rename boards'],['board_delete','Delete boards']]},
   {g:'Projects', items:[['project_create','Create projects'],['project_edit','Rename / recolor'],['project_delete','Delete projects']]},
@@ -7589,9 +7591,9 @@ const ALL_CAPS=CAP_GROUPS.reduce((a,x)=>a.concat(x.items.map(i=>i[0])),[]);
 const _setOf=(arr)=>arr.reduce((o,c)=>(o[c]=true,o),{});
 const DEFAULT_ROLE_PERMS={
   Admin: _setOf(ALL_CAPS),
-  Developer: _setOf(['mod_pm','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','ticket_create','ticket_archive','ticket_flag','ticket_move','ticket_copy','ticket_link_epic','field_title','field_desc','field_status','field_priority','field_project','field_start','field_due','field_estimate','field_epic','field_resolution','field_custom','role_developer','role_qa','role_reviewer','role_deployer','role_reporter','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_log_own','time_log_others','time_edit','time_view']),
-  User: _setOf(['mod_pm','view_board','view_list','view_overview','ticket_create','ticket_flag','ticket_copy','field_status','field_custom','see_dates','see_desc','see_reporter','see_contributors','see_custom','time_log_own','time_view']),
-  Viewer: _setOf(['mod_pm','mod_delivery','mod_products','mod_ops','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','view_operations','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_view'])
+  Developer: _setOf(['mod_pm','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','ticket_create','ticket_archive','ticket_flag','ticket_move','ticket_copy','ticket_link_epic','field_title','field_desc','field_status','field_priority','field_project','field_start','field_due','field_estimate','field_epic','field_resolution','field_custom','role_developer','role_qa','role_reviewer','role_deployer','role_reporter','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_log_own','time_log_others','time_edit','time_view','view_qa','qa_manage','qa_status','qa_verify','qa_attach','qa_bug','qa_clear','pr_raise','deploy_verify','deploy_manage','env_block','env_release']),
+  User: _setOf(['mod_pm','view_board','view_list','view_overview','ticket_create','ticket_flag','ticket_copy','field_status','field_custom','see_dates','see_desc','see_reporter','see_contributors','see_custom','time_log_own','time_view','view_qa','env_block']),
+  Viewer: _setOf(['mod_pm','mod_delivery','mod_products','mod_ops','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','view_operations','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_view','view_qa'])
 };
 let editRole='Developer';
 const DEFAULT_PROFILES=[
@@ -7633,10 +7635,12 @@ const STX_FGROUPS=[
     ['comments','Comments',''],['subtasks','Subtasks',''],['worklogs','Worklogs','time entries'],['contributors','Contributors',''],['attachments','Attachments',''],['custom','Custom fields','all custom values']]},
 ];
 const STX_FALL=STX_FGROUPS.reduce((a,g)=>a.concat(g.items.map(i=>i[0])),[]);
-const STX_MODS=[['view_board','Board'],['view_list','List'],['view_epics','Epics'],['view_overview','Overview'],['view_analytics','Analytics'],['view_reports','Reports'],['view_team','Team'],['view_operations','Operations']];
+const STX_MODS=[['view_board','Board'],['view_list','List'],['view_epics','Epics'],['view_overview','Overview'],['view_qa','QA & Testing'],['view_analytics','Analytics'],['view_reports','Reports'],['view_team','Team'],['view_operations','Deployments']];
 const STX_ACTIONS=[
   {g:'Tickets', items:[['ticket_create','Create tickets'],['ticket_delete','Delete tickets'],['ticket_archive','Archive tickets'],['ticket_flag','Flag / unflag'],['ticket_move','Move across columns'],['ticket_copy','Copy key / link'],['ticket_link_epic','Link to epic'],['ticket_bulk','Bulk actions']]},
   {g:'Assign people', items:[['role_developer','Set Developer'],['role_qa','Set Quality Analyst'],['role_reviewer','Set Code Reviewer'],['role_deployer','Set Deployer'],['role_reporter','Set Reporter']]},
+  {g:'QA & Testing', items:[['qa_manage','Add / edit test & use cases'],['qa_status','Set case Pass / Fail'],['qa_verify','QA sign-off (verify)'],['qa_attach','Upload QA attachments'],['qa_bug','Send bugs / fixes to developer'],['qa_clear','Clear QA cases & fixes']]},
+  {g:'Release & environments', items:[['pr_raise','Mark PR raised'],['deploy_verify','Verify deployment'],['deploy_manage','Manage deployment tracker'],['env_block','Block a test environment'],['env_release','Release / manage environments']]},
   {g:'Time tracking', items:[['time_log_own','Log own time'],['time_log_others','Log time for others'],['time_edit','Edit time logs'],['time_delete','Delete time logs'],['time_view','View time logs']]},
   {g:'Boards & workflow', items:[['board_create','Create boards'],['board_columns','Edit columns'],['board_workflow','Edit workflow rules'],['board_rename','Rename boards'],['board_delete','Delete boards']]},
   {g:'Projects', items:[['project_create','Create projects'],['project_edit','Rename / recolour'],['project_delete','Delete projects']]},
@@ -10194,7 +10198,7 @@ function can(cap){
 function fieldPerm(key){ if(typeof IS_ADMIN!=='undefined' && IS_ADMIN) return 'edit'; try{ const s=store.settings(); const fp=s.fieldPerms && s.fieldPerms[myUid()]; const v=fp && fp[key]; return v||'edit'; }catch(e){ return 'edit'; } }
 function canSeeField(key){ return fieldPerm(key)!=='hide'; }
 function canEditField(key){ return fieldPerm(key)==='edit'; }
-const VIEW_CAP={overview:'view_overview',list:'view_list',epics:'view_epics',board:'view_board',analytics:'view_analytics',reports:'view_reports',team:'view_team',deployments:'view_operations'};
+const VIEW_CAP={overview:'view_overview',list:'view_list',epics:'view_epics',board:'view_board',qa:'view_qa',analytics:'view_analytics',reports:'view_reports',team:'view_team',deployments:'view_operations'};
 function canView(v){ const c=VIEW_CAP[v]; return c?can(c):true; }
 function myUid(){
   try{ if(typeof CURRENT_UID!=='undefined' && CURRENT_UID) return CURRENT_UID; }catch(e){}
