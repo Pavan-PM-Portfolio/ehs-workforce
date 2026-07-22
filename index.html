@@ -554,7 +554,7 @@ const LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAAwCAYAAAB5Tk15
 /* ---------------- helpers ---------------- */
 const $=(id)=>document.getElementById(id);
 const root=()=>$('root');
-function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/`/g,'&#96;'); }
 function initials(n){ const p=(n||'?').trim().split(/\s+/); return ((p[0]||'?')[0]+(p[1]?p[1][0]:'')).toUpperCase(); }
 function tileEl(code,accent,cls){ return `<span class="code-tile ${cls||''}" style="background:${accent}">${esc(code)}</span>`; }
 const IC={
@@ -1265,8 +1265,12 @@ function showCreds(email,password){
       <div class="field"><label>Email</label><input type="text" readonly value="${esc(email)}" onclick="this.select()"></div>
       <div class="field"><label>Temporary password</label><input type="text" readonly value="${esc(password)}" onclick="this.select()"></div>
     </div>
-    <div class="mfoot"><button class="btn accent" onclick="copyCreds('${esc(email)}','${esc(password)}')">Copy details</button>
+    <div class="mfoot"><button class="btn accent" id="cr_copy">Copy details</button>
       <button class="btn" onclick="closeModal()">Done</button></div>`;
+  // Bind via closure — the credentials are never serialized into an HTML
+  // attribute, so a quote/backtick in the value can't break out and inject.
+  const _cp=$('modal').querySelector('#cr_copy');
+  if(_cp) _cp.onclick=()=>copyCreds(email,password);
   $('scrim').classList.add('on');
 }
 function copyCreds(email,password){
