@@ -52,7 +52,7 @@
     if (!s) { _me = null; return null; }
     const uid = s.user.id;
     const [{ data: profile }, { data: access }] = await Promise.all([
-      client().from('profiles').select('*').eq('id', uid).single(),
+      client().from('profiles').select('*').eq('id', uid).maybeSingle(),
       client().from('tool_access').select('tool_id, role').eq('user_id', uid),
     ]);
     const meta = (s.user && s.user.user_metadata) || {};
@@ -107,7 +107,8 @@
     await adminUser('set_master', { user_id: userId, value: !!val });
   }
   // ---- admin-user Edge Function (service role stays server-side) ----
-  // Actions: create | reset | set_master | delete  (caller must be Master Admin)
+  // Actions: list_users | create | reset | delete | set_master (Master only)
+  //          grant_access | revoke_access (Master or an admin of that tool)
   async function adminUser(action, payload) {
     const s = await getSession();
     const res = await fetch(cfg.url + '/functions/v1/admin-user', {
@@ -124,12 +125,13 @@
     return out;
   }
   // create a brand-new user (returns { user_id, email, password, generated })
-  async function addUser(email, fullName, grants, password, isMaster) {
+  async function addUser(email, fullName, grants, password, isMaster, requireChange) {
     return adminUser('create', {
       email, full_name: fullName, grants: grants || [],
       password: password || undefined,
       is_master: !!isMaster,
-      require_change: !password,           // force a change only when we auto-generate the pw
+      // honour an explicit choice; default to forcing a change only when we auto-generate the pw
+      require_change: (requireChange === undefined) ? !password : !!requireChange,
     });
   }
   // back-compat: invite == create with a forced password change
