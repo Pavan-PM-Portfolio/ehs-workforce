@@ -3450,6 +3450,12 @@ body[data-density="compact"] .board{padding:12px 16px}
 const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
 const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
+/* Production ships silent: no console output leaks table names, RLS messages,
+   or error internals. Flip on for troubleshooting with ?debug=1 in the URL,
+   or localStorage.setItem('pm:debug','1'). */
+const __PM_DEBUG = (function(){ try{ return location.search.indexOf('debug=1')>-1 || localStorage.getItem('pm:debug')==='1'; }catch(e){ return false; } })();
+const __dbg = __PM_DEBUG ? console : { log:function(){}, warn:function(){}, error:function(){} };
+
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
    per-record to Supabase when configured, else localStorage.
@@ -4320,7 +4326,7 @@ function _scheduleEnhance(){ if(_selxRaf) return; _selxRaf=requestAnimationFrame
 new MutationObserver(_scheduleEnhance).observe(document.body,{childList:true,subtree:true});
 window.enhanceSelects=enhanceSelects;
 enhanceSelects(document);
-setTimeout(()=>{ try{ console.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
+setTimeout(()=>{ try{ __dbg.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
 function openDateMenu(anchor, taskId, cur, field){
   field = field||'due';
   const menu=document.getElementById('cfMenu');
@@ -5094,7 +5100,10 @@ function chatTime(at){ const d=new Date(at); const diff=(Date.now()-d.getTime())
   let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0'); const ap=h>=12?'PM':'AM'; h=h%12||12; const hm=h+':'+m+' '+ap;
   if(diff<86400 && d.getDate()===new Date().getDate()) return hm;
   return fdate(_isoLocal(d))+', '+hm; }
-function chatEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function chatEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// Attachment URLs come from other users' messages: allow only data: URLs so a
+// crafted javascript:/other-scheme "attachment" can't run when clicked.
+function chatSafeUrl(u){ u=String(u||''); return /^data:/i.test(u) ? u : '#'; }
 function renderMentions(text){ let s=chatEsc(text);
   const names=store.users().map(u=>u.name).sort((a,b)=>b.length-a.length);
   names.forEach(n=>{ const esc=chatEsc(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); s=s.replace(new RegExp('@'+esc,'g'), `<span class="cmention">@${chatEsc(n)}</span>`); });
@@ -5175,8 +5184,8 @@ function chatShort(at){ const d=new Date(at); const diff=(Date.now()-d.getTime()
 function chatFmtSize(b){ b=b||0; if(b<1024)return b+' B'; if(b<1048576)return Math.round(b/1024)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function chatPreview(m){ if(m.attachment) return (m.attachment.type||'').startsWith('image/')?'Photo':m.attachment.name; return m.text||''; }
 function chatFileIcon(){ return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'; }
-function chatAttHTML(a){ if(!a) return ''; if((a.type||'').startsWith('image/')) return `<a class="cmsg-imgw" href="${a.dataUrl}" target="_blank" rel="noopener"><img class="cmsg-img" src="${a.dataUrl}" alt="${chatEsc(a.name)}"/></a>`;
-  return `<a class="cmsg-file" href="${a.dataUrl}" download="${chatEsc(a.name)}"><span class="cmsg-file-ic">${chatFileIcon()}</span><span class="cmsg-file-b"><span class="cmsg-file-nm">${chatEsc(a.name)}</span><span class="cmsg-file-sz">${chatFmtSize(a.size)}</span></span></a>`; }
+function chatAttHTML(a){ if(!a) return ''; const url=chatSafeUrl(a.dataUrl); if((a.type||'').startsWith('image/')) return `<a class="cmsg-imgw" href="${url}" target="_blank" rel="noopener"><img class="cmsg-img" src="${url}" alt="${chatEsc(a.name)}"/></a>`;
+  return `<a class="cmsg-file" href="${url}" download="${chatEsc(a.name)}"><span class="cmsg-file-ic">${chatFileIcon()}</span><span class="cmsg-file-b"><span class="cmsg-file-nm">${chatEsc(a.name)}</span><span class="cmsg-file-sz">${chatFmtSize(a.size)}</span></span></a>`; }
 function chatConvoRow(c){ const me=CURRENT_UID; const isDm=c.type==='dm'; const other=isDm?store.user(c.members.find(x=>x!==me)):null; const nm=isDm?(other?other.name:'Direct'):c.name; const last=store.chatLast(c.id); const on=c.id===ui.chat.channel;
   const ic=isDm?avatar(other,34):`<span class="chat-grp-ic">${chatGroupIcon()}</span>`;
   const pv=last?`${chatEsc((store.user(last.user)||{}).name||'').split(' ')[0]}: ${chatEsc(chatPreview(last)).slice(0,26)}`:(isDm?'Start a conversation':'No messages yet');
@@ -5319,8 +5328,8 @@ async function allocateKey(){
     try{
       const {data, error} = await sb.rpc('pm_next_key', { p_ws:WS, p_space:space, p_prefix:prefix });
       if(!error && Number.isFinite(data)) return prefix+'_'+String(data).padStart(3,'0');
-      console.warn('[key] allocator unavailable, falling back locally', error);
-    }catch(e){ console.warn('[key] allocator threw, falling back locally', e); }
+      __dbg.warn('[key] allocator unavailable, falling back locally', error);
+    }catch(e){ __dbg.warn('[key] allocator threw, falling back locally', e); }
   }
   return computeNextKey();          // offline / local mode
 }
@@ -7619,7 +7628,12 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
   else { toast('Password reset link sent to '+email); } }
-const MASTER_EMAILS=['pavan.k@eduhubspot.com'];
+// Master admin is decided ONLY by the server (profiles.is_master_admin), read
+// in loadWorkspace and enforced by RLS + the edge function. This list is
+// intentionally empty: a browser must never be able to declare itself master.
+// The first master (pavan.k@eduhubspot.com) is seeded once in SQL — see the
+// migration doc, step "Seed the bootstrap master admin".
+const MASTER_EMAILS=[];
 function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
 function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
 const STX_FGROUPS=[
@@ -7697,10 +7711,10 @@ async function syncSuitePeople(){
     });
     if(!rows.length) return false;
     const {error}=await sb.from('people').upsert(rows);
-    if(error){ console.warn('suite sync failed', error.message); return false; }
+    if(error){ __dbg.warn('suite sync failed', error.message); return false; }
     buildSnap();
     return true;
-  }catch(e){ console.warn('suite sync failed', e); return false; }
+  }catch(e){ __dbg.warn('suite sync failed', e); return false; }
 }
 
 /* ---------- Copy a teammate's setup ----------
@@ -9169,18 +9183,18 @@ function renderAnalytics(){
   el.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>openPanel(r.dataset.open));
 }
 function barRows(items, colorFn, valFn){ const max=Math.max(...items.map(i=>i.v),1);
-  return items.map(i=>`<div class="hbar-row"><span class="nm">${i.label}</span><span class="track"><span class="fill" style="width:${Math.max(i.v/max*100,i.v>0?3:0)}%;background:${colorFn(i)}"></span></span><span class="val">${valFn(i.v)}</span></div>`).join(''); }
+  return items.map(i=>`<div class="hbar-row"><span class="nm">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.max(i.v/max*100,i.v>0?3:0)}%;background:${colorFn(i)}"></span></span><span class="val">${valFn(i.v)}</span></div>`).join(''); }
 
 /* Bottom charts, shared by all three dashboards. Colours come from the entity
    itself; anything without one falls back to a palette slot, so bars are never
    all the same colour (production projects have no colour set). */
 const EHS_BAR='#1A2333';   // solid black bars on all three dashboards
 function ehsBottomCharts(tasks, capA, capB){
-  const projItems=store.projects().map(pr=>({label:esc(pr.name), v:tasks.filter(t=>t.project===pr.id).length,
+  const projItems=store.projects().map(pr=>({label:pr.name, v:tasks.filter(t=>t.project===pr.id).length,
       color:EHS_BAR})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
   const noProj=tasks.filter(t=>!t.project||!store.project(t.project)).length;
   if(noProj) projItems.push({label:'No project', v:noProj, color:EHS_BAR});
-  const stItems=store.statuses().map(st=>({label:esc(st.name), v:tasks.filter(t=>t.status===st.id).length,
+  const stItems=store.statuses().map(st=>({label:st.name, v:tasks.filter(t=>t.status===st.id).length,
       color:EHS_BAR})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
   return `<div class="ehs-cols2">
     <div class="ehs-box"><div class="ehs-box-h"><h3>Tickets by project</h3><p>${esc(capA||'In scope')}</p></div>
@@ -9912,10 +9926,10 @@ async function diffPush(){
 
   if(failed.length){
     const names=[...new Set(failed.map(f=>f.t))];
-    failed.forEach(f=>console.error('[sync] '+f.t+' rejected:', f.e && (f.e.message||f.e), f.e));
+    failed.forEach(f=>__dbg.error('[sync] '+f.t+' rejected:', f.e && (f.e.message||f.e), f.e));
     const rls=failed.some(f=>(((f.e&&f.e.message)||'')+'').toLowerCase().includes('row-level'));
     const msg=(failed[0].e&&failed[0].e.message)||'';
-    toast(rls ? ('Not allowed \u2014 '+names.join(', ')+' (RLS). See console.') : ('Sync error \u2014 '+names.join(', ')+(msg?': '+msg.slice(0,60):'')));
+    toast(rls ? 'Some changes weren\u2019t saved \u2014 you may not have permission.' : 'Some changes couldn\u2019t be saved. Please retry.');
   }
 }
 
@@ -10001,8 +10015,8 @@ async function loadWorkspace(){
         prefs:{} };
       const {error}=await sb.from('people').upsert({workspace_id:WS, id:doc.id, doc});
       if(!error){ store.data.users.push(doc); buildSnap(); applyDefaults(); applyPrefs(); }
-      else console.warn('people provision failed', error.message);
-    }catch(e){ console.warn('people provision failed', e); }
+      else __dbg.warn('people provision failed', error.message);
+    }catch(e){ __dbg.warn('people provision failed', e); }
   }
   // Admin comes ONLY from the suite: master flag, or tool_access(pm).role='admin'.
   // It used to also come from people.doc.perm — which the PM "Full admin" toggle
@@ -10098,8 +10112,8 @@ async function pushSeed(){
     ['boards',   S.boards.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
     ['people',   [{workspace_id:WS,id:meDoc.id,doc:meDoc}]],
   ];
-  for(const [t,rows] of steps){ if(!rows||!rows.length) continue; const {error}=await sb.from(t).upsert(rows); if(error){ console.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
-  const {error:se}=await sb.from('settings').upsert({workspace_id:WS,doc:S.settings}); if(se){ console.error('SEED FAILED on settings', se); throw new Error('settings — '+se.message); }
+  for(const [t,rows] of steps){ if(!rows||!rows.length) continue; const {error}=await sb.from(t).upsert(rows); if(error){ __dbg.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
+  const {error:se}=await sb.from('settings').upsert({workspace_id:WS,doc:S.settings}); if(se){ __dbg.error('SEED FAILED on settings', se); throw new Error('settings — '+se.message); }
 }
 
 // ---- role gating (RLS is the real enforcement; this hides admin UI) ----
@@ -10347,7 +10361,7 @@ function urlApply(){
     const tid=q.get('t');
     if(tid && store.task(tid)) openPanel(tid); else if(!tid) closePanel();
     return true;
-  }catch(e){ console.warn('[url] could not apply', e); _urlApplying=false; return false; }
+  }catch(e){ __dbg.warn('[url] could not apply', e); _urlApplying=false; return false; }
 }
 window.addEventListener('hashchange', ()=>{ if(!_urlApplying) urlApply(); });
 window.addEventListener('popstate',  ()=>{ if(!_urlApplying) urlApply(); });
@@ -10687,7 +10701,7 @@ function notifyTaskChange(oldDoc, newDoc){
       if(mentioned) addNotif({type:'mention', taskId:id, actorId:actor, text:`mentioned you: "${snip}"`});
       else addNotif({type:'reply', taskId:id, actorId:actor, text:`commented on ${key}: "${snip}"`});
     }}
-  }catch(e){ console.warn('notif', e); }
+  }catch(e){ __dbg.warn('notif', e); }
 }
 
 // due-soon / overdue scan (runs on load)
@@ -10785,7 +10799,7 @@ async function boot(){
       setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent=_lbl);
       /* account panel uses the same neutral person glyph */ }
   }
-  try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ console.warn('notif init', e); }
+  try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ __dbg.warn('notif init', e); }
 }
 boot();
 </script>
