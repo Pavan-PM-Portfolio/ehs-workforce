@@ -4198,8 +4198,16 @@ function matchFilt(fv,tv){ if(!fv||fv==='all') return true; if(Array.isArray(fv)
 function filteredTasks(){
   const f=ui.filters;
   const ref=(f.period&&f.period!=='all')?boardRef():null;
+  /* Boards are containers: a ticket belongs to the board it was created on.
+     Tickets from before boards were scoped carry no `board`, so they fall to
+     the first board in the space — nothing disappears, and a brand-new board
+     starts genuinely empty. Cross-cutting views (QA, Deployments, Reports,
+     Overview) deliberately still read the whole space via standardTasks(). */
+  const _bd=ui.board;
+  const _firstBd=(store.boards()[0]||{}).id;
   return store.standardTasks().filter(t=>{
     if(t.archived) return false;
+    if(_bd && (t.board || _firstBd) !== _bd) return false;
     if(ui.project!=='all' && t.project!==ui.project) return false;
     if(f.epic!=='all'){ if(f.epic==='none'){ if(t.parent) return false; } else if(t.parent!==f.epic) return false; }
     if(!matchFilt(f.assignee, t.assignee)) return false;
@@ -4553,17 +4561,34 @@ function closeCardMenu(){ const m=document.getElementById('cardMenu'); if(m) m.c
 function openCardMenu(anchor, id){
   const menu=document.getElementById('cardMenu'); const t=store.task(id); if(!t) return;
   const arrow='<svg class="cm-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+  const boardMenu=()=>{
+    const cur=t.board || (store.boards()[0]||{}).id;
+    const BK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
+    const CK='<svg class="cm-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    menu.innerHTML=`<button class="cm-item cm-back" data-back="1">${BK}Move to board</button><div class="cm-sep"></div>`
+      + store.boards().map(b=>`<button class="cm-item${b.id===cur?' cm-cur':''}" data-bd="${b.id}">${esc(b.name)}${b.id===cur?CK:''}</button>`).join('');
+    menu.querySelector('[data-back]').onclick=e=>{ e.stopPropagation(); main(); };
+    menu.querySelectorAll('[data-bd]').forEach(b=>b.onclick=e=>{ e.stopPropagation();
+      const bid=b.dataset.bd;
+      if(bid===cur){ closeCardMenu(); return; }
+      store.updateTask(id,{board:bid});
+      closeCardMenu(); refreshViews();
+      const bn=(store.board(bid)||{}).name||'that board';
+      toast(`${t.key} moved to ${bn}`); });
+  };
   const main=()=>{ menu.innerHTML=`
       ${can('ticket_move')?`<button class="cm-item" data-a="status">Change status ${arrow}</button><div class="cm-sep"></div>`:''}
       ${can('ticket_copy')?`<button class="cm-item" data-a="copykey">Copy key</button><button class="cm-item" data-a="copylink">Copy link</button>`:''}
       ${can('ticket_flag')?`<button class="cm-item" data-a="flag">${t.flagged?'Remove flag':'Add flag'}</button>`:''}
       <button class="cm-item" data-a="colour">Card colour ${arrow}</button>
+      ${(can('ticket_move') && store.boards().length>1)?`<button class="cm-item" data-a="board">Move to board ${arrow}</button>`:''}
       ${(can('ticket_archive')||can('ticket_delete'))?'<div class="cm-sep"></div>':''}
       ${can('ticket_archive')?`<button class="cm-item" data-a="archive">Archive</button>`:''}
       ${can('ticket_delete')?`<button class="cm-item cm-danger" data-a="delete">Delete</button>`:''}`;
     menu.querySelectorAll('.cm-item').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=b.dataset.a;
       if(a==='status'){ statusMenu(); return; }
       if(a==='colour'){ colourMenu(); return; }
+      if(a==='board'){ boardMenu(); return; }
       if(a==='copykey'){ copyText(t.key); toast('Key copied'); }
       else if(a==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
       else if(a==='flag'){ store.updateTask(id,{flagged:!t.flagged}); refreshViews(); }
@@ -4945,7 +4970,7 @@ async function submitEpic(){
   // ticket would race for the same number — the bug we are removing.
   for(const row of [...document.querySelectorAll('#epmTasks .epm-task')]){
     const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) continue;
-    const t={ id:newTaskId('t'), ws, project:pid, key:await allocateKey(pid), title:tt, type:'Task', status:todoStatus,
+    const t={ id:newTaskId('t'), ws, board:(ui.board||null), project:pid, key:await allocateKey(pid), title:tt, type:'Task', status:todoStatus,
       priority:'Medium', assignee:row.querySelector('.epm-tasg').value||null, reporter:CURRENT_UID||null, parent:eid,
       due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
       updatedAt:today(), resolvedAt:null, desc:'' };
@@ -6098,7 +6123,7 @@ async function createTask(){
   let allocated;
   try{ allocated=await allocateKey(pid); }
   finally{ if(btn) btn.disabled=false; }
-  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), project:pid, key:allocated, title,
+  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), board:(isEpic?null:(ui.board||null)), project:pid, key:allocated, title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
     reporter:document.getElementById('ntReporter').value||null,
@@ -6487,8 +6512,8 @@ function renderBoardSettings(){
   const el=document.getElementById('boardsettingswrap'); if(!el) return;
   const b=activeBoard();
   const SECS=[
-    {k:'boards',  n:'Boards',      d:'Choose the active board, then configure it below'},
-    {k:'columns', n:'Columns',     d:'Which statuses appear on this board'},
+    {k:'boards',  n:'Boards',      d:'Each board holds its own tickets \u2014 a new one starts empty'},
+    {k:'columns', n:'Columns',     d:'Which statuses appear as columns on this board'},
     {k:'flow',    n:'Transitions', d:'Which status can move to which'},
     {k:'fields',  n:'Fields',      d:'Custom fields on every ticket'},
     {k:'types',   n:'Ticket types', d:'Task, Bug, Hot fix — add your own'},
