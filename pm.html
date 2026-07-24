@@ -87,7 +87,6 @@ input,select,textarea{font-family:inherit;font-size:13px}
 /* Coming soon */
 .tb-tool.tb-soon{cursor:default}
 .tb-tool.tb-soon:hover{background:none}
-  color:var(--muted);background:var(--surface-3);border-radius:20px !important;padding:3px 7px;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){
   .ti-pm-t,.ti-dh-body,.ti-dh-w1,.ti-dh-w2,.ti-sa-b,.ti-sa-a,.ti-pl-r,.ti-pl-t,.ti-om-a,.ti-om-b{animation:none}
 }
@@ -259,7 +258,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ep-cmenu button svg{width:15px;height:15px;flex:none}
 .ep-cmenu .sep{height:1px;background:var(--line-2);margin:4px 0}
 /* Create Epic modal */
-.epic-modal{width:760px;max-width:100%;display:flex;flex-direction:column;max-height:88vh;border-radius:14px !important;overflow:hidden}
+.modal.epic-modal{width:1060px;max-width:94vw;display:flex;flex-direction:column;max-height:88vh;border-radius:14px !important;overflow:hidden}
 /* Log time / Subtask dialogs — the base .modal sets 13px but the global sharp
    reset overrides it, so these have to say !important to stay rounded. */
 .log-modal,.sub-modal{border-radius:14px !important;overflow:hidden}
@@ -278,6 +277,9 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .log-modal .loghint{border-radius:9px !important;background:var(--surface-2);border:0}
 .sub-modal .loghint{border-radius:9px !important;background:var(--surface-2);border:0;padding:10px 12px;font-size:11.5px;line-height:1.55;color:var(--ink-2)}
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pj-frow{display:grid;grid-template-columns:1fr 140px;gap:14px;align-items:start}
+#pjKey{text-transform:uppercase;letter-spacing:.06em;font-weight:700;text-align:center}
+.loghint b{color:var(--ink-2);font-weight:700}
 .sb-done-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px !important}
 .sb-done-t{font-size:13px;font-weight:700}
 .sb-done-d{font-size:11.5px;color:var(--muted);margin-top:2px}
@@ -288,33 +290,38 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .bs-dirty.on{display:inline-flex}
 .ehs-btn:disabled{opacity:.45;cursor:not-allowed}
 .epm-h{display:flex;align-items:center;justify-content:space-between}
-.epm-body{display:grid;grid-template-columns:1fr 250px;overflow:hidden;flex:1;min-height:0}
-.epm-main{padding:20px 22px;overflow:auto;display:flex;flex-direction:column;min-height:0}
-.epm-rail{padding:20px 22px;background:var(--surface-2);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:16px}
-.epm-title{font-size:17px;font-weight:800;letter-spacing:-.01em;border:0;border-bottom:2px solid var(--line);background:none;font-family:inherit;padding:4px 2px;outline:none}
+.epm-body{display:grid;grid-template-columns:minmax(0,1fr) 300px;overflow:hidden;flex:1;min-height:0}
+.epm-main{padding:26px 28px;overflow:auto;display:flex;flex-direction:column;min-height:0;min-width:0}
+.epm-rail{padding:26px 26px;background:var(--surface-2);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:22px;overflow:auto}
+.epm-title{width:100%;font-size:18px;font-weight:800;letter-spacing:-.01em;border:0;border-bottom:2px solid var(--line);background:none;font-family:inherit;padding:6px 2px;outline:none}
 .epm-title:focus{border-color:var(--accent)}
-.epm-desc{margin-top:14px;border:1px solid var(--line);border-radius:10px !important;padding:10px 12px;font-family:inherit;font-size:13px;resize:vertical;min-height:60px;outline:none}
+.epm-desc{margin-top:18px;border:1px solid var(--line);border-radius:10px !important;padding:12px 14px;font-family:inherit;font-size:13px;resize:vertical;min-height:96px;outline:none;width:100%}
 .epm-desc:focus{border-color:var(--accent)}
-.epm-tasks-h{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.epm-tasks-h{display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;margin:28px 0 14px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .epm-addtask{display:inline-flex;align-items:center;gap:5px;border:1.3px solid var(--ink);background:#fff;border-radius:8px !important;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ink);padding:5px 10px;cursor:pointer;text-transform:none;letter-spacing:0}
 .epm-addtask:hover{background:var(--surface-2)}
 .epm-tasks{display:flex;flex-direction:column;gap:8px}
-.epm-task{display:flex;align-items:center;gap:8px}
+.epm-task{display:flex;align-items:center;gap:10px;min-width:0}
+.epm-task .selx{flex:none;width:170px}
+.epm-task .selx-btn{width:100%;justify-content:space-between;border:1px solid var(--line) !important;background:#fff !important;border-radius:9px !important;padding:8px 11px !important;font-size:13px !important;color:var(--ink) !important;min-height:36px}
 .epm-tname{flex:1;border:1px solid var(--line);border-radius:9px !important;padding:8px 11px;font-family:inherit;font-size:13px;outline:none;min-width:0}
 .epm-tname:focus{border-color:var(--accent)}
 .epm-tasg{width:150px;flex:none;border:1px solid var(--line);border-radius:9px !important;padding:8px 9px;font-family:inherit;font-size:12.5px;background:#fff;cursor:pointer}
 .epm-trm{width:30px;height:30px;flex:none;border:1px solid var(--line);border-radius:8px !important;background:#fff;color:var(--muted);cursor:pointer;display:grid;place-items:center}
 .epm-trm:hover{background:var(--crit-soft);color:var(--crit);border-color:var(--crit-soft)}
-.epm-frow{display:flex;flex-direction:column;gap:5px}
+.epm-frow{display:flex;flex-direction:column;gap:8px}
 .epm-frow label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .epm-frow select,.epm-frow input{border:1px solid var(--line);border-radius:9px !important;padding:8px 10px;font-family:inherit;font-size:13px;background:#fff;outline:none}
 .epm-frow select:focus,.epm-frow input:focus{border-color:var(--accent)}
+.epm-frow .selx{display:block;width:100%}
+.epm-frow .selx-btn{width:100%;justify-content:space-between;border:1px solid var(--line) !important;background:#fff !important;border-radius:9px !important;padding:9px 11px !important;font-size:13px !important;color:var(--ink) !important;min-height:38px}
+.epm-frow .selx-btn:hover{border-color:var(--line-2) !important}
+.epm-frow .selx-t:empty::before{content:'Select\u2026';color:var(--faint)}
+.epm-frow input[type=date]{width:100%;min-height:38px;color:var(--ink)}
+.epm-frow input[type=date]::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer}
 .epm-hint{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:auto}
 .ep-left{padding:18px 20px;border-bottom:1px solid var(--ink);display:flex;gap:22px;align-items:center;flex-wrap:wrap}
 .ep-head{min-width:180px}
-.dep-ep .ep-left{flex-wrap:nowrap;align-items:center}
-.dep-ep .ep-head{width:260px;min-width:260px;flex:none}
-.dep-ep .ep-ti{white-space:normal;overflow-wrap:anywhere;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ep-ti{font-weight:800;font-size:15px}
 .ep-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .ep-mid{display:flex;gap:14px;align-items:center}
@@ -630,7 +637,7 @@ body[data-view="projects"] .stickyhead,body[data-view="epics"] .stickyhead,body[
 body[data-view="boardsettings"] #newTaskBtn{display:none !important}
 body[data-view="boardsettings"] .topbar{border-bottom:0}
 .stickyhead{flex:none;background:var(--bg)}
-.board{display:flex;gap:14px;padding:18px 20px;min-width:max-content;align-items:flex-start}
+.board{display:flex;gap:14px;padding:18px 20px 62px;min-width:max-content;align-items:flex-start}
 .board.grouped{flex-direction:column;align-items:stretch;gap:0;padding:8px 0 20px;min-width:0}
 .swimlane{border-top:1px solid var(--line-2)}
 .swimlane:first-child{border-top:0}
@@ -1780,6 +1787,38 @@ body[data-view="deployments"] .topbar,body[data-view="qa"] .topbar,body[data-vie
 .ov-due-row:hover .ov-due-t{color:var(--accent)}
 .ov-due-t{font-size:13px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ov-due-pri{font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px !important;flex:none}
+/* ---- Overview scoreboard ---- */
+.sb-hero{background:var(--surface);border:1px solid var(--line);border-radius:14px !important;padding:18px 20px 0;margin-bottom:14px;overflow:hidden;position:relative}
+.sb-lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sb-big{font-size:38px;font-weight:800;letter-spacing:-.035em;line-height:1.05;color:var(--ink);margin-top:6px;font-variant-numeric:tabular-nums}
+.sb-big .u{font-size:20px;font-weight:700;color:var(--muted);margin-left:2px}
+.sb-pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:7px !important;padding:3px 9px;margin-top:8px}
+.sb-hero-chart{margin:10px -20px 0;line-height:0}
+.sb-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.sb-kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px !important;padding:15px 16px 12px;min-width:0}
+.sb-kpi .top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.sb-kpi .l{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-kpi .v{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--ink);font-variant-numeric:tabular-nums}
+.sb-dl{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;flex:none}
+.sb-dl.up{color:var(--good)} .sb-dl.dn{color:var(--crit)}
+.sb-2{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-bottom:14px}
+.sb-eq{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
+.ov-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px !important;padding:16px 18px;min-width:0}
+.ov-gh{font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.ov-cap{font-size:12px;color:var(--muted);margin:3px 0 14px}
+.ov-donut-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.ov-legs{display:flex;flex-direction:column;gap:2px;flex:1;min-width:150px}
+.ov-leg{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-2);padding:6px 8px;border-radius:8px !important}
+.ov-leg .d{width:9px;height:9px;border-radius:999px !important;flex:none}
+.ov-leg .v{margin-left:auto;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.age-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line-2)}
+.age-row:last-child{border-bottom:0}
+.age-nm{flex:1;min-width:0;font-size:13px;color:var(--ink);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.age-nm:hover{color:var(--accent)}
+.age-as{flex:none;display:flex;align-items:center}
+.age-badge{flex:none;font-size:11px;font-weight:700;padding:2px 8px;border-radius:7px !important;font-variant-numeric:tabular-nums}
+.age-un{font-size:10.5px;color:var(--faint);font-weight:600}
+@media (max-width:1150px){ .sb-kpis{grid-template-columns:repeat(2,1fr)} .sb-2,.sb-eq{grid-template-columns:1fr} }
 .hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:13px}
 .hbar-row:last-child{margin-bottom:0}
 .hbar-row .nm{font-size:12.5px;color:var(--ink-2);min-width:130px;display:flex;align-items:center;gap:8px}
@@ -2406,7 +2445,73 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-grid{display:flex;flex-direction:column;gap:16px}
 .dep-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#0E8F5A18;color:#0E8F5A}
 .dep-stats{display:flex;align-items:flex-start;flex-wrap:nowrap;gap:16px;flex:1;min-width:0}
-.dep-ep .ep-kebab,.qa-ep .ep-kebab{top:10px;right:12px}
+.qa-ep .ep-kebab{top:10px;right:12px}
+/* ---- Deployment card: status rail layout ---- */
+.dep-ep{overflow:hidden}
+.d6{display:flex;align-items:stretch}
+.d6-rail{width:158px;flex:none;border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center}
+.d6-rail.ok{background:#0E8F5A0A}
+.d6-rail.no{background:#CE2F260A}
+.dep-badge.no{background:#CE2F2614;color:var(--crit)}
+.d6-mark{border:1px solid var(--crit);background:#fff;color:var(--crit);font-family:inherit;font-size:13px;font-weight:800;letter-spacing:-.01em;padding:8px 14px;border-radius:9px !important;cursor:pointer;transition:background .15s}
+.d6-mark:hover{background:#CE2F260D}
+.d6-redo{border:0;background:none;color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;padding:2px}
+.d6-redo:hover{color:var(--crit)}
+.d6-ver{font-size:12px;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+.d6-envs{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:2px}
+.d6-env{font-size:10px;font-weight:700;letter-spacing:.03em;color:var(--good);background:#0E8F5A16;border:1px solid #0E8F5A33;border-radius:6px !important;padding:2px 7px}
+.env-pick{display:flex;flex-wrap:wrap;gap:8px}
+.env-opt{border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px !important;cursor:pointer;transition:all .12s}
+.env-opt:hover{border-color:var(--line-2);background:#fff}
+.env-opt.on{border-color:var(--good);background:#0E8F5A12;color:var(--good)}
+/* ---- Deployments: view tabs + release history ---- */
+.dep-tabs{display:inline-flex;gap:2px;background:var(--surface-3);border-radius:10px !important;padding:3px;margin-right:14px;flex:none}
+.dep-tab{border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);padding:7px 14px;border-radius:8px !important;cursor:pointer;white-space:nowrap}
+.dep-tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.dv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px}
+.dv-env{background:var(--surface);border:1px solid var(--ink);border-radius:14px !important;overflow:hidden}
+.dv-env.empty{border-color:var(--line);opacity:.7}
+.dv-env-h{display:flex;align-items:baseline;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.dv-env-n{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.dv-env-c{font-size:11.5px;color:var(--muted);margin-left:auto}
+.dv-env-c b{color:var(--good);font-weight:800}
+.dv-rows{max-height:420px;overflow-y:auto}
+.dv-row{display:flex;flex-direction:column;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line-2)}
+.dv-row:last-child{border-bottom:0}
+.dv-v{font-size:14px;font-weight:800;letter-spacing:-.01em;color:var(--good)}
+.dv-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.dv-by{display:inline-flex;align-items:center;gap:6px}
+.dv-tix{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.dv-tix-row{display:flex;align-items:center;gap:9px;min-width:0}
+.dv-tt{font-size:12px;color:var(--ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dv-asg{display:inline-flex;align-items:center;gap:6px;flex:none}
+.dv-asg-n{font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap}
+.dv-asg.none{font-size:11.5px;color:var(--faint)}
+.dv-vhead{display:flex;align-items:baseline;gap:10px}
+.dv-key{font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:6px !important;padding:2px 8px;cursor:pointer;text-decoration:none;flex:none}
+.dv-key:hover{text-decoration:underline}
+.dv-n{font-size:11px;color:var(--faint);margin-left:auto}
+.d6-state{font-size:13.5px;font-weight:800;letter-spacing:-.01em;color:var(--good)}
+.d6-sub{font-size:11.5px;color:var(--muted);line-height:1.45}
+.d6-body{flex:1;min-width:0;padding:18px 20px 20px}
+.d6-head{display:flex;align-items:flex-start;gap:16px}
+.d6-id{flex:1;min-width:0}
+.d6-ti{font-weight:700;font-size:15.5px;letter-spacing:-.01em;line-height:1.35;color:var(--ink)}
+.d6-id .dep-key{display:inline-block;margin-top:3px}
+.d6-act{display:flex;align-items:center;gap:12px;flex:none}
+.d6-keb{position:static !important;width:30px;height:30px}
+.d6-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.d6-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px !important;padding:6px 11px;font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
+.d6-chip b{color:var(--ink);font-weight:700}
+.d6-team{margin-top:22px;padding-top:18px;border-top:1px solid var(--line-2)}
+.d6-teamh{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.d6-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 16px}
+.d6-cell{display:flex;flex-direction:column;gap:9px;min-width:0}
+.d6-lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.d6-who{display:inline-flex;align-items:center;gap:8px;min-width:0}
+.d6-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d6-none{font-size:13.5px;color:var(--faint)}
+@media (max-width:1100px){ .d6-grid{grid-template-columns:repeat(2,1fr)} }
 .dep-badge.pr{background:#B96A0018;color:#B96A00}
 .pb-pr{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:16px 0 28px;padding:13px 15px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2)}
 .pb-pr.raised{border-color:#0E8F5A55;background:#0E8F5A0D}
@@ -2421,6 +2526,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 .pb-pr-btn:hover{background:var(--surface-2)}
 .pb-pr-btn.done{background:#0E8F5A14;border-color:#0E8F5A55;color:#0E8F5A}
 .scroll{padding-bottom:62px}
+body.view-board .scroll{padding-bottom:0}
 .sidebar{padding-bottom:58px}
 .botbar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 16px;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -2px 10px -6px rgba(16,26,51,.08);z-index:200}
 .env-banner-host{flex:none}
@@ -2516,7 +2622,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 .dep-who-none{font-size:12px;color:var(--faint)}
 .dep-open2{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--accent);text-decoration:none}
 .dep-open2:hover{text-decoration:underline}
-.dep-ep .ep-right{min-width:280px}
 .qa-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#2743E014;color:#2743E0}
 .qa-ep .ep-right{min-width:320px}
 .qa-cases{display:flex;flex-direction:column;gap:7px}
@@ -3198,6 +3303,20 @@ body[data-density="compact"] .board{padding:12px 16px}
   <div class="modal-f"><button class="btn" id="qaAttCancel">Cancel</button><button class="btn primary" id="qaAttUpload">Upload</button></div>
 </div></div>
 
+<div class="modal-wrap" id="depMarkWrap"><div class="modal sub-modal" style="width:520px">
+  <div class="modal-h">Record deployment<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px" id="depMarkSub"></div></div>
+  <div class="modal-b">
+    <div class="field"><label>Environments<span class="req">*</span></label>
+      <div class="env-pick" id="depEnvPick"></div>
+      <div class="loghint" style="margin-top:10px">Pick every environment this build went to \u2014 you can choose more than one.</div>
+    </div>
+    <div class="field"><label>Version number<span class="req">*</span></label>
+      <input id="depVersion" placeholder="e.g. 2.14.0" autocomplete="off"/>
+    </div>
+  </div>
+  <div class="modal-f"><button class="btn" id="depMarkCancel">Cancel</button><button class="btn primary" id="depMarkSave">Mark as deployed</button></div>
+</div></div>
+
 <div class="modal-wrap" id="envBlockWrap"><div class="modal sub-modal" style="width:490px">
   <div class="modal-h">Block a test environment</div>
   <div class="modal-b">
@@ -3294,14 +3413,14 @@ body[data-density="compact"] .board{padding:12px 16px}
 </div>
 
 <div class="modal-wrap" id="projWrap">
-  <div class="modal sub-modal" style="width:440px">
+  <div class="modal sub-modal" style="width:520px">
     <div class="modal-h">Create project<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Group tickets under a name and a key.</div></div>
     <div class="modal-b">
-      <div class="field" style="margin-bottom:14px"><label>Project name<span class="req">*</span></label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
-      <div class="fgrid2">
-        <div class="field"><label>Key</label><input id="pjKey" placeholder="MKT" maxlength="10" autocomplete="off"/></div>
+      <div class="pj-frow">
+        <div class="field"><label>Project name<span class="req">*</span></label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
+        <div class="field"><label>Key<span class="req">*</span></label><input id="pjKey" placeholder="MKT" maxlength="10" autocomplete="off"/></div>
       </div>
-      <div class="loghint" style="margin-top:14px">The key prefixes every ticket in this project. It is filled in from the name \u2014 change it if you like.</div>
+      <div class="loghint">The key prefixes every ticket in this project &mdash; <b>MKT-1</b>, <b>MKT-2</b>. It fills in from the name, and must be unique.</div>
     </div>
     <div class="modal-f"><button class="btn" id="pjCancel">Cancel</button><button class="btn primary" id="pjCreate">Create project</button></div>
   </div>
@@ -3778,12 +3897,52 @@ const store = {
   task(id){ return this.data.tasks.find(t=>t.id===id)||null; },
   worklogs(taskId){ return this.data.worklogs.filter(w=>w.task===taskId); },
   // writes
-  moveTask(id, statusId){ const t=this.task(id); if(!t) return; t.status=statusId; this._applyResolution(t); const isDone=(this.status(t.status)||{}).cat==='done'; if(isDone){ if(!t.deployed){ t.deployed=true; t.deployedAt=new Date().toISOString(); } } else { t.deployed=false; t.deployedAt=null; } t.updatedAt=today(); this._persist(); },
+  moveTask(id, statusId){ const t=this.task(id); if(!t) return; t.status=statusId; this._applyResolution(t); /* deployment is recorded explicitly (env + version), never inferred from status */ t.updatedAt=today(); this._persist(); },
   deleteDeployment(id){ const t=this.task(id); if(!t) return; t.deployed=false; t.deployedAt=null; this._persist(); },
   verifyDeployment(id, checks, verified){ const t=this.task(id); if(!t) return; t.verifyChecks=checks||{}; t.verified=!!verified;
-    t.verifiedAt=verified?new Date().toISOString():null; t.verifiedBy=verified?((typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null):null; this._persist(); },
+    t.verifiedAt=verified?new Date().toISOString():null; t.verifiedBy=verified?((typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null):null;
+    /* Verification is the last gate, so a verified deployment closes the ticket.
+       Board transition rules are deliberately bypassed — this is a system action,
+       not a manual drag — but it is written to the timeline so it is traceable. */
+    if(verified){
+      const done=this.statuses().find(s=>(s.cat||'todo')==='done');
+      if(done && t.status!==done.id){
+        const from=(this.status(t.status)||{}).name||'\u2014';
+        t.status=done.id; this._applyResolution(t); t.updatedAt=today();
+        try{ this._pushActivity(id, 'deployment verified \u2014 status moved from '+from+' to '+done.name); }catch(e){}
+        try{ if(typeof addNotif==='function' && t.assignee) addNotif({type:'status', taskId:id,
+          actorId:t.verifiedBy, text:`${t.key} verified and closed`, dedup:'vdone:'+id}); }catch(e){}
+      }
+    }
+    this._persist(); },
   setPrRaised(id, raised){ const t=this.task(id); if(!t) return; t.prRaised=!!raised; t.prRaisedAt=raised?new Date().toISOString():null;
     try{ this._pushActivity(id, raised?'raised a PR \u2014 sent to Deployments':'unmarked the PR'); }catch(e){} this._persist(); },
+  /* ---- Deployment record --------------------------------------------------
+     A ticket is only "deployed" once someone records WHERE it went and WHICH
+     build — never inferred from status, so the tracker reflects reality. */
+  markDeployed(id, envs, version){ const t=this.task(id); if(!t) return;
+    t.deployed=true; t.deployedAt=new Date().toISOString();
+    t.deployEnvs=(envs||[]).slice(); t.deployVersion=String(version||'').trim();
+    t.deployedBy=(typeof myUid==='function'?myUid():null);
+    // every release is appended to the log — the ticket fields only hold the latest
+    if(!Array.isArray(this.data.deployLog)) this.data.deployLog=[];
+    this.data.deployLog.push({ id:'dl'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),
+      task:id, version:t.deployVersion, envs:t.deployEnvs.slice(), at:t.deployedAt, by:t.deployedBy });
+    try{ this._pushActivity(id, 'deployed '+(t.deployVersion?('v'+t.deployVersion+' '):'')+'to '+(t.deployEnvs.join(', ')||'\u2014')); }catch(e){}
+    this._persist(); },
+  deployLog(){ if(!Array.isArray(this.data.deployLog)) this.data.deployLog=[]; return this.data.deployLog; },
+  removeDeployEntry(entryId){ this.data.deployLog=this.deployLog().filter(d=>d.id!==entryId); this._persist(); },
+  unmarkDeployed(id){ const t=this.task(id); if(!t) return;
+    // drop only this ticket's most recent release, then fall back to the one before it
+    const mine=this.deployLog().filter(d=>d.task===id).sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+    const last=mine[mine.length-1];
+    if(last) this.data.deployLog=this.deployLog().filter(d=>d.id!==last.id);
+    const prev=mine[mine.length-2];
+    if(prev){ t.deployed=true; t.deployedAt=prev.at; t.deployEnvs=(prev.envs||[]).slice(); t.deployVersion=prev.version; t.deployedBy=prev.by; }
+    else { t.deployed=false; t.deployedAt=null; t.deployEnvs=[]; t.deployVersion=''; t.deployedBy=null;
+      t.verified=false; t.verifyChecks={}; t.verifiedAt=null; t.verifiedBy=null; }
+    try{ this._pushActivity(id, 'reverted the deployment record'); }catch(e){}
+    this._persist(); },
   addQaCase(taskId, kind, title){ const t=this.task(taskId); if(!t||!title) return; if(!t.qaCases) t.qaCases=[];
     t.qaCases.push({id:'qc'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), kind:kind==='use'?'use':'test', title, status:'pending'}); this._persist(); },
   updateQaCase(taskId, cid, patch){ const t=this.task(taskId); if(!t||!t.qaCases) return; const c=t.qaCases.find(x=>x.id===cid); if(c){ Object.assign(c, patch); this._persist(); } },
@@ -3814,7 +3973,7 @@ const store = {
   _applyResolution(t){ const s=this.status(t.status); const cat=s?s.cat:'todo';
     if(cat==='done'){ t.resolution='Done'; if(!t.resolvedAt){ t.resolvedAt=today(); t.resolvedTs=new Date().toISOString(); } }
     else { t.resolution='Unresolved'; t.resolvedAt=null; } },
-  updateTask(id, patch){ const t=this.task(id); if(!t) return; try{ this._logChanges(t, patch); }catch(e){} Object.assign(t, patch); if('status' in patch){ this._applyResolution(t); const isDone=(this.status(t.status)||{}).cat==='done'; if(isDone){ if(!t.deployed){ t.deployed=true; t.deployedAt=new Date().toISOString(); } } else { t.deployed=false; t.deployedAt=null; } } t.updatedAt=today(); this._persist(); },
+  updateTask(id, patch){ const t=this.task(id); if(!t) return; try{ this._logChanges(t, patch); }catch(e){} Object.assign(t, patch); if('status' in patch){ this._applyResolution(t); /* deployment is recorded explicitly (env + version), never inferred from status */ } t.updatedAt=today(); this._persist(); },
   /* Identity must come from the signed-in account. Falling back to users()[0]
      silently stamps everyone's actions with the first person in the workspace. */
   _actor(){ try{ if(typeof myUid==='function') return myUid(); }catch(e){}
@@ -3951,11 +4110,21 @@ function avatar(user, size=22){ const bw=size>=30?1.5:1.25;
    localStorage map keyed by email. Same origin, so a DP set at the account
    level shows up here too — the person record wins if it carries its own. */
 const DP_KEY='ehs_avatars';
-function dpAll(){ try{ return JSON.parse(localStorage.getItem(DP_KEY)||'{}')||{}; }catch(e){ return {}; } }
+/* Parsed once and cached. avatar() runs for every card, chip and dropdown row,
+   so re-reading + JSON.parsing this map (which holds base64 photos) per call
+   made rendering crawl. Invalidated on our own writes and on cross-tab edits. */
+let _dpCache=null;
+function dpAll(){
+  if(_dpCache) return _dpCache;
+  try{ _dpCache=JSON.parse(localStorage.getItem(DP_KEY)||'{}')||{}; }catch(e){ _dpCache={}; }
+  return _dpCache;
+}
 function dpGet(email){ if(!email) return null; return dpAll()[String(email).trim().toLowerCase()]||null; }
 function dpSet(email,data){ if(!email) return; const m=dpAll(); const k=String(email).trim().toLowerCase();
   if(data) m[k]=data; else delete m[k];
+  _dpCache=m;
   try{ localStorage.setItem(DP_KEY,JSON.stringify(m)); }catch(e){} }
+try{ window.addEventListener('storage', e=>{ if(e && e.key===DP_KEY) _dpCache=null; }); }catch(e){}
 function photoOf(u){ if(!u) return null; return u.photo || dpGet(u.email) || null; }
 function myPhoto(){ try{ return photoOf(meUser()); }catch(e){ return null; } }
 /* Paint the signed-in person's photo into every account slot (top nav + account
@@ -4397,7 +4566,12 @@ function openCardMenu(anchor, id){
       else if(a==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
       else if(a==='flag'){ store.updateTask(id,{flagged:!t.flagged}); refreshViews(); }
       else if(a==='archive'){ store.updateTask(id,{archived:true}); refreshViews(); toast(`${t.key} archived`); }
-      else if(a==='delete'){ if(confirm(`Delete ${t.key}? This can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
+      else if(a==='delete'){ if(!can('ticket_delete')){ toast('You don\u2019t have permission to delete tickets'); closeCardMenu(); return; }
+        const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
+        confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
+          impact:[{n:_sb,label:'subtask'+(_sb===1?'':'s')},{n:_cm,label:'comment'+(_cm===1?'':'s')},{n:_wl,label:'time log'+(_wl===1?'':'s')}],
+          confirmLabel:'Delete ticket',
+          onConfirm:()=>{ store.removeTask(id); if(ui.openTask===id) closePanel(); refreshViews(); toast(`${t.key} deleted`); } }); }
       closeCardMenu(); }); };
   const statusMenu=()=>{ const bd=activeBoard(); const enf=!!(bd&&bd.enforce);
     const allow = enf ? [t.status, ...allowedTargets(bd, t.status)] : STATUSES.map(s=>s.id);
@@ -4422,6 +4596,13 @@ document.addEventListener('click',e=>{ if(!e.target.closest('#cardMenu')&&!e.tar
 
 /* ---- Custom light dropdowns: replace native <select> across the page ---- */
 function _selxLabel(sel,btn){ const o=sel.options[sel.selectedIndex]; btn.querySelector('.selx-t').textContent=o?o.textContent:''; }
+/* Re-sync the visible label after a <select>'s options are rebuilt — setting
+   innerHTML doesn't fire 'change', so the custom button would sit blank. */
+function syncSelx(root){
+  (root||document).querySelectorAll('select[data-enh]').forEach(sel=>{
+    if(sel._selxBtn) _selxLabel(sel, sel._selxBtn);
+  });
+}
 function enhanceSelects(root){
   (root||document).querySelectorAll('select:not([data-enh])').forEach(sel=>{
     sel.setAttribute('data-enh','1');
@@ -4454,7 +4635,18 @@ window.addEventListener('resize',closeSelx);
 document.getElementById('scroll')&&document.getElementById('scroll').addEventListener('scroll',closeSelx,true);
 let _selxRaf=null;
 function _scheduleEnhance(){ if(_selxRaf) return; _selxRaf=requestAnimationFrame(()=>{ _selxRaf=null; enhanceSelects(document); }); }
-new MutationObserver(_scheduleEnhance).observe(document.body,{childList:true,subtree:true});
+/* Only re-scan when a <select> actually appears. Every render mutates the DOM,
+   and a full-document querySelectorAll on each one is wasted work. */
+new MutationObserver(muts=>{
+  for(let i=0;i<muts.length;i++){
+    const added=muts[i].addedNodes;
+    for(let j=0;j<added.length;j++){
+      const n=added[j];
+      if(n.nodeType!==1) continue;
+      if(n.tagName==='SELECT' || (n.querySelector && n.querySelector('select'))){ _scheduleEnhance(); return; }
+    }
+  }
+}).observe(document.body,{childList:true,subtree:true});
 window.enhanceSelects=enhanceSelects;
 enhanceSelects(document);
 setTimeout(()=>{ try{ console.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
@@ -4656,6 +4848,7 @@ function confirmDelete(opt){
   w.classList.add('on');
 }
 function deleteEpic(eid){
+  if(!can('ticket_delete')){ toast('You don\u2019t have permission to delete tickets'); return; }
   const e=store.task(eid); if(!e) return;
   const kids=store.tasks().filter(t=>t.parent===eid);
   const ids=[eid].concat(kids.map(k=>k.id));
@@ -4710,15 +4903,19 @@ function epmTaskRow(){
     else { const nx=rows[rows.indexOf(row)+1]; if(nx) nx.querySelector('.epm-tname').focus(); } } };
   return row;
 }
-function epmAddTaskRow(focus){ const box=document.getElementById('epmTasks'); const r=epmTaskRow(); box.appendChild(r); if(focus) r.querySelector('.epm-tname').focus(); }
+function epmAddTaskRow(focus){ const box=document.getElementById('epmTasks'); const r=epmTaskRow(); box.appendChild(r);
+  try{ enhanceSelects(r); syncSelx(r); }catch(e){}
+  if(focus) r.querySelector('.epm-tname').focus(); }
 function openEpicModal(){
+  if(!can('ticket_create')){ toast('You don\u2019t have permission to create tickets'); return; }
   const pSel=document.getElementById('epmProject');
-  pSel.innerHTML=store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  pSel.innerHTML=`<option value="">Select a project\u2026</option>`+store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if(ui.project && ui.project!=='all') pSel.value=ui.project;
   document.getElementById('epmLead').innerHTML='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
   document.getElementById('epmTitle').value=''; document.getElementById('epmDesc').value=''; document.getElementById('epmDue').value='';
   document.getElementById('epmTasks').innerHTML=''; epmAddTaskRow(); epmAddTaskRow();
   document.getElementById('epicWrap').classList.add('on');
+  try{ enhanceSelects(document.getElementById('epicWrap')); syncSelx(document.getElementById('epicWrap')); }catch(e){}
   setTimeout(()=>document.getElementById('epmTitle').focus(),40);
 }
 function closeEpicModal(){ document.getElementById('epicWrap').classList.remove('on'); }
@@ -5222,6 +5419,56 @@ const VERIFY_ITEMS=[
   {k:'logs',     t:'No new errors in logs / monitoring'},
   {k:'perf',     t:'Performance & response times within limits'},
 ];
+let depTab='tickets';
+function depTabBtn(k,label){ return `<button type="button" class="dep-tab ${depTab===k?'on':''}" data-deptab="${k}">${label}</button>`; }
+function wireDepTabs(el){ el.querySelectorAll('[data-deptab]').forEach(b=>b.onclick=()=>{ depTab=b.dataset.deptab; renderDeployments(); }); }
+/* Release history, split by environment. Every recorded deployment is kept, so
+   an environment shows the full run of versions that landed on it. */
+function renderDepVersions(el){
+  const log=store.deployLog().slice().sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  const byEnv={}; DEPLOY_ENVS.forEach(e=>byEnv[e]=[]);
+  log.forEach(d=>(d.envs||[]).forEach(e=>{ if(!byEnv[e]) byEnv[e]=[]; byEnv[e].push(d); }));
+
+  const head=`<div class="ov-h" style="align-items:flex-start"><div class="dep-tabs">${depTabBtn('tickets','By ticket')}${depTabBtn('versions','By version')}</div></div>`;
+
+  if(!log.length){
+    el.innerHTML=head+`<div class="ehs-empty"><p>No deployments recorded yet. Mark a ticket as deployed to start the release history.</p></div>`;
+    wireDepTabs(el); return;
+  }
+
+  const envCards=Object.keys(byEnv).map(env=>{
+    const rows=byEnv[env];
+    if(!rows.length) return `<div class="dv-env empty"><div class="dv-env-h"><span class="dv-env-n">${esc(env)}</span><span class="dv-env-c">No releases</span></div></div>`;
+    // group this environment's entries by version, newest first
+    const seen=[]; const groups={};
+    rows.forEach(d=>{ const v=d.version||'\u2014'; if(!groups[v]){ groups[v]=[]; seen.push(v); } groups[v].push(d); });
+    const items=seen.map(v=>{
+      const g=groups[v];
+      const when=g[0].at;
+      const tix=g.map(d=>{ const t=store.task(d.task); if(!t) return '';
+        const u=store.user(t.assignee);
+        return `<div class="dv-tix-row"><a class="dv-key" data-open="${t.id}">${esc(t.key)}</a>`
+             + `<span class="dv-tt">${esc(t.title)}</span>`
+             + (u?`<span class="dv-asg">${avatar(u,18)}<span class="dv-asg-n">${esc(u.name)}</span></span>`
+                 :'<span class="dv-asg none">Unassigned</span>')
+             + `</div>`; }).filter(Boolean).join('');
+      const who=store.user(g[0].by);
+      return `<div class="dv-row">
+        <div class="dv-vhead"><span class="dv-v">v${esc(v)}</span><span class="dv-n">${g.length} ticket${g.length===1?'':'s'}</span></div>
+        <div class="dv-meta"><span class="dv-when">${fdatetime(when)}</span>${who?`<span class="dv-by">deployed by ${avatar(who,18)}${esc(who.name)}</span>`:''}</div>
+        <div class="dv-tix">${tix}</div>
+      </div>`;
+    }).join('');
+    return `<div class="dv-env">
+      <div class="dv-env-h"><span class="dv-env-n">${esc(env)}</span><span class="dv-env-c">${seen.length} version${seen.length===1?'':'s'} \u00b7 latest <b>v${esc(seen[0])}</b></span></div>
+      <div class="dv-rows">${items}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=head+`<div class="dv-grid">${envCards}</div>`;
+  wireDepTabs(el);
+  el.querySelectorAll('.dv-key[data-open]').forEach(a=>a.onclick=()=>openPanel(a.dataset.open));
+}
 function renderDeployments(){
   if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page filter change → reflect in URL
   const el=document.getElementById('deploymentswrap'); if(!el) return;
@@ -5236,11 +5483,8 @@ function renderDeployments(){
   const pfld=(label,uid)=>{ const u=store.user(uid); return `<div class="dep-fld"><span class="dep-fld-l">${label}</span><span class="dep-fld-v">${u?`${avatar(u,20)}<span class="dep-fld-nm">${esc(u.name)}</span>`:'<span class="dep-fld-none">—</span>'}</span></div>`; };
   const dfld=(label,val,green)=>`<div class="dep-fld"><span class="dep-fld-l">${label}</span><span class="dep-fld-v"><span class="dep-fld-dt" ${green?'style="color:var(--good,#0E8F5A);font-weight:600"':''}>${val||'—'}</span></span></div>`;
   const cardHTML=t=>{ const proj=store.project(t.project);
-    const depD=t.deployedAt?fdate(t.deployedAt):'—';
     const startISO=t.start||t.createdAt||t.createdTs;
     let cycle='—'; if(t.deployedAt&&startISO){ const d=Math.max(0,Math.round((new Date(t.deployedAt)-new Date(startISO))/864e5)); cycle=d+'d'; }
-    const role=(label,uid)=>{ const u=store.user(uid);
-      return `<div class="dep-team-row"><span class="dep-role">${label}</span>${u?`<span class="dep-who">${avatar(u,22)}<span class="dep-who-nm">${esc(u.name)}</span></span>`:'<span class="dep-who-none">Unassigned</span>'}</div>`; };
     const checks=t.verifyChecks||{}; const doneN=VERIFY_ITEMS.filter(it=>checks[it.k]).length; const total=VERIFY_ITEMS.length; const verified=!!t.verified;
     const logged=store.worklogs(t.id).reduce((a,w)=>a+(w.min||0),0);
     const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -5249,29 +5493,53 @@ function renderDeployments(){
     const isDep=!!t.deployed; const prOnly=!isDep&&t.prRaised;
     const ROCKET='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/></svg>';
     const PRICON='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>';
-    const badge=isDep?`<div class="dep-badge">${ROCKET}</div>`:`<div class="dep-badge pr">${PRICON}</div>`;
-    const depDShow=isDep?depD:(prOnly?'Pending':depD);
-    return `<div class="ep-card dep-ep" data-dep="${t.id}" style="position:relative">
-      <button class="ep-kebab" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      <div class="ep-left">
-        <div class="ep-head"><div class="ep-ti">${esc(t.title)}</div><div class="ep-sub"><a class="dep-key" data-open="${t.id}">${esc(t.key)}</a></div></div>
-        <div class="ep-mid">${badge}</div>
-        <div class="dep-stats">
-          <div class="dep-st"><span class="dep-st-v">${depDShow}</span><span class="dep-st-l">Deployed on</span></div>
-          <div class="dep-st"><span class="dep-st-v">${cycle}</span><span class="dep-st-l">Cycle time</span></div>
-          <div class="dep-st"><span class="dep-st-v">${esc(t.priority||'\u2014')}</span><span class="dep-st-l">Priority</span></div>
-          <div class="dep-st"><span class="dep-st-v">${hm(logged)}</span><span class="dep-st-l">Total hrs</span></div>
-          <div class="dep-st">${verifyBtn}<span class="dep-st-l">Verified</span></div>
+    const badge=isDep?`<div class="dep-badge">${ROCKET}</div>`:`<div class="dep-badge no">${PRICON}</div>`;
+    const stName2=isDep?'Deployed':'Not Deployed';
+    const stSub=isDep
+      ? (t.deployedAt?fdate(t.deployedAt):'\u2014')
+      : (prOnly?('PR raised '+fdate(t.prRaisedAt)):'Awaiting PR');
+    const envTags=(t.deployEnvs||[]).length
+      ? `<div class="d6-envs">${(t.deployEnvs||[]).map(e=>`<span class="d6-env">${esc(e)}</span>`).join('')}</div>` : '';
+    const verTag=t.deployVersion?`<div class="d6-ver">v${esc(t.deployVersion)}</div>`:'';
+    const cell=(label,uid)=>{ const u=store.user(uid);
+      return `<div class="d6-cell"><span class="d6-lbl">${label}</span>${u
+        ? `<span class="d6-who">${avatar(u,22)}<span class="d6-nm">${esc(u.name)}</span></span>`
+        : '<span class="d6-none">Unassigned</span>'}</div>`; };
+    return `<div class="ep-card dep-ep" data-dep="${t.id}">
+      <div class="d6">
+        <div class="d6-rail ${isDep?'ok':'no'}">
+          ${badge}
+          ${isDep
+            ? `<div class="d6-state">${stName2}</div><div class="d6-sub">${stSub}</div>${verTag}${envTags}
+               <button class="d6-redo" data-undeploy="${t.id}">Undo</button>`
+            : `<button class="d6-mark" data-deploy="${t.id}">${stName2}</button><div class="d6-sub">${stSub}</div>`}
         </div>
-      </div>
-      <div class="ep-right">
-        <div class="ehs-sec-head" style="margin-bottom:10px"><span class="ehs-eyebrow">Delivery team</span>
-          <a class="dep-open2" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open ticket <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
-        <div class="dep-team">
-          ${role('Developer',t.assignee)}
-          ${role('Code Reviewer',t.reviewer)}
-          ${role('Quality Analyst',t.qa)}
-          ${role('Deployer',t.deployer)}
+        <div class="d6-body">
+          <div class="d6-head">
+            <div class="d6-id">
+              <div class="d6-ti">${esc(t.title)}</div>
+              <a class="dep-key" data-open="${t.id}">${esc(t.key)}</a>
+            </div>
+            <div class="d6-act">
+              ${verifyBtn}
+              <a class="dep-open2" href="?ticket=${encodeURIComponent(t.key)}" target="_blank" rel="noopener">Open ticket <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>
+              <button class="ep-kebab d6-keb" data-dep="${t.id}" title="Deployment options"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            </div>
+          </div>
+          <div class="d6-chips">
+            <span class="d6-chip"><b>${cycle}</b> cycle</span>
+            <span class="d6-chip">${esc(t.priority||'\u2014')}</span>
+            <span class="d6-chip"><b>${hm(logged)}</b> logged</span>
+          </div>
+          <div class="d6-team">
+            <div class="d6-teamh">Delivery team</div>
+            <div class="d6-grid">
+              ${cell('Developer',t.assignee)}
+              ${cell('Code Reviewer',t.reviewer)}
+              ${cell('Quality Analyst',t.qa)}
+              ${cell('Deployer',t.deployer)}
+            </div>
+          </div>
         </div>
       </div>
     </div>`;
@@ -5293,7 +5561,8 @@ function renderDeployments(){
   const verVal=f.verified==='yes'?'Verified':(f.verified==='no'?'Not verified':'All');
   const chip=(id,ico,label,val,active)=>`<button class="chip ${active?'active':''}" id="${id}">${ico}<span class="chip-lbl">${label}</span><span class="chip-val">${esc(val)}</span>${CHEV_SVG}</button>`;
   const seg=(m,label)=>`<button class="dep-seg ${f.mode===m?'on':''}" data-mode="${m}">${label}</button>`;
-  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depVerBtn',ICO_VER,'Verified',verVal,f.verified&&f.verified!=='all')}</div><div class="period-box"><div class="dep-filter">${seg('all','All')}${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
+  if(depTab==='versions'){ renderDepVersions(el); return; }
+  el.innerHTML=`<div class="ov-h" style="align-items:flex-start"><div class="dep-tabs">${depTabBtn('tickets','By ticket')}${depTabBtn('versions','By version')}</div><div class="dep-filters">${chip('depProjBtn',ICO_PROJ,'Project',projVal,f.project!=='all')}${chip('depPriBtn',ICO_PRI,'Priority',priVal,f.priority!=='all')}${chip('depAsgBtn',ICO_ASG,'Assignee',asgVal,f.assignee!=='all')}${chip('depVerBtn',ICO_VER,'Verified',verVal,f.verified&&f.verified!=='all')}</div><div class="period-box"><div class="dep-filter">${seg('all','All')}${seg('today','Today')}${seg('week','Week')}${seg('month','Month')}${seg('custom','Custom')}</div>${f.mode==='custom'?periodCustomRow('dep', f.from, f.to):''}</div></div>
     ${body}`;
   document.getElementById('depProjBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, projOpts, f.project, v=>{ ui.depFilter.project=v; renderDeployments(); }); };
   document.getElementById('depPriBtn').onclick=e=>{ e.stopPropagation(); chipMenu(e.currentTarget, priOpts, f.priority, v=>{ ui.depFilter.priority=v; renderDeployments(); }); };
@@ -5304,6 +5573,16 @@ function renderDeployments(){
   el.querySelectorAll('.ep-kebab[data-dep]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepMenu(b.dataset.dep, b); });
   el.querySelectorAll('.dep-key[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openPanel(a.dataset.open); });
   el.querySelectorAll('.dep-verify[data-verify]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); if(!can('deploy_verify')){ toast('You don\u2019t have permission to verify deployments'); return; } openDepVerify(b.dataset.verify); });
+  wireDepTabs(el);
+  el.querySelectorAll('[data-deploy]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDepMark(b.dataset.deploy); });
+  el.querySelectorAll('[data-undeploy]').forEach(b=>b.onclick=e=>{ e.stopPropagation();
+    if(!can('deploy_manage')){ toast('You don\u2019t have permission to change deployments'); return; }
+    const t=store.task(b.dataset.undeploy); if(!t) return;
+    confirmDelete({ title:'Undo deployment record',
+      lead:`Clear the deployment record for <b>${esc(t.key)}</b>? It goes back to <b>Not Deployed</b>, and its verification is reset.`,
+      confirmLabel:'Undo record',
+      onConfirm:()=>{ store.unmarkDeployed(t.id); refreshViews(); toast('Deployment record cleared'); } });
+  });
 }
 let _urlTicketOpened=false;
 function openTicketFromURL(){ if(_urlTicketOpened) return; try{ const k=new URLSearchParams(location.search).get('ticket'); if(!k||!store.data) return;
@@ -5570,6 +5849,7 @@ function planKeyRenumber(){
   return {plan, changed, total:plan.length};
 }
 function runKeyRenumber(){
+  if(!can('key_renumber')){ toast('You don\u2019t have permission to renumber ticket keys'); return; }
   /* Two projects sharing a key would produce duplicate ticket numbers, so the
      keys have to be sorted out before any renumbering happens. */
   const used=store.projects().filter(p=>store.tasks().some(t=>t.project===p.id));
@@ -5633,7 +5913,7 @@ function parseEstimate(str){
   return mins>0?Math.round(mins):null;
 }
 function fmtEstimate(mins){ if(!mins) return ''; const h=Math.floor(mins/60),m=Math.round(mins%60); return ((h?h+'h':'')+(m?(h?' ':'')+m+'m':''))||'0m'; }
-function ntNextKey(){ const pe=document.getElementById('ntProject'); if(!pe) return ''; return computeNextKey(pe.value); }
+function ntNextKey(){ const pe=document.getElementById('ntProject'); if(!pe||!pe.value) return ''; return computeNextKey(pe.value); }
 function typeNtKey(){
   const wrap=document.getElementById('ntKeyBadge'), out=document.getElementById('ntKeyText'); if(!wrap||!out) return;
   const full=ntNextKey();
@@ -5647,19 +5927,19 @@ function openModal(presetType, presetParent, presetProject){
   const setSel=(id,opts)=>document.getElementById(id).innerHTML=opts;
   const isEpic=presetType==='Epic';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
-  setSel('ntProject', `<option value="">No project</option>`+store.projects().map((p,i)=>`<option value="${p.id}" ${i===0?'selected':''}>${esc(p.name)}</option>`).join(''));
+  setSel('ntProject', `<option value="">Select a project\u2026</option>`+store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''));
   setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   if(curPrefs().autoAssign){ const mu=myUid(); if(mu&&store.user(mu)) document.getElementById('ntAssignee').value=mu; }
-  setSel('ntReporter', store.users().map(u=>`<option value="${u.id}" ${u.role==='PM'?'selected':''}>${esc(u.name)}</option>`).join(''));
-  setSel('ntPriority', store.priorities().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
-  setSel('ntType', store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
-  setSel('ntStatus', STATUSES.map((s,i)=>`<option value="${s.id}" ${i===0?'selected':''}>${esc(s.name)}</option>`).join(''));
+  setSel('ntReporter', `<option value="">Select a reporter\u2026</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
+  setSel('ntPriority', `<option value="">Select a priority\u2026</option>`+store.priorities().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
+  setSel('ntType', `<option value="">Select a type\u2026</option>`+store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
+  setSel('ntStatus', `<option value="">Select a status\u2026</option>`+STATUSES.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join(''));
   fillParentOptions();
   document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject'); };
   document.getElementById('ntType').onchange=toggleEpicField;
   toggleEpicField();
   ['ntTitle','ntDesc','ntDue','ntStart','ntEstimate'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('ntType').value='Task'; document.getElementById('ntPriority').value=store.defaultPriority();
+  ['ntType','ntPriority','ntStatus','ntProject','ntReporter'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
   if(presetProject){ document.getElementById('ntProject').value=presetProject; fillParentOptions(); }
   if(presetType){ document.getElementById('ntType').value=presetType; }
   if(presetParent){ const pp=document.getElementById('ntParent'); if(pp) pp.value=presetParent; }
@@ -5862,8 +6142,10 @@ function depAction(id, act){
   if(act==='open'){ openPanel(id); }
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
-  else if(act==='del'){ if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
-  else if(act==='delete'){ { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
+  else if(act==='del'){ if(!can('deploy_manage')){ toast('You don\u2019t have permission to change deployments'); return; }
+    if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
+  else if(act==='delete'){ if(!can('ticket_delete')){ toast('You don\u2019t have permission to delete tickets'); return; }
+    { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
       confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
         impact:[{n:_sb,label:'subtask'+(_sb===1?'':'s')},{n:_cm,label:'comment'+(_cm===1?'':'s')},{n:_wl,label:'time log'+(_wl===1?'':'s')}],
         confirmLabel:'Delete ticket',
@@ -5908,6 +6190,47 @@ function wireQaAtt(){
   const ca=document.getElementById('qaAttCancel'); if(ca) ca.onclick=()=>{ document.getElementById('qaAttWrap').classList.remove('on'); _qaAttPending=null; };
   const nm2=document.getElementById('qaAttName'); if(nm2) nm2.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); const up2=document.getElementById('qaAttUpload'); if(up2) up2.click(); } };
   const w=document.getElementById('qaAttWrap'); if(w) w.onclick=e=>{ if(e.target===w){ w.classList.remove('on'); _qaAttPending=null; } };
+}
+/* ---- Record a deployment -------------------------------------------------
+   The deployer states where the build went and which version, so the tracker
+   reflects an actual release rather than a status guess. */
+const DEPLOY_ENVS=['V3','LMS','API','WrkFrce','Admin','EPS'];
+let _depMarkId=null, _depEnvSel=[];
+function openDepMark(id){
+  const t=store.task(id); if(!t) return;
+  if(!can('deploy_manage')){ toast('You don\u2019t have permission to record deployments'); return; }
+  _depMarkId=id; _depEnvSel=(t.deployEnvs||[]).slice();
+  const sub=document.getElementById('depMarkSub');
+  if(sub) sub.innerHTML=`<b style="color:var(--accent)">${esc(t.key)}</b> \u00b7 ${esc(t.title)}`;
+  const ver=document.getElementById('depVersion'); if(ver) ver.value=t.deployVersion||'';
+  drawDepEnvs(); wireDepMark();
+  document.getElementById('depMarkWrap').classList.add('on');
+  setTimeout(()=>{ const v=document.getElementById('depVersion'); if(v) v.focus(); },40);
+}
+function drawDepEnvs(){
+  const box=document.getElementById('depEnvPick'); if(!box) return;
+  box.innerHTML=DEPLOY_ENVS.map(e=>`<button type="button" class="env-opt ${_depEnvSel.includes(e)?'on':''}" data-env="${esc(e)}">${esc(e)}</button>`).join('');
+  box.querySelectorAll('[data-env]').forEach(b=>b.onclick=()=>{
+    const e=b.dataset.env;
+    _depEnvSel = _depEnvSel.includes(e) ? _depEnvSel.filter(x=>x!==e) : _depEnvSel.concat([e]);
+    drawDepEnvs();
+  });
+}
+function wireDepMark(){
+  const w=document.getElementById('depMarkWrap'); if(!w || w._wired) return; w._wired=true;
+  const close=()=>w.classList.remove('on');
+  document.getElementById('depMarkCancel').onclick=close;
+  w.onclick=e=>{ if(e.target===w) close(); };
+  document.getElementById('depVersion').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('depMarkSave').click(); } };
+  document.getElementById('depMarkSave').onclick=()=>{
+    if(!_depEnvSel.length){ toast('Pick at least one environment'); return; }
+    const v=(document.getElementById('depVersion').value||'').trim();
+    if(!v){ return reqFail(document.getElementById('depVersion'), 'Enter the version number'); }
+    if(!can('deploy_manage')){ toast('You don\u2019t have permission to record deployments'); return; }
+    store.markDeployed(_depMarkId, _depEnvSel, v);
+    close(); refreshViews();
+    toast('Marked as deployed \u00b7 v'+v+' \u2192 '+_depEnvSel.join(', '));
+  };
 }
 function openQaAtt(taskId){ _qaAttTask=taskId; wireQaAtt(); const f=document.getElementById('qaAttFile'); if(f){ f.value=''; f.click(); } }
 /* ---- Profile photo -------------------------------------------------------
@@ -5992,6 +6315,7 @@ function wireEnvBlock(){ const w=document.getElementById('envBlockWrap'); if(!w|
     const fv=document.getElementById('envFrom').value, tv=document.getElementById('envTo').value;
     if(!fv||!tv){ toast('Pick a from and to time'); return; }
     if(new Date(tv)<=new Date(fv)){ toast('End time must be after the start'); return; }
+    if(!can('env_block')){ toast('You don\u2019t have permission to block environments'); return; }
     const r=store.blockEnv(_envSel, new Date(fv).toISOString(), new Date(tv).toISOString());
     w.classList.remove('on'); renderEnvBanner(); try{ updateBell(); }catch(e){}
     if(r&&r.active) toast(`${ENV_NAMES[_envSel]} blocked ${fclock(new Date(fv).toISOString())}\u2013${fclock(new Date(tv).toISOString())}`);
@@ -6021,7 +6345,15 @@ function renderDepVerify(){
   document.querySelectorAll('#depVfBody .dvf-row').forEach(r=>r.onclick=e=>{ e.preventDefault();
     const tk=store.task(_depVfId); const c=Object.assign({}, tk.verifyChecks||{}); c[r.dataset.k]=!c[r.dataset.k];
     const verified=VERIFY_ITEMS.every(it=>c[it.k]);
-    store.verifyDeployment(_depVfId, c, verified); renderDepVerify(); });
+    const wasStatus=tk.status;
+    store.verifyDeployment(_depVfId, c, verified); renderDepVerify();
+    const now=store.task(_depVfId);
+    if(now && now.status!==wasStatus){
+      const st=store.status(now.status);
+      try{ toast(`${now.key} verified \u2014 moved to ${st?st.name:'Done'}`); }catch(e){}
+    }
+    try{ refreshViews(); }catch(e){}
+  });
 }
 const QA_SEV={low:'Low', med:'Med', high:'High'};
 let _qaVfId=null, _qaSev='med';
@@ -6077,8 +6409,10 @@ function boardAction(id, act){
   if(act==='configure'){ ui.board=id; bsTab='columns';
     if(inSettings){ renderBoardSettings(); renderBoardSwitch(); }
     else { if(ui.view!=='board'){ setView('board'); } else renderAll(); openBoardSettings(); } }
-  else if(act==='rename'){ if(inSettings) renameBoardSettingRow(id); else renameBoardInline(id); }
-  else if(act==='delete'){ if(store.boards().length<=1){ toast('Keep at least one board'); return; }
+  else if(act==='rename'){ if(!can('board_rename')){ toast('You don\u2019t have permission to rename boards'); return; }
+    if(inSettings) renameBoardSettingRow(id); else renameBoardInline(id); }
+  else if(act==='delete'){ if(!can('board_delete')){ toast('You don\u2019t have permission to delete boards'); return; }
+    if(store.boards().length<=1){ toast('Keep at least one board'); return; }
     const nm=store.board(id).name; store.removeBoard(id); if(ui.board===id) ui.board=store.boards()[0].id;
     if(inSettings){ renderBoardSettings(); renderBoardSwitch(); } else renderAll();
     toast(`Deleted \u201c${nm}\u201d`); }
@@ -6109,7 +6443,8 @@ function renameBoardInline(id){
   inp.onkeydown=e=>{ if(e.key==='Enter') save(true); if(e.key==='Escape') save(false); };
   inp.onblur=()=>save(true);
 }
-function addBoardFromSide(){ const id=store.addBoard('New board'); ui.board=id; setView('board'); bsTab='boards'; openBoardSettings();
+function addBoardFromSide(){ if(!can('board_create')){ toast('You don\u2019t have permission to create boards'); return; }
+  const id=store.addBoard('New board'); ui.board=id; setView('board'); bsTab='boards'; openBoardSettings();
   setTimeout(()=>renameBoardSettingRow(id),30); }
 let bsTab='boards';
 function openBoardSettings(){ ui.view='boardsettings'; setView('boardsettings'); }
@@ -6158,19 +6493,24 @@ function renderBoardSettings(){
   };
   const add=document.getElementById('bsAdd');
   if(add) add.onclick=()=>{
-    if(bsTab==='boards'){ const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch(); renameBoardSettingRow(id); }
-    else if(bsTab==='columns'){ store.addStatus('New status');
+    if(bsTab==='boards'){ if(!can('board_create')){ toast('You don\u2019t have permission to create boards'); return; }
+      const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch(); renameBoardSettingRow(id); }
+    else if(bsTab==='columns'){ if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
+      store.addStatus('New status');
       const nid=store.statuses()[store.statuses().length-1].id;
       store.toggleBoardColumn(activeBoard(), nid, true); renderBoardSettings();
       const rows=document.querySelectorAll('#bsBody .bsrow'); const last=rows[rows.length-1];
       if(last){ const inp=last.querySelector('.bsname'); if(inp){ inp.focus(); inp.select(); } } }
-    else if(bsTab==='types'){ const nm=prompt('New ticket type name'); if(!nm) return;
+    else if(bsTab==='types'){ if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); return; }
+      const nm=prompt('New ticket type name'); if(!nm) return;
       if(!store.addType(nm)){ toast('That type already exists'); return; }
       renderBoardSettings(); toast(nm.trim()+' added'); }
-    else if(bsTab==='prios'){ const nm=prompt('New priority name'); if(!nm) return;
+    else if(bsTab==='prios'){ if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; }
+      const nm=prompt('New priority name'); if(!nm) return;
       if(!store.addPriority(nm)){ toast('That priority already exists'); return; }
       renderBoardSettings(); refreshViews(); toast(nm.trim()+' added'); }
-    else if(bsTab==='fields'){ store.addField('New field','text'); renderBoardSettings();
+    else if(bsTab==='fields'){ if(!can('cf_create')){ toast('You don\u2019t have permission to create custom fields'); return; }
+      store.addField('New field','text'); renderBoardSettings();
       const rows=document.querySelectorAll('#bsBody .fld-row'); const last=rows[rows.length-1];
       if(last){ const inp=last.querySelector('.fld-name'); if(inp){ inp.focus(); inp.select(); } } }
   };
@@ -6394,7 +6734,8 @@ function wireWfCanvas(b){
 function wireFlowInspector(b){
   const d=flowDraftFor(b);
   const nm=document.getElementById('fxName');
-  if(nm) nm.onchange=()=>{ const v=nm.value.trim(); if(v&&_flowSel){ store.updateStatus(_flowSel,{name:v}); renderWorkflow(); } };
+  if(nm) nm.onchange=()=>{ if(!can('board_workflow')){ toast('You don\u2019t have permission to edit the workflow'); renderWorkflow(); return; }
+    const v=nm.value.trim(); if(v&&_flowSel){ store.updateStatus(_flowSel,{name:v}); renderWorkflow(); } };
   document.querySelectorAll('.fx-tr-n').forEach(i=>i.onchange=()=>{
     d.labels=d.labels||{}; const v=i.value.trim();
     if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
@@ -6462,6 +6803,7 @@ function wfAddGo(){
   if(store.statuses().some(s=>mine.has(s.id) && s.name.toLowerCase()===name.toLowerCase())){
     toast('This workflow already has a status called '+name); return; }
   const ex=store.statuses().find(s=>s.name.toLowerCase()===name.toLowerCase());
+  if(!can('board_workflow')){ toast('You don\u2019t have permission to edit the workflow'); return; }
   let id;
   if(ex){ id=ex.id; }
   else { store.addStatus(name); id=store.statuses()[store.statuses().length-1].id;
@@ -6488,6 +6830,7 @@ function openWfEdit(){
 function wfEditGo(){
   const v=(document.getElementById('wfEdName').value||'').trim();
   if(!v){ toast('Give the status a name'); return; }
+  if(!can('board_workflow')){ toast('You don\u2019t have permission to edit the workflow'); return; }
   store.updateStatus(_flowSel, { name:v, cat:document.getElementById('wfEdCat').value, color:_wfEdSw });
   document.getElementById('wfEditWrap').classList.remove('on');
   renderWorkflow(); renderAll();
@@ -7161,6 +7504,7 @@ function stPickAdd(){
   let id=_stPickSel;
   if(id==='__new'){
     if(!q){ toast('Give the status a name'); return; }
+    if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
     store.addStatus(q); id=store.statuses()[store.statuses().length-1].id;
   }
   store.toggleBoardColumn(_fxBoard, id, true);
@@ -7185,6 +7529,7 @@ function stEditSave(){
   if(!nm){ toast('Give the status a name'); return; }
   const dupe=store.statuses().find(s=>s.id!==_stEditId && s.name.toLowerCase()===nm.toLowerCase());
   if(dupe){ toast('Another status is already called that'); return; }
+  if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
   store.updateStatus(_stEditId,{name:nm, cat});
   document.getElementById('stEdWrap').classList.remove('on');
   fxRender(); renderAll();
@@ -7387,7 +7732,8 @@ function wireFlow(b){
 
   // --- inspector ---
   const nm=document.getElementById('fxName');
-  if(nm) nm.onchange=()=>{ const v=nm.value.trim(); if(v && _flowSel){ store.updateStatus(_flowSel,{name:v}); redraw(); renderAll(); } };
+  if(nm) nm.onchange=()=>{ if(!can('board_workflow')){ toast('You don\u2019t have permission to edit the workflow'); return; }
+    const v=nm.value.trim(); if(v && _flowSel){ store.updateStatus(_flowSel,{name:v}); redraw(); renderAll(); } };
   document.querySelectorAll('.fx-tr-n').forEach(i=>i.onchange=()=>{
     d.labels=d.labels||{}; const v=i.value.trim();
     if(v) d.labels[i.dataset.lbl]=v; else delete d.labels[i.dataset.lbl];
@@ -7565,15 +7911,17 @@ function wireBoardSettings(b){
       else { bsTab=c.dataset.go; renderBoardSettings(); } });
   } else if(bsTab==='prios'){
     body.querySelectorAll('.bsrow[data-prio]').forEach(row=>{ const id=row.dataset.prio;
-      row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ store.movePriority(id,+btn.dataset.dir); renderBoardSettings(); refreshViews(); });
+      row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; } store.movePriority(id,+btn.dataset.dir); renderBoardSettings(); refreshViews(); });
       row.querySelector('.prname').onchange=e=>{ const v=e.target.value.trim();
+        if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); e.target.value=(store.priority(id)||{}).name||''; return; }
         if(!v){ e.target.value=(store.priority(id)||{}).name||''; return; }
         store.updatePriority(id,{name:v}); renderBoardSettings(); refreshViews(); };
       const sw=row.querySelector('.bsswatch'), pal=sw.querySelector('.bspal');
       sw.querySelector('.dot').onclick=e=>{ e.stopPropagation(); document.querySelectorAll('.bspal').forEach(x=>{ if(x!==pal)x.classList.remove('on'); }); pal.classList.toggle('on'); };
-      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); store.updatePriority(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
+      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; } store.updatePriority(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
       const rm=row.querySelector('.prremove');
-      if(rm && !rm.disabled) rm.onclick=()=>{ if(!confirm('Remove the "'+id+'" priority?')) return;
+      if(rm && !rm.disabled) rm.onclick=()=>{ if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; }
+        if(!confirm('Remove the "'+id+'" priority?')) return;
         if(!store.removePriority(id)){ toast('That priority is still in use'); return; }
         renderBoardSettings(); refreshViews(); toast('Priority removed'); };
     });
@@ -7581,31 +7929,35 @@ function wireBoardSettings(b){
     body.querySelectorAll('.bsrow[data-type]').forEach(row=>{ const id=row.dataset.type;
       const nm=row.querySelector('.tyname');
       if(nm && !nm.readOnly) nm.onchange=e=>{ const v=e.target.value.trim();
+        if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); e.target.value=(store.type(id)||{}).name||''; return; }
         if(!v){ e.target.value=(store.type(id)||{}).name||''; return; }
         store.updateType(id,{name:v}); renderBoardSettings(); refreshViews(); };
       const sw=row.querySelector('.bsswatch'), pal=sw.querySelector('.bspal');
       sw.querySelector('.dot').onclick=e=>{ e.stopPropagation(); document.querySelectorAll('.bspal').forEach(p=>{ if(p!==pal)p.classList.remove('on'); }); pal.classList.toggle('on'); };
-      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); store.updateType(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
+      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); return; } store.updateType(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
       const rm=row.querySelector('.tyremove');
-      if(rm && !rm.disabled) rm.onclick=()=>{ if(!confirm('Remove the "'+id+'" type?')) return;
+      if(rm && !rm.disabled) rm.onclick=()=>{ if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); return; }
+        if(!confirm('Remove the "'+id+'" type?')) return;
         if(!store.removeType(id)){ toast('That type is still in use'); return; }
         renderBoardSettings(); refreshViews(); toast('Type removed'); };
     });
   } else if(bsTab==='fields'){
     body.querySelectorAll('.bsrow[data-field]').forEach(row=>{ const id=row.dataset.field;
-      row.querySelector('.cfname').onchange=e=>{ const v=e.target.value.trim();
+      row.querySelector('.cfname').onchange=e=>{ if(!can('cf_edit')){ toast('You don\u2019t have permission to edit custom fields'); e.target.value=(store.fields().find(f=>f.id===id)||{}).name||''; return; } const v=e.target.value.trim();
         if(!v){ e.target.value=(store.fields().find(f=>f.id===id)||{}).name||''; return; }
         store.updateField(id,{name:v}); refreshViews(); };
-      row.querySelector('.cftype').onchange=e=>{ store.updateField(id,{type:e.target.value}); renderBoardSettings(); refreshViews(); };
+      row.querySelector('.cftype').onchange=e=>{ if(!can('cf_edit')){ toast('You don\u2019t have permission to edit custom fields'); renderBoardSettings(); return; } store.updateField(id,{type:e.target.value}); renderBoardSettings(); refreshViews(); };
       const op=row.querySelector('.cfopts');
       if(op) op.onchange=e=>{ store.updateField(id,{options:e.target.value.split(',').map(x=>x.trim()).filter(Boolean)}); refreshViews(); };
-      row.querySelector('.cfremove').onclick=()=>{ if(!confirm('Remove this custom field? Its values are removed from every ticket.')) return;
+      row.querySelector('.cfremove').onclick=()=>{ if(!can('cf_delete')){ toast('You don\u2019t have permission to delete custom fields'); return; }
+        if(!confirm('Remove this custom field? Its values are removed from every ticket.')) return;
         store.removeField(id); renderBoardSettings(); refreshViews(); toast('Field removed'); };
     });
   } else if(bsTab==='columns'){
     body.querySelectorAll('.bsrow').forEach(row=>{ const id=row.dataset.id;
       row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ store.moveBoardColumn(b,id,+btn.dataset.dir); renderBoardSettings(); });
-      row.querySelector('.bsname').onchange=e=>{ const v=e.target.value.trim(); if(v) store.updateStatus(id,{name:v}); else e.target.value=store.status(id).name; };
+      row.querySelector('.bsname').onchange=e=>{ if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); e.target.value=store.status(id).name; return; }
+        const v=e.target.value.trim(); if(v) store.updateStatus(id,{name:v}); else e.target.value=store.status(id).name; };
       row.querySelector('.bscat').onchange=e=>store.updateStatus(id,{cat:e.target.value});
       const sw=row.querySelector('.bsswatch'), pal=sw.querySelector('.bspal');
       sw.querySelector('.dot').onclick=e=>{ e.stopPropagation(); document.querySelectorAll('.bspal').forEach(p=>{ if(p!==pal)p.classList.remove('on'); }); pal.classList.toggle('on'); };
@@ -7799,23 +8151,30 @@ function ovDelta(cur,prev){ if(!prev) return cur>0?{t:'New',c:'up'}:{t:'—',c:'
 let _ovSets={};
 function wireOvPops(){
   const pop=document.getElementById('ovPop'); if(!pop) return;
-  let hideT=null; const cancel=()=>{ if(hideT){ clearTimeout(hideT); hideT=null; } };
-  const hide=()=>{ cancel(); hideT=setTimeout(()=>pop.classList.remove('on'),150); };
-  pop.onmouseenter=cancel; pop.onmouseleave=hide;
+  const hide=()=>{ pop.classList.remove('on'); pop.dataset.src=''; };
+  pop.onmouseenter=null; pop.onmouseleave=null;
   document.querySelectorAll('#overviewwrap [data-pop]').forEach(elm=>{
-    elm.onmouseenter=()=>{ cancel(); const set=_ovSets[elm.dataset.pop];
-      if(!set||!set.tasks.length){ pop.classList.remove('on'); return; }
+    elm.onmouseenter=null; elm.onmouseleave=null;      // click-only, no hover peek
+    elm.onclick=(ev)=>{ ev.stopPropagation();
+      const key=elm.dataset.pop; const set=_ovSets[key];
+      if(!set||!set.tasks.length){ hide(); return; }
+      if(pop.classList.contains('on') && pop.dataset.src===key){ hide(); return; }  // toggle
+      pop.dataset.src=key;
       const rows=set.tasks.slice(0,12).map(x=>`<div class="ovpr" data-id="${x.t.id}"><span class="ovti">${esc(x.t.title)}</span>${x.right||''}</div>`).join('');
-      pop.innerHTML=`<div class="ovpop-h"><span class="t">${esc(set.title)}</span><span class="c">${set.tasks.length}</span></div><div class="ovpop-list">${rows}</div>${set.tasks.length>12?`<div class="ovpop-f">+${set.tasks.length-12} more</div>`:''}`;
-      pop.querySelectorAll('.ovpr').forEach(r=>r.onclick=()=>{ pop.classList.remove('on'); openPanel(r.dataset.id); });
+      pop.innerHTML=`<div class="ovpop-h"><span class="t">${esc(set.title)}</span><span class="c">${set.tasks.length}</span></div><div class="ovpop-list">${rows}</div>${set.tasks.length>12?`<div class="ovpop-f">+ ${set.tasks.length-12} more</div>`:''}`;
+      pop.querySelectorAll('.ovpr').forEach(r=>r.onclick=()=>{ hide(); openPanel(r.dataset.id); });
       pop.classList.add('on');
       const r=elm.getBoundingClientRect(); const pw=322, ph=pop.offsetHeight;
       let left=r.left; if(left+pw>window.innerWidth-12) left=Math.max(12, window.innerWidth-pw-12);
       let top=r.bottom+8; if(top+ph>window.innerHeight-12) top=Math.max(12, r.top-ph-8);
       pop.style.left=left+'px'; pop.style.top=top+'px';
     };
-    elm.onmouseleave=hide;
   });
+  if(!wireOvPops._doc){ wireOvPops._doc=true;
+    document.addEventListener('click', e=>{ const p=document.getElementById('ovPop');
+      if(p && p.classList.contains('on') && !e.target.closest('#ovPop') && !e.target.closest('[data-pop]')){ p.classList.remove('on'); p.dataset.src=''; } });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ const p=document.getElementById('ovPop'); if(p){ p.classList.remove('on'); p.dataset.src=''; } } });
+  }
 }
 function renderOverview(){
   const el=document.getElementById('overviewwrap');
@@ -8011,17 +8370,18 @@ const CAP_GROUPS=[
   {g:'QA & Testing', items:[['qa_manage','Add / edit test & use cases'],['qa_status','Set case Pass / Fail'],['qa_verify','QA sign-off (verify)'],['qa_attach','Upload QA attachments'],['qa_bug','Send bugs / fixes to developer'],['qa_clear','Clear QA cases & fixes']]},
   {g:'Release & environments', items:[['pr_raise','Mark PR raised'],['deploy_verify','Verify deployment'],['deploy_manage','Manage deployment tracker'],['env_block','Block a test environment'],['env_release','Release / manage environments']]},
   {g:'Time tracking', items:[['time_log_own','Log own time'],['time_log_others','Log time for others'],['time_edit','Edit time logs'],['time_delete','Delete time logs'],['time_view','View time logs']]},
+  {g:'Types & priorities', items:[['type_manage','Add / edit ticket types'],['prio_manage','Add / edit priorities']]},
   {g:'Boards & workflow', items:[['board_create','Create boards'],['board_columns','Edit columns'],['board_workflow','Edit workflow rules'],['board_rename','Rename boards'],['board_delete','Delete boards']]},
   {g:'Projects', items:[['project_create','Create projects'],['project_edit','Rename / recolor'],['project_delete','Delete projects']]},
   {g:'Custom fields', items:[['cf_create','Create custom fields'],['cf_edit','Edit custom fields'],['cf_delete','Delete custom fields']]},
   {g:'Members & access', items:[['member_invite','Add / invite members'],['member_remove','Remove members'],['member_role','Change member roles'],['member_password','Reset passwords'],['access_approve','Approve / reject requests']]},
-  {g:'Data & workspace', items:[['export_csv','Export CSV'],['export_json','Export JSON'],['import_data','Import data'],['ws_settings','Edit workspace settings'],['ws_roles','Edit roles & permissions'],['ws_danger','Danger zone (clear / reset)']]}
+  {g:'Data & workspace', items:[['export_csv','Export CSV'],['export_json','Export JSON'],['import_data','Import data'],['key_renumber','Renumber ticket keys'],['ws_settings','Edit workspace settings'],['ws_roles','Edit roles & permissions'],['ws_danger','Danger zone (clear / reset)']]}
 ];
 const ALL_CAPS=CAP_GROUPS.reduce((a,x)=>a.concat(x.items.map(i=>i[0])),[]);
 const _setOf=(arr)=>arr.reduce((o,c)=>(o[c]=true,o),{});
 const DEFAULT_ROLE_PERMS={
   Admin: _setOf(ALL_CAPS),
-  Developer: _setOf(['mod_pm','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','ticket_create','ticket_archive','ticket_flag','ticket_move','ticket_copy','ticket_link_epic','field_title','field_desc','field_status','field_priority','field_project','field_start','field_due','field_estimate','field_epic','field_resolution','field_custom','role_developer','role_qa','role_reviewer','role_deployer','role_reporter','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_log_own','time_log_others','time_edit','time_view','view_qa','qa_manage','qa_status','qa_verify','qa_attach','qa_bug','qa_clear','pr_raise','deploy_verify','deploy_manage','env_block','env_release']),
+  Developer: _setOf(['mod_pm','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','ticket_create','ticket_archive','ticket_flag','ticket_move','ticket_copy','ticket_link_epic','field_title','field_desc','field_status','field_priority','field_project','field_start','field_due','field_estimate','field_epic','field_resolution','field_custom','role_developer','role_qa','role_reviewer','role_deployer','role_reporter','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_log_own','time_log_others','time_edit','time_view','view_qa','qa_manage','qa_status','qa_verify','qa_attach','qa_bug','qa_clear','pr_raise','deploy_verify','deploy_manage','env_block','env_release','type_manage','prio_manage']),
   User: _setOf(['mod_pm','view_board','view_list','view_overview','ticket_create','ticket_flag','ticket_copy','field_status','field_custom','see_dates','see_desc','see_reporter','see_contributors','see_custom','time_log_own','time_view','view_qa','env_block']),
   Viewer: _setOf(['mod_pm','mod_delivery','mod_products','mod_ops','view_board','view_list','view_epics','view_overview','view_analytics','view_reports','view_team','view_operations','see_estimate','see_logged','see_contributors','see_dates','see_reporter','see_desc','see_custom','time_view','view_qa'])
 };
@@ -8072,11 +8432,12 @@ const STX_ACTIONS=[
   {g:'QA & Testing', items:[['qa_manage','Add / edit test & use cases'],['qa_status','Set case Pass / Fail'],['qa_verify','QA sign-off (verify)'],['qa_attach','Upload QA attachments'],['qa_bug','Send bugs / fixes to developer'],['qa_clear','Clear QA cases & fixes']]},
   {g:'Release & environments', items:[['pr_raise','Mark PR raised'],['deploy_verify','Verify deployment'],['deploy_manage','Manage deployment tracker'],['env_block','Block a test environment'],['env_release','Release / manage environments']]},
   {g:'Time tracking', items:[['time_log_own','Log own time'],['time_log_others','Log time for others'],['time_edit','Edit time logs'],['time_delete','Delete time logs'],['time_view','View time logs']]},
+  {g:'Types & priorities', items:[['type_manage','Add / edit ticket types'],['prio_manage','Add / edit priorities']]},
   {g:'Boards & workflow', items:[['board_create','Create boards'],['board_columns','Edit columns'],['board_workflow','Edit workflow rules'],['board_rename','Rename boards'],['board_delete','Delete boards']]},
   {g:'Projects', items:[['project_create','Create projects'],['project_edit','Rename / recolour'],['project_delete','Delete projects']]},
   {g:'Custom fields', items:[['cf_create','Create custom fields'],['cf_edit','Edit custom fields'],['cf_delete','Delete custom fields']]},
   {g:'Members & access', items:[['member_invite','Add / invite members'],['member_remove','Remove members'],['member_role','Change member roles'],['member_password','Reset passwords'],['access_approve','Approve / reject requests']]},
-  {g:'Data & workspace', items:[['export_csv','Export CSV'],['export_json','Export JSON'],['import_data','Import data'],['ws_settings','Edit workspace settings'],['ws_roles','Edit roles & permissions'],['ws_danger','Danger zone (clear / reset)']]},
+  {g:'Data & workspace', items:[['export_csv','Export CSV'],['export_json','Export JSON'],['import_data','Import data'],['key_renumber','Renumber ticket keys'],['ws_settings','Edit workspace settings'],['ws_roles','Edit roles & permissions'],['ws_danger','Danger zone (clear / reset)']]},
 ];
 const STX_EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
 const STX_EYEOFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.44M6.6 6.6C3.6 8.3 2 11 2 11s3.5 7 10 7a9 9 0 0 0 3.9-.88M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
@@ -9042,12 +9403,14 @@ function depInRangeAn(d){ if(!d) return true; const ds=String(d).slice(0,10);
 let _statPops={};
 function wireStatPops(scopeSel){
   const pop=document.getElementById('ovPop'); if(!pop) return;
-  let hideT=null; const cancel=()=>{ if(hideT){ clearTimeout(hideT); hideT=null; } };
-  const hide=()=>{ cancel(); hideT=setTimeout(()=>pop.classList.remove('on'),150); };
-  pop.onmouseenter=cancel; pop.onmouseleave=hide;
+  const hide=()=>{ pop.classList.remove('on'); pop.dataset.src=''; };
+  pop.onmouseenter=null; pop.onmouseleave=null;
   document.querySelectorAll(scopeSel+' [data-pop]').forEach(elm=>{
-    elm.onmouseenter=()=>{ cancel();
-      const set=_statPops[elm.dataset.pop]; if(!set){ pop.classList.remove('on'); return; }
+    elm.onmouseenter=null; elm.onmouseleave=null;      // click-only, no hover peek
+    elm.onclick=(ev)=>{ ev.stopPropagation();
+      const set=_statPops[elm.dataset.pop]; if(!set){ hide(); return; }
+      if(pop.classList.contains('on') && pop.dataset.src===elm.dataset.pop){ hide(); return; }
+      pop.dataset.src=elm.dataset.pop;
       const list=(set.tasks||[]);
       const rows=list.slice(0,14).map(t=>`<div class="ovpr" data-id="${t.id}">
           <span class="ovtk">${esc(t.key||'')}</span>${ehsSt(t.status)}</div>`).join('')
@@ -9065,8 +9428,11 @@ function wireStatPops(scopeSel){
       let top=r.bottom+8; if(top+ph>window.innerHeight-12) top=Math.max(12, r.top-ph-8);
       pop.style.left=left+'px'; pop.style.top=top+'px';
     };
-    elm.onmouseleave=hide;
   });
+  if(!wireStatPops._doc){ wireStatPops._doc=true;
+    document.addEventListener('click', e=>{ const p=document.getElementById('ovPop');
+      if(p && p.classList.contains('on') && !e.target.closest('#ovPop') && !e.target.closest('[data-pop]')){ p.classList.remove('on'); p.dataset.src=''; } });
+  }
 }
 function ehsSearchBox(id,ph,val){
   return `<div class="ehs-rail-top"><div class="ehs-search">
@@ -9228,11 +9594,13 @@ function openProjModal(){
 }
 function closeProjModal(){ const w=document.getElementById('projWrap'); if(w) w.classList.remove('on'); }
 function saveProjModal(){
-  if(!reqCheck([['pjName','Give the project a name']])) return;
+  if(!can('project_create')){ toast('You don\u2019t have permission to create projects'); return; }
+  if(!reqCheck([['pjName','Give the project a name'],['pjKey','Give the project a key']])) return;
   const name=document.getElementById('pjName').value.trim();
   if(store.projects().some(p=>p.name.toLowerCase()===name.toLowerCase())){ toast('A project called that already exists'); return; }
-  const key=(document.getElementById('pjKey').value.trim().toUpperCase())
-            || name.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase() || 'PRJ';
+  const key=document.getElementById('pjKey').value.trim().toUpperCase();
+  { const clash=store.projects().find(p=>String(p.key||'').toUpperCase()===key);
+    if(clash){ return reqFail(document.getElementById('pjKey'), '\u201c'+key+'\u201d is already used by '+clash.name); } }
   const id=store.addProject(name);
   store.updateProject(id,{key});
   closeProjModal();
@@ -10969,6 +11337,7 @@ function deleteSpace(){
 }
 let _pjEdit=null, _pjDelArm=false, _pjDelTimer=null;
 function openProjectModal(id){
+  if(!can('project_edit')){ toast('You don\u2019t have permission to edit projects'); return; }
   const p=store.project(id); if(!p) return; _pjEdit=id;
   document.getElementById('pjmName').value=p.name||'';
   { const k=document.getElementById('pjmKey'); if(k){ k.value=p.key||'';
@@ -10989,6 +11358,7 @@ function saveProject(){
 /* Shared project deletion — same keep-or-cascade choice as epics, used by every
    entry point so tickets can never be left pointing at a project that's gone. */
 function deleteProjectFlow(pid, after){
+  if(!can('project_delete')){ toast('You don\u2019t have permission to delete projects'); return; }
   const p=store.project(pid); if(!p) return;
   if(store.projects().length<=1){ toast('Keep at least one project'); return; }
   const tix=store.tasks().filter(t=>t.project===pid);
@@ -11024,6 +11394,7 @@ function deleteProjectFlow(pid, after){
     defaultChoice:'keep',
     confirmLabel:'Delete project',
     onConfirm:(mode)=>{
+      if(mode==='cascade' && !can('ticket_delete')){ toast('You don\u2019t have permission to delete tickets \u2014 choose \u201cDelete only the project\u201d'); return; }
       if(mode==='cascade'){ ids.forEach(id=>store.removeTask(id));
         if(ui.openTask && ids.includes(ui.openTask)) closePanel();
         store.removeProject(pid); toast(`Project and ${n} ticket${n===1?'':'s'} deleted`); }
@@ -11075,9 +11446,21 @@ const NOTIF_DEFAULTS={enabled:true, badge:true, sound:false, desktop:false,
   quiet:false, quietFrom:'20:00', quietTo:'08:00', weekends:true, autoRead:true, group:true, keepDays:30, digest:false};
 function nset(){ return Object.assign({}, NOTIF_DEFAULTS, (curPrefs().notify)||{}); }
 function notifKey(){ return 'ehs_notifs_'+(myUid()||'anon'); }
-function loadNotifs(){ try{ const a=JSON.parse(localStorage.getItem(notifKey())||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+/* Cached for the same reason as the photo map: unreadCount() runs on every
+   bell/badge refresh, and re-parsing the list each time is wasted work. */
+let _notifCache=null, _notifCacheKey=null;
+function loadNotifs(){
+  const k=notifKey();
+  if(_notifCache && _notifCacheKey===k) return _notifCache;
+  try{ const a=JSON.parse(localStorage.getItem(k)||'[]'); _notifCache=Array.isArray(a)?a:[]; }
+  catch(e){ _notifCache=[]; }
+  _notifCacheKey=k; return _notifCache;
+}
 function saveNotifs(a){ try{ const keep=(nset().keepDays)||30; const cut=Date.now()-keep*864e5;
-  a=a.filter(n=>Date.parse(n.at)>=cut).slice(0,80); localStorage.setItem(notifKey(), JSON.stringify(a)); }catch(e){} }
+  a=a.filter(n=>Date.parse(n.at)>=cut).slice(0,80);
+  _notifCache=a; _notifCacheKey=notifKey();
+  localStorage.setItem(notifKey(), JSON.stringify(a)); }catch(e){} }
+try{ window.addEventListener('storage', e=>{ if(e && e.key && e.key.indexOf('ehs_notifs_')===0){ _notifCache=null; _notifCacheKey=null; } }); }catch(e){}
 let NOTIF_TAB='all', _selfPushed={};
 function markSelfPushed(id){ _selfPushed[id]=Date.now(); }
 function myProjectSet(){ const me=myUid(); const s=new Set(); store.tasks().forEach(t=>{ if([t.assignee,t.reporter,t.qa,t.reviewer,t.deployer].includes(me) && t.project) s.add(t.project); }); return s; }
