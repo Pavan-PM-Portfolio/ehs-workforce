@@ -713,7 +713,7 @@ function dpSet(email,data){ if(!email) return; const m=dpAll(); const k=String(e
   try{ localStorage.setItem('ehs:dp:ping', String(Date.now())); }catch(e){}
 }
 try{ window.addEventListener('storage', e=>{ if(e && e.key===DP_KEY) _dpCache=null; }); }catch(e){}
-function myDp(){ try{ const u=EHS.me(); return u?dpGet(u.email):null; }catch(e){ return null; } }
+function myDp(){ try{ const u=EHS.me(); return (u&&u.avatar_url)||(u?dpGet(u.email):null); }catch(e){ return null; } }
 /* Crop to a centre square and re-encode small — a raw camera shot would blow
    the storage budget; 256px is plenty for a 76px avatar on a retina screen. */
 function squarePhoto(file, px=256){
@@ -851,7 +851,7 @@ function openAccount(e){ if(e) e.stopPropagation(); const u=EHS.me(); if(!u) ret
   const dr=$('acctDrawer');
   dr.innerHTML=`<div class="acd">
     <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccount()">${ic('x')}</button></div>
-    <div class="acd-head"><span class="acd-glyph">${dpGet(u.email)?`<img src="${dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</span>
+    <div class="acd-head"><span class="acd-glyph">${(u.avatar_url||dpGet(u.email))?`<img src="${u.avatar_url||dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</span>
       <div class="acd-id"><div class="nm">${esc(u.full_name||'—')}</div><div class="em">${esc(u.email)}</div>
         <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Member'}</span></div></div>
     <div class="acd-body">
@@ -878,13 +878,13 @@ function renderSettings(){
     <div ${card}>
       <div class="dsec-h">Profile photo</div>
       <div class="dp-wrap">
-        <div class="dp-av" id="dpAv">${dpGet(u.email)?`<img src="${dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</div>
+        <div class="dp-av" id="dpAv">${(u.avatar_url||dpGet(u.email))?`<img src="${u.avatar_url||dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</div>
         <div class="dp-meta">
           <div class="dp-t">${esc(u.full_name||'Your photo')}</div>
           <div class="dp-s">Shown across every EduHubSpot tool — your tickets, board cards and comments.<br>JPG or PNG, square works best · up to 2 MB.</div>
           <div class="dp-act">
-            <button class="btn accent" id="dpUpload" onclick="pickPhoto()">${dpGet(u.email)?'Change photo':'Upload photo'}</button>
-            ${dpGet(u.email)?'<button class="dp-rm" onclick="removePhoto()">Remove</button>':''}
+            <button class="btn accent" id="dpUpload" onclick="pickPhoto()">${(u.avatar_url||dpGet(u.email))?'Change photo':'Upload photo'}</button>
+            ${(u.avatar_url||dpGet(u.email))?'<button class="dp-rm" onclick="removePhoto()">Remove</button>':''}
           </div>
         </div>
       </div>
@@ -914,23 +914,30 @@ async function pickPhoto(){
     f.onchange=async e=>{ const file=e.target.files&&e.target.files[0]; if(!file) return;
       if(!/^image\//.test(file.type)){ toast('Pick a JPG or PNG image'); return; }
       if(file.size>2*1024*1024){ toast('Image is too large (max 2 MB)'); return; }
+      const btn=$('dpUpload'); const label=btn?btn.textContent:'';
+      if(btn){ btn.disabled=true; btn.textContent='Uploading\u2026'; }
       try{
         const data=await squarePhoto(file);
         const me=EHS.me(); if(!me){ toast('Not signed in'); return; }
-        dpSet(me.email, data);
-        try{ if(EHS.updateMyPhoto) await EHS.updateMyPhoto(data); }catch(_){}
+        const url=await EHS.updateMyPhoto(data);   // Storage + profiles.avatar_url
+        dpSet(me.email, url||data);                // local echo so the UI is instant
+        await EHS.loadMe(true);
         toast('Photo updated'); renderSettings();
-      }catch(err){ toast('Couldn\u2019t read that image'); }
+      }catch(err){ toast('Couldn\u2019t save the photo: '+(err&&err.message||'error')); }
+      finally{ if(btn){ btn.disabled=false; btn.textContent=label; } }
     };
   }
   f.value=''; f.click();
 }
-function removePhoto(){
+async function removePhoto(){
   const me=EHS.me(); if(!me) return;
   if(!confirm('Remove your profile photo?')) return;
-  dpSet(me.email,null);
-  try{ if(EHS.updateMyPhoto) EHS.updateMyPhoto(null); }catch(_){}
-  toast('Photo removed'); renderSettings();
+  try{
+    await EHS.updateMyPhoto(null);
+    dpSet(me.email,null);
+    await EHS.loadMe(true);
+    toast('Photo removed'); renderSettings();
+  }catch(err){ toast('Couldn\u2019t remove the photo: '+(err&&err.message||'error')); }
 }
 async function saveProfile(){
   const first=($('st_first').value||'').trim(), last=($('st_last').value||'').trim();
