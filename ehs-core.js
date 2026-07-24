@@ -62,6 +62,7 @@
       full_name: (profile && profile.full_name) || meta.full_name || '',
       is_master_admin: !!(profile && profile.is_master_admin),
       status: (profile && profile.status) || 'active',
+      avatar_url: (profile && profile.avatar_url) || null,
       // admin-user stores this on the auth user when it generates a temp password.
       // Without it, index.html's `if (EHS.me().must_change)` was always false and
       // the forced password change never happened.
@@ -159,6 +160,63 @@
     try { await client().auth.updateUser({ data: { full_name: name } }); } catch (e) {}
     _me = null;                            // force a fresh loadMe next call
   }
+  // ---- profile photo (Supabase Storage, not localStorage) ----
+  // Accepts a Blob/File, or a data: URL (what the croppers produce).
+  // Uploads to  avatars/<uid>.jpg  and stores the public URL on the profile,
+  // so every tool that loads profiles gets the photo for free.
+  function _toBlob(input) {
+    if (input instanceof Blob) return input;
+    const s = String(input || '');
+    const m = /^data:([^;]+);base64,(.*)$/.exec(s);
+    if (!m) throw new Error('Unsupported image input');
+    const bin = atob(m[2]);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Blob([buf], { type: m[1] });
+  }
+  async function updateMyPhoto(input) {
+    const m = await loadMe();
+    if (!m) throw new Error('Not signed in');
+
+    // null / empty clears the photo
+    if (!input) {
+      try { await client().storage.from('avatars').remove([m.id + '.jpg']); } catch (e) {}
+      const { error } = await client().from('profiles').update({ avatar_url: null }).eq('id', m.id);
+      if (error) throw error;
+      _me = null;
+      return null;
+    }
+
+    const blob = _toBlob(input);
+    if (blob.size > 2 * 1024 * 1024) throw new Error('Image is too large (max 2 MB)');
+
+    const path = m.id + '.jpg';
+    const up = await client().storage.from('avatars')
+      .upload(path, blob, { upsert: true, contentType: blob.type || 'image/jpeg', cacheControl: '3600' });
+    if (up.error) throw up.error;
+
+    const { data: pub } = client().storage.from('avatars').getPublicUrl(path);
+    // cache-bust so a replaced photo shows immediately rather than the old one
+    const url = pub.publicUrl + '?v=' + Date.now();
+
+    const { error } = await client().from('profiles').update({ avatar_url: url }).eq('id', m.id);
+    if (error) throw error;
+    _me = null;                          // force a fresh loadMe
+    return url;
+  }
+  // everyone's photo, for rosters and pickers: { <uid>: url }
+  async function photoMap() {
+    const { data, error } = await client().from('profiles').select('id, email, avatar_url');
+    if (error) throw error;
+    const byId = {}, byEmail = {};
+    (data || []).forEach(p => {
+      if (!p.avatar_url) return;
+      byId[p.id] = p.avatar_url;
+      if (p.email) byEmail[String(p.email).toLowerCase()] = p.avatar_url;
+    });
+    return { byId, byEmail };
+  }
+
   async function changePassword(newPassword) {
     const { error } = await client().auth.updateUser({
       password: newPassword,
@@ -183,6 +241,6 @@
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
     listUsers, grantAccess, revokeAccess, setMaster, fieldPerms,
     adminUser, addUser, inviteUser, deleteUser, resetPassword,
-    updateMyName, changePassword,
+    updateMyName, changePassword, updateMyPhoto, photoMap,
   };
 })(window);
