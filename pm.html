@@ -1908,6 +1908,8 @@ body[data-view="deployments"] .topbar,body[data-view="qa"] .topbar,body[data-vie
 .stx-note{font-size:12px;color:var(--muted);margin:0 0 12px}
 .stx-lbl{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:20px 0 2px}
 .stx-card{border:1px solid var(--line);border-radius:12px !important;background:var(--surface);padding:4px 16px;margin-top:8px}
+.stx-card.stx-pad{padding:16px 18px 18px}
+.stx-card.stx-pad .stx-card-h{padding:0 0 10px}
 .stx-card.pad{padding:14px 16px}
 .stx-card-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 0 3px}
 .stx-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line-2)}
@@ -2400,10 +2402,10 @@ body[data-density="compact"] .board{padding:12px 16px}
 /* ---- Sharp edges across the entire app (buttons, fields, dropdowns, dialogs, cards, etc.) ---- */
 .dep-grid{display:flex;flex-direction:column;gap:16px}
 .dep-badge{width:52px;height:52px;border-radius:50% !important;display:grid;place-items:center;flex:none;background:#0E8F5A18;color:#0E8F5A}
-.dep-stats{display:flex;align-items:center;gap:18px;flex:1;min-width:280px}
+.dep-stats{display:flex;align-items:flex-start;flex-wrap:wrap;gap:14px 18px;flex:1;min-width:280px}
 .dep-ep .ep-kebab,.qa-ep .ep-kebab{top:10px;right:12px}
 .dep-badge.pr{background:#B96A0018;color:#B96A00}
-.pb-pr{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:13px 15px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2)}
+.pb-pr{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:16px 0 28px;padding:13px 15px;border:1px solid var(--line);border-radius:12px !important;background:var(--surface-2)}
 .pb-pr.raised{border-color:#0E8F5A55;background:#0E8F5A0D}
 .pb-pr-l{display:flex;align-items:center;gap:12px;min-width:0}
 .pb-pr-ic{width:36px;height:36px;border-radius:10px !important;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);flex:none}
@@ -2479,9 +2481,9 @@ body[data-density="compact"] .board{padding:12px 16px}
 .kbd-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 2px;border-bottom:1px solid var(--line-2);font-size:13px;color:var(--ink)}
 .kbd-row:last-child{border-bottom:0}
 .kbd-row kbd{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:6px !important;padding:3px 8px;color:var(--ink-2)}
-.dep-st{flex:1 1 0;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.dep-st{flex:1 1 auto;min-width:86px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
 .dep-st-v{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.dep-st-l{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.dep-st-l{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);line-height:1.3;max-width:100%}
 .dep-key{color:var(--accent);font-weight:800;font-size:15px;letter-spacing:-.01em;cursor:pointer;text-decoration:none}
 .dep-key:hover{text-decoration:underline}
 .dep-verify{display:inline-flex;align-items:center;gap:5px;border:1px solid #CE2F2655;background:#CE2F260D;color:#CE2F26;font-family:inherit;font-size:12px;font-weight:700;padding:5px 12px;border-radius:6px !important;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
@@ -3962,7 +3964,11 @@ function applyMyPhoto(){
 }
 function priIcon(p){ const c=PRIORITIES[p]||'#9BA3AF';
   return `<svg class="pri" viewBox="0 0 14 14" title="${p}"><rect x="1" y="8" width="3" height="5" rx="1" fill="${c}" opacity="${p==='Low'?1:.45}"/><rect x="5.5" y="4" width="3" height="9" rx="1" fill="${c}" opacity="${p==='Low'?.3:(p==='Medium'?1:.6)}"/><rect x="10" y="1" width="3" height="12" rx="1" fill="${c}" opacity="${(p==='High'||p==='Highest')?1:.3}"/></svg>`; }
-function fdate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); const day=+dd; const mi=+m-1;
+function fdate(d){ if(!d) return '—';
+  // Accepts a plain date (2026-07-24) or a full ISO timestamp — taking only the
+  // date part, otherwise the day parses as NaN and renders "NaN Jul 2026".
+  const [y,m,dd]=String(d).slice(0,10).split('-'); const day=+dd; const mi=+m-1;
+  if(!y||isNaN(day)||isNaN(mi)) return '—';
   const full=["January","February","March","April","May","June","July","August","September","October","November","December"];
   const abbr=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   if(DATE_FMT==='iso') return `${y}-${m}-${dd}`;
@@ -5258,7 +5264,7 @@ function renderDeployments(){
           <div class="dep-st"><span class="dep-st-v">${cycle}</span><span class="dep-st-l">Cycle time</span></div>
           <div class="dep-st"><span class="dep-st-v">${esc(t.priority||'\u2014')}</span><span class="dep-st-l">Priority</span></div>
           <div class="dep-st"><span class="dep-st-v">${hm(logged)}</span><span class="dep-st-l">Total hrs</span></div>
-          <div class="dep-st">${verifyBtn}<span class="dep-st-l">Deployed &amp; verified</span></div>
+          <div class="dep-st">${verifyBtn}<span class="dep-st-l">Verified</span></div>
         </div>
       </div>
       <div class="ep-right">
@@ -8320,7 +8326,7 @@ function renderSettings(){
         <button class="btn" id="setImport">Import data (JSON)</button>
         <input type="file" id="setImportFile" accept="application/json" style="display:none"/>
       </div>
-      <div class="stx-card" style="margin-top:18px"><div class="stx-card-h">Ticket keys</div>
+      <div class="stx-card stx-pad" style="margin-top:18px"><div class="stx-card-h">Ticket keys</div>
         <p class="bs-note" style="margin:0 0 12px">Keys are per project \u2014 <b>LMS-1</b>, <b>PAY-1</b>. If older tickets were numbered another way, renumber them to match. Export a backup first.</p>
         <button class="ehs-btn ehs-btn--sm" id="setRenumber" type="button">Renumber ticket keys\u2026</button>
       </div>
@@ -8341,7 +8347,7 @@ function renderSettings(){
   const _mePhoto=_me.photo||'';
   const secProfile=`
     <div class="stx-sec">
-      <div class="stx-card"><div class="stx-card-h">Profile photo</div>
+      <div class="stx-card stx-pad"><div class="stx-card-h">Profile photo</div>
         <div class="pf-photo">
           <div class="pf-av" id="pfAv">${_mePhoto?`<img src="${_mePhoto}" alt="${esc(_me.name||'')}">`:ACCT_GLYPH}</div>
           <div class="pf-pmeta">
