@@ -3701,7 +3701,7 @@ function applyPrefs(){ const p=curPrefs();
 let STATUSES = []; // live reference to store.data.statuses after load
 
 const SEED = {
-  settings:{ workspaceName:'EduHubSpot', defaultView:'board', defaultBoard:'main', fields:[] },
+  settings:{ workspaceName:'Workspace', defaultView:'board', defaultBoard:'main', fields:[] },
   projects:[],
   statuses:[],
   boards:[],
@@ -8443,7 +8443,11 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
   else { toast('Password reset link sent to '+email); } }
-const MASTER_EMAILS=['pavan.k@eduhubspot.com'];
+/* Master admin comes from profiles.is_master_admin — the database is the only
+   source of truth, and the admin-user Edge Function is the only way to set it.
+   This list is a bootstrap escape hatch for a brand-new deployment where no
+   profile carries the flag yet; leave it empty in normal operation. */
+const MASTER_EMAILS=[];
 function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
 function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
 const STX_FGROUPS=[
@@ -10664,19 +10668,10 @@ function applyDefaults(){
   if(!store.data.chatChannels){ const ids=store.users().map(u=>u.id);
     store.data.chatChannels=[
       {id:'ch_general', name:'General', type:'group', members:ids.slice()},
-      {id:'ch_tech', name:'Tech Delivery', type:'group', members:ids.slice(0,6)}
+      {id:'ch_tech', name:'Delivery', type:'group', members:ids.slice()}
     ]; }
-  if(!store.data.chatMessages){ const u=store.users(); const uid=(i)=>(u[i]||u[0]||{}).id; const iso=(minsAgo)=>new Date(Date.now()-minsAgo*60000).toISOString();
-    store.data.chatMessages=[
-      {id:'m1', channel:'ch_general', user:uid(1), text:'Morning team! Standup in 10 mins.', at:iso(180), edited:false},
-      {id:'m2', channel:'ch_general', user:uid(0), text:`Thanks ${(u[1]||{}).name||''}. I'll share the sprint board.`, at:iso(176), edited:false},
-      {id:'m3', channel:'ch_general', user:uid(3), text:'QA env is back up 🎉', at:iso(120), edited:false},
-      {id:'m4', channel:'ch_tech', user:uid(2), text:'Deploy for TECH2026-52 is queued.', at:iso(60), edited:false}
-    ]; }
-  if(!store.data.accessRequests){ store.data.accessRequests=[
-    {id:'req1', name:'Neha Kapoor', email:'neha.kapoor@eduhubspot.com', perm:'Developer', date:today()},
-    {id:'req2', name:'Arjun Mehta', email:'arjun.mehta@eduhubspot.com', perm:'Viewer', date:today()}
-  ]; }
+  if(!store.data.chatMessages) store.data.chatMessages=[];
+  if(!store.data.accessRequests) store.data.accessRequests=[];
 }
 function scheduleRerender(){ clearTimeout(rerenderTimer); rerenderTimer=setTimeout(()=>{ STATUSES=store.data.statuses; renderAll(); }, 120); }
 function buildSnap(){ snap={settings:JSON.stringify(store.data.settings)}; Object.entries(TBL).forEach(([k,t])=>{ const m=new Map(); (store.data[k]||[]).forEach(d=>m.set(d.id, JSON.stringify(d))); snap[t]=m; }); }
@@ -11004,7 +10999,6 @@ function wireAuth(){
 
 // ---- boot ----
 const CONFIGURED = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE'));
-const EMAIL_FIX={'Ritesh Singh':'ritesh.singh@eduhubspot.com','Prapti Wamre':'prapti.w@eduhubspot.com','Amit Debnath':'amit.debnath@eduhubspot.com','Tanay Singh':'tanay.singh@eduhubspot.com','Chirag Shah':'chirag.shah@eduhubspot.com','Sumeet Sharma':'sumeet.sharma@eduhubspot.com','Pavan Kumar':'pavan.k@eduhubspot.com','Saniya Salim Mujawar':'saniya.m@eduhubspot.com','Debabrata Dhar':'deba.dhar@eduhubspot.com'};
 function migrateProfiles(){ if(!store.data) return;
   // Rewrites shared settings + other people's rows -> admin-only under RLS.
   // Running it for everyone made every save fail with "Not allowed - admins only".
@@ -11021,13 +11015,7 @@ function migrateProfiles(){ if(!store.data) return;
   (store.data.users||[]).forEach(u=>{ if(u.profile==='pf_editor'||u.profile==='pf_viewer'){ u.profile='pf_users'; changed=true; } });
   if(changed) store._persist();
 }
-function applyEmailFixes(){ if(!store.data||!store.data.users) return;
-  // Rewrites other people's rows -> admin-only under RLS.
-  if(typeof IS_ADMIN!=='undefined' && !IS_ADMIN) return;
-  let changed=false;
-  store.data.users.forEach(u=>{ const e=EMAIL_FIX[u.name]; if(e && u.email!==e){ u.email=e; changed=true; } });
-  if(changed && store._persist) store._persist();
-}
+function applyEmailFixes(){ /* removed: was a one-off staff email backfill */ }
 const SP_COLORS=['#3B6FE0','#0E8FA8','#7A3FF2','#0E8F5A','#B96A00','#CE2F26','#C026D3','#2743E0'];
 let _spEdit=null;
 function effPerms(uid){
