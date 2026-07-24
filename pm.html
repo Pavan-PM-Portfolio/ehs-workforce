@@ -3700,6 +3700,25 @@ function applyPrefs(){ const p=curPrefs();
 }
 let STATUSES = []; // live reference to store.data.statuses after load
 
+/* ---- Default workflow for a brand-new workspace -------------------------
+   Structure, not data: a workspace with no statuses has no board columns and
+   is unusable, so provisioning has to produce a working delivery flow. Every
+   name, colour and column here is editable in Board settings afterwards. */
+const DEFAULT_STATUSES=[
+  {id:'st_backlog', name:'Backlog',         cat:'todo',       color:'#71717A'},
+  {id:'st_ready',   name:'Ready',           cat:'todo',       color:'#3B6FE0'},
+  {id:'st_dev',     name:'In Development',  cat:'inprogress', color:'#2743E0'},
+  {id:'st_review',  name:'Code Review',     cat:'inprogress', color:'#B96A00'},
+  {id:'st_qa',      name:'QA Testing',      cat:'inprogress', color:'#CE2F26'},
+  {id:'st_deploy',  name:'Ready to Deploy', cat:'inprogress', color:'#7C3AED'},
+  {id:'st_done',    name:'Done',            cat:'done',       color:'#0E8F5A'},
+];
+/* One board, all columns, transitions unenforced — a new team should be able to
+   drag freely and turn on enforcement later once their flow has settled. */
+function defaultBoard(wsId){
+  return { id:'main', name:'Delivery', ws:wsId||'ws_main', enforce:false,
+           columns:DEFAULT_STATUSES.map(s=>s.id), transitions:{} };
+}
 const SEED = {
   settings:{ workspaceName:'Workspace', defaultView:'board', defaultBoard:'main', fields:[] },
   projects:[],
@@ -8754,6 +8773,10 @@ function renderSettings(){
         <p class="bs-note" style="margin:0 0 12px">Keys are per project \u2014 <b>LMS-1</b>, <b>PAY-1</b>. If older tickets were numbered another way, renumber them to match. Export a backup first.</p>
         <button class="ehs-btn ehs-btn--sm" id="setRenumber" type="button">Renumber ticket keys\u2026</button>
       </div>
+      <div class="stx-card stx-pad" style="margin-top:14px"><div class="stx-card-h">Workflow</div>
+        <p class="bs-note" style="margin:0 0 12px">Adds the default delivery flow \u2014 Backlog, Ready, In Development, Code Review, QA Testing, Ready to Deploy, Done \u2014 and a board showing all of them. Use this on a workspace that has no columns yet. Existing statuses are left alone.</p>
+        <button class="ehs-btn ehs-btn--sm" id="setProvision" type="button">Set up default workflow</button>
+      </div>
     </div>`:'';
 
   const secDanger=IS_ADMIN?`
@@ -8900,6 +8923,14 @@ function renderSettings(){
   el.querySelectorAll('.stx-ws').forEach(node=>node.onclick=()=>{ const sp=store.space(node.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); const on=!node.classList.contains('on'); on?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); node.classList.toggle('on'); toast('Workspace access updated'); });
   // data + danger (unchanged handlers)
   if(_g('setRenumber')) _g('setRenumber').onclick=()=>runKeyRenumber();
+  if(_g('setProvision')) _g('setProvision').onclick=async()=>{
+    if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
+    if(store.statuses().length){
+      if(!confirm('This workspace already has '+store.statuses().length+' statuses. Add the default flow anyway?')) return;
+    }
+    try{ await provisionWorkflow(); renderAll(); toast('Default workflow added'); }
+    catch(e){ toast('Couldn\u2019t set up the workflow: '+((e&&e.message)||'error')); }
+  };
   if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
   if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
     downloadCSV('all-tickets.csv', flds.map(f=>REPORT_FIELDS[f]), store.standardTasks().map(t=>flds.map(f=>reportFieldVal(t,f)))); };
@@ -10673,6 +10704,17 @@ async function renderUsers(){
 }
 function applyDefaults(){
   try{ syncPriorities(); }catch(e){}
+  // Standalone / offline use: no backend to seed from, so build the default
+  // workflow locally rather than rendering a board with no columns.
+  if(!(store.data.statuses && store.data.statuses.length)){
+    store.data.statuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));
+    STATUSES=store.data.statuses;
+  }
+  if(!(store.data.boards && store.data.boards.length)){
+    const bd=defaultBoard('ws_main');
+    store.data.boards=[bd];
+    store.data.settings.defaultBoard=bd.id;
+  }
   CURRENT_UID=(function(){
     // Authenticated (real backend): resolve strictly by auth id / email.
     // NEVER fall back to the first person on the list — that silently grants
@@ -10856,8 +10898,17 @@ async function loadWorkspace(){
     if(!s0){ try{ await pushSeed(); }catch(e){ authError('Workspace seed failed: '+e.message); return; } }
   }
   await fetchAll();
+  // Self-heal: a workspace that arrived without a workflow (seeded before this
+  // existed, or a partial seed) gets one, rather than showing an empty board.
   const empty = !(store.data.statuses&&store.data.statuses.length);
-  if(empty){ setTimeout(()=>toast('This workspace has no data yet — an admin needs to run seed.sql.'),400); }
+  if(empty){
+    if(IS_MASTER || TOOL_ROLE==='admin'){
+      try{ await provisionWorkflow(); setTimeout(()=>toast('Workspace set up with a default delivery workflow'),400); }
+      catch(e){ console.warn('workflow provision failed', e); setTimeout(()=>toast('This workspace has no workflow yet — an admin needs to set up columns.'),400); }
+    } else {
+      setTimeout(()=>toast('This workspace has no workflow yet — ask an admin to set up the board columns.'),400);
+    }
+  }
   STATUSES=store.data.statuses||[];
   buildSnap(); applyDefaults(); applyPrefs();
   // A user created in People & Access gets a suite `profiles` row, but NO PM
@@ -10966,14 +11017,38 @@ async function wipeWorkspace(){
   try{ localStorage.removeItem(store._k); }catch(e){}
   toast('Workspace wiped. Reloading…'); setTimeout(()=>location.reload(), 1000);
 }
+/* Give a workspace the default flow. Used both when self-healing an empty one
+   and by Settings -> Data -> "Set up default workflow". */
+async function provisionWorkflow(){
+  const sts=JSON.parse(JSON.stringify(DEFAULT_STATUSES));
+  const bd =defaultBoard((typeof ui!=='undefined'&&ui.space)||'ws_main');
+  store.data.statuses=sts;
+  store.data.boards=(store.data.boards||[]).concat([bd]);
+  STATUSES=store.data.statuses;
+  store.updateSettings({ defaultBoard: bd.id });
+  ui.board=bd.id;
+  if(typeof sb!=='undefined' && sb && WS){
+    const {error:e1}=await sb.from('statuses').upsert(sts.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i})));
+    if(e1) throw e1;
+    const {error:e2}=await sb.from('boards').upsert([{workspace_id:WS,id:bd.id,doc:bd,sort:0}]);
+    if(e2) throw e2;
+  }
+  store._persist(); buildSnap();
+  return bd.id;
+}
 async function pushSeed(){
   const S=JSON.parse(JSON.stringify(SEED));
   // Fresh workspace: seed only the workflow scaffolding + the first user (master admin).
   const nm=((ME&&ME.user_metadata&&ME.user_metadata.full_name)|| (ME&&ME.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) ||'Admin').trim();
   const meDoc={ id:'u_'+ME.id.slice(0,8), name:nm, email:(ME&&ME.email)||'', role:'PM', profile:'pf_admin', authId:ME.id, master:true, color:'#3B6FE0' };
+  // A fresh workspace has no statuses of its own, so fall back to the default
+  // delivery flow — otherwise the board renders with no columns at all.
+  const sts   = (S.statuses && S.statuses.length) ? S.statuses : DEFAULT_STATUSES;
+  const bds   = (S.boards   && S.boards.length)   ? S.boards   : [defaultBoard('ws_main')];
+  S.settings  = Object.assign({}, S.settings, { defaultBoard: bds[0].id });
   const steps=[
-    ['statuses', S.statuses.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
-    ['boards',   S.boards.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
+    ['statuses', sts.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
+    ['boards',   bds.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
     ['people',   [{workspace_id:WS,id:meDoc.id,doc:meDoc}]],
   ];
   for(const [t,rows] of steps){ if(!rows||!rows.length) continue; const {error}=await sb.from(t).upsert(rows); if(error){ console.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
