@@ -927,6 +927,9 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .cfm-ch-d{display:block;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.55}
 .cfm-ch-b{min-width:0}
 .cfm-warn{font-size:12px;color:var(--muted);margin:13px 0 0}
+.op-key-in{width:78px;flex:none;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:7px !important;padding:5px 8px;text-align:center;font-family:inherit}
+.op-key-in:hover{background:var(--surface)}
+.op-key-in:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
 .km-sample{margin-top:11px;padding-top:11px;border-top:1px solid var(--line-2);display:flex;flex-direction:column;gap:5px}
 .km-row{display:flex;align-items:center;gap:8px;font-size:12px;min-width:0}
 .km-old{color:var(--muted);text-decoration:line-through;flex:none}
@@ -3180,6 +3183,8 @@ body[data-density="compact"] .board{padding:12px 16px}
   <div class="sp-modal-h"><h2 id="pjModalTitle">Edit project</h2><button class="sp-mx" id="pjModalX">&#10005;</button></div>
   <div class="sp-modal-b">
     <label class="sp-lbl">Name<span class="req">*</span></label><input class="sp-inp" id="pjmName" placeholder="Project name" autocomplete="off">
+    <label class="sp-lbl" style="margin-top:14px">Key<span class="req">*</span></label><input class="sp-inp" id="pjmKey" placeholder="e.g. LMS" maxlength="10" autocomplete="off">
+    <p class="bs-note" style="margin:8px 0 0">Prefixes every ticket in this project — <b>LMS-1</b>, <b>LMS-2</b>. Must be unique.</p>
   </div>
   <div class="sp-modal-f"><button class="sp-mdelete" id="pjModalDelete">Delete project</button><div class="sp-fspacer"></div><button class="sp-mcancel" id="pjModalCancel">Cancel</button><button class="btn primary" id="pjModalSave">Save changes</button></div>
 </div></div>
@@ -5628,6 +5633,24 @@ function planKeyRenumber(){
   return {plan, changed, total:plan.length};
 }
 function runKeyRenumber(){
+  /* Two projects sharing a key would produce duplicate ticket numbers, so the
+     keys have to be sorted out before any renumbering happens. */
+  const used=store.projects().filter(p=>store.tasks().some(t=>t.project===p.id));
+  const seen={}, dupes=[];
+  used.forEach(p=>{ const k=String(p.key||'').toUpperCase()||'(none)';
+    if(seen[k]) dupes.push({key:k, a:seen[k], b:p.name}); else seen[k]=p.name; });
+  if(dupes.length){
+    const rows=dupes.map(d=>`<div class="cfm-il"><span><b>${esc(d.key)}</b> \u2014 used by ${esc(d.a)} and ${esc(d.b)}</span></div>`).join('');
+    confirmDelete({
+      title:'Fix project keys first',
+      lead:`Some projects share the same key, so renumbering would create duplicate ticket numbers.<br><br>Give each project its own key in <b>Operations</b> (or the project's Edit dialog), then run this again.`,
+      confirmLabel:'Go to Operations',
+      onConfirm:()=>{ setView('operations'); }
+    });
+    const box=document.getElementById('cfmImpact');
+    if(box) box.innerHTML=`<div class="cfm-impact-h">Duplicate keys</div>${rows}`;
+    return;
+  }
   const {plan, changed, total}=planKeyRenumber();
   if(!total){ toast('No tickets to renumber'); return; }
   if(!changed){ toast('Every key already matches its project'); return; }
@@ -9362,7 +9385,7 @@ function renderOperations(){
   const projRows=store.projects().map(p=>{ const n=store.ticketsInProject(p.id);
     return `<div class="op-row" data-proj="${p.id}">
       <input class="op-name" value="${esc(p.name)}"/>
-      <span class="op-key">${esc(p.key)}</span>
+      <input class="op-key-in" value="${esc(p.key||'')}" maxlength="10" placeholder="KEY" title="Ticket key prefix, e.g. LMS"/>
       <span class="op-count">${n} ticket${n!==1?'s':''}</span>
       <button class="op-del" title="${n?'Move its tickets out first':'Delete project'}" ${n?'disabled':''}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
     </div>`;
@@ -9392,6 +9415,13 @@ function renderOperations(){
     const inp=document.querySelector(`.op-row[data-user="${id}"] .op-name`); if(inp){ inp.focus(); inp.select(); } };
   el.querySelectorAll('.op-row[data-proj]').forEach(row=>{ const id=row.dataset.proj;
     row.querySelector('.op-name').onchange=e=>{ const v=e.target.value.trim(); if(v){ store.updateProject(id,{name:v}); renderProjectSwitch(); } else e.target.value=store.project(id).name; };
+    { const ki=row.querySelector('.op-key-in');
+      if(ki){ ki.oninput=()=>{ ki.value=ki.value.toUpperCase().replace(/[^A-Z0-9]/g,''); };
+        ki.onchange=e=>{ const v=e.target.value.trim().toUpperCase();
+          if(!v){ e.target.value=store.project(id).key||''; return; }
+          const clash=store.projects().find(x=>x.id!==id && String(x.key||'').toUpperCase()===v);
+          if(clash){ toast('“'+v+'” is already used by '+clash.name); e.target.value=store.project(id).key||''; return; }
+          store.updateProject(id,{key:v}); renderOperations(); toast('Key updated'); }; } }
     const del=row.querySelector('.op-del'); if(!del.disabled) del.onclick=()=>deleteProjectFlow(id, ()=>{ renderOperations(); renderProjectSwitch(); });
   });
   el.querySelectorAll('.op-row[data-user]').forEach(row=>{ const id=row.dataset.user;
@@ -11062,15 +11092,20 @@ let _pjEdit=null, _pjDelArm=false, _pjDelTimer=null;
 function openProjectModal(id){
   const p=store.project(id); if(!p) return; _pjEdit=id;
   document.getElementById('pjmName').value=p.name||'';
+  { const k=document.getElementById('pjmKey'); if(k){ k.value=p.key||'';
+      k.oninput=()=>{ k.value=k.value.toUpperCase().replace(/[^A-Z0-9]/g,''); }; } }
   const cur=p.color||SP_COLORS[0];
   const del=document.getElementById('pjModalDelete'); del.textContent='Delete project'; del.classList.remove('armed'); _pjDelArm=false; if(_pjDelTimer) clearTimeout(_pjDelTimer);
   document.getElementById('pjModalScrim').classList.add('on');
 }
 function closeProjectModal(){ document.getElementById('pjModalScrim').classList.remove('on'); }
 function saveProject(){
-  if(!_pjEdit) return; if(!reqCheck([['pjmName','Give the project a name']])) return;
+  if(!_pjEdit) return; if(!reqCheck([['pjmName','Give the project a name'],['pjmKey','Give the project a key']])) return;
   const name=document.getElementById('pjmName').value.trim();
-  const patch={name};
+  const key=(document.getElementById('pjmKey').value||'').trim().toUpperCase();
+  { const clash=store.projects().find(x=>x.id!==_pjEdit && String(x.key||'').toUpperCase()===key);
+    if(clash){ toast('\u201c'+key+'\u201d is already used by '+clash.name); return; } }
+  const patch={name, key};
   store.updateProject(_pjEdit, patch); toast('Project updated'); closeProjectModal(); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch();
 }
 /* Shared project deletion — same keep-or-cascade choice as epics, used by every
