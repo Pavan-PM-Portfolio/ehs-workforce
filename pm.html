@@ -4125,6 +4125,8 @@ function dpSet(email,data){ if(!email) return; const m=dpAll(); const k=String(e
   _dpCache=m;
   try{ localStorage.setItem(DP_KEY,JSON.stringify(m)); }catch(e){} }
 try{ window.addEventListener('storage', e=>{ if(e && e.key===DP_KEY) _dpCache=null; }); }catch(e){}
+/* Source of truth is profiles.avatar_url, synced onto the person record.
+   dpGet() stays only so photos set before the Storage move still render. */
 function photoOf(u){ if(!u) return null; return u.photo || dpGet(u.email) || null; }
 function myPhoto(){ try{ return photoOf(meUser()); }catch(e){ return null; } }
 /* Paint the signed-in person's photo into every account slot (top nav + account
@@ -6237,6 +6239,27 @@ function openQaAtt(taskId){ _qaAttTask=taskId; wireQaAtt(); const f=document.get
    Photos ride along inside the person record, so they are downscaled and
    re-encoded to a square JPEG first — a raw 4 MB camera shot would bloat every
    sync. 256px is plenty for a 76px avatar on a retina screen. */
+/* pm.html can be opened directly, without the suite shell loading ehs-core.js.
+   These mirror EHS.updateMyPhoto so the behaviour is identical either way. */
+async function uploadAvatar(dataUrl){
+  const m=/^data:([^;]+);base64,(.*)$/.exec(String(dataUrl||'')); if(!m) throw new Error('Unsupported image');
+  const bin=atob(m[2]); const buf=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
+  const blob=new Blob([buf],{type:m[1]});
+  const path=ME.id+'.jpg';
+  const up=await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:m[1], cacheControl:'3600'});
+  if(up.error) throw up.error;
+  const {data:pub}=sb.storage.from('avatars').getPublicUrl(path);
+  const url=pub.publicUrl+'?v='+Date.now();
+  const {error}=await sb.from('profiles').update({avatar_url:url}).eq('id',ME.id);
+  if(error) throw error;
+  return url;
+}
+async function removeAvatar(){
+  try{ await sb.storage.from('avatars').remove([ME.id+'.jpg']); }catch(e){}
+  const {error}=await sb.from('profiles').update({avatar_url:null}).eq('id',ME.id);
+  if(error) throw error;
+}
 function squarePhoto(file, px=256){
   return new Promise((res,rej)=>{
     const fr=new FileReader();
@@ -6260,10 +6283,21 @@ function wirePhotoPicker(){
   f.onchange=async e=>{ const file=e.target.files&&e.target.files[0]; if(!file) return;
     if(!/^image\//.test(file.type)){ toast('Pick a JPG or PNG image'); return; }
     if(file.size>2*1024*1024){ toast('Image is too large (max 2 MB)'); return; }
-    try{ const data=await squarePhoto(file); const u=meUser(); if(!u){ toast('No profile to attach this to'); return; }
-      store.setUserPhoto(u.id, data); applyMyPhoto();
+    const btn=document.getElementById('pfUpload'); const lbl=btn?btn.textContent:'';
+    if(btn){ btn.disabled=true; btn.textContent='Uploading\u2026'; }
+    try{
+      const data=await squarePhoto(file); const u=meUser();
+      if(!u){ toast('No profile to attach this to'); return; }
+      let url=data;
+      if(typeof EHS!=='undefined' && EHS && EHS.updateMyPhoto){
+        url=await EHS.updateMyPhoto(data);        // Storage + profiles.avatar_url
+      } else if(typeof sb!=='undefined' && sb && ME){
+        url=await uploadAvatar(data);             // pm.html opened on its own
+      }
+      store.setUserPhoto(u.id, url||data); applyMyPhoto();
       if(ui.view==='settings') renderSettings(); refreshViews(); toast('Photo updated');
-    }catch(err){ toast('Couldn\u2019t read that image'); }
+    }catch(err){ toast('Couldn\u2019t save the photo: '+((err&&err.message)||'error')); }
+    finally{ if(btn){ btn.disabled=false; btn.textContent=lbl; } }
   };
 }
 function openPhotoPicker(){ wirePhotoPicker(); const f=document.getElementById('pfPhotoFile'); if(f){ f.value=''; f.click(); } }
@@ -8454,7 +8488,7 @@ async function syncSuitePeople(){
   if(!(typeof sb!=='undefined' && sb) || typeof IS_ADMIN==='undefined' || !IS_ADMIN) return false;
   try{
     const [pr, ac] = await Promise.all([
-      sb.from('profiles').select('id, full_name, email, is_master_admin'),
+      sb.from('profiles').select('id, full_name, email, is_master_admin, avatar_url'),
       sb.from('tool_access').select('user_id, role').eq('tool_id','pm')
     ]);
     if(pr.error || ac.error) return false;
@@ -8469,10 +8503,12 @@ async function syncSuitePeople(){
         // Re-sync the role from the suite. Without this, a person carrying the old
         // perm:'Admin' would keep admin capabilities even after being set to User.
         const want=(r||(master?'admin':'user'));
-        if(existing.toolRole!==want || !!existing.master!==master){
+        const wantPhoto = p.avatar_url || null;
+        if(existing.toolRole!==want || !!existing.master!==master || (existing.photo||null)!==wantPhoto){
           existing.toolRole=want; existing.master=master;
           existing.perm = (master||want==='admin') ? 'Admin' : 'User';
           existing.profile = (master||want==='admin') ? 'pf_admin' : 'pf_users';
+          if(wantPhoto) existing.photo=wantPhoto; else delete existing.photo;
           rows.push({workspace_id:WS, id:existing.id, doc:existing});
         }
         return;
@@ -8483,6 +8519,7 @@ async function syncSuitePeople(){
         role:isAdmin?'PM':'Developer', perm:isAdmin?'Admin':'User', toolRole:(r||(master?'admin':'user')),
         profile:isAdmin?'pf_admin':'pf_users', master:master,
         color:SWATCHES[((have.length+rows.length)*2)%SWATCHES.length], prefs:{} };
+      if(p.avatar_url) doc.photo=p.avatar_url;
       rows.push({workspace_id:WS, id:doc.id, doc});
       store.data.users.push(doc);
     });
@@ -8756,8 +8793,14 @@ function renderSettings(){
     </div>`;
   el.querySelectorAll('#setRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.setSel=b.dataset.sec; renderSettings(); });
   { const up=document.getElementById('pfUpload'); if(up) up.onclick=()=>openPhotoPicker();
-    const rm=document.getElementById('pfRemove'); if(rm) rm.onclick=()=>{ const u=meUser(); if(!u) return;
-      if(!confirm('Remove your profile photo?')) return; store.setUserPhoto(u.id,null); applyMyPhoto(); renderSettings(); refreshViews(); toast('Photo removed'); };
+    const rm=document.getElementById('pfRemove'); if(rm) rm.onclick=async()=>{ const u=meUser(); if(!u) return;
+      if(!confirm('Remove your profile photo?')) return;
+      try{
+        if(typeof EHS!=='undefined' && EHS && EHS.updateMyPhoto) await EHS.updateMyPhoto(null);
+        else if(typeof sb!=='undefined' && sb && ME) await removeAvatar();
+      }catch(err){ toast('Couldn\u2019t remove the photo: '+((err&&err.message)||'error')); return; }
+      try{ dpSet(u.email, null); }catch(e){}
+      store.setUserPhoto(u.id,null); applyMyPhoto(); renderSettings(); refreshViews(); toast('Photo removed'); };
     const nmi=document.getElementById('pfName'); if(nmi) nmi.onchange=()=>{ const u=meUser(); if(!u) return; const v=nmi.value.trim();
       if(!v){ nmi.value=u.name||''; return; } store.updateUser(u.id,{name:v}); applyMyPhoto(); renderSettings(); refreshViews(); toast('Name updated'); }; }
   const _cg=document.getElementById('stxCloneGo');
@@ -10347,7 +10390,8 @@ const AD_IC={
   help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
   out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>'};
-async function acctSignOut(){ try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
+async function acctSignOut(){ try{ clearLocalAppData(); }catch(e){}
+  try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
   if(typeof sb!=='undefined' && sb && sb.auth){ try{ await sb.auth.signOut({scope:'global'}); }catch(e){ try{ await sb.auth.signOut(); }catch(_){} } location.href='index.html'; return; }
   toast('This is the login-free preview — sign-out applies on the live app.'); }
 function closeAccountPM(){ const s=document.getElementById('acctScrim'); if(s) s.classList.remove('on'); }
@@ -10404,11 +10448,12 @@ document.getElementById('acctMenu').addEventListener('click',e=>e.stopPropagatio
 document.addEventListener('click',()=>document.getElementById('acctMenu').classList.remove('on'));
 document.getElementById('signOutBtn').onclick=async()=>{
   const am=document.getElementById('acctMenu'); if(am) am.classList.remove('on');
+  try{ clearLocalAppData(); }catch(e){}
   try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){}
   if(sb && sb.auth){ try{ await sb.auth.signOut({scope:'global'}); }catch(e){ try{ await sb.auth.signOut(); }catch(_){} } location.href='index.html'; return; }
   toast('This is the login-free preview — sign-out applies on the live app.');
 };
-window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ location.href='index.html'; } });
+window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ try{ clearLocalAppData(); }catch(_){} location.href='index.html'; } });
 document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#navAddBoard')) return; setView('board'); };
 (function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>document.body.classList.toggle('nav-collapsed'); })();
 document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
@@ -10523,6 +10568,38 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closePanel(); clo
 ============================================================ */
 const REMOTE = !!(SUPABASE_URL && !SUPABASE_URL.includes('PASTE') && SUPABASE_ANON && !SUPABASE_ANON.includes('PASTE') && window.supabase);
 let sb=null, WS=null, IS_ADMIN=true, IS_MASTER=false, TOOL_ROLE=null, ME=null;
+/* ---- Local cache hygiene -------------------------------------------------
+   _persist() mirrors the workspace into localStorage. Two problems on a shared
+   machine: the cache outlives the session, and a single fixed key means two
+   accounts share one slot. Scope it per user, and wipe everything on sign-out. */
+const STORE_KEY_BASE='cadence_v16';
+function scopeStoreKey(){
+  try{
+    if(String(store._k).indexOf('cadence_preview')===0) return;   // preview build: leave alone
+    const uid=(ME&&ME.id)||null; if(!uid) return;
+    const scoped=STORE_KEY_BASE+'_'+uid;
+    if(store._k===scoped) return;
+    store._k=scoped;
+    // never inherit whatever the previous account left in the unscoped slot
+    try{ localStorage.removeItem(STORE_KEY_BASE); }catch(e){}
+  }catch(e){}
+}
+function clearLocalAppData(){
+  try{
+    const kill=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i); if(!k) continue;
+      if(k.indexOf('cadence_')===0        // workspace cache (scoped or not)
+       || k.indexOf('ehs_notifs_')===0    // notifications
+       || k==='ehs_avatars'               // display pictures
+       || k==='ehs_spot'                  // last-visited view
+       || k==='ehs_booted') kill.push(k);
+    }
+    kill.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+    try{ sessionStorage.removeItem('ehs_booted'); }catch(e){}
+    _dpCache=null; _notifCache=null; _notifCacheKey=null;   // drop in-memory copies too
+  }catch(e){}
+}
 const TBL={users:'people', projects:'projects', statuses:'statuses', boards:'boards', teams:'teams', tasks:'tasks', worklogs:'worklogs', spaces:'spaces'};
 let snap={}, syncTimer=null, rerenderTimer=null;
 
@@ -10543,7 +10620,7 @@ async function renderUsers(){
   if(typeof sb!=='undefined' && sb){
     try{
       const [pr, ac] = await Promise.all([
-        sb.from('profiles').select('id, full_name, email, is_master_admin'),
+        sb.from('profiles').select('id, full_name, email, is_master_admin, avatar_url'),
         sb.from('tool_access').select('user_id, role').eq('tool_id','pm')
       ]);
       if(pr.error) throw pr.error; if(ac.error) throw ac.error;
@@ -10721,6 +10798,7 @@ function subscribeRealtime(){
 
 // ---- load workspace from Supabase (seed on first run) ----
 async function loadWorkspace(){
+  scopeStoreKey();          // cache under this user's own key before anything persists
   let mem=null;
   { const {data}=await sb.from('members').select('*').eq('user_id',ME.id).maybeSingle(); mem=data; }
   if(!mem){
