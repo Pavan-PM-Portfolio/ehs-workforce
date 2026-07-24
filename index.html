@@ -439,7 +439,23 @@ tr:last-child td{border-bottom:0}
 
 /* rounded buttons + avatar (premium) */
 .btn{border-radius:11px}
-.av-sq{border-radius:10px}
+.av-sq{border-radius:999px;overflow:hidden}
+.av-sq img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(16,26,51,.14)}
+.av-glyph{background:var(--surface-3);color:var(--muted);display:grid;place-items:center}
+.av-glyph svg{width:76%;height:76%;display:block}
+.tb-glyph,.acd-glyph{overflow:hidden}
+.tb-glyph img,.acd-glyph img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px}
+/* Profile photo picker */
+.dp-wrap{display:flex;align-items:center;gap:16px}
+.dp-av{width:76px;height:76px;border-radius:999px;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);border:1px solid var(--line)}
+.dp-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px}
+.dp-av svg{width:42px;height:42px;display:block}
+.dp-meta{min-width:0}
+.dp-t{font-size:13.5px;font-weight:700;color:var(--ink)}
+.dp-s{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.55}
+.dp-act{display:flex;align-items:center;gap:9px;margin-top:11px;flex-wrap:wrap}
+.dp-rm{border:1px solid var(--line);background:#fff;color:var(--crit);font-family:inherit;font-size:12px;font-weight:700;padding:8px 13px;border-radius:11px;cursor:pointer}
+.dp-rm:hover{background:rgba(206,47,38,.06)}
 /* People & Access — option D (grouped, rounded cards) */
 .p-sec{margin-bottom:22px}
 .p-sec-t{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);margin:0 4px 10px}
@@ -495,8 +511,8 @@ tr:last-child td{border-bottom:0}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   window.EHS_CONFIG = {
-    url:  'https://fxyzcycvwtacjtuikjti.supabase.co',      // e.g. https://abcd1234.supabase.co
-    anon: 'sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0',  // the long anon/public key
+    url:  'https://hdebrgjurxvucawxdxvt.supabase.co',      // EHS WorkForce (company)
+    anon: 'sb_publishable_fzA1bjVlpFaVeZiem6jAlw_i-BDpIAD',  // publishable key
   };
 </script>
 <script src="ehs-core.js"></script>
@@ -678,10 +694,52 @@ async function logout(){ await EHS.signOut(); try{ localStorage.setItem('ehs:sig
    APP SHELL
    ===================================================================== */
 /* PM-tool-style avatar: square, tinted bg, coloured border + initials */
+/* ---- Display picture (DP) -------------------------------------------------
+   Photos live in one localStorage map keyed by email. index.html and pm.html
+   are served from the same origin, so a photo set here shows up in the PM tool
+   (and vice-versa) with no backend change. Best-effort mirrored to Supabase so
+   it can follow the person across devices once profiles.avatar_url exists. */
+const DP_KEY='ehs_avatars';
+const ACCT_GLYPH='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg>';
+let _dpCache=null;
+function dpAll(){ if(_dpCache) return _dpCache;
+  try{ _dpCache=JSON.parse(localStorage.getItem(DP_KEY)||'{}')||{}; }catch(e){ _dpCache={}; }
+  return _dpCache; }
+function dpGet(email){ if(!email) return null; return dpAll()[String(email).trim().toLowerCase()]||null; }
+function dpSet(email,data){ if(!email) return; const m=dpAll(); const k=String(email).trim().toLowerCase();
+  if(data) m[k]=data; else delete m[k];
+  _dpCache=m;
+  try{ localStorage.setItem(DP_KEY,JSON.stringify(m)); }catch(e){ toast('Storage is full — could not save the photo'); }
+  try{ localStorage.setItem('ehs:dp:ping', String(Date.now())); }catch(e){}
+}
+try{ window.addEventListener('storage', e=>{ if(e && e.key===DP_KEY) _dpCache=null; }); }catch(e){}
+function myDp(){ try{ const u=EHS.me(); return u?dpGet(u.email):null; }catch(e){ return null; } }
+/* Crop to a centre square and re-encode small — a raw camera shot would blow
+   the storage budget; 256px is plenty for a 76px avatar on a retina screen. */
+function squarePhoto(file, px=256){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error('read failed'));
+    fr.onload=()=>{ const img=new Image();
+      img.onerror=()=>rej(new Error('not an image'));
+      img.onload=()=>{ try{
+        const side=Math.min(img.width,img.height);
+        const c=document.createElement('canvas'); c.width=px; c.height=px;
+        const g=c.getContext('2d'); g.imageSmoothingQuality='high';
+        g.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,px,px);
+        res(c.toDataURL('image/jpeg',0.85));
+      }catch(e){ rej(e); } };
+      img.src=fr.result; };
+    fr.readAsDataURL(file);
+  });
+}
+function avatarSq(name,size=30,email){
+  const p=email?dpGet(email):null;
+  if(p) return `<span class="av-sq" style="width:${size}px;height:${size}px"><img src="${p}" alt="${esc(name||'')}" loading="lazy"></span>`;
+  return `<span class="av-sq av-glyph" style="width:${size}px;height:${size}px" title="${esc(name||'')}">${ACCT_GLYPH}</span>`; }
 const AV_COLORS=['#C2410C','#3B6FE0','#0E8F5A','#7C3AED','#B96A00','#0891B2','#BE185D'];
 function avColor(s){ let h=0; for(const c of (s||'?')) h=(h*31+c.charCodeAt(0))>>>0; return AV_COLORS[h%AV_COLORS.length]; }
-function avatarSq(name,size=30){ const c=avColor(name); const bw=size>=30?1.5:1.25;
-  return `<span class="av-sq" style="width:${size}px;height:${size}px;background:${c}20;border:${bw}px solid ${c};color:${c};font-size:${Math.max(10,Math.round(size*0.4))}px">${esc(initials(name))}</span>`; }
+function avColorHash(n){ return avColor(n); }
 
 /* ---------- All tools menu ----------
    Lists only what this person can actually open: master admins see every live
@@ -774,7 +832,7 @@ function topbar(title, sub){
       <div class="tb-tools-menu" id="tbToolsMenu"></div>
     </div>
     ${EHS.isMaster()?`<div class="tb-link ${location.hash.includes('people')?'on':''}" onclick="go('#/people')">${ic('users')} Users</div>`:''}
-    <div class="tb-acct" onclick="openAccount(event)"><span class="tb-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
+    <div class="tb-acct" onclick="openAccount(event)"><span class="tb-glyph">${myDp()?`<img src="${myDp()}" alt="${esc((u&&u.full_name)||'')}">`:ACCT_GLYPH}</span>
       <div><div class="who">${esc(dn)}</div>
         <div class="role">${EHS.isMaster()?'Master Admin':'Member'}</div></div>${ic('chevron')}</div>
   </div>`;
@@ -793,7 +851,7 @@ function openAccount(e){ if(e) e.stopPropagation(); const u=EHS.me(); if(!u) ret
   const dr=$('acctDrawer');
   dr.innerHTML=`<div class="acd">
     <div class="acd-top"><span class="t">Account</span><button class="acd-x" onclick="closeAccount()">${ic('x')}</button></div>
-    <div class="acd-head"><span class="acd-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg></span>
+    <div class="acd-head"><span class="acd-glyph">${dpGet(u.email)?`<img src="${dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</span>
       <div class="acd-id"><div class="nm">${esc(u.full_name||'—')}</div><div class="em">${esc(u.email)}</div>
         <span class="acd-role ${master?'master':''}">${master?'Master Admin':'Member'}</span></div></div>
     <div class="acd-body">
@@ -818,6 +876,21 @@ function renderSettings(){
   root().innerHTML=`<div class="shell">${topbar()}<div class="page" style="max-width:720px;margin:0 auto">
     <div class="people-head"><div><h1>Settings</h1><p>Your Workforce account — this applies everywhere you sign in.</p></div></div>
     <div ${card}>
+      <div class="dsec-h">Profile photo</div>
+      <div class="dp-wrap">
+        <div class="dp-av" id="dpAv">${dpGet(u.email)?`<img src="${dpGet(u.email)}" alt="${esc(u.full_name||'')}">`:ACCT_GLYPH}</div>
+        <div class="dp-meta">
+          <div class="dp-t">${esc(u.full_name||'Your photo')}</div>
+          <div class="dp-s">Shown across every EduHubSpot tool — your tickets, board cards and comments.<br>JPG or PNG, square works best · up to 2 MB.</div>
+          <div class="dp-act">
+            <button class="btn accent" id="dpUpload" onclick="pickPhoto()">${dpGet(u.email)?'Change photo':'Upload photo'}</button>
+            ${dpGet(u.email)?'<button class="dp-rm" onclick="removePhoto()">Remove</button>':''}
+          </div>
+        </div>
+      </div>
+      <input type="file" id="dpFile" accept="image/png,image/jpeg,image/webp" style="display:none">
+    </div>
+    <div ${card}>
       <div class="dsec-h">Your details</div>
       <div class="frow2">
         <div class="field"><label>First name <span style="color:var(--crit)">*</span></label><input id="st_first" type="text" value="${esc(first)}"></div>
@@ -834,6 +907,30 @@ function renderSettings(){
       <div style="margin-top:16px"><button class="btn accent" id="st_savePw" onclick="savePassword()">Update password</button></div>
     </div>
   </div></div>`;
+}
+async function pickPhoto(){
+  const f=$('dpFile'); if(!f) return;
+  if(!f._wired){ f._wired=true;
+    f.onchange=async e=>{ const file=e.target.files&&e.target.files[0]; if(!file) return;
+      if(!/^image\//.test(file.type)){ toast('Pick a JPG or PNG image'); return; }
+      if(file.size>2*1024*1024){ toast('Image is too large (max 2 MB)'); return; }
+      try{
+        const data=await squarePhoto(file);
+        const me=EHS.me(); if(!me){ toast('Not signed in'); return; }
+        dpSet(me.email, data);
+        try{ if(EHS.updateMyPhoto) await EHS.updateMyPhoto(data); }catch(_){}
+        toast('Photo updated'); renderSettings();
+      }catch(err){ toast('Couldn\u2019t read that image'); }
+    };
+  }
+  f.value=''; f.click();
+}
+function removePhoto(){
+  const me=EHS.me(); if(!me) return;
+  if(!confirm('Remove your profile photo?')) return;
+  dpSet(me.email,null);
+  try{ if(EHS.updateMyPhoto) EHS.updateMyPhoto(null); }catch(_){}
+  toast('Photo removed'); renderSettings();
 }
 async function saveProfile(){
   const first=($('st_first').value||'').trim(), last=($('st_last').value||'').trim();
@@ -1111,7 +1208,7 @@ function userRow(u){
     : `<div class="p-chips">${ALL_IDS.map(id=>{const a=acc.find(x=>x.tool_id===id); if(!a)return ''; const t=tool(id);
         return `<span class="p-chip"><span class="cd" style="background:${t.accent}"></span>${t.code} \u00b7 ${a.role==='admin'?'Admin':'User'}</span>`;}).filter(Boolean).join('')||'<span class="p-none">No tools yet</span>'}</div>`;
   return `<div class="p-row">
-    <div class="p-person">${avatarSq(u.full_name||u.email,40)}
+    <div class="p-person">${avatarSq(u.full_name||u.email,40,u.email)}
       <div><div class="p-nm">${esc(u.full_name||'\u2014')}</div><div class="p-em">${esc(u.email)}</div></div></div>
     <div class="p-access">${access}</div>
     <div class="p-act"><button class="p-mini" onclick="openAccess('${u.id}')">Manage</button>
@@ -1180,7 +1277,7 @@ function openAccess(userId){
       </select></div>`;
   }).join('');
   $('modal').innerHTML=`
-    <div class="mhead">${avatarSq(u.full_name||u.email,30)}
+    <div class="mhead">${avatarSq(u.full_name||u.email,30,u.email)}
       <h3>${esc(u.full_name||u.email)}</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
     <div class="mbody">
       <label class="master-callout"><input type="checkbox" id="ac_master" ${u.is_master_admin?'checked':''} onchange="toggleMasterEdit()">
