@@ -5643,9 +5643,9 @@ function runKeyRenumber(){
     const rows=dupes.map(d=>`<div class="cfm-il"><span><b>${esc(d.key)}</b> \u2014 used by ${esc(d.a)} and ${esc(d.b)}</span></div>`).join('');
     confirmDelete({
       title:'Fix project keys first',
-      lead:`Some projects share the same key, so renumbering would create duplicate ticket numbers.<br><br>Give each project its own key in <b>Operations</b> (or the project's Edit dialog), then run this again.`,
-      confirmLabel:'Go to Operations',
-      onConfirm:()=>{ setView('operations'); }
+      lead:`Some projects share the same key, so renumbering would create duplicate ticket numbers.<br><br>Open <b>Projects</b>, use each project's <b>\u22ef</b> menu \u2192 <b>Edit name &amp; key</b>, and give each one its own key. Then run this again.`,
+      confirmLabel:'Go to Projects',
+      onConfirm:()=>{ setView('projects'); }
     });
     const box=document.getElementById('cfmImpact');
     if(box) box.innerHTML=`<div class="cfm-impact-h">Duplicate keys</div>${rows}`;
@@ -9225,7 +9225,7 @@ function renderProjects(){
     <div style="display:flex;align-items:center;gap:8px">
       <button class="ehs-btn ehs-btn--ghost ehs-btn--sm" id="prNewTk" type="button">New ticket</button>
       ${pj?`<div class="pp-menu-wrap"><button class="ehs-kebab" id="pjKebab" type="button" title="Project options"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
-        <div class="pp-menu" id="pjMenu"><button data-act="open">Open ticket list</button><button data-act="rename">Rename project</button><button data-act="delete" class="danger">Delete project</button></div></div>`:''}
+        <div class="pp-menu" id="pjMenu"><button data-act="open">Open ticket list</button><button data-act="rename">Rename project</button><button data-act="edit">Edit name &amp; key</button><button data-act="delete" class="danger">Delete project</button></div></div>`:''}
     </div></div>`;
   let detail;
   if(!scoped.length){
@@ -9263,6 +9263,7 @@ function renderProjects(){
       const act=btn.dataset.act, pid=ui.pjSel;
       if(act==='open') openProjectPop(pid);
       else if(act==='rename') renameProjectInline(pid);
+      else if(act==='edit') openProjectModal(pid);
       else if(act==='delete'){ deleteProjectFlow(pid, ()=>renderProjects()); }
     });
   }
@@ -11094,7 +11095,6 @@ function openProjectModal(id){
   document.getElementById('pjmName').value=p.name||'';
   { const k=document.getElementById('pjmKey'); if(k){ k.value=p.key||'';
       k.oninput=()=>{ k.value=k.value.toUpperCase().replace(/[^A-Z0-9]/g,''); }; } }
-  const cur=p.color||SP_COLORS[0];
   const del=document.getElementById('pjModalDelete'); del.textContent='Delete project'; del.classList.remove('armed'); _pjDelArm=false; if(_pjDelTimer) clearTimeout(_pjDelTimer);
   document.getElementById('pjModalScrim').classList.add('on');
 }
