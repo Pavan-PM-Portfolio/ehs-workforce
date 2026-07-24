@@ -494,7 +494,7 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .ap-id{min-width:0}
 .ap-id .nm{font-weight:700;font-size:15px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ap-id .em{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ap-role{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:20px !important;padding:2px 9px}
+.ap-role{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:7px !important;padding:2px 9px}
 .ap-card{margin:14px;border:1px solid var(--line);border-radius:12px !important;padding:12px 13px;display:flex;align-items:center;gap:12px}
 .ap-card .ic{width:34px;height:34px;border-radius:9px !important;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);flex:none}
 .ap-card .t{flex:1;min-width:0}
@@ -903,8 +903,50 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .panel.on{opacity:1;transform:scale(1);pointer-events:auto}
 .panel-h{display:flex;align-items:flex-start;gap:12px;padding:18px 24px 14px;border-bottom:1px solid var(--line)}
 .panel-h .meta{flex:1}
-.panel-h .key{font-family:"Inter";font-size:12px;font-weight:600;color:var(--muted)}
+.panel-h .key{font-family:"Inter";font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--accent)}
+.req{color:var(--crit);font-weight:800;margin-left:3px}
+.ty-lock{font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:4px 9px;border-radius:7px !important}
+.bs-note{font-size:12.5px;color:var(--muted);line-height:1.6}
+.cfm-lead{font-size:13.5px;color:var(--ink-2);line-height:1.6;margin:0 0 14px}
+.cfm-lead b{color:var(--ink);font-weight:700}
+.cfm-impact{border:1px solid #CE2F2626;background:#CE2F260A;border-radius:10px !important;padding:12px 14px}
+.cfm-impact-h{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--crit);margin-bottom:8px}
+.cfm-il{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);padding:4px 0}
+.cfm-il svg{width:14px;height:14px;color:var(--crit);flex:none}
+.cfm-il b{color:var(--ink);font-weight:700}
+.cfm-impact:empty{display:none}
+.cfm-choices{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.cfm-choices:empty{display:none}
+.cfm-ch{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:11px !important;padding:12px 13px;cursor:pointer;transition:border-color .12s,background .12s}
+.cfm-ch:hover{background:var(--surface-2)}
+.cfm-ch.on{border-color:var(--accent);background:var(--accent-soft)}
+.cfm-ch-r{width:16px;height:16px;border-radius:999px !important;border:1.5px solid var(--line-2);flex:none;margin-top:2px;display:grid;place-items:center}
+.cfm-ch.on .cfm-ch-r{border-color:var(--accent)}
+.cfm-ch.on .cfm-ch-r::after{content:"";width:8px;height:8px;border-radius:999px;background:var(--accent)}
+.cfm-ch-t{display:block;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35}
+.cfm-ch-d{display:block;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.55}
+.cfm-ch-b{min-width:0}
+.cfm-warn{font-size:12px;color:var(--muted);margin:13px 0 0}
+.km-sample{margin-top:11px;padding-top:11px;border-top:1px solid var(--line-2);display:flex;flex-direction:column;gap:5px}
+.km-row{display:flex;align-items:center;gap:8px;font-size:12px;min-width:0}
+.km-old{color:var(--muted);text-decoration:line-through;flex:none}
+.km-arw{color:var(--faint);flex:none}
+.km-new{color:var(--accent);font-weight:700;flex:none}
+.km-ti{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.km-more{font-size:11.5px;color:var(--faint);margin-top:3px}
+.btn.cfm-go{background:var(--crit);border-color:var(--crit);color:#fff;font-weight:700}
+.btn.cfm-go:hover{opacity:.92}
+.bs-note b{color:var(--ink-2);font-weight:700}
+.req-bad{border-color:var(--crit) !important;box-shadow:0 0 0 3px rgba(206,47,38,.15) !important;animation:reqshake .28s ease}
+@keyframes reqshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.nt-title.req-bad,.epm-title.req-bad,.sp-inp.req-bad{border:1px solid var(--crit) !important}
 .panel-h h2{font-size:19px;font-weight:600;letter-spacing:-.02em;margin:3px 0 0;line-height:1.25}
+.pn-ttl-row{display:flex;align-items:center;gap:7px;min-width:0}
+.panel-h h2.ed{cursor:text;outline:none}
+.panel-h h2.ed:focus{outline:none;background:none;box-shadow:none}
+.pn-edit{border:0;background:none;color:var(--faint);cursor:pointer;padding:4px;border-radius:6px !important;display:grid;place-items:center;flex:none;transition:color .12s,background .12s}
+.pn-edit svg{width:14px;height:14px;display:block}
+.pn-edit:hover{color:var(--ink-2);background:var(--surface-2)}
 .icon-btn{border:0;background:var(--surface-2);width:32px;height:32px;border-radius:8px;color:var(--muted);
   display:grid;place-items:center;flex:none}
 .icon-btn:hover{background:var(--surface-3);color:var(--ink-2)}
@@ -1057,10 +1099,10 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .um-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .um-em{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .um-perm{border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:6px 8px;font-size:12.5px;color:var(--ink-2);font-family:inherit;flex:none}
-.um-rolebadge{margin-left:auto;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px !important;flex:none}
-.um-rolebadge.r-master{background:rgba(124,58,237,.12);color:#7C3AED}
-.um-rolebadge.r-admin{background:var(--soft);color:var(--accent)}
-.um-rolebadge.r-user{background:var(--surface-3);color:var(--muted)}
+.um-rolebadge{margin-left:auto;font-size:11px;font-weight:700;padding:4px 11px;border-radius:7px !important;flex:none;border:1px solid transparent}
+.um-rolebadge.r-master{background:#1A1A1A0D;color:var(--ink);border-color:#1A1A1A26}
+.um-rolebadge.r-admin{background:#3B6FE014;color:var(--accent);border-color:#3B6FE033}
+.um-rolebadge.r-user{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
 .um-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .pw-field{margin-bottom:12px}
 .pw-field label{display:block;font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
@@ -1724,7 +1766,7 @@ body[data-view="deployments"] .topbar,body[data-view="qa"] .topbar,body[data-vie
 .ehs-ov-lead[data-pop]{cursor:pointer}
 .ovrt{font-size:11px;font-weight:600;white-space:nowrap;flex:none}
 .ovrt.crit{color:var(--crit)}.ovrt.warn{color:var(--warn)}.ovrt.mut{color:var(--faint)}
-.ovpop .avatar{width:22px !important;height:22px !important;border-radius:7px !important;font-size:9px}
+.ovpop .avatar{width:22px !important;height:22px !important;border-radius:999px !important;font-size:9px}
 .ovpop-f{padding:8px 14px;text-align:center;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line-2)}
 .ov-un{font-size:10.5px;color:var(--faint);font-weight:600}
 /* upcoming due tile */
@@ -1956,7 +1998,7 @@ body[data-view="deployments"] .topbar,body[data-view="qa"] .topbar,body[data-vie
 /* teammate selector head */
 .stx-head{display:flex;align-items:center;gap:13px;padding:16px 18px;margin-top:12px;border:1px solid var(--line);border-radius:14px !important;background:linear-gradient(180deg,#fff,#FBFCFE)}
 .stx-head.empty{background:var(--surface-2);border-style:dashed}
-.stx-head .avatar{width:48px !important;height:48px !important;border-radius:13px !important;font-size:17px}
+.stx-head .avatar{width:48px !important;height:48px !important;border-radius:999px !important;font-size:17px}
 .stx-av-none{width:48px;height:48px;border-radius:13px !important;display:grid;place-items:center;color:var(--faint);background:var(--surface-3);flex:none}
 .stx-id{min-width:0;flex:1}
 .stx-id .nm{font-size:16px;font-weight:800;letter-spacing:-.01em}
@@ -2767,7 +2809,31 @@ body[data-density="compact"] .board{padding:12px 16px}
 .col-dot,.cm-dot,.fdot,.bn-flow,.dot,.tm-x{border-radius:50% !important}
 .col-dot,.fdot,.ov-si .dot{display:none !important}
 .brd-pick{color:var(--muted) !important}
-.avatar,.um-ava,.mini-ava{border-radius:7px !important;box-sizing:border-box}
+.avatar,.um-ava,.mini-ava{border-radius:999px !important;box-sizing:border-box}
+.avatar-img{padding:0;border:0 !important;background:none;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(16,26,51,.14)}
+.avatar-glyph{background:var(--surface-3) !important;border:0 !important;color:var(--muted) !important;overflow:hidden;display:grid;place-items:center;padding:0}
+.avatar-glyph svg{width:76%;height:76%;display:block}
+.avatar-img img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px !important}
+.tn-av,.ap-av,.um-ava.is-photo{overflow:hidden}
+.tn-av img,.ap-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px !important}
+.um-ava{overflow:hidden}
+.um-ava img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px !important}
+.um-ava.is-glyph{background:var(--surface-3) !important;border:0 !important;color:var(--muted) !important;display:grid;place-items:center}
+.um-ava.is-glyph svg{width:21px;height:21px;display:block}
+/* My profile — photo picker */
+.pf-photo{display:flex;align-items:center;gap:16px}
+.pf-av{width:76px;height:76px;border-radius:999px !important;flex:none;overflow:hidden;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);border:1px solid var(--line)}
+.pf-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px !important}
+.pf-av svg{width:42px;height:42px;display:block}
+.pf-pmeta{min-width:0}
+.pf-pt{font-size:13.5px;font-weight:700;color:var(--ink)}
+.pf-ps{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.pf-pact{display:flex;align-items:center;gap:9px;margin-top:10px;flex-wrap:wrap}
+.pf-rm{border:1px solid var(--line);background:#fff;color:var(--crit);font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:9px !important;cursor:pointer}
+.pf-rm:hover{background:#CE2F260D}
+.stx-ro{font-size:13px;color:var(--muted);font-weight:500}
+.stx-inp{border:1px solid var(--line);background:#fff;border-radius:9px !important;padding:8px 12px;font-family:inherit;font-size:13px;color:var(--ink);min-width:240px}
+.stx-inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .tn-av{border-radius:999px !important}
 .btn{border-radius:10px !important}
 
@@ -3066,16 +3132,16 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="modal-h nt-h"><span class="nt-key nt-key-hdr" id="ntKeyBadge"><span class="nt-live"></span><span id="ntKeyText"></span><span class="nt-caret"></span></span><button class="nt-x" id="ntX" type="button">✕</button></div>
     <div class="nt-grid">
       <div class="nt-left">
-        <input id="ntTitle" class="nt-title" placeholder="Ticket title" autocomplete="off"/>
+        <input id="ntTitle" class="nt-title" placeholder="Ticket title *" autocomplete="off"/>
         <textarea id="ntDesc" class="nt-desc" placeholder="Add a description…"></textarea>
       </div>
       <div class="nt-rail">
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="ntrow-l">Project</span><button type="button" class="nt-val" data-for="ntProject"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntProject" class="nt-hidden" data-enh="1"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/></svg></span><span class="ntrow-l">Type</span><button type="button" class="nt-val" data-for="ntType"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntType" class="nt-hidden" data-enh="1"><option>Task</option><option>Bug</option><option>Epic</option></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V4M4 4h13l-2 4 2 4H4"/></svg></span><span class="ntrow-l">Priority</span><button type="button" class="nt-val" data-for="ntPriority"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntPriority" class="nt-hidden" data-enh="1"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></span><span class="ntrow-l">Status</span><button type="button" class="nt-val" data-for="ntStatus"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntStatus" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="ntrow-l">Project<span class="req">*</span></span><button type="button" class="nt-val" data-for="ntProject"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntProject" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/></svg></span><span class="ntrow-l">Type<span class="req">*</span></span><button type="button" class="nt-val" data-for="ntType"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntType" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V4M4 4h13l-2 4 2 4H4"/></svg></span><span class="ntrow-l">Priority<span class="req">*</span></span><button type="button" class="nt-val" data-for="ntPriority"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntPriority" class="nt-hidden" data-enh="1"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></span><span class="ntrow-l">Status<span class="req">*</span></span><button type="button" class="nt-val" data-for="ntStatus"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntStatus" class="nt-hidden" data-enh="1"></select></div>
         <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Assignee</span><button type="button" class="nt-val" data-for="ntAssignee"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntAssignee" class="nt-hidden" data-enh="1"></select></div>
-        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Reporter</span><button type="button" class="nt-val" data-for="ntReporter"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntReporter" class="nt-hidden" data-enh="1"></select></div>
+        <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span class="ntrow-l">Reporter<span class="req">*</span></span><button type="button" class="nt-val" data-for="ntReporter"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntReporter" class="nt-hidden" data-enh="1"></select></div>
         <div class="ntrow" id="ntParentField"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span class="ntrow-l">Epic</span><button type="button" class="nt-val" data-for="ntParent"><span class="nt-val-in"></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><select id="ntParent" class="nt-hidden" data-enh="1"></select></div>
         <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Start</span><button type="button" class="nt-val ph" data-date="ntStart"><span class="nt-val-in"><span>Pick date</span></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><input id="ntStart" type="date" class="nt-dateinp" tabindex="-1"/></div>
         <div class="ntrow"><span class="ntrow-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="ntrow-l">Due</span><button type="button" class="nt-val ph" data-date="ntDue"><span class="nt-val-in"><span>Pick date</span></span><svg class="nt-val-ch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button><input id="ntDue" type="date" class="nt-dateinp" tabindex="-1"/></div>
@@ -3102,7 +3168,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div id="spModalScrim" class="sp-mscrim"><div class="sp-modal">
   <div class="sp-modal-h"><h2 id="spModalTitle">Create workspace</h2><button class="sp-mx" id="spModalX">&#10005;</button></div>
   <div class="sp-modal-b">
-    <label class="sp-lbl">Name</label><input class="sp-inp" id="spmName" placeholder="e.g. Marketing Ops" autocomplete="off">
+    <label class="sp-lbl">Name<span class="req">*</span></label><input class="sp-inp" id="spmName" placeholder="e.g. Marketing Ops" autocomplete="off">
     <label class="sp-lbl">Description</label><input class="sp-inp" id="spmDesc" placeholder="Short description" autocomplete="off">
     <label class="sp-lbl">Icon</label><div class="sp-icons" id="spmIcons"></div>
     <label class="sp-lbl">Who can access <span class="sp-lbl-n" id="spmCount"></span></label>
@@ -3113,8 +3179,7 @@ body[data-density="compact"] .board{padding:12px 16px}
 <div id="pjModalScrim" class="sp-mscrim"><div class="sp-modal">
   <div class="sp-modal-h"><h2 id="pjModalTitle">Edit project</h2><button class="sp-mx" id="pjModalX">&#10005;</button></div>
   <div class="sp-modal-b">
-    <label class="sp-lbl">Name</label><input class="sp-inp" id="pjmName" placeholder="Project name" autocomplete="off">
-    <label class="sp-lbl">Colour</label><div class="sp-colors" id="pjmColors"></div>
+    <label class="sp-lbl">Name<span class="req">*</span></label><input class="sp-inp" id="pjmName" placeholder="Project name" autocomplete="off">
   </div>
   <div class="sp-modal-f"><button class="sp-mdelete" id="pjModalDelete">Delete project</button><div class="sp-fspacer"></div><button class="sp-mcancel" id="pjModalCancel">Cancel</button><button class="btn primary" id="pjModalSave">Save changes</button></div>
 </div></div>
@@ -3167,7 +3232,19 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="modal-f"><button class="btn" id="qaVfClose">Done</button></div>
   </div>
 </div>
+<div class="modal-wrap" id="cfmWrap"><div class="modal sub-modal" style="width:460px">
+  <div class="modal-h" id="cfmHead">Delete</div>
+  <div class="modal-b">
+    <p class="cfm-lead" id="cfmLead"></p>
+    <div class="cfm-choices" id="cfmChoices"></div>
+    <div class="cfm-impact" id="cfmImpact"></div>
+    <p class="cfm-warn">This can't be undone.</p>
+  </div>
+  <div class="modal-f"><button class="btn" id="cfmCancel">Cancel</button><button class="btn cfm-go" id="cfmGo">Delete</button></div>
+</div></div>
+
 <input type="file" id="qaAttFile" accept=".pdf,.doc,.docx,.txt,.rtf,.xls,.xlsx,.ppt,.pptx,.csv,.md,.png,.jpg,.jpeg" style="display:none">
+<input type="file" id="pfPhotoFile" accept="image/png,image/jpeg,image/webp" style="display:none">
 <div class="modal-wrap" id="qaAttWrap"><div class="modal sub-modal" style="width:440px">
   <div class="modal-h">Name this attachment</div>
   <div class="modal-b">
@@ -3198,13 +3275,13 @@ body[data-density="compact"] .board{padding:12px 16px}
     <div class="modal-h epm-h"><span>Create epic</span><button class="nt-x" id="epX" type="button">&#10005;</button></div>
     <div class="epm-body">
       <div class="epm-main">
-        <input id="epmTitle" class="epm-title" placeholder="Epic name" autocomplete="off"/>
+        <input id="epmTitle" class="epm-title" placeholder="Epic name *" autocomplete="off"/>
         <textarea id="epmDesc" class="epm-desc" placeholder="What is this epic about? (optional)"></textarea>
         <div class="epm-tasks-h"><span>Tasks in this epic</span><button class="epm-addtask" id="epmAddTask" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Add task</button></div>
         <div class="epm-tasks" id="epmTasks"></div>
       </div>
       <div class="epm-rail">
-        <div class="epm-frow"><label>Project</label><select id="epmProject"></select></div>
+        <div class="epm-frow"><label>Project<span class="req">*</span></label><select id="epmProject"></select></div>
         <div class="epm-frow"><label>Lead / assignee</label><select id="epmLead"></select></div>
         <div class="epm-frow"><label>Due date</label><input type="date" id="epmDue"/></div>
         <div class="epm-hint">Add as many tasks as you like &mdash; each becomes a ticket linked to this epic.</div>
@@ -3276,10 +3353,9 @@ body[data-density="compact"] .board{padding:12px 16px}
   <div class="modal sub-modal" style="width:440px">
     <div class="modal-h">Create project<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Group tickets under a name and a key.</div></div>
     <div class="modal-b">
-      <div class="field" style="margin-bottom:14px"><label>Project name</label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
+      <div class="field" style="margin-bottom:14px"><label>Project name<span class="req">*</span></label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
       <div class="fgrid2">
         <div class="field"><label>Key</label><input id="pjKey" placeholder="MKT" maxlength="10" autocomplete="off"/></div>
-        <div class="field"><label>Colour</label><div class="pj-swatches" id="pjSwatches"></div></div>
       </div>
       <div class="loghint" style="margin-top:14px">The key prefixes every ticket in this project. It is filled in from the name \u2014 change it if you like.</div>
     </div>
@@ -3450,12 +3526,6 @@ body[data-density="compact"] .board{padding:12px 16px}
 const SUPABASE_URL  = "https://fxyzcycvwtacjtuikjti.supabase.co";
 const SUPABASE_ANON = "sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0";
 
-/* Production ships silent: no console output leaks table names, RLS messages,
-   or error internals. Flip on for troubleshooting with ?debug=1 in the URL,
-   or localStorage.setItem('pm:debug','1'). */
-const __PM_DEBUG = (function(){ try{ return location.search.indexOf('debug=1')>-1 || localStorage.getItem('pm:debug')==='1'; }catch(e){ return false; } })();
-const __dbg = __PM_DEBUG ? console : { log:function(){}, warn:function(){}, error:function(){} };
-
 /* ============================================================
    DATA LAYER  —  reads stay in-memory (store.data); writes sync
    per-record to Supabase when configured, else localStorage.
@@ -3467,7 +3537,13 @@ const CATS = [
   {id:'Deployment',  color:'#0E8F5A'},
   {id:'Other',       color:'#727A87'},
 ];
-const PRIORITIES = {Highest:'#CE2F26', High:'#CA8A04', Medium:'#0E8F5A', Low:'#2743E0'};
+/* Colour map kept in sync with store.priorities(). Everything that reads
+   PRIORITIES / Object.keys(PRIORITIES) keeps working, but the source of truth
+   is now editable in Board settings. */
+let PRIORITIES = {Highest:'#CE2F26', High:'#CA8A04', Medium:'#0E8F5A', Low:'#2743E0'};
+function syncPriorities(){
+  try{ const l=store.priorities(); const m={}; l.forEach(p=>{ m[p.id]=p.color; }); PRIORITIES=m; }catch(e){}
+}
 const CAT_ICON={
   'Development':'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
   'Code Review':'<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/>',
@@ -3591,6 +3667,65 @@ const store = {
   settings(){ return this.data.settings; },
   updateSettings(patch){ Object.assign(this.data.settings, patch); this._persist(); },
   fields(){ return this.data.settings.fields||[]; },
+  /* ---- Ticket types (Jira-style, workspace-configurable) ------------------
+     'Epic' is structural — the app branches on it — so it can be renamed but
+     never removed. Everything else is free to add, rename, recolour, delete. */
+  types(){ const s=this.data.settings;
+    if(!Array.isArray(s.types) || !s.types.length){
+      s.types=[ {id:'Task',   name:'Task',    color:'#2743E0', locked:false},
+                {id:'Bug',    name:'Bug',     color:'#CE2F26', locked:false},
+                {id:'Hot fix',name:'Hot fix', color:'#B96A00', locked:false},
+                {id:'Epic',   name:'Epic',    color:'#7C3AED', locked:true} ];
+    }
+    return s.types; },
+  type(id){ return this.types().find(t=>t.id===id)||null; },
+  typeColor(id){ const t=this.type(id); return t?t.color:'#71717A'; },
+  addType(name){ const nm=String(name||'').trim(); if(!nm) return null;
+    const list=this.types(); if(list.some(t=>t.id.toLowerCase()===nm.toLowerCase())) return null;
+    list.splice(Math.max(0,list.length-1), 0, {id:nm, name:nm, color:SWATCHES[list.length%SWATCHES.length], locked:false});
+    this._persist(); return nm; },
+  updateType(id, patch){ const t=this.type(id); if(!t) return;
+    if(patch.name!==undefined){ const nm=String(patch.name).trim(); if(!nm) return;
+      if(nm!==t.id && this.types().some(x=>x.id.toLowerCase()===nm.toLowerCase())) return;
+      if(!t.locked && nm!==t.id){ this.data.tasks.forEach(k=>{ if(k.type===t.id) k.type=nm; }); t.id=nm; }
+      t.name=nm; }
+    if(patch.color!==undefined) t.color=patch.color;
+    this._persist(); },
+  removeType(id){ const t=this.type(id); if(!t||t.locked) return false;
+    if(this.data.tasks.some(k=>k.type===id)) return false;   // never orphan tickets
+    this.data.settings.types=this.types().filter(x=>x.id!==id); this._persist(); return true; },
+  typeInUse(id){ return this.data.tasks.filter(k=>k.type===id).length; },
+  /* ---- Priorities ---------------------------------------------------------
+     Array order IS the rank (index 0 = most urgent), so reordering here drives
+     sorting, grouping and the "top priority" pickers everywhere. */
+  priorities(){ const s=this.data.settings;
+    if(!Array.isArray(s.priorities) || !s.priorities.length){
+      s.priorities=[ {id:'Highest',name:'Highest',color:'#CE2F26'},
+                     {id:'High',   name:'High',   color:'#CA8A04'},
+                     {id:'Medium', name:'Medium', color:'#0E8F5A'},
+                     {id:'Low',    name:'Low',    color:'#2743E0'} ];
+    }
+    return s.priorities; },
+  priority(id){ return this.priorities().find(p=>p.id===id)||null; },
+  priorityRank(id){ const i=this.priorities().findIndex(p=>p.id===id); return i<0?99:i; },
+  defaultPriority(){ const l=this.priorities(); const m=l.find(p=>p.id==='Medium'); return (m||l[Math.floor(l.length/2)]||l[0]||{}).id; },
+  addPriority(name){ const nm=String(name||'').trim(); if(!nm) return null;
+    const l=this.priorities(); if(l.some(p=>p.id.toLowerCase()===nm.toLowerCase())) return null;
+    l.push({id:nm, name:nm, color:SWATCHES[l.length%SWATCHES.length]});
+    this._persist(); syncPriorities(); return nm; },
+  updatePriority(id, patch){ const p=this.priority(id); if(!p) return;
+    if(patch.name!==undefined){ const nm=String(patch.name).trim(); if(!nm) return;
+      if(nm!==p.id && this.priorities().some(x=>x.id.toLowerCase()===nm.toLowerCase())) return;
+      if(nm!==p.id){ this.data.tasks.forEach(t=>{ if(t.priority===p.id) t.priority=nm; }); p.id=nm; }
+      p.name=nm; }
+    if(patch.color!==undefined) p.color=patch.color;
+    this._persist(); syncPriorities(); },
+  movePriority(id, dir){ const l=this.priorities(); const i=l.findIndex(p=>p.id===id); const j=i+dir;
+    if(i<0||j<0||j>=l.length) return; const [x]=l.splice(i,1); l.splice(j,0,x); this._persist(); syncPriorities(); },
+  removePriority(id){ const l=this.priorities(); if(l.length<=1) return false;
+    if(this.data.tasks.some(t=>t.priority===id)) return false;   // never orphan tickets
+    this.data.settings.priorities=l.filter(p=>p.id!==id); this._persist(); syncPriorities(); return true; },
+  priorityInUse(id){ return this.data.tasks.filter(t=>t.priority===id).length; },
   listCols(){ const d=this.data.settings.listCols; return (Array.isArray(d)&&d.length)?d.slice():['key','title','assignee','status','priority','type','due','time']; },
   setListCols(arr){ this.data.settings.listCols=(arr||[]).slice(); this._persist(); },
   addField(name,type){ const id='cf'+Date.now().toString(36); if(!this.data.settings.fields) this.data.settings.fields=[];
@@ -3672,7 +3807,7 @@ const store = {
   // projects admin
   ticketsInProject(id){ return this.data.tasks.filter(t=>t.project===id).length; },
   addProject(name){ const key=((name||'').replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase())||'PRJ'; const id='p'+Date.now().toString(36);
-    this.data.projects.push({id, name:name||'New project', key, color:SWATCHES[this.data.projects.length%SWATCHES.length]}); this._persist(); return id; },
+    this.data.projects.push({id, name:name||'New project', key}); this._persist(); return id; },
   updateProject(id, patch){ Object.assign(this.project(id), patch); this._persist(); },
   removeProject(id){ this.data.projects=this.data.projects.filter(p=>p.id!==id); this._persist(); },
   // users admin
@@ -3682,6 +3817,7 @@ const store = {
   addMember(name, email, perm, authId){ const id='u'+Date.now().toString(36)+Math.floor(Math.random()*99);
     this.data.users.push({id, name:name||'New member', email:email||'', role:perm||'Developer', perm:perm||'Developer', authId:authId||null, color:SWATCHES[(this.data.users.length*2)%SWATCHES.length]}); this._persist(); return id; },
   updateUser(id, patch){ Object.assign(this.user(id), patch); this._persist(); },
+  setUserPhoto(id, photo){ const u=this.user(id); if(!u) return; if(photo) u.photo=photo; else delete u.photo; this._persist(); },
   pwPending(){ return this.data.settings.pwPending||(this.data.settings.pwPending={}); },
   flagPwPending(email){ if(!email) return; this.pwPending()[email.toLowerCase()]=true; this._persist(); },
   clearPwPending(email){ if(!email) return; const m=this.pwPending(); delete m[email.toLowerCase()]; this._persist(); },
@@ -3735,10 +3871,13 @@ const store = {
     if(cat==='done'){ t.resolution='Done'; if(!t.resolvedAt){ t.resolvedAt=today(); t.resolvedTs=new Date().toISOString(); } }
     else { t.resolution='Unresolved'; t.resolvedAt=null; } },
   updateTask(id, patch){ const t=this.task(id); if(!t) return; try{ this._logChanges(t, patch); }catch(e){} Object.assign(t, patch); if('status' in patch){ this._applyResolution(t); const isDone=(this.status(t.status)||{}).cat==='done'; if(isDone){ if(!t.deployed){ t.deployed=true; t.deployedAt=new Date().toISOString(); } } else { t.deployed=false; t.deployedAt=null; } } t.updatedAt=today(); this._persist(); },
-  _actor(){ return (typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||((this.users()[0]||{}).id)||null; },
+  /* Identity must come from the signed-in account. Falling back to users()[0]
+     silently stamps everyone's actions with the first person in the workspace. */
+  _actor(){ try{ if(typeof myUid==='function') return myUid(); }catch(e){}
+    return (typeof CURRENT_UID!=='undefined'&&CURRENT_UID)||null; },
   _pushActivity(taskId, text){ const t=this.task(taskId); if(!t) return; if(!t.activity) t.activity=[]; t.activity.push({id:'a'+Date.now().toString(36)+Math.floor(Math.random()*999), by:this._actor(), text, at:new Date().toISOString()}); },
   _logChanges(t, patch){
-    const L={status:'status',priority:'priority',assignee:'developer',qa:'QA',reviewer:'code reviewer',deployer:'deployer',reporter:'reporter',project:'project',due:'due date',start:'start date',estimate:'estimate',parent:'epic'};
+    const L={title:'title',status:'status',priority:'priority',assignee:'developer',qa:'QA',reviewer:'code reviewer',deployer:'deployer',reporter:'reporter',project:'project',due:'due date',start:'start date',estimate:'estimate',parent:'epic'};
     const disp=(k,v)=>{ if(v==null||v==='') return null;
       if(k==='status') return (this.status(v)||{}).name||v;
       if(['assignee','qa','reviewer','deployer','reporter'].includes(k)) return (this.user(v)||{}).name||'someone';
@@ -3818,6 +3957,28 @@ function epicStats(epicId){
 
 /* ---------- format ---------- */
 const initials = n => n.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+/* ---- Required-field validation -------------------------------------------
+   One helper for every create/edit form. Hidden enhanced <select>s are flashed
+   via their visible proxy button so the feedback lands where the user looks. */
+function reqFail(el, msg){
+  try{ toast(msg); }catch(e){}
+  if(el){
+    const proxy=document.querySelector(`[data-for="${el.id}"]`) || el;
+    proxy.classList.add('req-bad');
+    setTimeout(()=>proxy.classList.remove('req-bad'), 1800);
+    try{ (proxy.focus?proxy:el).focus(); }catch(e){}
+  }
+  return false;
+}
+function reqCheck(list){
+  for(const [id,msg] of list){
+    const el=document.getElementById(id);
+    if(!el) continue;                       // field not present in this variant
+    if(el.offsetParent===null && !el.classList.contains('nt-hidden')) continue;  // genuinely hidden row
+    if(!String(el.value||'').trim()) return reqFail(el, msg);
+  }
+  return true;
+}
 const AV_COLORS=['#C2410C','#3B6FE0','#0E8F5A','#7C3AED','#B96A00','#0891B2','#BE185D'];
 function avColor(s){ let h=0; for(const c of (s||'?')) h=(h*31+c.charCodeAt(0))>>>0; return AV_COLORS[h%AV_COLORS.length]; }
 function hm(min){ if(!min) return '0h'; const h=Math.floor(min/60), m=min%60; return (h?h+'h':'')+(m?(h?' ':'')+m+'m':(h?'':'0h')); }
@@ -3834,10 +3995,32 @@ function daysBetween(a,b){ if(!a||!b) return null; return Math.round((Date.parse
 function median(arr){ if(!arr.length) return 0; const s=[...arr].sort((x,y)=>x-y); const m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; }
 const AVATAR_COLORS=['#1E3A8A','#7C2D12','#14532D','#581C87','#7F1D1D','#164E63','#78350F','#831843','#3730A3','#365314','#134E4A','#1E293B'];
 function avatarColor(user){ if(!user) return '#64748B'; return avColor(user.name); }
+/* Google-style generic account glyph — the fallback wherever a person has no
+   photo yet. Deliberately identical for everyone, exactly like Google/Teams. */
+const ACCT_GLYPH='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg>';
 function avatar(user, size=22){ const bw=size>=30?1.5:1.25;
   if(!user) return `<span class="avatar" style="width:${size}px;height:${size}px;background:#8A8F9820;border:${bw}px solid #B4B2A9;color:#5F5E5A;font-size:${Math.max(9,Math.round(size*0.4))}px">–</span>`;
-  const c=avatarColor(user);
-  return `<span class="avatar" style="width:${size}px;height:${size}px;background:${c}20;border:${bw}px solid ${c};color:${c};font-size:${Math.max(9,Math.round(size*0.4))}px">${initials(user.name)}</span>`; }
+  const _p=photoOf(user);
+  if(_p) return `<span class="avatar avatar-img" style="width:${size}px;height:${size}px"><img src="${_p}" alt="${esc(user.name||'')}" loading="lazy"></span>`;
+  return `<span class="avatar avatar-glyph" style="width:${size}px;height:${size}px" title="${esc(user.name||'')}">${ACCT_GLYPH}</span>`; }
+/* Photos set in the EduHubSpot account (index.html) land in one shared
+   localStorage map keyed by email. Same origin, so a DP set at the account
+   level shows up here too — the person record wins if it carries its own. */
+const DP_KEY='ehs_avatars';
+function dpAll(){ try{ return JSON.parse(localStorage.getItem(DP_KEY)||'{}')||{}; }catch(e){ return {}; } }
+function dpGet(email){ if(!email) return null; return dpAll()[String(email).trim().toLowerCase()]||null; }
+function dpSet(email,data){ if(!email) return; const m=dpAll(); const k=String(email).trim().toLowerCase();
+  if(data) m[k]=data; else delete m[k];
+  try{ localStorage.setItem(DP_KEY,JSON.stringify(m)); }catch(e){} }
+function photoOf(u){ if(!u) return null; return u.photo || dpGet(u.email) || null; }
+function myPhoto(){ try{ return photoOf(meUser()); }catch(e){ return null; } }
+/* Paint the signed-in person's photo into every account slot (top nav + account
+   panel). Falls back to the generic glyph so the chrome never looks broken. */
+function applyMyPhoto(){
+  const p=myPhoto(); const nm=(function(){ try{ const u=meUser(); return (u&&u.name)||''; }catch(e){ return ''; } })();
+  ['acctAv','apAv'].forEach(id=>{ const el=document.getElementById(id); if(!el) return;
+    el.innerHTML = p ? `<img src="${p}" alt="${esc(nm)}">` : ACCT_GLYPH; });
+}
 function priIcon(p){ const c=PRIORITIES[p]||'#9BA3AF';
   return `<svg class="pri" viewBox="0 0 14 14" title="${p}"><rect x="1" y="8" width="3" height="5" rx="1" fill="${c}" opacity="${p==='Low'?1:.45}"/><rect x="5.5" y="4" width="3" height="9" rx="1" fill="${c}" opacity="${p==='Low'?.3:(p==='Medium'?1:.6)}"/><rect x="10" y="1" width="3" height="12" rx="1" fill="${c}" opacity="${(p==='High'||p==='Highest')?1:.3}"/></svg>`; }
 function fdate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); const day=+dd; const mi=+m-1;
@@ -3934,7 +4117,7 @@ const FILTER_DEFS=[
    opts(){ return [{v:'all',t:'All'}].concat(Object.keys(PRIORITIES).map(p=>({v:p,t:p,dot:PRIORITIES[p]}))); }},
   {key:'type', label:'Type', multi:true,
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#0891B2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-   opts(){ return [{v:'all',t:'All'},{v:'Task',t:'Task'},{v:'Bug',t:'Bug'}]; }},
+   opts(){ return [{v:'all',t:'All'}].concat(store.types().filter(x=>x.id!=='Epic').map(x=>({v:x.id,t:x.name,dot:x.color}))); }},
   {key:'time', label:'Time', allLabel:'Any',
    ico:'<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#EA580C"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
    opts(){ return [{v:'all',t:'Any'},{v:'yes',t:'Logged'},{v:'no',t:'Not logged'}]; }},
@@ -4052,8 +4235,8 @@ function groupValue(t,g){ if(g==='assignee')return t.assignee||'__un'; if(g==='e
 function orderGroupKeys(g,keys){
   if(g==='assignee'){ const o=store.users().map(u=>u.id); return keys.sort((a,b)=>a==='__un'?1:b==='__un'?-1:o.indexOf(a)-o.indexOf(b)); }
   if(g==='epic'){ const o=store.epics().map(e=>e.id); return keys.sort((a,b)=>a==='__noepic'?1:b==='__noepic'?-1:o.indexOf(a)-o.indexOf(b)); }
-  if(g==='priority'){ const o=['Highest','High','Medium','Low']; return keys.sort((a,b)=>o.indexOf(a)-o.indexOf(b)); }
-  if(g==='type'){ const o=['Task','Bug','Epic']; return keys.sort((a,b)=>o.indexOf(a)-o.indexOf(b)); }
+  if(g==='priority'){ return keys.sort((a,b)=>store.priorityRank(a)-store.priorityRank(b)); }
+  if(g==='type'){ const o=store.types().map(x=>x.id); return keys.sort((a,b)=>o.indexOf(a)-o.indexOf(b)); }
   return keys;
 }
 function groupHeaderHTML(g,key){
@@ -4234,11 +4417,11 @@ function wireCustomEdits(root, after){
     el.onclick=e=>{ e.stopPropagation(); if(!canEditField('custom')){ toast('You can\u2019t edit custom fields'); return; } openCfMulti(el.dataset.id, el.dataset.fid, el, after); }; });
   root.querySelectorAll('.projbtn').forEach(el=>{ el.onmousedown=e=>e.stopPropagation();
     el.onclick=e=>{ e.stopPropagation(); if(!canEditField('project')){ toast('You can\u2019t edit this field'); return; } const id=el.dataset.id; const t=store.task(id);
-      const opts=[{v:'',t:'Not Assigned'}].concat(store.projects().map(pr=>({v:pr.id,t:pr.name,dot:pr.color})));
+      const opts=[{v:'',t:'Not Assigned'}].concat(store.projects().map(pr=>({v:pr.id,t:pr.name})));
       openSelMenu(el, opts, t.project||'', v=>{ store.updateTask(id,{project:v||null}); refreshViews(); }); }; });
   root.querySelectorAll('.asgbtn').forEach(el=>{ el.onmousedown=e=>e.stopPropagation();
     el.onclick=e=>{ e.stopPropagation(); if(!canEditField('assignee')){ toast('You can\u2019t edit this field'); return; } const id=el.dataset.id; const t=store.task(id);
-      const opts=[{v:'',t:'Unassigned'}].concat(store.users().map(u=>({v:u.id,t:u.name})));
+      const opts=[{v:'',t:'Unassigned'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
       openSelMenu(el, opts, t.assignee||'', v=>{ store.updateTask(id,{assignee:v||null}); refreshViews(); }); }; });
   root.querySelectorAll('.cdate').forEach(el=>{ el.onmousedown=e=>e.stopPropagation();
     el.onclick=e=>{ e.stopPropagation(); const f=el.dataset.field||'due'; if(!canEditField(f)){ toast('You can\u2019t edit this field'); return; } openDateMenu(el, el.dataset.id, (store.task(el.dataset.id)||{})[f], f); }; });
@@ -4326,7 +4509,7 @@ function _scheduleEnhance(){ if(_selxRaf) return; _selxRaf=requestAnimationFrame
 new MutationObserver(_scheduleEnhance).observe(document.body,{childList:true,subtree:true});
 window.enhanceSelects=enhanceSelects;
 enhanceSelects(document);
-setTimeout(()=>{ try{ __dbg.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
+setTimeout(()=>{ try{ console.log('[PM] custom light dropdowns active — enhanced '+document.querySelectorAll('select[data-enh]').length+' selects'); }catch(e){} }, 800);
 function openDateMenu(anchor, taskId, cur, field){
   field = field||'due';
   const menu=document.getElementById('cfMenu');
@@ -4492,14 +4675,77 @@ function openEpicMenu(eid, btn){
     else if(a==='delete') deleteEpic(eid);
   });
 }
+/* ---- Global delete confirmation -----------------------------------------
+   One dialog for every destructive action, so the user always sees exactly
+   what goes with it before anything is removed.
+     confirmDelete({title, lead, impact:[{n,label}], confirmLabel, onConfirm}) */
+function confirmDelete(opt){
+  const w=document.getElementById('cfmWrap'); if(!w){ if(confirm(opt.lead||'Delete?')) opt.onConfirm&&opt.onConfirm((opt.choices||[{}])[0].id); return; }
+  const DOT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+  document.getElementById('cfmHead').textContent=opt.title||'Delete';
+  document.getElementById('cfmLead').innerHTML=opt.lead||'';
+  const choices=opt.choices||null;
+  let sel=choices?(opt.defaultChoice||choices[0].id):null;
+  const impactBox=document.getElementById('cfmImpact');
+  const paint=(rows)=>{ const r=(rows||[]).filter(x=>x&&x.n>0);
+    impactBox.innerHTML = r.length
+      ? '<div class="cfm-impact-h">Also deleted</div>'+r.map(x=>`<div class="cfm-il">${DOT}<span><b>${x.n}</b> ${esc(x.label)}</span></div>`).join('')
+      : ''; };
+  const chBox=document.getElementById('cfmChoices');
+  if(choices){
+    const draw=()=>{ chBox.innerHTML=choices.map(c=>`<div class="cfm-ch ${c.id===sel?'on':''}" data-ch="${esc(c.id)}">
+        <span class="cfm-ch-r"></span><span class="cfm-ch-b"><span class="cfm-ch-t">${esc(c.label)}</span><span class="cfm-ch-d">${c.desc||''}</span></span></div>`).join('');
+      chBox.querySelectorAll('[data-ch]').forEach(el=>el.onclick=()=>{ sel=el.dataset.ch; draw();
+        paint((choices.find(c=>c.id===sel)||{}).impact); });
+      paint((choices.find(c=>c.id===sel)||{}).impact); };
+    draw();
+  } else { chBox.innerHTML=''; paint(opt.impact); }
+  const go=document.getElementById('cfmGo'); go.textContent=opt.confirmLabel||'Delete';
+  const close=()=>w.classList.remove('on');
+  go.onclick=()=>{ close(); try{ opt.onConfirm&&opt.onConfirm(sel); }catch(e){ console.warn(e); } };
+  document.getElementById('cfmCancel').onclick=close;
+  w.onclick=e=>{ if(e.target===w) close(); };
+  w.classList.add('on');
+}
 function deleteEpic(eid){
   const e=store.task(eid); if(!e) return;
-  const kids=store.tasks().filter(t=>t.parent===eid).length;
-  const msg=kids ? 'Delete epic \u201c'+e.title+'\u201d?\n\nIts '+kids+' linked ticket'+(kids!==1?'s':'')+' will be kept, but un-linked from this epic.'
-                 : 'Delete epic \u201c'+e.title+'\u201d?';
-  if(!confirm(msg)) return;
-  store.tasks().forEach(t=>{ if(t.parent===eid) store.updateTask(t.id,{parent:null}); });
-  store.removeTask(eid); refreshViews(); toast('Epic deleted');
+  const kids=store.tasks().filter(t=>t.parent===eid);
+  const ids=[eid].concat(kids.map(k=>k.id));
+  const logs=store.data.worklogs.filter(w=>ids.includes(w.task)).length;
+  const cmts=ids.reduce((n,id)=>n+(((store.task(id)||{}).comments)||[]).length,0);
+  const subs=ids.reduce((n,id)=>n+(((store.task(id)||{}).subtasks)||[]).length,0);
+  const n=kids.length;
+  if(!n){   // nothing linked — no choice to make
+    confirmDelete({ title:'Delete epic', lead:`Delete the epic <b>${esc(e.title)}</b>?`,
+      confirmLabel:'Delete epic',
+      onConfirm:()=>{ store.removeTask(eid); if(ui.openTask===eid) closePanel(); refreshViews(); toast('Epic deleted'); } });
+    return;
+  }
+  confirmDelete({
+    title:'Delete epic',
+    lead:`<b>${esc(e.title)}</b> has <b>${n}</b> linked ticket${n===1?'':'s'}. What should happen to ${n===1?'it':'them'}?`,
+    choices:[
+      {id:'keep', label:'Delete only the epic',
+       desc:`Keep ${n===1?'the ticket':'all '+n+' tickets'} and their comments, subtasks and time logs \u2014 they simply stop belonging to this epic.`,
+       impact:[]},
+      {id:'cascade', label:'Delete the epic and everything in it',
+       desc:'Removes the linked tickets and all of their history permanently.',
+       impact:[{n:n, label:'linked ticket'+(n===1?'':'s')},
+               {n:subs, label:'subtask'+(subs===1?'':'s')},
+               {n:cmts, label:'comment'+(cmts===1?'':'s')},
+               {n:logs, label:'time log'+(logs===1?'':'s')}]},
+    ],
+    defaultChoice:'keep',
+    confirmLabel:'Delete epic',
+    onConfirm:(mode)=>{
+      if(mode==='cascade'){ ids.forEach(id=>store.removeTask(id));
+        if(ui.openTask && ids.includes(ui.openTask)) closePanel();
+        toast(`Epic and ${n} ticket${n===1?'':'s'} deleted`); }
+      else { kids.forEach(k=>store.updateTask(k.id,{parent:null}));
+        store.removeTask(eid); if(ui.openTask===eid) closePanel();
+        toast(`Epic deleted \u00b7 ${n} ticket${n===1?'':'s'} kept`); }
+      refreshViews(); }
+  });
 }
 document.addEventListener('click',e=>{ const m=document.getElementById('epCMenu');
   if(m && m.classList.contains('on') && !e.target.closest('#epCMenu') && !e.target.closest('.ep-kebab')) m.classList.remove('on'); });
@@ -4529,6 +4775,10 @@ function openEpicModal(){
 }
 function closeEpicModal(){ document.getElementById('epicWrap').classList.remove('on'); }
 async function submitEpic(){
+  if(!reqCheck([
+    ['epmTitle',   'Give the epic a name'],
+    ['epmProject', 'Pick a project for this epic'],
+  ])) return;
   const title=document.getElementById('epmTitle').value.trim();
   if(!title){ toast('Give the epic a name'); document.getElementById('epmTitle').focus(); return; }
   const pid=document.getElementById('epmProject').value||null;
@@ -4538,7 +4788,7 @@ async function submitEpic(){
   const ws=(ui.space||'ws_main');
   const todoStatus=(STATUSES.find(s=>(s.cat||'todo')==='todo')||STATUSES[0]||{}).id;
   const eid='e'+Date.now();
-  const epic={ id:eid, ws, project:pid, key:await allocateKey(), title, type:'Epic', status:todoStatus,
+  const epic={ id:eid, ws, project:pid, key:await allocateKey(pid), title, type:'Epic', status:todoStatus,
     priority:'Medium', assignee:lead, reporter:CURRENT_UID||lead, parent:null,
     color:SWATCHES[2+(store.epics().length%6)], due, start:null, estimate:0,
     resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(), updatedAt:today(), resolvedAt:null, desc };
@@ -4548,7 +4798,7 @@ async function submitEpic(){
   // ticket would race for the same number — the bug we are removing.
   for(const row of [...document.querySelectorAll('#epmTasks .epm-task')]){
     const tt=row.querySelector('.epm-tname').value.trim(); if(!tt) continue;
-    const t={ id:newTaskId('t'), ws, project:pid, key:await allocateKey(), title:tt, type:'Task', status:todoStatus,
+    const t={ id:newTaskId('t'), ws, project:pid, key:await allocateKey(pid), title:tt, type:'Task', status:todoStatus,
       priority:'Medium', assignee:row.querySelector('.epm-tasg').value||null, reporter:CURRENT_UID||null, parent:eid,
       due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
       updatedAt:today(), resolvedAt:null, desc:'' };
@@ -4654,7 +4904,7 @@ function openPanel(id, keepScroll){
   const epicSel=[{v:'',t:'None'}].concat(store.epics().filter(x=>x.project===t.project).map(x=>({v:x.id,t:x.title})));
   const pLbl=(opts,v)=>{ const o=opts.find(o=>o.v===(v||'')); return o?esc(o.t):'—'; };
   const pselBtn=(fid,label)=>`<button class="p-sel" id="${fid}"><span class="p-sel-t">${label}</span><svg class="cfchev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>`;
-  const meU=store.users()[0]||null;
+  const meU=meUser();
   const pOver = HL_OVERDUE && t.due && (store.status(t.status)||{}).cat!=='done' && new Date(t.due+'T00:00:00') < new Date(new Date().toDateString());
   const personVal=(uid)=>{ const u=store.user(uid); return u?`${avatar(u,20)}<span class="fv-nm">${esc(u.name)}</span>`:`<span class="fv-none">Unassigned</span>`; };
   const fvBtn=(fid,html)=>`<button class="fval" id="${fid}">${html}</button>`;
@@ -4707,7 +4957,7 @@ function openPanel(id, keepScroll){
 
   panel.innerHTML=`
     <div class="panel-h">
-      <div class="meta"><div class="key">${proj?proj.key:''} · ${t.key}</div><h2>${esc(t.title)}</h2></div>
+      <div class="meta"><div class="key">${t.key}</div><div class="pn-ttl-row"><h2 id="pnTitle" class="${canEditField('title')?'ed':''}" ${canEditField('title')?'contenteditable="true" spellcheck="false" role="textbox" aria-label="Ticket title"':''}>${esc(t.title)}</h2>${canEditField('title')?`<button class="pn-edit" id="pnTitleEdit" type="button" title="Rename ticket" aria-label="Rename ticket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`:''}</div></div>
       <button class="icon-btn" id="panelClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="panel-body">
@@ -4844,6 +5094,26 @@ function openPanel(id, keepScroll){
   // wire panel
   const F=(elid,cap)=>{ const el=document.getElementById(elid); return (el && can(cap)) ? el : {set onclick(v){}, set onchange(v){}}; };
   document.getElementById('panelClose').onclick=closePanel;
+  /* Inline rename. contenteditable keeps the heading's exact type styling; we
+     read textContent so pasted markup can never land in the title. */
+  { const ttl=document.getElementById('pnTitle');
+    if(ttl && canEditField('title')){
+      let orig=t.title||'';
+      const commit=()=>{ const v=(ttl.textContent||'').replace(/\s+/g,' ').trim();
+        if(!v){ ttl.textContent=orig; toast('Title can\u2019t be empty'); return; }
+        if(v===orig){ ttl.textContent=orig; return; }
+        store.updateTask(id,{title:v}); orig=v; ttl.textContent=v;
+        refreshViews(); toast('Title updated'); };
+      ttl.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); ttl.blur(); }
+        else if(e.key==='Escape'){ e.preventDefault(); ttl.textContent=orig; ttl.blur(); } };
+      ttl.onblur=commit;
+      ttl.onpaste=e=>{ e.preventDefault(); const cd=e.clipboardData||window.clipboardData; const txt=(cd?cd.getData('text'):'')||'';
+        document.execCommand('insertText', false, txt.replace(/\s+/g,' ').trim()); };
+      const pen=document.getElementById('pnTitleEdit');
+      if(pen) pen.onclick=()=>{ ttl.focus();
+        try{ const r=document.createRange(); r.selectNodeContents(ttl); r.collapse(false);
+          const s=window.getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){} };
+    } }
   { const prb=document.getElementById('prRaiseBtn'); if(prb) prb.onclick=()=>{ const now=!t.prRaised; store.setPrRaised(id, now); refreshViews(); openPanel(id,true); toast(now?`${t.key} — PR raised, deployment ticket created`:'PR mark removed'); }; }
   panel.querySelectorAll('[data-qbugfix]').forEach(b=>b.onclick=()=>{ const p=b.dataset.qbugfix.split('|'); const bug=(store.task(p[0]).qaBugs||[]).find(x=>x.id===p[1]); store.updateQaBug(p[0],p[1],{status:bug&&bug.status==='fixed'?'open':'fixed'}); openPanel(p[0], true); });
   F('pStatus','field_status').onclick=e=>{ e.stopPropagation(); openSelMenu(e.currentTarget, statusSel, t.status, v=>{ store.updateTask(id,{status:v}); refreshViews(); openPanel(id,true); toast('Status updated'); }); };
@@ -4860,7 +5130,9 @@ function openPanel(id, keepScroll){
   const pDesc=document.getElementById('pDesc'); if(pDesc && canEditField('desc')){ pDesc.onchange=()=>{ store.updateTask(id,{desc:pDesc.value}); refreshViews(); }; }
   panel.querySelectorAll('.act-tab').forEach(tb=>tb.onclick=()=>{ panelTab=tb.dataset.tab; openPanel(id,true); });
   panel.querySelectorAll('.pn-rl').forEach(rb=>rb.onclick=()=>{ panelSub=rb.dataset.sub; openPanel(id,true); });
-  const cmtPost=document.getElementById('cmtPost'); if(cmtPost && canEditField('comments')) cmtPost.onclick=()=>{ const el=document.getElementById('cmtInput'); const v=(el.value||'').trim(); if(!v){ el.focus(); return; } store.addComment(id, meU?meU.id:null, v); toast('Comment added'); openPanel(id,true); };
+  const cmtPost=document.getElementById('cmtPost'); if(cmtPost && canEditField('comments')) cmtPost.onclick=()=>{ const el=document.getElementById('cmtInput'); const v=(el.value||'').trim(); if(!v){ el.focus(); return; }
+    const author=meUser(); if(!author){ toast('We couldn\u2019t confirm who you are \u2014 reload and sign in again'); return; }
+    store.addComment(id, author.id, v); toast('Comment added'); openPanel(id,true); };
   panel.querySelectorAll('.cmt-del').forEach(b=>b.onclick=()=>{ store.removeComment(id, b.dataset.cid); openPanel(id,true); });
   wireCustomEdits(panel, ()=>openPanel(id,true));
   panel.querySelectorAll('.cat-log').forEach(btn=>btn.onclick=()=>openLogModal(id, btn.dataset.cat));
@@ -5100,10 +5372,7 @@ function chatTime(at){ const d=new Date(at); const diff=(Date.now()-d.getTime())
   let h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0'); const ap=h>=12?'PM':'AM'; h=h%12||12; const hm=h+':'+m+' '+ap;
   if(diff<86400 && d.getDate()===new Date().getDate()) return hm;
   return fdate(_isoLocal(d))+', '+hm; }
-function chatEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-// Attachment URLs come from other users' messages: allow only data: URLs so a
-// crafted javascript:/other-scheme "attachment" can't run when clicked.
-function chatSafeUrl(u){ u=String(u||''); return /^data:/i.test(u) ? u : '#'; }
+function chatEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function renderMentions(text){ let s=chatEsc(text);
   const names=store.users().map(u=>u.name).sort((a,b)=>b.length-a.length);
   names.forEach(n=>{ const esc=chatEsc(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); s=s.replace(new RegExp('@'+esc,'g'), `<span class="cmention">@${chatEsc(n)}</span>`); });
@@ -5184,8 +5453,8 @@ function chatShort(at){ const d=new Date(at); const diff=(Date.now()-d.getTime()
 function chatFmtSize(b){ b=b||0; if(b<1024)return b+' B'; if(b<1048576)return Math.round(b/1024)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function chatPreview(m){ if(m.attachment) return (m.attachment.type||'').startsWith('image/')?'Photo':m.attachment.name; return m.text||''; }
 function chatFileIcon(){ return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'; }
-function chatAttHTML(a){ if(!a) return ''; const url=chatSafeUrl(a.dataUrl); if((a.type||'').startsWith('image/')) return `<a class="cmsg-imgw" href="${url}" target="_blank" rel="noopener"><img class="cmsg-img" src="${url}" alt="${chatEsc(a.name)}"/></a>`;
-  return `<a class="cmsg-file" href="${url}" download="${chatEsc(a.name)}"><span class="cmsg-file-ic">${chatFileIcon()}</span><span class="cmsg-file-b"><span class="cmsg-file-nm">${chatEsc(a.name)}</span><span class="cmsg-file-sz">${chatFmtSize(a.size)}</span></span></a>`; }
+function chatAttHTML(a){ if(!a) return ''; if((a.type||'').startsWith('image/')) return `<a class="cmsg-imgw" href="${a.dataUrl}" target="_blank" rel="noopener"><img class="cmsg-img" src="${a.dataUrl}" alt="${chatEsc(a.name)}"/></a>`;
+  return `<a class="cmsg-file" href="${a.dataUrl}" download="${chatEsc(a.name)}"><span class="cmsg-file-ic">${chatFileIcon()}</span><span class="cmsg-file-b"><span class="cmsg-file-nm">${chatEsc(a.name)}</span><span class="cmsg-file-sz">${chatFmtSize(a.size)}</span></span></a>`; }
 function chatConvoRow(c){ const me=CURRENT_UID; const isDm=c.type==='dm'; const other=isDm?store.user(c.members.find(x=>x!==me)):null; const nm=isDm?(other?other.name:'Direct'):c.name; const last=store.chatLast(c.id); const on=c.id===ui.chat.channel;
   const ic=isDm?avatar(other,34):`<span class="chat-grp-ic">${chatGroupIcon()}</span>`;
   const pv=last?`${chatEsc((store.user(last.user)||{}).name||'').split(' ')[0]}: ${chatEsc(chatPreview(last)).slice(0,26)}`:(isDm?'Start a conversation':'No messages yet');
@@ -5302,14 +5571,6 @@ window.addEventListener('scroll',(e)=>{ const m=document.getElementById('ntMenu'
    the next one a number that was already taken — and two clients with the same
    count minted identical keys. This walks the highest number actually in use
    and then guarantees the result is free. */
-function keyPrefix(){
-  // One sequence per workspace, not per project: Tech_001, Tech_002 …
-  const sp=(typeof ui!=='undefined'&&ui.space) ? store.space(ui.space) : null;
-  const nm=(sp&&sp.name)||'Task';
-  const first=(nm.trim().split(/\s+/)[0]||'Task').replace(/[^A-Za-z0-9]/g,'');
-  const p=first.slice(0,4)||'Task';
-  return p.charAt(0).toUpperCase()+p.slice(1);   // "Technical Project Management" -> "Tech"
-}
 /* Ids must be unique across clients — Date.now() alone collides when two people
    create a ticket in the same millisecond, and the DB upsert then silently
    overwrites one of them. */
@@ -5321,32 +5582,87 @@ function newTaskId(prefix){
    two browsers both see 118 and both mint _119. pm_next_key() increments a
    counter row inside the database, so concurrent callers queue and each gets a
    distinct number. The local path stays as an offline fallback only. */
-async function allocateKey(){
-  const prefix = keyPrefix();
+/* Ticket keys are per-project: LMS-1, LMS-2, PAY-1 … The prefix comes from the
+   project's Key, so each project counts independently (the Jira model). */
+function projPrefix(pid){
+  const p=pid?store.project(pid):null;
+  if(p && p.key) return String(p.key).toUpperCase();
+  if(p && p.name) return (p.name.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase())||'PRJ';
+  return 'NP';                       // no project → "NP-1" rather than a clash
+}
+function keyPrefix(pid){ return projPrefix(pid); }
+async function allocateKey(pid){
+  const prefix = projPrefix(pid);
   const space  = (typeof ui!=='undefined' && ui.space) || 'ws_main';
   if(typeof sb!=='undefined' && sb && WS){
     try{
       const {data, error} = await sb.rpc('pm_next_key', { p_ws:WS, p_space:space, p_prefix:prefix });
-      if(!error && Number.isFinite(data)) return prefix+'_'+String(data).padStart(3,'0');
-      __dbg.warn('[key] allocator unavailable, falling back locally', error);
-    }catch(e){ __dbg.warn('[key] allocator threw, falling back locally', e); }
+      if(!error && Number.isFinite(data)) return prefix+'-'+data;
+      console.warn('[key] allocator unavailable, falling back locally', error);
+    }catch(e){ console.warn('[key] allocator threw, falling back locally', e); }
   }
-  return computeNextKey();          // offline / local mode
+  return computeNextKey(pid);          // offline / local mode
 }
 
+/* ---- One-time key migration ---------------------------------------------
+   Renumbers every ticket to its project's key (LMS-1, LMS-2, PAY-1 …) in
+   creation order. The original key is kept as legacyKey so an old reference
+   in Slack or a PR can still be traced. Preview first, then apply. */
+function planKeyRenumber(){
+  const byProj={};
+  store.data.tasks.forEach(t=>{ const k=t.project||'__none'; (byProj[k]=byProj[k]||[]).push(t); });
+  const plan=[]; let changed=0;
+  Object.keys(byProj).forEach(pk=>{
+    const pid = pk==='__none' ? null : pk;
+    const prefix = projPrefix(pid);
+    const list = byProj[pk].slice().sort((a,b)=>{
+      const at=a.createdTs||a.createdAt||'', bt=b.createdTs||b.createdAt||'';
+      if(at!==bt) return at<bt?-1:1;
+      return String(a.id).localeCompare(String(b.id));      // stable tiebreak
+    });
+    list.forEach((t,i)=>{ const nk=prefix+'-'+(i+1);
+      if(nk!==t.key) changed++;
+      plan.push({id:t.id, from:t.key||'\u2014', to:nk, project:(store.project(pid)||{}).name||'No project', title:t.title});
+    });
+  });
+  return {plan, changed, total:plan.length};
+}
+function runKeyRenumber(){
+  const {plan, changed, total}=planKeyRenumber();
+  if(!total){ toast('No tickets to renumber'); return; }
+  if(!changed){ toast('Every key already matches its project'); return; }
+  const groups={};
+  plan.forEach(r=>{ groups[r.project]=(groups[r.project]||0)+1; });
+  const summary=Object.keys(groups).sort().map(g=>`<div class="cfm-il" style="color:var(--ink-2)"><span><b>${groups[g]}</b> in ${esc(g)}</span></div>`).join('');
+  const sample=plan.filter(r=>r.from!==r.to).slice(0,6)
+    .map(r=>`<div class="km-row"><span class="km-old">${esc(r.from)}</span><span class="km-arw">\u2192</span><span class="km-new">${esc(r.to)}</span><span class="km-ti">${esc(r.title||'')}</span></div>`).join('');
+  confirmDelete({
+    title:'Renumber ticket keys',
+    lead:`Give every ticket a key based on its project, numbered in the order it was created.<br><br><b>${changed}</b> of <b>${total}</b> ticket${total===1?'':'s'} will get a new key. The old key is kept on each ticket, so existing references can still be traced.`,
+    confirmLabel:'Renumber '+changed+' ticket'+(changed===1?'':'s'),
+    onConfirm:()=>{
+      let n=0;
+      plan.forEach(r=>{ const t=store.task(r.id); if(!t||t.key===r.to) return;
+        if(!t.legacyKey) t.legacyKey=t.key||null; t.key=r.to; n++; });
+      store._persist(); refreshViews();
+      toast(n+' ticket'+(n===1?'':'s')+' renumbered');
+    }
+  });
+  const box=document.getElementById('cfmImpact');
+  if(box) box.innerHTML=`<div class="cfm-impact-h" style="color:var(--ink-2)">By project</div>${summary}`
+    + (sample?`<div class="km-sample">${sample}${changed>6?`<div class="km-more">+ ${changed-6} more</div>`:''}</div>`:'');
+}
 function computeNextKey(pid){
-  const sp=(typeof ui!=='undefined'&&ui.space)||'ws_main';
-  const prefix=keyPrefix();
-  const scope=store.data.tasks.filter(t=>(t.ws||'ws_main')===sp);
-  const taken=new Set(scope.map(t=>t.key).filter(Boolean));
-  // highest number already used by this prefix, whatever the separator
+  const prefix=projPrefix(pid);
+  const taken=new Set(store.data.tasks.map(t=>t.key).filter(Boolean));
   const re=new RegExp('^'+prefix.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[-_ ]?(\\d+)$','i');
   let mx=0;
-  scope.forEach(t=>{ const m=(t.key||'').match(re); if(m) mx=Math.max(mx, parseInt(m[1],10)||0); });
+  store.data.tasks.forEach(t=>{ const m=(t.key||'').match(re); if(m) mx=Math.max(mx, parseInt(m[1],10)||0); });
   let n=mx+1, key;
-  do { key=prefix+'_'+String(n).padStart(3,'0'); n++; } while(taken.has(key));
+  do { key=prefix+'-'+n; n++; } while(taken.has(key));
   return key;
 }
+
 
 function parseEstimate(str){
   if(str==null) return null; str=(''+str).trim().toLowerCase(); if(!str) return null;
@@ -5375,13 +5691,15 @@ function openModal(presetType, presetParent, presetProject){
   setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   if(curPrefs().autoAssign){ const mu=myUid(); if(mu&&store.user(mu)) document.getElementById('ntAssignee').value=mu; }
   setSel('ntReporter', store.users().map(u=>`<option value="${u.id}" ${u.role==='PM'?'selected':''}>${esc(u.name)}</option>`).join(''));
+  setSel('ntPriority', store.priorities().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
+  setSel('ntType', store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
   setSel('ntStatus', STATUSES.map((s,i)=>`<option value="${s.id}" ${i===0?'selected':''}>${esc(s.name)}</option>`).join(''));
   fillParentOptions();
   document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject'); };
   document.getElementById('ntType').onchange=toggleEpicField;
   toggleEpicField();
   ['ntTitle','ntDesc','ntDue','ntStart','ntEstimate'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('ntType').value='Task'; document.getElementById('ntPriority').value='Medium';
+  document.getElementById('ntType').value='Task'; document.getElementById('ntPriority').value=store.defaultPriority();
   if(presetProject){ document.getElementById('ntProject').value=presetProject; fillParentOptions(); }
   if(presetType){ document.getElementById('ntType').value=presetType; }
   if(presetParent){ const pp=document.getElementById('ntParent'); if(pp) pp.value=presetParent; }
@@ -5516,6 +5834,16 @@ function saveLog(){
   closeLogModal(); openPanel(id,true); refreshViews(); toast(`Logged ${hm(spent)} · ${cat}`);
 }
 async function createTask(){
+  /* Mandatory fields — enforced in one place so every creation flow behaves
+     the same: focus the offending control, flash it, say what's missing. */
+  if(!reqCheck([
+    ['ntTitle',   'Give the ticket a title'],
+    ['ntProject', 'Pick a project for this ticket'],
+    ['ntType',    'Pick a ticket type'],
+    ['ntStatus',  'Pick a starting status'],
+    ['ntPriority','Pick a priority'],
+    ['ntReporter','Pick a reporter'],
+  ])) return;
   const title=document.getElementById('ntTitle').value.trim();
   if(!title){ toast('Give the ticket a title'); return; }
   const pid=document.getElementById('ntProject').value;
@@ -5526,7 +5854,7 @@ async function createTask(){
   const btn=document.getElementById('ntCreate');
   if(btn) btn.disabled=true;                       // no double-allocating on a double click
   let allocated;
-  try{ allocated=await allocateKey(); }
+  try{ allocated=await allocateKey(pid); }
   finally{ if(btn) btn.disabled=false; }
   const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), project:pid, key:allocated, title,
     type, status:statusId,
@@ -5575,7 +5903,11 @@ function depAction(id, act){
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
   else if(act==='del'){ if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
-  else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
+  else if(act==='delete'){ { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
+      confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
+        impact:[{n:_sb,label:'subtask'+(_sb===1?'':'s')},{n:_cm,label:'comment'+(_cm===1?'':'s')},{n:_wl,label:'time log'+(_wl===1?'':'s')}],
+        confirmLabel:'Delete ticket',
+        onConfirm:()=>{ store.removeTask(id); if(ui.openTask===id) closePanel(); refreshViews(); toast(`${t.key} deleted`); } }); } }
 }
 function openQaMenu(id, btn){
   const m=document.getElementById('qaMenu'); m.dataset.qa=id;
@@ -5590,7 +5922,11 @@ function qaAction(id, act){
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
   else if(act==='clear'){ if(!can('qa_clear')){ toast('You don\u2019t have permission to clear QA'); return; } if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
-  else if(act==='delete'){ if(confirm(`Delete ${t.key} permanently? This removes the ticket everywhere and can't be undone.`)){ store.removeTask(id); refreshViews(); toast(`${t.key} deleted`); } }
+  else if(act==='delete'){ { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
+      confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
+        impact:[{n:_sb,label:'subtask'+(_sb===1?'':'s')},{n:_cm,label:'comment'+(_cm===1?'':'s')},{n:_wl,label:'time log'+(_wl===1?'':'s')}],
+        confirmLabel:'Delete ticket',
+        onConfirm:()=>{ store.removeTask(id); if(ui.openTask===id) closePanel(); refreshViews(); toast(`${t.key} deleted`); } }); } }
 }
 let _qaAttTask=null, _qaAttPending=null;
 function wireQaAtt(){
@@ -5614,6 +5950,40 @@ function wireQaAtt(){
   const w=document.getElementById('qaAttWrap'); if(w) w.onclick=e=>{ if(e.target===w){ w.classList.remove('on'); _qaAttPending=null; } };
 }
 function openQaAtt(taskId){ _qaAttTask=taskId; wireQaAtt(); const f=document.getElementById('qaAttFile'); if(f){ f.value=''; f.click(); } }
+/* ---- Profile photo -------------------------------------------------------
+   Photos ride along inside the person record, so they are downscaled and
+   re-encoded to a square JPEG first — a raw 4 MB camera shot would bloat every
+   sync. 256px is plenty for a 76px avatar on a retina screen. */
+function squarePhoto(file, px=256){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=>rej(new Error('read failed'));
+    fr.onload=()=>{ const img=new Image();
+      img.onerror=()=>rej(new Error('not an image'));
+      img.onload=()=>{ try{
+        const side=Math.min(img.width,img.height);
+        const sx=(img.width-side)/2, sy=(img.height-side)/2;
+        const c=document.createElement('canvas'); c.width=px; c.height=px;
+        const g=c.getContext('2d'); g.imageSmoothingQuality='high';
+        g.drawImage(img, sx, sy, side, side, 0, 0, px, px);
+        res(c.toDataURL('image/jpeg', 0.85));
+      }catch(e){ rej(e); } };
+      img.src=fr.result; };
+    fr.readAsDataURL(file);
+  });
+}
+function wirePhotoPicker(){
+  const f=document.getElementById('pfPhotoFile'); if(!f || f._wired) return; f._wired=true;
+  f.onchange=async e=>{ const file=e.target.files&&e.target.files[0]; if(!file) return;
+    if(!/^image\//.test(file.type)){ toast('Pick a JPG or PNG image'); return; }
+    if(file.size>2*1024*1024){ toast('Image is too large (max 2 MB)'); return; }
+    try{ const data=await squarePhoto(file); const u=meUser(); if(!u){ toast('No profile to attach this to'); return; }
+      store.setUserPhoto(u.id, data); applyMyPhoto();
+      if(ui.view==='settings') renderSettings(); refreshViews(); toast('Photo updated');
+    }catch(err){ toast('Couldn\u2019t read that image'); }
+  };
+}
+function openPhotoPicker(){ wirePhotoPicker(); const f=document.getElementById('pfPhotoFile'); if(f){ f.value=''; f.click(); } }
 const ENV_NAMES={staging:'Staging', test:'Test Environment'};
 function fclock(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return ''; let h=d.getHours(), m=d.getMinutes(); const ap=h>=12?'PM':'AM'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+' '+ap; }
 function envHolderName(b){ const u=b&&store.user&&store.user(b.user); return u?u.name:'Someone'; }
@@ -5792,16 +6162,20 @@ function renderBoardSettings(){
     {k:'columns', n:'Columns',     d:'Which statuses appear on this board'},
     {k:'flow',    n:'Transitions', d:'Which status can move to which'},
     {k:'fields',  n:'Fields',      d:'Custom fields on every ticket'},
+    {k:'types',   n:'Ticket types', d:'Task, Bug, Hot fix — add your own'},
+    {k:'prios',   n:'Priorities',  d:'Levels and their order — top row is most urgent'},
   ];
   if(!SECS.find(x=>x.k===bsTab)) bsTab='boards';
   const cur=SECS.find(x=>x.k===bsTab);
-  const addLbl = bsTab==='boards'?'Add board' : bsTab==='fields'?'Add field' : bsTab==='columns'?'New status' : null;
+  const addLbl = bsTab==='boards'?'Add board' : bsTab==='fields'?'Add field' : bsTab==='types'?'Add type' : bsTab==='prios'?'Add priority' : bsTab==='columns'?'New status' : null;
   const dirty = bsTab==='flow' && _flowDirty;
 
   let body='';
   if(bsTab==='boards') body=bsBoards();
   else if(bsTab==='columns') body=bsColumns(b);
   else if(bsTab==='fields') body=bsFields();
+  else if(bsTab==='types') body=bsTypes();
+  else if(bsTab==='prios') body=bsPriorities();
   else body=bsFlow(b);
   const onBoards = bsTab==='boards';
 
@@ -5830,6 +6204,12 @@ function renderBoardSettings(){
       store.toggleBoardColumn(activeBoard(), nid, true); renderBoardSettings();
       const rows=document.querySelectorAll('#bsBody .bsrow'); const last=rows[rows.length-1];
       if(last){ const inp=last.querySelector('.bsname'); if(inp){ inp.focus(); inp.select(); } } }
+    else if(bsTab==='types'){ const nm=prompt('New ticket type name'); if(!nm) return;
+      if(!store.addType(nm)){ toast('That type already exists'); return; }
+      renderBoardSettings(); toast(nm.trim()+' added'); }
+    else if(bsTab==='prios'){ const nm=prompt('New priority name'); if(!nm) return;
+      if(!store.addPriority(nm)){ toast('That priority already exists'); return; }
+      renderBoardSettings(); refreshViews(); toast(nm.trim()+' added'); }
     else if(bsTab==='fields'){ store.addField('New field','text'); renderBoardSettings();
       const rows=document.querySelectorAll('#bsBody .fld-row'); const last=rows[rows.length-1];
       if(last){ const inp=last.querySelector('.fld-name'); if(inp){ inp.focus(); inp.select(); } } }
@@ -7138,6 +7518,50 @@ function bsBoards(){
     <p class="brd-hint">The active board is what shows on the Board view. Selecting a board here makes it active.</p>
     ${cfg}`;
 }
+function bsPriorities(){
+  const list=store.priorities();
+  return list.map((p,i)=>{
+    const used=store.priorityInUse(p.id);
+    return `<div class="bsrow" data-prio="${esc(p.id)}">
+      <div class="bsmove"><button data-dir="-1" ${i===0?'disabled':''}>▲</button><button data-dir="1" ${i===list.length-1?'disabled':''}>▼</button></div>
+      <div class="bsswatch"><span class="dot" style="background:${p.color}"></span>
+        <div class="bspal">${SWATCHES.map(c=>`<span style="background:${c}" data-color="${c}"></span>`).join('')}</div></div>
+      <input class="bsname prname" value="${esc(p.name)}"/>
+      <span class="bscount">${used} ${used===1?'ticket':'tickets'}</span>
+      <button class="bsremove prremove" ${used?'disabled title="In use by '+used+' ticket'+(used===1?'':'s')+'"':''}>Remove</button>
+    </div>`;
+  }).join('')
+  + `<p class="bs-note" style="margin-top:14px">Order sets urgency — the top row is the most urgent, and drives sorting, grouping and reports. A level can only be removed once no tickets use it.</p>`;
+}
+function bsTypes(){
+  const list=store.types();
+  return list.map(t=>{
+    const used=store.typeInUse(t.id);
+    return `<div class="bsrow" data-type="${esc(t.id)}">
+      <div class="bsswatch"><span class="dot" style="background:${t.color}"></span>
+        <div class="bspal">${SWATCHES.map(c=>`<span style="background:${c}" data-color="${c}"></span>`).join('')}</div></div>
+      <input class="bsname tyname" value="${esc(t.name)}" ${t.locked?'readonly title="Epic is built into the app — it can\'t be renamed"':''}/>
+      <span class="bscount">${used} ${used===1?'ticket':'tickets'}</span>
+      ${t.locked
+        ? '<span class="ty-lock" title="Built-in type">Built-in</span>'
+        : `<button class="bsremove tyremove" ${used?'disabled title="In use by '+used+' ticket'+(used===1?'':'s')+'"':''}>Remove</button>`}
+    </div>`;
+  }).join('')
+  + `<p class="bs-note" style="margin-top:14px">A type can only be removed once no tickets use it. <b>Epic</b> is built into the app, so it can't be renamed or removed.</p>`;
+}
+function bsFields(){
+  const fs=store.fields();
+  if(!fs.length) return `<p class="bs-note">No custom fields yet. Use <b>Add field</b> to create one — it appears on every ticket.</p>`;
+  const TY=[['text','Text'],['number','Number'],['date','Date'],['select','Single select'],['multi','Multi select'],['checkbox','Checkbox']];
+  return fs.map(f=>`<div class="bsrow" data-field="${f.id}">
+      <input class="bsname cfname" value="${esc(f.name)}"/>
+      <select class="bscat cftype">${TY.map(([v,l])=>`<option value="${v}" ${f.type===v?'selected':''}>${l}</option>`).join('')}</select>
+      ${(f.type==='select'||f.type==='multi')
+        ? `<input class="bsname cfopts" value="${esc((f.options||[]).join(', '))}" placeholder="Options, comma separated"/>`
+        : '<span class="bscount"></span>'}
+      <button class="bsremove cfremove">Remove</button>
+    </div>`).join('');
+}
 function bsColumns(b){
   const onBoard=b.columns;
   const off=store.statuses().filter(s=>!onBoard.includes(s.id));
@@ -7179,6 +7603,45 @@ function wireBoardSettings(b){
     body.querySelectorAll('.brd-cfg').forEach(c=>c.onclick=()=>{
       if(c.dataset.go==='flow'){ openFlowScreen(activeBoard().id); }
       else { bsTab=c.dataset.go; renderBoardSettings(); } });
+  } else if(bsTab==='prios'){
+    body.querySelectorAll('.bsrow[data-prio]').forEach(row=>{ const id=row.dataset.prio;
+      row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ store.movePriority(id,+btn.dataset.dir); renderBoardSettings(); refreshViews(); });
+      row.querySelector('.prname').onchange=e=>{ const v=e.target.value.trim();
+        if(!v){ e.target.value=(store.priority(id)||{}).name||''; return; }
+        store.updatePriority(id,{name:v}); renderBoardSettings(); refreshViews(); };
+      const sw=row.querySelector('.bsswatch'), pal=sw.querySelector('.bspal');
+      sw.querySelector('.dot').onclick=e=>{ e.stopPropagation(); document.querySelectorAll('.bspal').forEach(x=>{ if(x!==pal)x.classList.remove('on'); }); pal.classList.toggle('on'); };
+      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); store.updatePriority(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
+      const rm=row.querySelector('.prremove');
+      if(rm && !rm.disabled) rm.onclick=()=>{ if(!confirm('Remove the "'+id+'" priority?')) return;
+        if(!store.removePriority(id)){ toast('That priority is still in use'); return; }
+        renderBoardSettings(); refreshViews(); toast('Priority removed'); };
+    });
+  } else if(bsTab==='types'){
+    body.querySelectorAll('.bsrow[data-type]').forEach(row=>{ const id=row.dataset.type;
+      const nm=row.querySelector('.tyname');
+      if(nm && !nm.readOnly) nm.onchange=e=>{ const v=e.target.value.trim();
+        if(!v){ e.target.value=(store.type(id)||{}).name||''; return; }
+        store.updateType(id,{name:v}); renderBoardSettings(); refreshViews(); };
+      const sw=row.querySelector('.bsswatch'), pal=sw.querySelector('.bspal');
+      sw.querySelector('.dot').onclick=e=>{ e.stopPropagation(); document.querySelectorAll('.bspal').forEach(p=>{ if(p!==pal)p.classList.remove('on'); }); pal.classList.toggle('on'); };
+      pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); store.updateType(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
+      const rm=row.querySelector('.tyremove');
+      if(rm && !rm.disabled) rm.onclick=()=>{ if(!confirm('Remove the "'+id+'" type?')) return;
+        if(!store.removeType(id)){ toast('That type is still in use'); return; }
+        renderBoardSettings(); refreshViews(); toast('Type removed'); };
+    });
+  } else if(bsTab==='fields'){
+    body.querySelectorAll('.bsrow[data-field]').forEach(row=>{ const id=row.dataset.field;
+      row.querySelector('.cfname').onchange=e=>{ const v=e.target.value.trim();
+        if(!v){ e.target.value=(store.fields().find(f=>f.id===id)||{}).name||''; return; }
+        store.updateField(id,{name:v}); refreshViews(); };
+      row.querySelector('.cftype').onchange=e=>{ store.updateField(id,{type:e.target.value}); renderBoardSettings(); refreshViews(); };
+      const op=row.querySelector('.cfopts');
+      if(op) op.onchange=e=>{ store.updateField(id,{options:e.target.value.split(',').map(x=>x.trim()).filter(Boolean)}); refreshViews(); };
+      row.querySelector('.cfremove').onclick=()=>{ if(!confirm('Remove this custom field? Its values are removed from every ticket.')) return;
+        store.removeField(id); renderBoardSettings(); refreshViews(); toast('Field removed'); };
+    });
   } else if(bsTab==='columns'){
     body.querySelectorAll('.bsrow').forEach(row=>{ const id=row.dataset.id;
       row.querySelectorAll('.bsmove button').forEach(btn=>btn.onclick=()=>{ store.moveBoardColumn(b,id,+btn.dataset.dir); renderBoardSettings(); });
@@ -7225,7 +7688,7 @@ window.addEventListener('resize', setHeadHeight);
 // can tell a navigation render (URL already synced here at the tail) apart from a
 // direct in-page re-render (e.g. an analytics rail click) that must sync itself.
 let _inRenderAll=false;
-function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand(); try{ renderEnvBanner(); }catch(e){}
+function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-board', ui.view==='board'); document.body.dataset.view=ui.view; renderProjectSwitch(); fillFilters(); renderSideCard(); applyBrand(); try{ renderEnvBanner(); }catch(e){} try{ applyMyPhoto(); }catch(e){}
   renderChatFab(); updateChatFab();
   const v=ui.view;
   const _dashTitle={productivity:'Productivity Dashboard', delivery:'Delivery Dashboard', priority:'Priority Tasks Dashboard'};
@@ -7628,12 +8091,7 @@ function resetPassword(email){ if(!email){ toast('No email on file for this memb
   if(typeof sb!=='undefined' && sb && sb.auth && sb.auth.resetPasswordForEmail){
     sb.auth.resetPasswordForEmail(email).then(()=>toast('Password reset link sent to '+email)).catch(()=>toast('Couldn’t send reset link')); }
   else { toast('Password reset link sent to '+email); } }
-// Master admin is decided ONLY by the server (profiles.is_master_admin), read
-// in loadWorkspace and enforced by RLS + the edge function. This list is
-// intentionally empty: a browser must never be able to declare itself master.
-// The first master (pavan.k@eduhubspot.com) is seeded once in SQL — see the
-// migration doc, step "Seed the bootstrap master admin".
-const MASTER_EMAILS=[];
+const MASTER_EMAILS=['pavan.k@eduhubspot.com'];
 function isMasterUser(u){ if(!u) return false; if(u.master===true||u.masterAdmin===true) return true; const e=(u.email||'').toLowerCase(); return MASTER_EMAILS.indexOf(e)!==-1; }
 function pmRole(u){ if(isMasterUser(u)) return {label:'Master Admin', cls:'r-master'}; if(userProfileId(u)==='pf_admin') return {label:'Admin', cls:'r-admin'}; return {label:'User', cls:'r-user'}; }
 const STX_FGROUPS=[
@@ -7711,10 +8169,10 @@ async function syncSuitePeople(){
     });
     if(!rows.length) return false;
     const {error}=await sb.from('people').upsert(rows);
-    if(error){ __dbg.warn('suite sync failed', error.message); return false; }
+    if(error){ console.warn('suite sync failed', error.message); return false; }
     buildSnap();
     return true;
-  }catch(e){ __dbg.warn('suite sync failed', e); return false; }
+  }catch(e){ console.warn('suite sync failed', e); return false; }
 }
 
 /* ---------- Copy a teammate's setup ----------
@@ -7907,6 +8365,10 @@ function renderSettings(){
         <button class="btn" id="setImport">Import data (JSON)</button>
         <input type="file" id="setImportFile" accept="application/json" style="display:none"/>
       </div>
+      <div class="stx-card" style="margin-top:18px"><div class="stx-card-h">Ticket keys</div>
+        <p class="bs-note" style="margin:0 0 12px">Keys are per project \u2014 <b>LMS-1</b>, <b>PAY-1</b>. If older tickets were numbered another way, renumber them to match. Export a backup first.</p>
+        <button class="ehs-btn ehs-btn--sm" id="setRenumber" type="button">Renumber ticket keys\u2026</button>
+      </div>
     </div>`:'';
 
   const secDanger=IS_ADMIN?`
@@ -7920,7 +8382,31 @@ function renderSettings(){
 
   // One long scroll was hard to navigate — same rail + detail shape as
   // Projects / Epics / the dashboards, one section at a time.
+  const _me=meUser()||{};
+  const _mePhoto=_me.photo||'';
+  const secProfile=`
+    <div class="stx-sec">
+      <div class="stx-card"><div class="stx-card-h">Profile photo</div>
+        <div class="pf-photo">
+          <div class="pf-av" id="pfAv">${_mePhoto?`<img src="${_mePhoto}" alt="${esc(_me.name||'')}">`:ACCT_GLYPH}</div>
+          <div class="pf-pmeta">
+            <div class="pf-pt">${esc(_me.name||'Your photo')}</div>
+            <div class="pf-ps">Shown on your tickets, board cards, comments and across the workspace.<br>JPG or PNG, square works best \u00b7 up to 2 MB.</div>
+            <div class="pf-pact">
+              <button class="ehs-btn ehs-btn--sm" id="pfUpload" type="button">${_mePhoto?'Change photo':'Upload photo'}</button>
+              ${_mePhoto?'<button class="pf-rm" id="pfRemove" type="button">Remove</button>':''}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stx-card"><div class="stx-card-h">Your details</div>
+        <div class="stx-row"><div class="fn">Display name</div><input class="stx-inp" id="pfName" value="${esc(_me.name||'')}" placeholder="Your name"></div>
+        <div class="stx-row"><div class="fn">Email</div><div class="stx-ro">${esc(_me.email||'\u2014')}</div></div>
+        <div class="stx-row"><div class="fn">Role</div><div class="stx-ro">${esc((typeof pmRole==='function'&&pmRole(_me).label)||_me.role||'Member')}</div></div>
+      </div>
+    </div>`;
   const SETSECS=[
+    {k:'profile', n:'My profile',   d:'Your photo, name and account details',  html:secProfile},
     {k:'prefs',  n:'Preferences',   d:'Defaults, display and time tracking', html:secPrefs+secTime},
     {k:'notif',  n:'Notifications', d:'What you get told about',             html:secNotif},
   ];
@@ -7950,6 +8436,11 @@ function renderSettings(){
       </section>
     </div>`;
   el.querySelectorAll('#setRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.setSel=b.dataset.sec; renderSettings(); });
+  { const up=document.getElementById('pfUpload'); if(up) up.onclick=()=>openPhotoPicker();
+    const rm=document.getElementById('pfRemove'); if(rm) rm.onclick=()=>{ const u=meUser(); if(!u) return;
+      if(!confirm('Remove your profile photo?')) return; store.setUserPhoto(u.id,null); applyMyPhoto(); renderSettings(); refreshViews(); toast('Photo removed'); };
+    const nmi=document.getElementById('pfName'); if(nmi) nmi.onchange=()=>{ const u=meUser(); if(!u) return; const v=nmi.value.trim();
+      if(!v){ nmi.value=u.name||''; return; } store.updateUser(u.id,{name:v}); applyMyPhoto(); renderSettings(); refreshViews(); toast('Name updated'); }; }
   const _cg=document.getElementById('stxCloneGo');
   if(_cg) _cg.onclick=()=>{
     const from=document.getElementById('stxCloneFrom').value;
@@ -8017,6 +8508,7 @@ function renderSettings(){
   // visible workspaces
   el.querySelectorAll('.stx-ws').forEach(node=>node.onclick=()=>{ const sp=store.space(node.dataset.ws); if(!sp) return; const m=new Set(sp.members||[]); const on=!node.classList.contains('on'); on?m.add(editUser):m.delete(editUser); store.updateSpace(sp.id,{members:[...m]}); node.classList.toggle('on'); toast('Workspace access updated'); });
   // data + danger (unchanged handlers)
+  if(_g('setRenumber')) _g('setRenumber').onclick=()=>runKeyRenumber();
   if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
   if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
     downloadCSV('all-tickets.csv', flds.map(f=>REPORT_FIELDS[f]), store.standardTasks().map(t=>flds.map(f=>reportFieldVal(t,f)))); };
@@ -8105,7 +8597,7 @@ function renderDashboard(){
   const statuses=store.statuses(); const maxS=Math.max(1,...statuses.map(s=>scope.filter(t=>t.status===s.id).length));
   const statusBars=statuses.map(s=>{ const n=scope.filter(t=>t.status===s.id).length; return n?brow(esc(s.name),n,maxS,s.color):''; }).join('');
   const users=store.users(); const maxU=Math.max(1,...users.map(u=>open.filter(t=>t.assignee===u.id).length));
-  const workBars=users.map(u=>{ const n=open.filter(t=>t.assignee===u.id).length; return n?brow(`<span class="mini-ava" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span> ${esc(u.name)}`,n,maxU,u.color):''; }).join('');
+  const workBars=users.map(u=>{ const n=open.filter(t=>t.assignee===u.id).length; return n?brow(`${avatar(u,22)} ${esc(u.name)}`,n,maxU,u.color):''; }).join('');
   const prios=['Highest','High','Medium','Low','Lowest']; const pc={Highest:'#CE2F26',High:'#E8590C',Medium:'#B96A00',Low:'#0E8F5A',Lowest:'#6B7280'};
   const maxP=Math.max(1,...prios.map(pr=>open.filter(t=>t.priority===pr).length));
   const prioBars=prios.map(pr=>{ const n=open.filter(t=>t.priority===pr).length; return n?brow(pr,n,maxP,pc[pr]):''; }).join('');
@@ -8260,7 +8752,7 @@ function renderCalendar(){
   const _td=today();
   const scope=store.standardTasks().filter(t=>ui.project==='all'||t.project===ui.project);
   const _open=t=>(store.status(t.status)||{}).cat!=='done';
-  const PRANK={Highest:1, High:2, Medium:3, Low:4};
+  const PRANK=(function(){ const m={}; store.priorities().forEach((p,i)=>m[p.id]=i+1); return m; })();
   const PCOL={Highest:'var(--crit)', High:'#B96A00', Medium:'var(--accent)', Low:'var(--faint)'};
 
   const metrics=iso=>{
@@ -8461,7 +8953,7 @@ function renderReleases(){
       <span class="bl-title" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
       <span class="bl-badge" style="background:${st?st.color+'22':'#eee'};color:${st?st.color:'#666'}">${st?esc(st.name):esc(t.status)}</span>
       <span class="bl-est">${t.estimate?hm(t.estimate):''}</span>
-      <span class="bl-ava">${u?`<span class="mini-ava" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span>`:''}</span>
+      <span class="bl-ava">${u?avatar(u,22):''}</span>
       <select class="rel-move" data-id="${t.id}">${relOpts(t.release||'')}</select>
     </div>`; };
   const group=(title,tasks,ctrls,cls)=>`<div class="bl-group ${cls||''}">
@@ -8525,7 +9017,7 @@ function renderBacklog(){
       <span class="bl-title" onclick="openPanel('${t.id}')">${esc(t.title)}</span>
       <span class="bl-badge" style="background:${st?st.color+'22':'#eee'};color:${st?st.color:'#666'}">${st?esc(st.name):esc(t.status)}</span>
       <span class="bl-est">${t.estimate?hm(t.estimate):''}</span>
-      <span class="bl-ava">${u?`<span class="mini-ava" style="background:${u.color}22;color:${u.color}">${_ini(u.name)}</span>`:''}</span>
+      <span class="bl-ava">${u?avatar(u,22):''}</span>
       <select class="bl-move" data-id="${t.id}">${sprintOpts(t.sprint||'')}</select>
     </div>`; };
   const group=(title,tasks,ctrls,cls)=>`<div class="bl-group ${cls||''}">
@@ -8748,10 +9240,7 @@ function renderProjects(){
       const act=btn.dataset.act, pid=ui.pjSel;
       if(act==='open') openProjectPop(pid);
       else if(act==='rename') renameProjectInline(pid);
-      else if(act==='delete'){ const pr=store.project(pid);
-        if(confirm('Delete project \u201c'+(pr?pr.name:'')+'\u201d? This cannot be undone.')){
-          store.removeProject(pid); if(ui.project===pid) ui.project='all'; ui.pjSel=null;
-          toast('Project deleted'); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); } }
+      else if(act==='delete'){ deleteProjectFlow(pid, ()=>renderProjects()); }
     });
   }
 }
@@ -8764,16 +9253,11 @@ function projRowsHtml(pid){
     </div>`; }).join('')||'<div class="pp-empty">No tickets yet. Add one to start.</div>';
 }
 /* ---------- Create project dialog ---------- */
-let _pjColor=null, _pjKeyTouched=false;
+let _pjKeyTouched=false;
 function openProjModal(){
-  _pjColor=SWATCHES[store.projects().length % SWATCHES.length];
   _pjKeyTouched=false;
   const nm=document.getElementById('pjName'), ky=document.getElementById('pjKey');
   nm.value=''; ky.value='';
-  document.getElementById('pjSwatches').innerHTML=SWATCHES.map(c=>
-    `<button type="button" class="pj-sw ${c===_pjColor?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
-  document.querySelectorAll('#pjSwatches .pj-sw').forEach(b=>b.onclick=()=>{ _pjColor=b.dataset.c;
-    document.querySelectorAll('#pjSwatches .pj-sw').forEach(x=>x.classList.toggle('on', x.dataset.c===_pjColor)); });
   // key follows the name until the user edits it themselves
   nm.oninput=()=>{ if(_pjKeyTouched) return;
     ky.value=(nm.value.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase()); };
@@ -8785,13 +9269,13 @@ function openProjModal(){
 }
 function closeProjModal(){ const w=document.getElementById('projWrap'); if(w) w.classList.remove('on'); }
 function saveProjModal(){
+  if(!reqCheck([['pjName','Give the project a name']])) return;
   const name=document.getElementById('pjName').value.trim();
-  if(!name){ toast('Give the project a name'); return; }
   if(store.projects().some(p=>p.name.toLowerCase()===name.toLowerCase())){ toast('A project called that already exists'); return; }
   const key=(document.getElementById('pjKey').value.trim().toUpperCase())
             || name.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase() || 'PRJ';
   const id=store.addProject(name);
-  store.updateProject(id,{key, color:_pjColor||SWATCHES[0]});
+  store.updateProject(id,{key});
   closeProjModal();
   ui.pjSel=id;                       // land on the project you just made
   if(ui.view==='projects') renderProjects(); else renderAll();
@@ -8852,7 +9336,7 @@ function openProjectPop(pid){
     pop.addEventListener('click',e=>{ if(!e.target.closest('.pp-menu-wrap')) _mn.classList.remove('on'); });
     _mn.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ _mn.classList.remove('on'); const act=btn.dataset.act;
       if(act==='rename'){ renameProjectInline(pid); }
-      else if(act==='delete'){ const pr=store.project(pid); if(confirm('Delete project \u201c'+(pr?pr.name:'')+'\u201d? This cannot be undone.')){ store.removeProject(pid); if(ui.project===pid) ui.project='all'; toast('Project deleted'); closeProjectPop(); if(ui.view==='projects') renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch(); } }
+      else if(act==='delete'){ closeProjectPop(); deleteProjectFlow(pid, ()=>{ if(ui.view==='projects') renderProjects(); }); }
     }); }
   const sc=document.getElementById('projPopScrim'); sc.classList.add('on'); sc.onclick=e=>{ if(e.target===sc) closeProjectPop(); };
 }
@@ -8877,7 +9361,6 @@ function renderOperations(){
   const el=document.getElementById('operationswrap');
   const projRows=store.projects().map(p=>{ const n=store.ticketsInProject(p.id);
     return `<div class="op-row" data-proj="${p.id}">
-      <input type="color" class="op-color" value="${p.color||'#8A8F98'}"/>
       <input class="op-name" value="${esc(p.name)}"/>
       <span class="op-key">${esc(p.key)}</span>
       <span class="op-count">${n} ticket${n!==1?'s':''}</span>
@@ -8908,9 +9391,8 @@ function renderOperations(){
   document.getElementById('opAddUser').onclick=()=>{ const id=store.addUser('New teammate'); renderOperations();
     const inp=document.querySelector(`.op-row[data-user="${id}"] .op-name`); if(inp){ inp.focus(); inp.select(); } };
   el.querySelectorAll('.op-row[data-proj]').forEach(row=>{ const id=row.dataset.proj;
-    row.querySelector('.op-color').onchange=e=>{ store.updateProject(id,{color:e.target.value}); renderProjectSwitch(); };
     row.querySelector('.op-name').onchange=e=>{ const v=e.target.value.trim(); if(v){ store.updateProject(id,{name:v}); renderProjectSwitch(); } else e.target.value=store.project(id).name; };
-    const del=row.querySelector('.op-del'); if(!del.disabled) del.onclick=()=>{ if(store.projects().length<=1){ toast('Keep at least one project'); return; } store.removeProject(id); if(ui.project===id) ui.project='all'; renderOperations(); renderProjectSwitch(); };
+    const del=row.querySelector('.op-del'); if(!del.disabled) del.onclick=()=>deleteProjectFlow(id, ()=>{ renderOperations(); renderProjectSwitch(); });
   });
   el.querySelectorAll('.op-row[data-user]').forEach(row=>{ const id=row.dataset.user;
     row.querySelector('.op-color').onchange=e=>store.updateUser(id,{color:e.target.value});
@@ -9050,7 +9532,7 @@ function renderReports(){
       <label class="repf"><span>Assignee</span><select id="rfAssignee">${usersOpt}</select></label>
       <label class="repf"><span>Status</span><select id="rfStatus">${statusOpt}</select></label>
       <label class="repf"><span>Priority</span><select id="rfPriority"><option value="all">All</option>${Object.keys(PRIORITIES).map(p=>`<option ${r.f.priority===p?'selected':''}>${p}</option>`).join('')}</select></label>
-      <label class="repf"><span>Type</span><select id="rfType"><option value="all">All</option><option ${r.f.type==='Task'?'selected':''}>Task</option><option ${r.f.type==='Bug'?'selected':''}>Bug</option></select></label>
+      <label class="repf"><span>Type</span><select id="rfType"><option value="all">All</option>${store.types().filter(x=>x.id!=='Epic').map(x=>`<option ${r.f.type===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
       <label class="repf"><span>Epic</span><select id="rfEpic">${epicOpt}</select></label>
       <label class="repf"><span>Has time logged</span><select id="rfHasTime"><option value="any" ${r.f.hasTime==='any'?'selected':''}>Any</option><option value="yes" ${r.f.hasTime==='yes'?'selected':''}>Yes</option><option value="no" ${r.f.hasTime==='no'?'selected':''}>No</option></select></label>
       <label class="repf"><span>Overdue only</span><select id="rfOverdue"><option value="any" ${r.f.overdue==='any'?'selected':''}>Any</option><option value="yes" ${r.f.overdue==='yes'?'selected':''}>Yes</option></select></label>
@@ -9183,18 +9665,18 @@ function renderAnalytics(){
   el.querySelectorAll('[data-open]').forEach(r=>r.onclick=()=>openPanel(r.dataset.open));
 }
 function barRows(items, colorFn, valFn){ const max=Math.max(...items.map(i=>i.v),1);
-  return items.map(i=>`<div class="hbar-row"><span class="nm">${esc(i.label)}</span><span class="track"><span class="fill" style="width:${Math.max(i.v/max*100,i.v>0?3:0)}%;background:${colorFn(i)}"></span></span><span class="val">${valFn(i.v)}</span></div>`).join(''); }
+  return items.map(i=>`<div class="hbar-row"><span class="nm">${i.label}</span><span class="track"><span class="fill" style="width:${Math.max(i.v/max*100,i.v>0?3:0)}%;background:${colorFn(i)}"></span></span><span class="val">${valFn(i.v)}</span></div>`).join(''); }
 
 /* Bottom charts, shared by all three dashboards. Colours come from the entity
    itself; anything without one falls back to a palette slot, so bars are never
    all the same colour (production projects have no colour set). */
 const EHS_BAR='#1A2333';   // solid black bars on all three dashboards
 function ehsBottomCharts(tasks, capA, capB){
-  const projItems=store.projects().map(pr=>({label:pr.name, v:tasks.filter(t=>t.project===pr.id).length,
+  const projItems=store.projects().map(pr=>({label:esc(pr.name), v:tasks.filter(t=>t.project===pr.id).length,
       color:EHS_BAR})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
   const noProj=tasks.filter(t=>!t.project||!store.project(t.project)).length;
   if(noProj) projItems.push({label:'No project', v:noProj, color:EHS_BAR});
-  const stItems=store.statuses().map(st=>({label:st.name, v:tasks.filter(t=>t.status===st.id).length,
+  const stItems=store.statuses().map(st=>({label:esc(st.name), v:tasks.filter(t=>t.status===st.id).length,
       color:EHS_BAR})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
   return `<div class="ehs-cols2">
     <div class="ehs-box"><div class="ehs-box-h"><h3>Tickets by project</h3><p>${esc(capA||'In scope')}</p></div>
@@ -9589,7 +10071,7 @@ async function acctSignOut(){ try{ localStorage.setItem('ehs:signout', String(Da
   toast('This is the login-free preview — sign-out applies on the live app.'); }
 function closeAccountPM(){ const s=document.getElementById('acctScrim'); if(s) s.classList.remove('on'); }
 async function openAccountPM(){
-  const mu=(typeof meUser==='function' && meUser())||(store.users&&store.users()[0])||{};
+  const mu=(typeof meUser==='function' && meUser())||{};
   const name=mu.name||((typeof ME!=='undefined'&&ME&&ME.user_metadata&&ME.user_metadata.full_name))||((typeof ME!=='undefined'&&ME&&ME.email))||'Account';
   const email=mu.email||((typeof ME!=='undefined'&&ME&&ME.email))||'';
   let master=(typeof IS_MASTER!=='undefined'&&IS_MASTER)||isMasterUser(mu)||(email&&MASTER_EMAILS.indexOf(email.toLowerCase())!==-1);
@@ -9787,20 +10269,23 @@ async function renderUsers(){
       const accMap={}; (ac.data||[]).forEach(a=>accMap[a.user_id]=a.role);
       (pr.data||[]).forEach(p=>{ const master=!!p.is_master_admin; const r=accMap[p.id];
         if(!master && !r) return;
-        rows.push({ name:p.full_name||(p.email||'').split('@')[0]||'—', email:p.email||'', role: master?'Master Admin':(r==='admin'?'Admin':'User') }); });
+        const lu=(p.email?store.users().find(x=>(x.email||'').toLowerCase()===String(p.email).toLowerCase()):null);
+        rows.push({ name:p.full_name||(p.email||'').split('@')[0]||'—', email:p.email||'', role: master?'Master Admin':(r==='admin'?'Admin':'User'), photo:(lu?photoOf(lu):null)||dpGet(p.email) }); });
       rows.sort((a,b)=>(rank[a.role]-rank[b.role]) || a.name.localeCompare(b.name));
     }catch(e){ const box=document.getElementById('usersRoster'); if(box) box.innerHTML='<p class="ov-cap">Couldn’t load users: '+esc(e.message||'error')+'</p>'; return; }
   } else {
-    rows=store.users().map(u=>({name:u.name, email:u.email||'', role:pmRole(u).label})).sort((a,b)=>(rank[a.role]-rank[b.role])||a.name.localeCompare(b.name));
+    rows=store.users().map(u=>({name:u.name, email:u.email||'', role:pmRole(u).label, photo:photoOf(u)})).sort((a,b)=>(rank[a.role]-rank[b.role])||a.name.localeCompare(b.name));
   }
   const cnt=document.getElementById('usersCount'); if(cnt) cnt.textContent=rows.length+' '+(rows.length===1?'person has':'people have')+' access';
   const box=document.getElementById('usersRoster'); if(box) box.innerHTML = rows.length ? rows.map(u=>`<div class="um-row">
-    <div class="um-ava" style="background:${avColor(u.name)}20;border:1.5px solid ${avColor(u.name)};color:${avColor(u.name)}">${_in(u.name)}</div>
+    ${u.photo?`<div class="um-ava is-photo"><img src="${u.photo}" alt="${esc(u.name)}" loading="lazy"></div>`
+             :`<div class="um-ava is-glyph">${ACCT_GLYPH}</div>`}
     <div class="um-info"><div class="um-nm">${esc(u.name)}</div><div class="um-em">${esc(u.email||'—')}</div></div>
     <span class="um-rolebadge ${bcls(u.role)}">${esc(u.role)}</span>
   </div>`).join('') : '<p class="ov-cap">No one has Project Hub access yet.</p>';
 }
 function applyDefaults(){
+  try{ syncPriorities(); }catch(e){}
   CURRENT_UID=(function(){
     // Authenticated (real backend): resolve strictly by auth id / email.
     // NEVER fall back to the first person on the list — that silently grants
@@ -9926,10 +10411,10 @@ async function diffPush(){
 
   if(failed.length){
     const names=[...new Set(failed.map(f=>f.t))];
-    failed.forEach(f=>__dbg.error('[sync] '+f.t+' rejected:', f.e && (f.e.message||f.e), f.e));
+    failed.forEach(f=>console.error('[sync] '+f.t+' rejected:', f.e && (f.e.message||f.e), f.e));
     const rls=failed.some(f=>(((f.e&&f.e.message)||'')+'').toLowerCase().includes('row-level'));
     const msg=(failed[0].e&&failed[0].e.message)||'';
-    toast(rls ? 'Some changes weren\u2019t saved \u2014 you may not have permission.' : 'Some changes couldn\u2019t be saved. Please retry.');
+    toast(rls ? ('Not allowed \u2014 '+names.join(', ')+' (RLS). See console.') : ('Sync error \u2014 '+names.join(', ')+(msg?': '+msg.slice(0,60):'')));
   }
 }
 
@@ -10015,8 +10500,8 @@ async function loadWorkspace(){
         prefs:{} };
       const {error}=await sb.from('people').upsert({workspace_id:WS, id:doc.id, doc});
       if(!error){ store.data.users.push(doc); buildSnap(); applyDefaults(); applyPrefs(); }
-      else __dbg.warn('people provision failed', error.message);
-    }catch(e){ __dbg.warn('people provision failed', e); }
+      else console.warn('people provision failed', error.message);
+    }catch(e){ console.warn('people provision failed', e); }
   }
   // Admin comes ONLY from the suite: master flag, or tool_access(pm).role='admin'.
   // It used to also come from people.doc.perm — which the PM "Full admin" toggle
@@ -10112,8 +10597,8 @@ async function pushSeed(){
     ['boards',   S.boards.map((d,i)=>({workspace_id:WS,id:d.id,doc:d,sort:i}))],
     ['people',   [{workspace_id:WS,id:meDoc.id,doc:meDoc}]],
   ];
-  for(const [t,rows] of steps){ if(!rows||!rows.length) continue; const {error}=await sb.from(t).upsert(rows); if(error){ __dbg.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
-  const {error:se}=await sb.from('settings').upsert({workspace_id:WS,doc:S.settings}); if(se){ __dbg.error('SEED FAILED on settings', se); throw new Error('settings — '+se.message); }
+  for(const [t,rows] of steps){ if(!rows||!rows.length) continue; const {error}=await sb.from(t).upsert(rows); if(error){ console.error('SEED FAILED on '+t, error); throw new Error(t+' — '+error.message); } }
+  const {error:se}=await sb.from('settings').upsert({workspace_id:WS,doc:S.settings}); if(se){ console.error('SEED FAILED on settings', se); throw new Error('settings — '+se.message); }
 }
 
 // ---- role gating (RLS is the real enforcement; this hides admin UI) ----
@@ -10361,7 +10846,7 @@ function urlApply(){
     const tid=q.get('t');
     if(tid && store.task(tid)) openPanel(tid); else if(!tid) closePanel();
     return true;
-  }catch(e){ __dbg.warn('[url] could not apply', e); _urlApplying=false; return false; }
+  }catch(e){ console.warn('[url] could not apply', e); _urlApplying=false; return false; }
 }
 window.addEventListener('hashchange', ()=>{ if(!_urlApplying) urlApply(); });
 window.addEventListener('popstate',  ()=>{ if(!_urlApplying) urlApply(); });
@@ -10545,7 +11030,7 @@ function openSpaceModal(id){
   document.querySelectorAll('#spmIcons .sp-icb').forEach(b=>b.onclick=()=>{
     document.querySelectorAll('#spmIcons .sp-icb').forEach(x=>x.classList.toggle('on', x===b)); });
   const mem=sp?(sp.members||[]):store.users().map(u=>u.id);
-  document.getElementById('spmMembers').innerHTML=store.users().map(u=>`<label class="sp-mrow"><input type="checkbox" value="${u.id}" ${mem.includes(u.id)?'checked':''}><span class="sp-av" style="background:${u.color}22;color:${u.color};margin:0;border:0">${_ini(u.name)}</span>${esc(u.name)}<span class="sp-mrole">${esc(u.role||'')}</span></label>`).join('');
+  document.getElementById('spmMembers').innerHTML=store.users().map(u=>`<label class="sp-mrow"><input type="checkbox" value="${u.id}" ${mem.includes(u.id)?'checked':''}>${avatar(u,24)}${esc(u.name)}<span class="sp-mrole">${esc(u.role||'')}</span></label>`).join('');
   const upd=()=>{ const n=document.querySelectorAll('#spmMembers input:checked').length; document.getElementById('spmCount').textContent='· '+n+' selected'; };
   document.querySelectorAll('#spmMembers input').forEach(i=>i.onchange=upd); upd();
   const del=document.getElementById('spModalDelete'); if(del){ del.style.display=sp?'':'none'; del.textContent='Delete workspace'; del.classList.remove('armed'); _spDelArm=false; if(_spDelTimer) clearTimeout(_spDelTimer); }
@@ -10553,7 +11038,8 @@ function openSpaceModal(id){
 }
 function closeSpaceModal(){ document.getElementById('spModalScrim').classList.remove('on'); }
 function saveSpace(){
-  const name=document.getElementById('spmName').value.trim(); if(!name){ toast('Give the workspace a name'); return; }
+  if(!reqCheck([['spmName','Give the workspace a name']])) return;
+  const name=document.getElementById('spmName').value.trim();
   const desc=document.getElementById('spmDesc').value.trim();
   const on=document.querySelector('#spmIcons .sp-icb.on'); const icon=on?on.dataset.i:SP_ICONS[0].id;
   const members=[...document.querySelectorAll('#spmMembers input:checked')].map(i=>i.value);
@@ -10577,24 +11063,65 @@ function openProjectModal(id){
   const p=store.project(id); if(!p) return; _pjEdit=id;
   document.getElementById('pjmName').value=p.name||'';
   const cur=p.color||SP_COLORS[0];
-  document.getElementById('pjmColors').innerHTML=SP_COLORS.map(c=>`<button type="button" class="sp-color ${c===cur?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
-  document.querySelectorAll('#pjmColors .sp-color').forEach(b=>b.onclick=()=>{ document.querySelectorAll('#pjmColors .sp-color').forEach(x=>x.classList.remove('on')); b.classList.add('on'); });
   const del=document.getElementById('pjModalDelete'); del.textContent='Delete project'; del.classList.remove('armed'); _pjDelArm=false; if(_pjDelTimer) clearTimeout(_pjDelTimer);
   document.getElementById('pjModalScrim').classList.add('on');
 }
 function closeProjectModal(){ document.getElementById('pjModalScrim').classList.remove('on'); }
 function saveProject(){
-  if(!_pjEdit) return; const name=document.getElementById('pjmName').value.trim(); if(!name){ toast('Give the project a name'); return; }
-  const on=document.querySelector('#pjmColors .sp-color.on'); const patch={name}; if(on) patch.color=on.dataset.c;
+  if(!_pjEdit) return; if(!reqCheck([['pjmName','Give the project a name']])) return;
+  const name=document.getElementById('pjmName').value.trim();
+  const patch={name};
   store.updateProject(_pjEdit, patch); toast('Project updated'); closeProjectModal(); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch();
 }
+/* Shared project deletion — same keep-or-cascade choice as epics, used by every
+   entry point so tickets can never be left pointing at a project that's gone. */
+function deleteProjectFlow(pid, after){
+  const p=store.project(pid); if(!p) return;
+  if(store.projects().length<=1){ toast('Keep at least one project'); return; }
+  const tix=store.tasks().filter(t=>t.project===pid);
+  const ids=tix.map(t=>t.id);
+  const n=tix.length;
+  const done=()=>{ if(ui.project===pid) ui.project='all'; if(ui.pjSel===pid) ui.pjSel=null;
+    refreshViews(); if(window.renderProjectSwitch) renderProjectSwitch(); if(after) after(); };
+  if(!n){
+    confirmDelete({ title:'Delete project', lead:`Delete the project <b>${esc(p.name)}</b>?`,
+      confirmLabel:'Delete project',
+      onConfirm:()=>{ store.removeProject(pid); toast('Project deleted'); done(); } });
+    return;
+  }
+  const logs=store.data.worklogs.filter(w=>ids.includes(w.task)).length;
+  const cmts=tix.reduce((a,t)=>a+((t.comments||[]).length),0);
+  const subs=tix.reduce((a,t)=>a+((t.subtasks||[]).length),0);
+  const eps=tix.filter(t=>t.type==='Epic').length;
+  confirmDelete({
+    title:'Delete project',
+    lead:`<b>${esc(p.name)}</b> has <b>${n}</b> ticket${n===1?'':'s'}. What should happen to ${n===1?'it':'them'}?`,
+    choices:[
+      {id:'keep', label:'Delete only the project',
+       desc:`Keep ${n===1?'the ticket':'all '+n+' tickets'} with their comments, subtasks and time logs \u2014 they move to <b>No project</b>.`,
+       impact:[]},
+      {id:'cascade', label:'Delete the project and all its tickets',
+       desc:'Removes every ticket in this project and all of their history permanently.',
+       impact:[{n:n, label:'ticket'+(n===1?'':'s')},
+               {n:eps, label:'epic'+(eps===1?'':'s')},
+               {n:subs, label:'subtask'+(subs===1?'':'s')},
+               {n:cmts, label:'comment'+(cmts===1?'':'s')},
+               {n:logs, label:'time log'+(logs===1?'':'s')}]},
+    ],
+    defaultChoice:'keep',
+    confirmLabel:'Delete project',
+    onConfirm:(mode)=>{
+      if(mode==='cascade'){ ids.forEach(id=>store.removeTask(id));
+        if(ui.openTask && ids.includes(ui.openTask)) closePanel();
+        store.removeProject(pid); toast(`Project and ${n} ticket${n===1?'':'s'} deleted`); }
+      else { tix.forEach(t=>store.updateTask(t.id,{project:null}));
+        store.removeProject(pid); toast(`Project deleted \u00b7 ${n} ticket${n===1?'':'s'} kept`); }
+      done(); }
+  });
+}
 function deleteProject(){
-  if(!_pjEdit) return; const p=store.project(_pjEdit); if(!p) return;
-  const btn=document.getElementById('pjModalDelete');
-  if(!_pjDelArm){ _pjDelArm=true; btn.textContent='Click again to delete'; btn.classList.add('armed'); _pjDelTimer=setTimeout(()=>{ _pjDelArm=false; btn.textContent='Delete project'; btn.classList.remove('armed'); },3000); return; }
-  clearTimeout(_pjDelTimer); _pjDelArm=false;
-  store.removeProject(_pjEdit); if(ui.project===_pjEdit) ui.project='all';
-  toast('Project deleted'); closeProjectModal(); renderProjects(); if(window.renderProjectSwitch) renderProjectSwitch();
+  if(!_pjEdit) return; const pid=_pjEdit; closeProjectModal();
+  deleteProjectFlow(pid, ()=>renderProjects());
 }
 function wireSpaces(){
   const g=id=>document.getElementById(id);
@@ -10701,7 +11228,7 @@ function notifyTaskChange(oldDoc, newDoc){
       if(mentioned) addNotif({type:'mention', taskId:id, actorId:actor, text:`mentioned you: "${snip}"`});
       else addNotif({type:'reply', taskId:id, actorId:actor, text:`commented on ${key}: "${snip}"`});
     }}
-  }catch(e){ __dbg.warn('notif', e); }
+  }catch(e){ console.warn('notif', e); }
 }
 
 // due-soon / overdue scan (runs on load)
@@ -10799,7 +11326,7 @@ async function boot(){
       setEl('apName',e=>e.textContent=nm); setEl('apEmail',e=>e.textContent=(u0.email||'')); setEl('apRole',e=>e.textContent=_lbl);
       /* account panel uses the same neutral person glyph */ }
   }
-  try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ __dbg.warn('notif init', e); }
+  try{ wireNotifs(); scanDueSoon(); updateBell(); }catch(e){ console.warn('notif init', e); }
 }
 boot();
 </script>
