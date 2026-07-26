@@ -60,6 +60,8 @@
       id: uid,
       email: s.user.email,
       full_name: (profile && profile.full_name) || meta.full_name || '',
+      first_name: (profile && profile.first_name) || meta.first_name || '',
+      last_name: (profile && profile.last_name) || meta.last_name || '',
       is_master_admin: !!(profile && profile.is_master_admin),
       status: (profile && profile.status) || 'active',
       avatar_url: (profile && profile.avatar_url) || null,
@@ -126,9 +128,9 @@
     return out;
   }
   // create a brand-new user (returns { user_id, email, password, generated })
-  async function addUser(email, fullName, grants, password, isMaster, requireChange) {
+  async function addUser(email, fullName, grants, password, isMaster, requireChange, firstName, lastName) {
     return adminUser('create', {
-      email, full_name: fullName, grants: grants || [],
+      email, full_name: fullName, first_name: firstName, last_name: lastName, grants: grants || [],
       password: password || undefined,
       is_master: !!isMaster,
       // honour an explicit choice; default to forcing a change only when we auto-generate the pw
@@ -140,6 +142,8 @@
     return adminUser('create', { email, full_name: fullName, grants: grants || [], require_change: true });
   }
   async function deleteUser(userId) { return adminUser('delete', { user_id: userId }); }
+  // master edits another user's name / email (auth identity + profile)
+  async function updateUser(userId, patch) { return adminUser('update_user', Object.assign({ user_id: userId }, patch || {})); }
   // index.html calls resetPassword(id, pw, requireChange) — the 3rd argument was
   // being dropped, so "require a password change" was ignored whenever an admin
   // typed an explicit password. Harmless while must_change was broken; not now.
@@ -152,12 +156,15 @@
   }
 
   // ---- self-service (signed-in user, no service role needed) ----
-  async function updateMyName(name) {
+  async function updateMyName(firstName, lastName) {
     const m = await loadMe();
     if (!m) throw new Error('Not signed in');
-    const { error } = await client().from('profiles').update({ full_name: name }).eq('id', m.id);
+    const fn = (firstName || '').trim(), ln = (lastName || '').trim();
+    const full = (fn + ' ' + ln).trim();
+    const { error } = await client().from('profiles')
+      .update({ first_name: fn || null, last_name: ln || null, full_name: full }).eq('id', m.id);
     if (error) throw error;
-    try { await client().auth.updateUser({ data: { full_name: name } }); } catch (e) {}
+    try { await client().auth.updateUser({ data: { full_name: full, first_name: fn, last_name: ln } }); } catch (e) {}
     _me = null;                            // force a fresh loadMe next call
   }
   // ---- profile photo (Supabase Storage, not localStorage) ----
@@ -236,11 +243,59 @@
     return map;
   }
 
+  /* ---------------- shared top nav (Phase 1) ----------------
+     One nav for every tool. Markup lives here so it can't drift; each page
+     wires its own actions via configureNav(), with URL-based defaults so a
+     brand-new tool works with zero wiring. */
+  let _navCfg = {};
+  function configureNav(cfg) { Object.assign(_navCfg, cfg || {}); }
+  function navBrand() { _navCfg.onBrand ? _navCfg.onBrand() : (global.location.href = 'index.html#/'); }
+  function navUsers() { _navCfg.onUsers ? _navCfg.onUsers() : (global.location.href = 'index.html#/people'); }
+  function navTools(e) { if (_navCfg.onTools) return _navCfg.onTools(e); }
+  function navAccount(e) { if (_navCfg.onAccount) return _navCfg.onAccount(e); }
+  function navBell(e) { if (_navCfg.onBell) return _navCfg.onBell(e); }
+  function injectNavCSS() {
+    if (typeof document === 'undefined' || document.getElementById('ehs-nav-css')) return;
+    const s = document.createElement('style'); s.id = 'ehs-nav-css';
+    s.textContent = '.ehsnav{height:60px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 24px;flex:none}.ehsnav.sticky{position:sticky;top:0;z-index:40}.ehsnav .tb-brand{display:flex;align-items:center;gap:11px;cursor:pointer;text-decoration:none;flex:none}.ehsnav .ehs-logo{display:block;height:24px;width:auto;flex:none}.ehsnav .tb-glyph{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:999px !important;background:var(--surface-3);color:var(--ink-2);overflow:hidden}.ehsnav .tb-glyph svg{width:18px;height:18px;display:block;margin-top:1px}.ehsnav .tb-glyph img{width:100%;height:100%;object-fit:cover;display:block;border-radius:999px !important}.ehsnav .tb-spacer{flex:1}.ehsnav .tb-link{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);padding:7px 11px;border:0;background:none;border-radius:8px !important;cursor:pointer;transition:background .12s}.ehsnav .tb-link:hover{color:var(--ink)}.ehsnav .tb-link.on{color:var(--accent)}.ehsnav .tb-tools-wrap,.ehsnav .notif-wrap,.ehsnav .acct-wrap{position:relative;flex:none}.ehsnav .tb-acct{display:flex;align-items:center;gap:9px;padding:6px 8px;border:0;background:none;border-radius:8px !important;cursor:pointer;font-family:inherit;transition:background .12s}.ehsnav .tb-acct:hover{background:transparent}.ehsnav .tb-acct .who{font-weight:600;font-size:12.5px;line-height:1.2;text-align:left;color:var(--ink)}.ehsnav .tb-acct .role{font-size:11px;color:var(--muted);text-align:left}.ehsnav .tn-acct-txt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}.ehsnav .tb-bell{position:relative;flex:none;width:36px;height:36px;display:grid;place-items:center;border:0;background:none;border-radius:999px !important;color:var(--ink-2,#3A3F47);cursor:pointer;margin-right:2px}.ehsnav .tb-bell:hover{background:var(--surface-2,#F6F7F9)}.ehsnav .tb-bell-badge{position:absolute;top:3px;right:3px;min-width:15px;height:15px;padding:0 3px;border-radius:999px !important;background:#E24B4A;color:#fff;font-size:9px;font-weight:700;display:grid;place-items:center;line-height:1;border:1.5px solid var(--surface,#fff);box-sizing:content-box}';
+    document.head.appendChild(s);
+  }
+  const _NAV_GLYPH = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.9"/><path d="M12 13.4c-4.1 0-7.4 2.6-7.4 5.9 0 .4.3.7.7.7h13.4c.4 0 .7-.3.7-.7 0-3.3-3.3-5.9-7.4-5.9Z"/></svg>';
+  function _navEsc(s) { return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function navHTML(opts) {
+    opts = opts || {};
+    injectNavCSS();
+    const u = me() || {};
+    const master = isMaster();
+    const dn = opts.name || (u.full_name && u.full_name.trim()) || (u.email || '').split('@')[0] || 'Account';
+    const photo = opts.photo || u.avatar_url || null;
+    const logo = opts.logo || cfg.logo || '';
+    const grid = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+    const usersIc = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>';
+    const chev = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+    const usersActive = (global.location.hash || '').includes('people');
+    const bell = opts.showBell ? `<button class="tb-bell" onclick="EHS.navBell(event)" title="Notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>${(opts.bellCount > 0) ? `<span class="tb-bell-badge" id="ehsBellBadge">${opts.bellCount > 99 ? '99+' : opts.bellCount}</span>` : ''}</button>` : '';
+    return `<div class="ehsnav${opts.sticky === false ? '' : ' sticky'}">
+      <div class="tb-brand" onclick="EHS.navBrand()"><img class="ehs-logo" src="${_navEsc(logo)}" alt="EduHubSpot"></div>
+      <div class="tb-spacer"></div>
+      <div class="tb-tools-wrap">
+        <div class="tb-link" id="tbTools" onclick="EHS.navTools(event)">${grid} All tools ${chev}</div>
+        <div class="tb-tools-menu" id="tbToolsMenu"></div>
+      </div>
+      ${master ? `<div class="tb-link ${usersActive ? 'on' : ''}" onclick="EHS.navUsers()">${usersIc} Users</div>` : ''}
+      ${opts.extra || ''}
+      ${bell}
+      <div class="tb-acct" onclick="EHS.navAccount(event)"><span class="tb-glyph">${photo ? `<img src="${_navEsc(photo)}" alt="${_navEsc(dn)}">` : _NAV_GLYPH}</span>
+        <div><div class="who">${_navEsc(dn)}</div><div class="role">${master ? 'Master Admin' : 'Member'}</div></div>${chev}</div>
+    </div>`;
+  }
+
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
     listUsers, grantAccess, revokeAccess, setMaster, fieldPerms,
-    adminUser, addUser, inviteUser, deleteUser, resetPassword,
+    adminUser, addUser, inviteUser, deleteUser, updateUser, resetPassword,
     updateMyName, changePassword, updateMyPhoto, photoMap,
+    configureNav, navHTML, navBrand, navUsers, navTools, navAccount, navBell, injectNavCSS,
   };
 })(window);
