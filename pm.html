@@ -10743,7 +10743,7 @@ function meUser(){
 }
 async function renderUsers(){
   const el=document.getElementById('usersedwrap');
-  el.innerHTML=`<div class="ov-h"><h2>Users</h2><span class="range" id="usersCount">People with access to Project Hub</span></div><div class="um-list" id="usersRoster"><p class="ov-cap">Loading…</p></div>`;
+  el.innerHTML=`<div class="ov-h"><h2>Users</h2></div><div class="um-list" id="usersRoster"><p class="ov-cap">Loading…</p></div>`;
   const _in=(n)=>((n||'?').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('')||'?').toUpperCase();
   const bcls=(r)=> r==='Master Admin'?'r-master':r==='Admin'?'r-admin':'r-user';
   const rank={'Master Admin':0,'Admin':1,'User':2};
