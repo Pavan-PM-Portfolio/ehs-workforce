@@ -6051,20 +6051,35 @@ let logTaskId=null;
    which fired a persist + DB push per keystroke — hence the lag when changing
    several fields quickly. Now the edits stay local and go up in one write. */
 let _setDirty=false;
+let PENDING_ROLES={};   // staged Project Hub role changes {authId: 'admin'|'user'}, persisted on Save
 function setMarkDirty(){
   _setDirty=true;
   const p=document.getElementById('setDirty'); if(p) p.classList.add('on');
   const b=document.getElementById('setSave'); if(b) b.disabled=false;
 }
-function setSaveNow(){
+async function setSaveNow(){
   const u=meUser();
   if(u) store.updateUser(u.id,{prefs:u.prefs});     // one write for prefs
   store.updateSettings({});                          // flush perms/field edits
+  // persist any staged Project Hub role changes via the admin-user Edge Function
+  if(typeof sb!=='undefined' && sb && Object.keys(PENDING_ROLES).length){
+    try{
+      const {data:{session}}=await sb.auth.getSession();
+      for(const [authId, role] of Object.entries(PENDING_ROLES)){
+        const res=await fetch(SUPABASE_URL+'/functions/v1/admin-user',{ method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(session?session.access_token:'')},
+          body:JSON.stringify({action:'grant_access', user_id:authId, tool_id:'pm', role}) });
+        const out=await res.json().catch(()=>({}));
+        if(!res.ok) throw new Error(out.error||('grant failed ('+res.status+')'));
+      }
+      PENDING_ROLES={};
+    }catch(err){ toast('Could not save role change: '+(err.message||err)); return; }
+  }
   _setDirty=false;
   renderSettings(); applyPrefs(); renderAll();
   toast('Settings saved');
 }
-function setDiscard(){ _setDirty=false; if(REMOTE){ location.reload(); return; } renderSettings(); }
+function setDiscard(){ _setDirty=false; PENDING_ROLES={}; if(REMOTE){ location.reload(); return; } renderSettings(); }
 
 /* ---------- Subtask dialog ----------
    Captures assignee + estimate + done. The estimate rolls into the parent's
@@ -8965,26 +8980,12 @@ function renderSettings(){
     if(!IS_ADMIN){ toast('Only a Project Hub admin can change roles'); return; }
     const prev=eu.toolRole||(permOf(eu)==='Admin'?'admin':'user');
     if(prev===role) return;
-    // reflect locally first so the UI responds, then persist
+    // reflect locally and STAGE the grant — it persists only on "Save changes"
     store.updateUser(editUser,{ toolRole:role, perm: role==='admin'?'Admin':'User',
                                 profile: role==='admin'?'pf_admin':'pf_users' });
+    if(eu.authId) PENDING_ROLES[eu.authId]=role;
+    setMarkDirty();
     renderSettings();
-    if(typeof sb!=='undefined' && sb && eu.authId){
-      try{
-        const {data:{session}}=await sb.auth.getSession();
-        const res=await fetch(SUPABASE_URL+'/functions/v1/admin-user',{ method:'POST',
-          headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(session?session.access_token:'')},
-          body:JSON.stringify({action:'grant_access', user_id:eu.authId, tool_id:'pm', role}) });
-        const out=await res.json().catch(()=>({}));
-        if(!res.ok) throw new Error(out.error||('grant failed ('+res.status+')'));
-        toast(role==='admin'?'Now a Project Hub admin':'Now a Project Hub user');
-      }catch(err){
-        store.updateUser(editUser,{ toolRole:prev, perm: prev==='admin'?'Admin':'User',
-                                    profile: prev==='admin'?'pf_admin':'pf_users' });
-        renderSettings();
-        toast('Could not change role: '+(err.message||err));
-      }
-    } else { toast(role==='admin'?'Now a Project Hub admin':'Now a Project Hub user'); }
   });
   // field Read/Edit/Hide
   el.querySelectorAll('.stx-seg button').forEach(btn=>btn.onclick=()=>{ const fk=btn.dataset.fp, v=btn.dataset.v; const fpm=Object.assign({}, s.fieldPerms||{}); const rec=Object.assign({}, fpm[editUser]||{}); rec[fk]=v; fpm[editUser]=rec; Object.assign(store.settings(),{fieldPerms:fpm}); setMarkDirty(); const seg=btn.parentElement; seg.querySelectorAll('button').forEach(b=>b.className=''); btn.className='on '+v; });
