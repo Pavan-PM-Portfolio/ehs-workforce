@@ -214,7 +214,13 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .side-foot{display:flex;align-items:center;gap:8px;padding:12px 8px 2px;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
 
 /* main */
-.content{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.board-slide{position:absolute;top:52%;transform:translateY(-50%);width:40px;height:40px;border-radius:999px !important;border:1px solid var(--line);background:rgba(255,255,255,.94);box-shadow:0 6px 20px -6px rgba(16,26,51,.28);display:none;place-items:center;cursor:pointer;color:var(--ink);z-index:35;transition:background .12s}
+.board-slide:hover{background:#fff}
+.board-slide.left{left:14px}
+.board-slide.right{right:14px}
+.board-slide svg{width:20px;height:20px}
+body.view-board .board-slide.show{display:grid}
 .topbar{display:flex;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid var(--line);position:relative;
   background:var(--bg);flex:none}
 .page-title{font-size:16px;font-weight:600;letter-spacing:-.02em}
@@ -3091,6 +3097,8 @@ body.view-board .scroll{padding-bottom:0}
 
   <!-- Main -->
   <div class="content">
+    <button class="board-slide left" id="boardSlideL" aria-label="Scroll board left" title="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <button class="board-slide right" id="boardSlideR" aria-label="Scroll board right" title="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
     <div class="stickyhead">
     <div class="topbar">
       <div class="page-title" id="pageTitle">Board</div>
@@ -3882,6 +3890,7 @@ const store = {
   // reads
   projects(){ return this.data.projects; },
   users(){ return this.data.users; },
+  activeUsers(keep){ return this.data.users.filter(u=> u.status!=='deactivated' || (keep && u.id===keep)); },
   user(id){ return this.data.users.find(u=>u.id===id)||null; },
   project(id){ return this.data.projects.find(p=>p.id===id)||null; },
   statuses(){ return this.data.statuses; },
@@ -4381,7 +4390,7 @@ function cardHTML(t){
   const overdue = HL_OVERDUE && t.due && (store.status(t.status)||{}).cat!=='done' && Date.parse(t.due) < Date.parse(today());
   const priOpts=['Highest','High','Medium','Low'].map(p=>`<option ${t.priority===p?'selected':''}>${p}</option>`).join('');
   const stOpts=STATUSES.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
-  const asgOpts=`<option value="">Unassigned</option>`+store.users().map(x=>`<option value="${x.id}" ${t.assignee===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
+  const asgOpts=`<option value="">Unassigned</option>`+store.activeUsers(t.assignee).map(x=>`<option value="${x.id}" ${t.assignee===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
   return `<div class="card" draggable="true" data-id="${t.id}">
     ${t.color?`<div class="card-strip" style="background:${t.color}"></div>`:''}
     <div class="card-body">
@@ -4429,7 +4438,28 @@ function groupHeaderHTML(g,key){
   if(g==='type'){ return esc(key); }
   return '';
 }
-function renderBoard(){
+function updBoardSlide(){
+  const sc=document.getElementById('scroll'), L=document.getElementById('boardSlideL'), R=document.getElementById('boardSlideR');
+  if(!sc||!L||!R) return;
+  const onBoard=document.body.classList.contains('view-board');
+  const canScroll=sc.scrollWidth - sc.clientWidth > 8;
+  const atStart=sc.scrollLeft<=4, atEnd=sc.scrollLeft>=sc.scrollWidth - sc.clientWidth - 4;
+  L.classList.toggle('show', onBoard && canScroll && !atStart);
+  R.classList.toggle('show', onBoard && canScroll && !atEnd);
+}
+let _boardSlideWired=false;
+function wireBoardSlide(){
+  if(_boardSlideWired) return;
+  const sc=document.getElementById('scroll'), L=document.getElementById('boardSlideL'), R=document.getElementById('boardSlideR');
+  if(!sc||!L||!R) return;
+  _boardSlideWired=true;
+  const step=()=>Math.max(300, Math.round(sc.clientWidth*0.7));
+  L.onclick=()=>sc.scrollBy({left:-step(), behavior:'smooth'});
+  R.onclick=()=>sc.scrollBy({left: step(), behavior:'smooth'});
+  sc.addEventListener('scroll', updBoardSlide, {passive:true});
+  window.addEventListener('resize', updBoardSlide);
+}
+function renderBoard(){ try{ wireBoardSlide(); requestAnimationFrame(updBoardSlide); }catch(e){}
   const board=document.getElementById('board');
   const bd=activeBoard();
   if(!bd){ board.className='board'; board.innerHTML=`<div class="empty" style="margin:40px auto"><div class="big">No board yet</div>This workspace hasn’t been set up. An admin needs to load data (Settings → reset), or check the console for a setup error.</div>`; return; }
@@ -4604,7 +4634,7 @@ function wireCustomEdits(root, after){
       openSelMenu(el, opts, t.project||'', v=>{ store.updateTask(id,{project:v||null}); refreshViews(); }); }; });
   root.querySelectorAll('.asgbtn').forEach(el=>{ el.onmousedown=e=>e.stopPropagation();
     el.onclick=e=>{ e.stopPropagation(); if(!canEditField('assignee')){ toast('You can\u2019t edit this field'); return; } const id=el.dataset.id; const t=store.task(id);
-      const opts=[{v:'',t:'Unassigned'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
+      const opts=[{v:'',t:'Unassigned'}].concat(store.activeUsers().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
       openSelMenu(el, opts, t.assignee||'', v=>{ store.updateTask(id,{assignee:v||null}); refreshViews(); }); }; });
   root.querySelectorAll('.cdate').forEach(el=>{ el.onmousedown=e=>e.stopPropagation();
     el.onclick=e=>{ e.stopPropagation(); const f=el.dataset.field||'due'; if(!canEditField(f)){ toast('You can\u2019t edit this field'); return; } openDateMenu(el, el.dataset.id, (store.task(el.dataset.id)||{})[f], f); }; });
@@ -4976,7 +5006,7 @@ document.addEventListener('click',e=>{ const m=document.getElementById('epCMenu'
 
 /* ---------- Create Epic modal ---------- */
 function epmTaskRow(){
-  const opts='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  const opts='<option value="">Unassigned</option>'+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
   const row=document.createElement('div'); row.className='epm-task';
   row.innerHTML=`<input class="epm-tname" placeholder="Task title" autocomplete="off"/><select class="epm-tasg">${opts}</select><button class="epm-trm" type="button" title="Remove">\u2715</button>`;
   row.querySelector('.epm-trm').onclick=()=>row.remove();
@@ -4994,7 +5024,7 @@ function openEpicModal(){
   const pSel=document.getElementById('epmProject');
   pSel.innerHTML=`<option value="">Select a project\u2026</option>`+store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if(ui.project && ui.project!=='all') pSel.value=ui.project;
-  document.getElementById('epmLead').innerHTML='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
+  document.getElementById('epmLead').innerHTML='<option value="">Unassigned</option>'+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('');
   document.getElementById('epmTitle').value=''; document.getElementById('epmDesc').value=''; document.getElementById('epmDue').value='';
   document.getElementById('epmTasks').innerHTML=''; epmAddTaskRow(); epmAddTaskRow();
   document.getElementById('epicWrap').classList.add('on');
@@ -5121,11 +5151,11 @@ function openPanel(id, keepScroll){
   const proj=store.project(t.project);
   const stObj=store.status(t.status); const stCat=stObj?stObj.cat:'todo';
   const remaining = (t.estimate||0) - tot.total;
-  const peopleOpts=(cur)=>`<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}" ${u.id===cur?'selected':''}>${esc(u.name)}</option>`).join('');
+  const peopleOpts=(cur)=>`<option value="">Unassigned</option>`+store.activeUsers(cur).map(u=>`<option value="${u.id}" ${u.id===cur?'selected':''}>${esc(u.name)}</option>`).join('');
   const ovChip=(uid)=>{ const u=store.user(uid); return u?`<span class="ov-p">${avatar(u,24)}<span class="ov-nm">${esc(u.name)}</span></span>`:'<span class="ov-none">Unassigned</span>'; };
   const cdBtn=(field)=>`<button class="cdate p-cd" data-id="${id}" data-field="${field}">${t[field]?fdate(t[field]):'<span class="cf-muted">Set date</span>'}<svg class="cfchev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>`;
-  const peopleSel=[{v:'',t:'Unassigned'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
-  const reporterSel=[{v:'',t:'—'}].concat(store.users().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
+  const peopleSel=[{v:'',t:'Unassigned'}].concat(store.activeUsers().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
+  const reporterSel=[{v:'',t:'—'}].concat(store.activeUsers().map(u=>({v:u.id,t:u.name,ava:avatar(u,18)})));
   const projSel=[{v:'',t:'Not Assigned'}].concat(store.projects().map(pr=>({v:pr.id,t:pr.name})));
   const prioSel=Object.keys(PRIORITIES).map(pp=>({v:pp,t:pp}));
   const statusSel=(function(){ const bd=activeBoard(); const allow=bd.enforce?[t.status,...allowedTargets(bd,t.status)]:STATUSES.map(s=>s.id); return STATUSES.filter(s=>allow.includes(s.id)).map(s=>({v:s.id,t:s.name})); })();
@@ -6014,9 +6044,9 @@ function openModal(presetType, presetParent, presetProject){
   const isEpic=presetType==='Epic';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
   setSel('ntProject', `<option value="">Select a project\u2026</option>`+store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''));
-  setSel('ntAssignee', `<option value="">Unassigned</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
+  setSel('ntAssignee', `<option value="">Unassigned</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   if(curPrefs().autoAssign){ const mu=myUid(); if(mu&&store.user(mu)) document.getElementById('ntAssignee').value=mu; }
-  setSel('ntReporter', `<option value="">Select a reporter\u2026</option>`+store.users().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
+  setSel('ntReporter', `<option value="">Select a reporter\u2026</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   setSel('ntPriority', `<option value="">Select a priority\u2026</option>`+store.priorities().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
   setSel('ntType', `<option value="">Select a type\u2026</option>`+store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
   setSel('ntStatus', `<option value="">Select a status\u2026</option>`+STATUSES.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join(''));
@@ -6094,7 +6124,7 @@ function openSubModal(taskId, subId){
   document.getElementById('sbTitle').value=sub.title||'';
   document.getElementById('sbEst').value=sub.estimate?hm(sub.estimate):'';
   const who=document.getElementById('sbWho');
-  who.innerHTML='<option value="">Unassigned</option>'+store.users().map(u=>`<option value="${u.id}" ${sub.assignee===u.id?'selected':''}>${esc(u.name)}</option>`).join('');
+  who.innerHTML='<option value="">Unassigned</option>'+store.activeUsers(sub.assignee).map(u=>`<option value="${u.id}" ${sub.assignee===u.id?'selected':''}>${esc(u.name)}</option>`).join('');
   const dt=document.getElementById('sbDone'); dt.classList.toggle('on', _sbDone);
   dt.onclick=()=>{ _sbDone=!_sbDone; dt.classList.toggle('on', _sbDone); };
   document.getElementById('subWrap').classList.add('on');
@@ -8623,7 +8653,7 @@ async function syncSuitePeople(){
   if(!(typeof sb!=='undefined' && sb) || typeof IS_ADMIN==='undefined' || !IS_ADMIN) return false;
   try{
     const [pr, ac] = await Promise.all([
-      sb.from('profiles').select('id, full_name, first_name, last_name, email, is_master_admin, avatar_url'),
+      sb.from('profiles').select('id, full_name, first_name, last_name, email, is_master_admin, avatar_url, status'),
       sb.from('tool_access').select('user_id, role').eq('tool_id','pm')
     ]);
     if(pr.error || ac.error) return false;
@@ -8631,20 +8661,29 @@ async function syncSuitePeople(){
     const have=store.users(); const rows=[];
     (pr.data||[]).forEach(p=>{
       const master=!!p.is_master_admin, r=accMap[p.id];
-      if(!master && !r) return;                                   // no PM access → not our concern
+      const deactivated=(p.status==='deactivated');
       const em=(p.email||'').toLowerCase();
       if(typeof ME!=='undefined' && ME && p.id===ME.id){ ME_AVATAR = p.avatar_url||null; if(p.avatar_url){ try{ dpSet(p.email, p.avatar_url); }catch(e){} } }
       const existing=have.find(u=>u.authId===p.id || (u.email && em && u.email.toLowerCase()===em));
+      // Deactivated (offboarded): keep them on tickets they already own, but mark them
+      // so the assignee/reporter pickers hide them. Never create a new row for them.
+      if(deactivated){
+        if(existing && existing.status!=='deactivated'){ existing.status='deactivated'; rows.push({workspace_id:WS, id:existing.id, doc:existing}); }
+        return;
+      }
+      if(!master && !r) return;                                   // active but no PM access → not our concern
       if(existing){
         // Re-sync the role from the suite. Without this, a person carrying the old
         // perm:'Admin' would keep admin capabilities even after being set to User.
         const want=(r||(master?'admin':'user'));
         const wantPhoto = p.avatar_url || null;
-        if(existing.toolRole!==want || !!existing.master!==master || (existing.photo||null)!==wantPhoto){
+        const wasDeact = existing.status==='deactivated';
+        if(existing.toolRole!==want || !!existing.master!==master || (existing.photo||null)!==wantPhoto || wasDeact){
           existing.toolRole=want; existing.master=master;
           existing.perm = (master||want==='admin') ? 'Admin' : 'User';
           existing.profile = (master||want==='admin') ? 'pf_admin' : 'pf_users';
           if(wantPhoto) existing.photo=wantPhoto; else delete existing.photo;
+          if(wasDeact) existing.status='active';
           rows.push({workspace_id:WS, id:existing.id, doc:existing});
         }
         return;
@@ -8653,7 +8692,7 @@ async function syncSuitePeople(){
       const isAdmin = master || r==='admin';
       const doc={ id:'u_'+String(p.id).slice(0,8), name:nm, first_name:p.first_name||'', last_name:p.last_name||'', email:p.email||'', authId:p.id,
         role:isAdmin?'PM':'Developer', perm:isAdmin?'Admin':'User', toolRole:(r||(master?'admin':'user')),
-        profile:isAdmin?'pf_admin':'pf_users', master:master,
+        profile:isAdmin?'pf_admin':'pf_users', master:master, status:'active',
         color:SWATCHES[((have.length+rows.length)*2)%SWATCHES.length], prefs:{} };
       if(p.avatar_url) doc.photo=p.avatar_url;
       rows.push({workspace_id:WS, id:doc.id, doc});
