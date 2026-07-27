@@ -8182,6 +8182,7 @@ function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-bo
   show('boardsettingswrap', v==='boardsettings');
   show('teamwrap', v==='team');
   show('usersedwrap', v==='users');
+  try{ document.querySelector('.stickyhead').style.display = (v==='users')?'none':''; }catch(e){}
   show('soonwrap', !!SOON_VIEWS[v]);
   document.getElementById('filterbar').style.display = (v==='board'||v==='list'||v==='overview')?'flex':'none';
   if(v==='overview'){ try{ renderFilterChips(); fillFilters(); }catch(e){} }
