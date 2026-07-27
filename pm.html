@@ -1430,6 +1430,8 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 
 .wf-body{flex:1;display:grid;grid-template-columns:1fr 320px;min-height:0}
 .wf-stage{position:relative;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+.wf-canvas{flex:1;overflow:auto;position:relative}
+.wf-canvas>svg{display:block;margin:0 auto}
 .wf-bar{flex:none;display:flex;align-items:center;gap:10px;padding:12px 16px}
 .wf-chk{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
 .wf-chk input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
@@ -1519,6 +1521,9 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .fxs-canvas{flex:1;position:relative;overflow:auto;background:
   radial-gradient(circle at 1px 1px, #E3E6EB 1px, transparent 0) 0 0/24px 24px, #FBFCFD}
 .fxs-svg{display:block}
+.fxs-canvas{cursor:grab}
+.fxs-canvas.fx-panning{cursor:grabbing}
+.fxs-canvas.fx-panning *{cursor:grabbing !important}
 
 .fxn{cursor:grab}
 .fxn:active{cursor:grabbing}
@@ -6842,6 +6847,12 @@ function renderWorkflow(){
   document.getElementById('wfSave').disabled=!_flowDirty;
 
   const canvas=document.getElementById('wfCanvas');
+  if(canvas && !canvas.__wfRO && 'ResizeObserver' in window){
+    canvas.__wfRO=true; let _wfW=canvas.clientWidth, _wfT=null;
+    new ResizeObserver(()=>{ const w=canvas.clientWidth;
+      if(Math.abs(w-_wfW)>4){ _wfW=w; clearTimeout(_wfT); _wfT=setTimeout(()=>{ if(document.getElementById('wfScreen') && document.getElementById('wfScreen').classList.contains('on')) renderWorkflow(); },140); }
+    }).observe(canvas);
+  }
   if(!cols.length){
     canvas.innerHTML=`<div class="wf-empty"><div>
       <h3>This workflow is empty</h3>
@@ -6908,6 +6919,12 @@ function renderWorkflow(){
   const maxX=Math.max(...cols.map(s=>pos[s.id].x))+WFW+120;
   const maxY=Math.max(...cols.map(s=>pos[s.id].y))+WFH+120;
   const W=Math.max(1200,maxX), H=Math.max(560,maxY);
+  // auto fit-to-width: scale the diagram so it fills the available canvas width
+  if(_flowAutoFit){
+    const cv=document.getElementById('wfCanvas');
+    const avail=cv? cv.clientWidth-40 : 0;   // minus a little padding
+    if(avail>200){ _flowZoom=Math.min(1.6, Math.max(0.4, avail/W)); }
+  }
 
   canvas.innerHTML=`<svg id="wfSvg" width="${Math.round(W*_flowZoom)}" height="${Math.round(H*_flowZoom)}"
       viewBox="0 0 ${W} ${H}" class="${_wfLabels?'':'wf-hide-lbl'}">
@@ -6937,7 +6954,7 @@ function wireWorkflowChrome(){
   const b=store.board(_wfBoard);
   const g=id=>document.getElementById(id);
   g('wfAdd').onclick=openWfAdd;
-  g('wfFit').onclick=()=>{ _flowZoom=1; renderWorkflow(); };
+  g('wfFit').onclick=()=>{ _flowAutoFit=true; renderWorkflow(); };
   g('wfLink').onclick=()=>{ if(!_flowSel) return; _flowLink=_flowSel; renderWorkflow(); };
   g('wfClone').onclick=wfClone;
   g('wfLabels').onchange=e=>{ _wfLabels=e.target.checked; renderWorkflow(); };
@@ -6986,7 +7003,7 @@ function wireWfCanvas(b){
   svg.addEventListener('pointerup', ()=>{ if(drag&&drag.moved){ _flowDirty=true; renderWorkflow(); } drag=null; });
 
   const zi=document.getElementById('wfZi'), zo=document.getElementById('wfZo'), zr=document.getElementById('wfZr');
-  const setZ=v=>{ _flowZoom=Math.min(1.6,Math.max(.4,v)); renderWorkflow(); };
+  const setZ=v=>{ _flowAutoFit=false; _flowZoom=Math.min(1.6,Math.max(.4,v)); renderWorkflow(); };
   if(zi) zi.onclick=()=>setZ(_flowZoom+0.1);
   if(zo) zo.onclick=()=>setZ(_flowZoom-0.1);
   if(zr) zr.oninput=()=>setZ(parseInt(zr.value,10)/100);
@@ -7193,7 +7210,7 @@ let _fxBoard=null, _fxSel=null, _fxLink=null, _fxLabels=true, _fxMode='diagram',
 let _fxPick=null;   // null | 'from' | 'to' | 'into' — the connect steps
 let _fxInto=null;   // in 'into' mode, the status being moved INTO
 let _fxDragged=false;
-let _fxZoom=1, _fxPanX=0, _fxPanY=0;
+let _fxZoom=1, _fxPanX=0, _fxPanY=0, _fxAutoFit=true;
 const FXW=150, FXH=34, FXGX=210, FXGY=86;   // FXW is the minimum; nodes grow to fit
 /* Width that actually fits the label — a fixed box cropped "Ready for Development". */
 function fxW(name){ return Math.max(FXW, Math.min(300, Math.round((name||'').length*7.1)+38)); }
@@ -7366,14 +7383,14 @@ function fxDiagram(){
     return `<rect x="${p.x/vw*100}%" y="${p.y/vh*100}%" width="${fxW(st.name)/vw*100}%" height="${FXH/vh*100}%" rx="1"
       class="mm-n ${st.id===_fxSel?'on':''}"/>`; }).join('');
 
-  return `<svg id="fxSvg" class="fxs-svg" width="${vw}" height="${vh}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMinYMin meet">
+  return `<svg id="fxSvg" class="fxs-svg" width="${vw}" height="${vh}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMinYMin meet" style="width:${Math.round(vw*_fxZoom)}px;height:${Math.round(vh*_fxZoom)}px">
       <defs>
         <marker id="fxa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="#9AA1AC"/></marker>
         <marker id="fxaOn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/></marker>
       </defs>
-      <g transform="scale(${_fxZoom}) translate(${_fxPanX},${_fxPanY})">
+      <g transform="translate(${_fxPanX},${_fxPanY})">
         ${edges.join('')}${start}${nodes}${labelSVG}
         <g id="fxGuides"></g>
       </g></svg>
@@ -7464,6 +7481,20 @@ function fxSave(){
 function fxDirty(){ _flowDirty=true; const b=document.getElementById('fxSaveBtn'); if(b) b.disabled=false;
   const p=document.getElementById('fxDirtyPill'); if(p) p.classList.add('on'); }
 
+function applyFxView(){
+  const el=document.getElementById('fxSvg'); if(!el) return;
+  const vb=el.viewBox.baseVal;
+  el.style.width=Math.round(vb.width*_fxZoom)+'px';
+  el.style.height=Math.round(vb.height*_fxZoom)+'px';
+  const g=el.querySelector('g'); if(g) g.setAttribute('transform',`translate(${_fxPanX},${_fxPanY})`);
+}
+function fxFitWidth(){
+  const cv=document.getElementById('fxCanvas'), el=document.getElementById('fxSvg'); if(!cv||!el) return;
+  const vb=el.viewBox.baseVal, avail=cv.clientWidth-48;
+  if(avail>200){ _fxZoom=Math.min(1.6, Math.max(0.4, avail/vb.width)); }
+  _fxPanX=0; _fxPanY=0; applyFxView();
+  const zr=document.getElementById('fxZr'); if(zr) zr.value=Math.round(_fxZoom*100);
+}
 function fxRender(){
   const d=fxDraft(), cols=fxCols();
   const nT=Object.values(d.transitions||{}).reduce((a,x)=>a+x.length,0);
@@ -7523,6 +7554,11 @@ function wireFx(){
   const g=id=>document.getElementById(id);
   g('fxCloseBtn').onclick=closeFlowScreen;
   const sb=g('fxSideBtn'); if(sb) sb.onclick=()=>{ _fxSideOpen=!_fxSideOpen; R(); };
+  if(_fxAutoFit) requestAnimationFrame(fxFitWidth); else requestAnimationFrame(applyFxView);
+  (function(){ const cv=document.getElementById('fxCanvas');
+    if(cv && !cv.__fxRO && 'ResizeObserver' in window){ cv.__fxRO=true; let w=cv.clientWidth, t=null;
+      new ResizeObserver(()=>{ const nw=cv.clientWidth; if(Math.abs(nw-w)>4){ w=nw; if(_fxAutoFit){ clearTimeout(t); t=setTimeout(fxFitWidth,100); } } }).observe(cv);
+    } })();
   g('fxSaveBtn').onclick=fxSave;
   const enf=g('fxEnf'); if(enf) enf.onclick=()=>{ d.enforce=!d.enforce; fxDirty(); R(); };
   const cb=g('fxLblCb'); if(cb) cb.onchange=()=>{ _fxLabels=cb.checked; R(); };
@@ -7668,6 +7704,43 @@ function wireFx(){
       setTimeout(()=>{ _fxDragged=false; },0); }            // never leave it latched
       dr=null; });
   }
+  // ---- GLOBAL canvas pan + wheel zoom (drag empty space to move, scroll to zoom) ----
+  (function(){
+    const cv=g('fxCanvas'); if(!cv) return;
+    // pan by dragging empty canvas (not on a node/label/control)
+    let pan=null;
+    cv.addEventListener('pointerdown',e=>{
+      if(e.button!==0) return;
+      if(e.target.closest('.fxn, .fxs-start, .fxs-lbl, .fxs-mini, .fxs-zoomrow, button, input, a, .fx-guide')) return;
+      pan={sx:e.clientX, sy:e.clientY, px:_fxPanX, py:_fxPanY};
+      cv.setPointerCapture(e.pointerId); cv.classList.add('fx-panning');
+    });
+    cv.addEventListener('pointermove',e=>{ if(!pan) return;
+      _fxPanX=pan.px+(e.clientX-pan.sx)/_fxZoom;
+      _fxPanY=pan.py+(e.clientY-pan.sy)/_fxZoom;
+      applyFxView();
+    });
+    const endPan=()=>{ if(pan){ pan=null; cv.classList.remove('fx-panning'); } };
+    cv.addEventListener('pointerup',endPan); cv.addEventListener('pointercancel',endPan); cv.addEventListener('pointerleave',endPan);
+    // wheel zoom, centered on cursor
+    cv.addEventListener('wheel',e=>{
+      if(e.ctrlKey){} // trackpad pinch also sends ctrl+wheel; treat same
+      e.preventDefault(); _fxAutoFit=false;
+      const el=document.getElementById('fxSvg'); if(!el) return;
+      const rect=el.getBoundingClientRect();
+      // cursor position in svg-content coords (before zoom change)
+      const cx=(e.clientX-rect.left)/_fxZoom - _fxPanX;
+      const cy=(e.clientY-rect.top)/_fxZoom - _fxPanY;
+      const dir=e.deltaY<0?1:-1;
+      const nz=Math.min(1.6, Math.max(0.4, +(_fxZoom + dir*0.08*_fxZoom).toFixed(3)));
+      if(nz===_fxZoom) return;
+      // keep cursor point stable
+      _fxPanX = (e.clientX-rect.left)/nz - cx;
+      _fxPanY = (e.clientY-rect.top)/nz - cy;
+      _fxZoom = nz; applyFxView();
+      const zr=g('fxZr'); if(zr) zr.value=Math.round(_fxZoom*100);
+    }, {passive:false});
+  })();
   // inspector
   document.querySelectorAll('.fxs-tr-n').forEach(i=>i.onchange=()=>{
     d.labels=d.labels||{}; const v=i.value.trim();
@@ -7701,11 +7774,10 @@ function wireFx(){
     fxDirty(); R(); });
   // zoom
   const zr=g('fxZr');
-  if(zr) zr.oninput=()=>{ _fxZoom=parseInt(zr.value,10)/100; const s=document.querySelector('#fxSvg > g');
-    if(s) s.setAttribute('transform',`scale(${_fxZoom}) translate(${_fxPanX},${_fxPanY})`); };
+  if(zr) zr.oninput=()=>{ _fxAutoFit=false; _fxZoom=Math.min(1.6,Math.max(0.4,parseInt(zr.value,10)/100)); applyFxView(); };
   const zi=g('fxZi'), zo=g('fxZo');
-  if(zi) zi.onclick=()=>{ _fxZoom=Math.min(1.6,_fxZoom+0.1); R(); };
-  if(zo) zo.onclick=()=>{ _fxZoom=Math.max(0.4,_fxZoom-0.1); R(); };
+  if(zi) zi.onclick=()=>{ _fxAutoFit=false; _fxZoom=Math.min(1.6,+(_fxZoom+0.1).toFixed(2)); applyFxView(); const zr2=g('fxZr'); if(zr2) zr2.value=Math.round(_fxZoom*100); };
+  if(zo) zo.onclick=()=>{ _fxAutoFit=false; _fxZoom=Math.max(0.4,+(_fxZoom-0.1).toFixed(2)); applyFxView(); const zr2=g('fxZr'); if(zr2) zr2.value=Math.round(_fxZoom*100); };
 }
 
 function fxClone(){
@@ -7813,7 +7885,7 @@ function stEditSave(){
 let _flowMode='diagram';      // 'diagram' | 'text'
 let _flowSel=null;            // selected status id
 let _flowLink=null;           // when connecting: the source status id
-let _flowZoom=1, _flowPan={x:0,y:0};
+let _flowZoom=1, _flowPan={x:0,y:0}, _flowAutoFit=true;
 const FLOW_W=196, FLOW_H=44, FLOW_GAPX=250, FLOW_GAPY=104;
 
 function flowKey(a,b){ return a+'>'+b; }
@@ -10735,7 +10807,7 @@ document.getElementById('signOutBtn').onclick=async()=>{
 };
 window.addEventListener('storage', e=>{ if(e.key==='ehs:signout'){ try{ clearLocalAppData(); }catch(_){} location.href='index.html'; } });
 document.getElementById('navBoardsToggle').onclick=e=>{ if(e.target.closest('#navAddBoard')) return; setView('board'); };
-(function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>document.body.classList.toggle('nav-collapsed'); })();
+(function(){ const nt=document.getElementById('navToggle'); if(nt) nt.onclick=()=>{ document.body.classList.toggle('nav-collapsed'); const wf=document.getElementById('wfScreen'); if(wf&&wf.classList.contains('on')&&typeof renderWorkflow==='function') setTimeout(renderWorkflow,220); }; })();
 document.getElementById('navAnalyticsToggle').onclick=e=>{ e.currentTarget.classList.add('open'); setView('analytics'); };
 document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>{ ui.analyticsTab=it.dataset.atab; setView('analytics'); });
 (function(){ const t=document.getElementById('tnTools'); if(t) t.onclick=toggleToolsMenu; })();
