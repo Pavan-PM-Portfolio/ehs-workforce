@@ -55,6 +55,11 @@
       client().from('profiles').select('*').eq('id', uid).maybeSingle(),
       client().from('tool_access').select('tool_id, role').eq('user_id', uid),
     ]);
+    // Deactivated (offboarded) users are locked out even if a session lingers.
+    if (profile && profile.status === 'deactivated') {
+      try { await client().auth.signOut(); } catch (e) {}
+      _me = null; return null;
+    }
     const meta = (s.user && s.user.user_metadata) || {};
     _me = {
       id: uid,
@@ -108,6 +113,9 @@
   // Master Admin. The Edge Function verifies the caller is already a master.
   async function setMaster(userId, val) {
     await adminUser('set_master', { user_id: userId, value: !!val });
+  }
+  async function setStatus(userId, status) {
+    return adminUser('set_status', { user_id: userId, status: status });
   }
   // ---- admin-user Edge Function (service role stays server-side) ----
   // Actions: list_users | create | reset | delete | set_master (Master only)
@@ -293,7 +301,7 @@
   global.EHS = {
     configured, client, getSession, signIn, signOut, requireSession,
     loadMe, me, isMaster, roleInTool, canAccessTool, myToolIds,
-    listUsers, grantAccess, revokeAccess, setMaster, fieldPerms,
+    listUsers, grantAccess, revokeAccess, setMaster, setStatus, fieldPerms,
     adminUser, addUser, inviteUser, deleteUser, updateUser, resetPassword,
     updateMyName, changePassword, updateMyPhoto, photoMap,
     configureNav, navHTML, navBrand, navUsers, navTools, navAccount, navBell, injectNavCSS,
