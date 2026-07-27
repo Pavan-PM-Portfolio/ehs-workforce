@@ -42,6 +42,20 @@ input,select{font-family:inherit}
 .btn.accent.sm{box-shadow:none}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn .ico{width:15px;height:15px}
+.sso-div{display:flex;align-items:center;gap:12px;margin:16px 0 14px;color:var(--faint);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.sso-div::before,.sso-div::after{content:"";flex:1;height:1px;background:var(--line)}
+.btn.msso{width:100%;justify-content:center;background:#fff;color:var(--ink);border:1px solid var(--ink);font-weight:700;padding:11px 16px;border-radius:10px}
+.btn.msso:hover{background:var(--surface-2)}
+.btn.msso svg.mslogo{width:16px;height:16px;flex:none}
+.btn.danger{background:var(--crit);border:1px solid var(--crit);color:#fff;font-weight:700;box-shadow:none}
+.btn.danger:hover{background:#B52A21;border-color:#B52A21;transform:none;box-shadow:none}
+.warn-lead{font-size:13.5px;color:var(--ink-2);line-height:1.65;margin:0}
+.warn-lead b{color:var(--ink);font-weight:700}
+.warn-callout{border:1px solid #CE2F2626;background:#CE2F260A;border-radius:10px;padding:12px 14px;margin-top:14px}
+.warn-callout.blue{border-color:#3B6FE026;background:#3B6FE00A}
+.warn-li{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink-2);padding:3px 0;line-height:1.55}
+.warn-li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--crit);flex:none;margin-top:6.5px}
+.warn-callout.blue .warn-li::before{background:var(--accent)}
 .ico{width:16px;height:16px;flex:none;stroke:currentColor;stroke-width:1.75;fill:none;
   stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
 .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
@@ -558,7 +572,7 @@ tr:last-child td{border-bottom:0}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   window.EHS_CONFIG = {
-    url:  'https://fxyzcycvwtacjtuikjti.supabase.co',      // EHS WorkForce (company)
+    url:  'https://fxyzcycvwtacjtuikjti.supabase.co',      // EHS Workspace (personal)
     anon: 'sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0',  // publishable key
   };
 </script>
@@ -633,6 +647,22 @@ const IC={
 function ic(n){ return `<svg class="ico" viewBox="0 0 24 24">${IC[n]||''}</svg>`; }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('on'),2200); }
 function closeModal(){ $('scrim').classList.remove('on'); $('modal').innerHTML=''; $('modal').style.maxWidth=''; }
+/* ---- Warning dialog for consequential actions ---------------------------
+   Field edits stage-and-Save; the heavy security actions (deactivate,
+   reactivate, delete, Master Admin changes) fire immediately — but only
+   through this modal, which names exactly what is about to happen.
+     warnModal({title, lead, points:[..], confirmLabel, tone:'danger'|'primary', onConfirm}) */
+function warnModal(opt){
+  const tone=opt.tone||'danger';
+  const pts=(opt.points||[]).map(p=>`<div class="warn-li">${p}</div>`).join('');
+  $('modal').innerHTML=`
+    <div class="mhead">${ic(tone==='danger'?'trash':'users')}<h3>${esc(opt.title||'Are you sure?')}</h3><div class="x" onclick="closeModal()">${ic('x')}</div></div>
+    <div class="mbody"><p class="warn-lead">${opt.lead||''}</p>${pts?`<div class="warn-callout ${tone==='danger'?'':'blue'}">${pts}</div>`:''}</div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn ${tone==='danger'?'danger':'accent'}" id="wm_go">${esc(opt.confirmLabel||'Confirm')}</button></div>`;
+  $('wm_go').onclick=()=>{ closeModal(); opt.onConfirm&&opt.onConfirm(); };
+  $('scrim').classList.add('on');
+}
 function go(hash){ location.hash=hash; }
 
 /* =====================================================================
@@ -645,6 +675,8 @@ async function boot(){
   if(!keysSet) return renderConfigNotice('keys');
   if(!window.supabase) return renderConfigNotice('lib');
   if(EHS.onSignedOut) EHS.onSignedOut(function(){ renderLogin(); });
+  const ssoErr=ssoErrorFromHash();
+  if(ssoErr) return renderLogin(ssoErr);
   window.addEventListener('hashchange',route);
   root().innerHTML=`<div class="spin"></div>`;
   try{
@@ -730,6 +762,8 @@ function renderLogin(errMsg){
         <input id="li_pw" type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022" autocomplete="current-password"
           onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn accent signin" id="li_btn" onclick="doLogin()">${ic('lock')} Sign in</button>
+      <div class="sso-div">or</div>
+      <button class="btn msso" id="li_ms" onclick="doMicrosoft()">${MS_LOGO} Sign in with Microsoft</button>
       <div class="formfoot">Protected workspace \u00b7 authorized users only</div>
     </div></div>
   </div>`;
@@ -743,6 +777,33 @@ async function doLogin(){
     if(error){ return renderLogin(error.message || 'That email and password don\u2019t match.'); }
     await EHS.loadMe(true); go('#/'); route();
   }catch(e){ renderLogin(e.message); }
+}
+const MS_LOGO='<svg class="mslogo" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>';
+async function doMicrosoft(){
+  const btn=$('li_ms'); if(btn){ btn.disabled=true; btn.innerHTML=MS_LOGO+' Redirecting\u2026'; }
+  try{
+    const { error } = await EHS.signInWithMicrosoft();
+    if(error) throw error;
+    // success: the browser is navigating to Microsoft — nothing more to do here.
+  }catch(e){
+    renderLogin('Microsoft sign-in couldn\u2019t start: '+((e&&e.message)||'error'));
+  }
+}
+/* Friendly messages for OAuth failures that come back in the URL hash
+   (#error=...&error_description=...) after the Microsoft round-trip. */
+function ssoErrorFromHash(){
+  const h=location.hash||'';
+  if(h.indexOf('error')===-1) return null;
+  const qp=new URLSearchParams(h.replace(/^#/,''));
+  const desc=qp.get('error_description')||qp.get('error')||'';
+  if(!desc) return null;
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  const d=desc.toLowerCase();
+  if(d.indexOf('signup')!==-1 && d.indexOf('not allowed')!==-1)
+    return 'That Microsoft account isn\u2019t registered in this workspace. Ask a Master Admin to add you, then sign in again.';
+  if(d.indexOf('banned')!==-1)
+    return 'This account has been deactivated. Contact a Master Admin if you think this is a mistake.';
+  return 'Microsoft sign-in failed: '+desc.replace(/\+/g,' ');
 }
 async function logout(){ await EHS.signOut(); try{ localStorage.setItem('ehs:signout', String(Date.now())); }catch(e){} renderLogin(); }
 
@@ -974,13 +1035,17 @@ async function pickPhoto(){
 }
 async function removePhoto(){
   const me=EHS.me(); if(!me) return;
-  if(!confirm('Remove your profile photo?')) return;
-  try{
-    await EHS.updateMyPhoto(null);
-    dpSet(me.email,null);
-    await EHS.loadMe(true);
-    toast('Photo removed'); renderSettings();
-  }catch(err){ toast('Couldn\u2019t remove the photo: '+(err&&err.message||'error')); }
+  warnModal({ title:'Remove photo', tone:'danger',
+    lead:'Remove your profile photo? Your initials will show instead.',
+    confirmLabel:'Remove photo',
+    onConfirm:async()=>{
+      try{
+        await EHS.updateMyPhoto(null);
+        dpSet(me.email,null);
+        await EHS.loadMe(true);
+        toast('Photo removed'); renderSettings();
+      }catch(err){ toast('Couldn\u2019t remove the photo: '+(err&&err.message||'error')); }
+    } });
 }
 /* Click a photo avatar to see it full-size; your own also offers "Change photo". */
 function openDpLightbox(src, name, isMe){
@@ -1300,7 +1365,28 @@ function paSetAccess(id,tid,role){
   else { const e=d.tool_access.find(x=>x.tool_id===tid); if(e) e.role=role; else d.tool_access.push({tool_id:tid, role}); }
   paMarkDirty(); paRefresh();
 }
+/* Save gate: field/tool-access edits save silently, but if the staged batch
+   includes a Master Admin grant or removal, name it in a warning first —
+   that's the one change in this panel with suite-wide consequences. */
 async function paSaveAll(){
+  const promo=[], demo=[];
+  for(const id of Object.keys(_paDraft)){
+    const u=_users.find(x=>x.id===id); const d=_paDraft[id]; if(!u||!d) continue;
+    if(!!u.is_master_admin!==!!d.is_master_admin) (d.is_master_admin?promo:demo).push(u.full_name||u.email);
+  }
+  if(promo.length||demo.length){
+    const pts=[];
+    promo.forEach(n=>pts.push(`<b>${esc(n)}</b> becomes a Master Admin — full control over every tool and every user, including creating and deleting accounts.`));
+    demo.forEach(n=>pts.push(`<b>${esc(n)}</b> loses Master Admin — drops to normal access based on their tool grants.`));
+    warnModal({ title:promo.length?'Confirm Master Admin change':'Remove Master Admin',
+      tone:promo.length?'danger':'primary',
+      lead:'Saving these changes will apply the following immediately:',
+      points:pts, confirmLabel:'Save changes', onConfirm:paApplyAll });
+    return;
+  }
+  paApplyAll();
+}
+async function paApplyAll(){
   const btn=document.getElementById('pa_save'); if(btn){ btn.disabled=true; btn.textContent='Saving\u2026'; }
   let n=0;
   try{
@@ -1392,22 +1478,45 @@ async function doReset(id){
   }catch(e){ btn.disabled=false; btn.textContent='Reset password'; toast('Couldn\u2019t reset: '+e.message); }
 }
 async function doSetMaster(id,val){
-  try{ await EHS.setMaster(id,val); toast(val?'Now a Master Admin':'Master Admin removed'); renderPeople(); }
-  catch(e){ toast(e.message); }
+  const u=_users.find(x=>x.id===id); const who=esc(u?(u.full_name||u.email):'this user');
+  const apply=async()=>{ try{ await EHS.setMaster(id,val); toast(val?'Now a Master Admin':'Master Admin removed'); renderPeople(); }
+    catch(e){ toast(e.message); } };
+  if(val){
+    warnModal({ title:'Make Master Admin', tone:'danger',
+      lead:`Make <b>${who}</b> a Master Admin?`,
+      points:['Full control over every tool and every user.','Can create, reset, and delete accounts — including appointing other Master Admins.'],
+      confirmLabel:'Make Master Admin', onConfirm:apply });
+  }else{
+    warnModal({ title:'Remove Master Admin', tone:'primary',
+      lead:`Remove Master Admin from <b>${who}</b>?`,
+      points:['They drop to normal access based on their tool grants.'],
+      confirmLabel:'Remove Master Admin', onConfirm:apply });
+  }
 }
 async function doDeleteUser(id){
-  const u=_users.find(x=>x.id===id); const who=u?(u.full_name||u.email):'this user';
-  if(!confirm('Delete '+who+'?\n\nThis permanently removes their account and all tool access. This cannot be undone.')) return;
-  try{ await EHS.deleteUser(id); toast('User deleted'); renderPeople(); }
-  catch(e){ toast('Delete failed: '+e.message); }
+  const u=_users.find(x=>x.id===id); const who=esc(u?(u.full_name||u.email):'this user');
+  warnModal({ title:'Delete user', tone:'danger',
+    lead:`Permanently delete <b>${who}</b>?`,
+    points:['Removes their account, sign-in, and profile.','Their past tickets and worklogs stay, but show as an unknown user.','This cannot be undone.'],
+    confirmLabel:'Delete permanently',
+    onConfirm:async()=>{ try{ await EHS.deleteUser(id); toast('User deleted'); renderPeople(); }
+      catch(e){ toast('Delete failed: '+e.message); } } });
 }
 async function doSetStatus(id, status){
-  const u=_users.find(x=>x.id===id); const who=u?(u.full_name||u.email):'this user';
+  const u=_users.find(x=>x.id===id); const who=esc(u?(u.full_name||u.email):'this user');
+  const apply=async()=>{ try{ await EHS.setStatus(id, status); toast(status==='deactivated'?'User deactivated':'User reactivated'); renderPeople(); }
+    catch(e){ toast('Couldn\u2019t update: '+(e&&e.message||e)); } };
   if(status==='deactivated'){
-    if(!confirm('Deactivate '+who+'?\n\nThey will no longer be able to sign in (password or Microsoft) and will lose all tool access. Their tickets and worklogs stay on their name. You can reactivate later.')) return;
+    warnModal({ title:'Deactivate user', tone:'danger',
+      lead:`Deactivate <b>${who}</b>?`,
+      points:['They\u2019ll be signed out and blocked from logging in (password and Microsoft).','They lose all tool access.','Their tickets and worklogs stay on their name. You can reactivate later.'],
+      confirmLabel:'Deactivate user', onConfirm:apply });
+  }else{
+    warnModal({ title:'Reactivate user', tone:'primary',
+      lead:`Reactivate <b>${who}</b>?`,
+      points:['They\u2019ll be able to sign in again.','You\u2019ll need to re-grant tool access separately.'],
+      confirmLabel:'Reactivate user', onConfirm:apply });
   }
-  try{ await EHS.setStatus(id, status); toast(status==='deactivated'?'User deactivated':'User reactivated'); renderPeople(); }
-  catch(e){ toast('Couldn\u2019t update: '+(e&&e.message||e)); }
 }
 
 /* ---- edit one user's access ---- */
