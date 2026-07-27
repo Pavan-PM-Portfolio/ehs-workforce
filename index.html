@@ -558,8 +558,8 @@ tr:last-child td{border-bottom:0}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   window.EHS_CONFIG = {
-    url:  'https://fxyzcycvwtacjtuikjti.supabase.co',      // PERSONAL / TEST project
-    anon: 'sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0',  // personal publishable key
+    url:  'https://fxyzcycvwtacjtuikjti.supabase.co',      // EHS WorkForce (company)
+    anon: 'sb_publishable_nsRrR5igil-Gz5YvwVCUZg_TCi3WqW0',  // publishable key
   };
 </script>
 <script src="ehs-core.js"></script>
@@ -1223,6 +1223,12 @@ function paDetail(id){
       <label class="pa-chk"><input type="checkbox" id="pa_req" checked> Require them to set their own password on next sign-in</label>
     </div>
     ${id!==meId?`<div class="pa-drule"></div>
+    <div class="pa-dsec"><div class="pa-dsec-t">Account status</div>
+      <div class="pa-danger" style="${status==='deactivated'?'background:#FFF7ED;border-color:#F5D9AE':'background:var(--surface-2);border-color:var(--line)'}">
+        <div class="pa-danger-copy">${status==='deactivated'?'This user is <b>deactivated</b> \u2014 sign-in (password or Microsoft) is blocked and tool access is removed. Their tickets and worklogs stay on their name. Reactivate to restore sign-in (you\u2019ll re-grant tool access separately).':'Deactivating blocks sign-in (password <b>and</b> Microsoft) and removes tool access, while keeping their tickets and worklogs on their name. Reversible \u2014 use this when someone leaves the org.'}</div>
+        ${status==='deactivated'?`<button class="btn accent" onclick="doSetStatus('${u.id}','active')">Reactivate</button>`:`<button class="btn" onclick="doSetStatus('${u.id}','deactivated')">Deactivate</button>`}
+      </div></div>
+    <div class="pa-drule"></div>
     <div class="pa-dsec"><div class="pa-dsec-t">Danger zone</div>
       <div class="pa-danger">
         <div class="pa-danger-copy">Permanently remove this user \u2014 their sign-in, access, and profile. This can\u2019t be undone.</div>
@@ -1394,6 +1400,14 @@ async function doDeleteUser(id){
   if(!confirm('Delete '+who+'?\n\nThis permanently removes their account and all tool access. This cannot be undone.')) return;
   try{ await EHS.deleteUser(id); toast('User deleted'); renderPeople(); }
   catch(e){ toast('Delete failed: '+e.message); }
+}
+async function doSetStatus(id, status){
+  const u=_users.find(x=>x.id===id); const who=u?(u.full_name||u.email):'this user';
+  if(status==='deactivated'){
+    if(!confirm('Deactivate '+who+'?\n\nThey will no longer be able to sign in (password or Microsoft) and will lose all tool access. Their tickets and worklogs stay on their name. You can reactivate later.')) return;
+  }
+  try{ await EHS.setStatus(id, status); toast(status==='deactivated'?'User deactivated':'User reactivated'); renderPeople(); }
+  catch(e){ toast('Couldn\u2019t update: '+(e&&e.message||e)); }
 }
 
 /* ---- edit one user's access ---- */
