@@ -221,6 +221,16 @@ input,select,textarea{font-family:inherit;font-size:13px}
 .board-slide.right{right:14px}
 .board-slide svg{width:20px;height:20px}
 body.view-board .board-slide.show{display:grid}
+/* Horizontal board slider: always-visible draggable pill (macOS overlay
+   scrollbars disappear, so the only affordance was the arrow buttons). */
+.board-hbar{position:absolute;left:50%;transform:translateX(-50%);bottom:70px;width:min(440px,56%);height:12px;border-radius:999px !important;background:rgba(16,26,51,.07);display:none;z-index:34;cursor:pointer}
+/* 70px = the fixed bottom command bar (56px) + breathing room, so the slider
+   floats just above it instead of hiding underneath */
+.board-hbar::before{content:"";position:absolute;inset:-8px}  /* fat hit area */
+body.view-board .board-hbar.show{display:block}
+.board-hbar-thumb{position:absolute;top:2px;bottom:2px;left:0;min-width:44px;border-radius:999px !important;background:#C9CDD6;cursor:grab;transition:background .12s}
+.board-hbar-thumb:hover{background:#ADB4C2}
+.board-hbar-thumb.dragging{cursor:grabbing;background:#96A0B2;transition:none}
 .topbar{display:flex;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid var(--line);position:relative;
   background:var(--bg);flex:none}
 .page-title{font-size:16px;font-weight:600;letter-spacing:-.02em}
@@ -969,6 +979,10 @@ body[data-view="boardsettings"] .topbar{border-bottom:0}
 .km-ti{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .km-more{font-size:11.5px;color:var(--faint);margin-top:3px}
 .btn.cfm-go{background:var(--crit);border-color:var(--crit);color:#fff;font-weight:700}
+.btn.cfm-go.primary{background:var(--accent);border-color:var(--accent)}
+/* the dialog must sit above the full-screen workflow builder (.fxs 660) and
+   its sub-modals (680), or the unsaved-changes warning renders underneath */
+#cfmWrap{z-index:700}
 .btn.cfm-go:hover{opacity:.92}
 .bs-note b{color:var(--ink-2);font-weight:700}
 .req-bad{border-color:var(--crit) !important;box-shadow:0 0 0 3px rgba(206,47,38,.15) !important;animation:reqshake .28s ease}
@@ -3099,6 +3113,7 @@ body.view-board .scroll{padding-bottom:0}
   <div class="content">
     <button class="board-slide left" id="boardSlideL" aria-label="Scroll board left" title="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <button class="board-slide right" id="boardSlideR" aria-label="Scroll board right" title="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    <div class="board-hbar" id="boardHbar" aria-hidden="true"><div class="board-hbar-thumb" id="boardHbarThumb"></div></div>
     <div class="stickyhead">
     <div class="topbar">
       <div class="page-title" id="pageTitle">Board</div>
@@ -3324,7 +3339,7 @@ body.view-board .scroll{padding-bottom:0}
     <p class="cfm-lead" id="cfmLead"></p>
     <div class="cfm-choices" id="cfmChoices"></div>
     <div class="cfm-impact" id="cfmImpact"></div>
-    <p class="cfm-warn">This can't be undone.</p>
+    <p class="cfm-warn" id="cfmWarn">This can't be undone.</p>
   </div>
   <div class="modal-f"><button class="btn" id="cfmCancel">Cancel</button><button class="btn cfm-go" id="cfmGo">Delete</button></div>
 </div></div>
@@ -4446,6 +4461,19 @@ function updBoardSlide(){
   const atStart=sc.scrollLeft<=4, atEnd=sc.scrollLeft>=sc.scrollWidth - sc.clientWidth - 4;
   L.classList.toggle('show', onBoard && canScroll && !atStart);
   R.classList.toggle('show', onBoard && canScroll && !atEnd);
+  // keep the slider pill in step with the real scroll position
+  const bar=document.getElementById('boardHbar'), th=document.getElementById('boardHbarThumb');
+  if(bar && th){
+    bar.classList.toggle('show', onBoard && canScroll);
+    if(onBoard && canScroll){
+      const track=bar.clientWidth;
+      const tw=Math.max(44, Math.round(track * sc.clientWidth / sc.scrollWidth));
+      const range=sc.scrollWidth - sc.clientWidth;
+      const x=Math.round((track - tw) * (range ? sc.scrollLeft / range : 0));
+      th.style.width=tw+'px';
+      th.style.transform='translateX('+x+'px)';
+    }
+  }
 }
 let _boardSlideWired=false;
 function wireBoardSlide(){
@@ -4458,6 +4486,32 @@ function wireBoardSlide(){
   R.onclick=()=>sc.scrollBy({left: step(), behavior:'smooth'});
   sc.addEventListener('scroll', updBoardSlide, {passive:true});
   window.addEventListener('resize', updBoardSlide);
+  // slider pill: drag the thumb, or click the track to jump there
+  const bar=document.getElementById('boardHbar'), th=document.getElementById('boardHbarThumb');
+  if(bar && th){
+    const toScroll=(clientX, grabOffset)=>{
+      const r=bar.getBoundingClientRect();
+      const tw=th.offsetWidth, range=r.width - tw;
+      const x=Math.min(range, Math.max(0, clientX - r.left - grabOffset));
+      const max=sc.scrollWidth - sc.clientWidth;
+      sc.scrollLeft = range ? (x / range) * max : 0;
+    };
+    th.addEventListener('pointerdown', e=>{
+      e.preventDefault(); e.stopPropagation();
+      const grab=e.clientX - th.getBoundingClientRect().left;
+      th.classList.add('dragging'); th.setPointerCapture(e.pointerId);
+      const mv=ev=>toScroll(ev.clientX, grab);
+      const up=ev=>{ th.classList.remove('dragging');
+        th.removeEventListener('pointermove', mv); th.removeEventListener('pointerup', up); th.removeEventListener('pointercancel', up); };
+      th.addEventListener('pointermove', mv);
+      th.addEventListener('pointerup', up);
+      th.addEventListener('pointercancel', up);
+    });
+    bar.addEventListener('pointerdown', e=>{
+      if(e.target===th) return;                    // thumb handles its own drag
+      toScroll(e.clientX, th.offsetWidth/2);       // centre the thumb on the click
+    });
+  }
 }
 function renderBoard(){ try{ wireBoardSlide(); requestAnimationFrame(updBoardSlide); }catch(e){}
   const board=document.getElementById('board');
@@ -4928,12 +4982,17 @@ function openEpicMenu(eid, btn){
     else if(a==='delete') deleteEpic(eid);
   });
 }
-/* ---- Global delete confirmation -----------------------------------------
-   One dialog for every destructive action, so the user always sees exactly
-   what goes with it before anything is removed.
-     confirmDelete({title, lead, impact:[{n,label}], confirmLabel, onConfirm}) */
+/* ---- Global confirmation dialog ------------------------------------------
+   One dialog for every consequential action, so the user always sees exactly
+   what will happen before it fires. Destructive actions get the red button;
+   pass tone:'primary' for non-destructive confirms (blue button).
+     confirmDelete({title, lead, impact:[{n,label}], confirmLabel, onConfirm,
+                    tone:'danger'|'primary', warn:string|'' (''=hide line)}) */
 function confirmDelete(opt){
   const w=document.getElementById('cfmWrap'); if(!w){ if(confirm(opt.lead||'Delete?')) opt.onConfirm&&opt.onConfirm((opt.choices||[{}])[0].id); return; }
+  const wr=document.getElementById('cfmWarn');
+  if(wr){ const wt=(opt.warn===undefined)?"This can't be undone.":opt.warn;
+    wr.textContent=wt; wr.style.display=wt?'':'none'; }
   const DOT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
   document.getElementById('cfmHead').textContent=opt.title||'Delete';
   document.getElementById('cfmLead').innerHTML=opt.lead||'';
@@ -4954,6 +5013,7 @@ function confirmDelete(opt){
     draw();
   } else { chBox.innerHTML=''; paint(opt.impact); }
   const go=document.getElementById('cfmGo'); go.textContent=opt.confirmLabel||'Delete';
+  go.classList.toggle('primary', opt.tone==='primary');
   const close=()=>w.classList.remove('on');
   go.onclick=()=>{ close(); try{ opt.onConfirm&&opt.onConfirm(sel); }catch(e){ __dbg.warn(e); } };
   document.getElementById('cfmCancel').onclick=close;
@@ -5846,7 +5906,8 @@ function renderChat(){
     setTimeout(()=>input.focus(),0);
   }
   win.querySelectorAll('.cmsg').forEach(row=>{ const mid=row.dataset.mid; row.querySelectorAll('[data-act]').forEach(btn=>btn.onclick=()=>{ const a=btn.dataset.act;
-    if(a==='del'){ if(confirm('Delete this message?')){ store.deleteChatMessage(mid); renderChat(); } }
+    if(a==='del'){ confirmDelete({ title:'Delete message', lead:'Delete this message for everyone in the chat?',
+        confirmLabel:'Delete message', onConfirm:()=>{ store.deleteChatMessage(mid); renderChat(); } }); }
     else if(a==='edit'){ ui.chat.editing=mid; renderChat(); }
     else if(a==='cancel'){ ui.chat.editing=null; renderChat(); }
     else if(a==='save'){ const tx=row.querySelector('.cmsg-editbox').value.trim(); if(tx) store.editChatMessage(mid, tx); ui.chat.editing=null; renderChat(); } }); });
@@ -6274,7 +6335,8 @@ function depAction(id, act){
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
   else if(act==='del'){ if(!can('deploy_manage')){ toast('You don\u2019t have permission to change deployments'); return; }
-    if(confirm('Remove this deployment from the tracker? The ticket itself stays unchanged.')){ store.deleteDeployment(id); renderDeployments(); } }
+    confirmDelete({ title:'Remove deployment', lead:`Remove <b>${esc(t.key)}</b> from the deployment tracker? The ticket itself stays unchanged.`,
+      confirmLabel:'Remove deployment', warn:'', onConfirm:()=>{ store.deleteDeployment(id); renderDeployments(); } }); }
   else if(act==='delete'){ if(!can('ticket_delete')){ toast('You don\u2019t have permission to delete tickets'); return; }
     { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
       confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
@@ -6294,7 +6356,9 @@ function qaAction(id, act){
   if(act==='open'){ openPanel(id); }
   else if(act==='copykey'){ copyText(t.key); toast('Key copied'); }
   else if(act==='copylink'){ copyText(location.origin+location.pathname+'#'+t.key); toast('Link copied'); }
-  else if(act==='clear'){ if(!can('qa_clear')){ toast('You don\u2019t have permission to clear QA'); return; } if(confirm(`Clear all QA cases and fixes on ${t.key}? This can't be undone.`)){ store.clearQa(id); renderQA(); } }
+  else if(act==='clear'){ if(!can('qa_clear')){ toast('You don\u2019t have permission to clear QA'); return; }
+    confirmDelete({ title:'Clear QA', lead:`Clear <b>all QA cases and fixes</b> on <b>${esc(t.key)}</b>?`,
+      confirmLabel:'Clear QA', onConfirm:()=>{ store.clearQa(id); renderQA(); } }); }
   else if(act==='delete'){ { const _cm=((t.comments)||[]).length, _sb=((t.subtasks)||[]).length, _wl=store.data.worklogs.filter(w=>w.task===id).length;
       confirmDelete({ title:'Delete ticket', lead:`Delete <b>${esc(t.key)}</b> \u2014 ${esc(t.title)}?`,
         impact:[{n:_sb,label:'subtask'+(_sb===1?'':'s')},{n:_cm,label:'comment'+(_cm===1?'':'s')},{n:_wl,label:'time log'+(_wl===1?'':'s')}],
@@ -6681,9 +6745,10 @@ function renderBoardSettings(){
 
   const back=document.getElementById('bsBack');
   if(back) back.onclick=()=>{
-    if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
-    if(_flowDirty) flowDraftReset();
-    bsTab='boards'; renderBoardSettings();
+    const proceed=()=>{ if(_flowDirty) flowDraftReset(); bsTab='boards'; renderBoardSettings(); };
+    if(_flowDirty){ confirmDelete({ title:'Unsaved changes', lead:'You have unsaved workflow changes.',
+      confirmLabel:'Leave without saving', warn:'', onConfirm:proceed }); return; }
+    proceed();
   };
   const add=document.getElementById('bsAdd');
   if(add) add.onclick=()=>{
@@ -6728,10 +6793,10 @@ function openWorkflow(bid){
   renderWorkflow();
 }
 function closeWorkflow(){
-  if(_flowDirty && !confirm('You have unsaved workflow changes. Close without updating?')) return;
-  flowDraftReset();
-  document.getElementById('wfScreen').classList.remove('on');
-  renderAll();
+  const proceed=()=>{ flowDraftReset(); document.getElementById('wfScreen').classList.remove('on'); renderAll(); };
+  if(_flowDirty){ confirmDelete({ title:'Unsaved changes', lead:'You have unsaved workflow changes.',
+    confirmLabel:'Close without updating', warn:'', onConfirm:proceed }); return; }
+  proceed();
 }
 
 const WF_IC={
@@ -6947,11 +7012,15 @@ function wireFlowInspector(b){
   const rm=document.getElementById('fxRemove');
   if(rm) rm.onclick=()=>{
     const st=store.status(_flowSel); if(!st) return;
-    if(!confirm(`Remove \u201c${st.name}\u201d from this workflow?\n\nThe status itself stays \u2014 it is just no longer part of ${store.board(_wfBoard).name}.`)) return;
-    store.toggleBoardColumn(store.board(_wfBoard), _flowSel, false);
-    delete d.transitions[_flowSel];
-    Object.keys(d.transitions).forEach(k=>{ d.transitions[k]=(d.transitions[k]||[]).filter(x=>x!==_flowSel); });
-    _flowSel=null; _flowDirty=true; renderWorkflow();
+    confirmDelete({ title:'Remove from workflow',
+      lead:`Remove <b>${esc(st.name)}</b> from this workflow? The status itself stays \u2014 it is just no longer part of <b>${esc(store.board(_wfBoard).name)}</b>.`,
+      confirmLabel:'Remove status', warn:'',
+      onConfirm:()=>{
+        store.toggleBoardColumn(store.board(_wfBoard), _flowSel, false);
+        delete d.transitions[_flowSel];
+        Object.keys(d.transitions).forEach(k=>{ d.transitions[k]=(d.transitions[k]||[]).filter(x=>x!==_flowSel); });
+        _flowSel=null; _flowDirty=true; renderWorkflow();
+      } });
   };
 }
 
@@ -7370,12 +7439,16 @@ function openFlowScreen(boardId){
   fxRender();
 }
 function closeFlowScreen(){
-  if(_flowDirty && !confirm('You have unsaved workflow changes. Leave without saving?')) return;
-  flowDraftReset();
-  document.getElementById('fxScreen').classList.remove('on');
-  document.body.style.overflow='';
-  if(ui.view==='boardsettings') renderBoardSettings();
-  renderAll();
+  const proceed=()=>{
+    flowDraftReset();
+    document.getElementById('fxScreen').classList.remove('on');
+    document.body.style.overflow='';
+    if(ui.view==='boardsettings') renderBoardSettings();
+    renderAll();
+  };
+  if(_flowDirty){ confirmDelete({ title:'Unsaved changes', lead:'You have unsaved workflow changes.',
+    confirmLabel:'Leave without saving', warn:'', onConfirm:proceed }); return; }
+  proceed();
 }
 function fxSave(){
   const d=fxDraft();
@@ -8115,9 +8188,11 @@ function wireBoardSettings(b){
       pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; } store.updatePriority(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
       const rm=row.querySelector('.prremove');
       if(rm && !rm.disabled) rm.onclick=()=>{ if(!can('prio_manage')){ toast('You don\u2019t have permission to manage priorities'); return; }
-        if(!confirm('Remove the "'+id+'" priority?')) return;
-        if(!store.removePriority(id)){ toast('That priority is still in use'); return; }
-        renderBoardSettings(); refreshViews(); toast('Priority removed'); };
+        confirmDelete({ title:'Remove priority',
+          lead:'Remove the <b>'+esc(id)+'</b> priority? It disappears from the picker for every ticket.',
+          confirmLabel:'Remove priority', warn:'',
+          onConfirm:()=>{ if(!store.removePriority(id)){ toast('That priority is still in use'); return; }
+            renderBoardSettings(); refreshViews(); toast('Priority removed'); } }); };
     });
   } else if(bsTab==='types'){
     body.querySelectorAll('.bsrow[data-type]').forEach(row=>{ const id=row.dataset.type;
@@ -8131,9 +8206,11 @@ function wireBoardSettings(b){
       pal.querySelectorAll('[data-color]').forEach(c=>c.onclick=e=>{ e.stopPropagation(); if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); return; } store.updateType(id,{color:c.dataset.color}); renderBoardSettings(); refreshViews(); });
       const rm=row.querySelector('.tyremove');
       if(rm && !rm.disabled) rm.onclick=()=>{ if(!can('type_manage')){ toast('You don\u2019t have permission to manage ticket types'); return; }
-        if(!confirm('Remove the "'+id+'" type?')) return;
-        if(!store.removeType(id)){ toast('That type is still in use'); return; }
-        renderBoardSettings(); refreshViews(); toast('Type removed'); };
+        confirmDelete({ title:'Remove ticket type',
+          lead:'Remove the <b>'+esc(id)+'</b> type? It disappears from the picker for every ticket.',
+          confirmLabel:'Remove type', warn:'',
+          onConfirm:()=>{ if(!store.removeType(id)){ toast('That type is still in use'); return; }
+            renderBoardSettings(); refreshViews(); toast('Type removed'); } }); };
     });
   } else if(bsTab==='fields'){
     body.querySelectorAll('.bsrow[data-field]').forEach(row=>{ const id=row.dataset.field;
@@ -8144,8 +8221,10 @@ function wireBoardSettings(b){
       const op=row.querySelector('.cfopts');
       if(op) op.onchange=e=>{ store.updateField(id,{options:e.target.value.split(',').map(x=>x.trim()).filter(Boolean)}); refreshViews(); };
       row.querySelector('.cfremove').onclick=()=>{ if(!can('cf_delete')){ toast('You don\u2019t have permission to delete custom fields'); return; }
-        if(!confirm('Remove this custom field? Its values are removed from every ticket.')) return;
-        store.removeField(id); renderBoardSettings(); refreshViews(); toast('Field removed'); };
+        confirmDelete({ title:'Remove custom field',
+          lead:'Remove this custom field? Its values are <b>removed from every ticket</b>.',
+          confirmLabel:'Remove field',
+          onConfirm:()=>{ store.removeField(id); renderBoardSettings(); refreshViews(); toast('Field removed'); } }); };
     });
   } else if(bsTab==='columns'){
     body.querySelectorAll('.bsrow').forEach(row=>{ const id=row.dataset.id;
@@ -8972,14 +9051,17 @@ function renderSettings(){
     </div>`;
   el.querySelectorAll('#setRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.setSel=b.dataset.sec; renderSettings(); });
   { const up=document.getElementById('pfUpload'); if(up) up.onclick=()=>openPhotoPicker();
-    const rm=document.getElementById('pfRemove'); if(rm) rm.onclick=async()=>{ const u=meUser(); if(!u) return;
-      if(!confirm('Remove your profile photo?')) return;
-      try{
-        if(typeof EHS!=='undefined' && EHS && EHS.configured && EHS.configured() && EHS.updateMyPhoto) await EHS.updateMyPhoto(null);
-        else if(typeof sb!=='undefined' && sb && ME) await removeAvatar();
-      }catch(err){ toast('Couldn\u2019t remove the photo: '+((err&&err.message)||'error')); return; }
-      try{ dpSet(u.email, null); }catch(e){}
-      store.setUserPhoto(u.id,null); applyMyPhoto(); renderSettings(); refreshViews(); toast('Photo removed'); };
+    const rm=document.getElementById('pfRemove'); if(rm) rm.onclick=()=>{ const u=meUser(); if(!u) return;
+      confirmDelete({ title:'Remove photo', lead:'Remove your profile photo? Your initials will show instead.',
+        confirmLabel:'Remove photo', warn:'',
+        onConfirm:async()=>{
+          try{
+            if(typeof EHS!=='undefined' && EHS && EHS.configured && EHS.configured() && EHS.updateMyPhoto) await EHS.updateMyPhoto(null);
+            else if(typeof sb!=='undefined' && sb && ME) await removeAvatar();
+          }catch(err){ toast('Couldn\u2019t remove the photo: '+((err&&err.message)||'error')); return; }
+          try{ dpSet(u.email, null); }catch(e){}
+          store.setUserPhoto(u.id,null); applyMyPhoto(); renderSettings(); refreshViews(); toast('Photo removed');
+        } }); };
     const nmi=document.getElementById('pfName'); if(nmi) nmi.onchange=()=>{ const u=meUser(); if(!u) return; const v=nmi.value.trim();
       if(!v){ nmi.value=u.name||''; return; } store.updateUser(u.id,{name:v}); applyMyPhoto(); renderSettings(); refreshViews(); toast('Name updated'); }; }
   const _cg=document.getElementById('stxCloneGo');
@@ -8987,16 +9069,23 @@ function renderSettings(){
     const from=document.getElementById('stxCloneFrom').value;
     if(!from){ toast('Pick who to copy from'); return; }
     const src=store.user(from), dst=store.user(editUser);
-    if(!confirm(`Copy ${src.name}\u2019s field permissions, actions and workspace access onto ${dst.name}?\n\nThis replaces ${dst.name}\u2019s current setup. Their Project Hub role is not changed.`)) return;
-    const r=cloneUserSetup(from, editUser);
-    if(!r){ toast('Could not copy that setup'); return; }
-    renderSettings();
-    const bits=[r.fields+' fields', r.caps+' actions'];
-    if(r.wsAdd||r.wsRem) bits.push((r.wsAdd?'+'+r.wsAdd:'')+(r.wsAdd&&r.wsRem?'/':'')+(r.wsRem?'-'+r.wsRem:'')+' workspaces');
-    toast('Copied from '+src.name+' \u00b7 '+bits.join(', ')+' \u2014 Save to apply');
+    confirmDelete({ title:'Copy setup',
+      lead:`Copy <b>${esc(src.name)}</b>\u2019s field permissions, actions and workspace access onto <b>${esc(dst.name)}</b>? This replaces ${esc(dst.name)}\u2019s current setup. Their Project Hub role is not changed.`,
+      confirmLabel:'Copy & replace', tone:'primary',
+      warn:'Nothing is applied until you press Save \u2014 you can still Discard.',
+      onConfirm:()=>{
+        const r=cloneUserSetup(from, editUser);
+        if(!r){ toast('Could not copy that setup'); return; }
+        renderSettings();
+        const bits=[r.fields+' fields', r.caps+' actions'];
+        if(r.wsAdd||r.wsRem) bits.push((r.wsAdd?'+'+r.wsAdd:'')+(r.wsAdd&&r.wsRem?'/':'')+(r.wsRem?'-'+r.wsRem:'')+' workspaces');
+        toast('Copied from '+src.name+' \u00b7 '+bits.join(', ')+' \u2014 Save to apply');
+      } });
   };
   const _ss=document.getElementById('setSave'); if(_ss) _ss.onclick=setSaveNow;
-  const _sd=document.getElementById('setDiscard'); if(_sd) _sd.onclick=()=>{ if(confirm('Discard your unsaved changes?')) setDiscard(); };
+  const _sd=document.getElementById('setDiscard'); if(_sd) _sd.onclick=()=>confirmDelete({ title:'Discard changes',
+    lead:'Discard your unsaved changes? Everything goes back to the last saved state.',
+    confirmLabel:'Discard changes', warn:'', onConfirm:setDiscard });
 
   const _g=id=>document.getElementById(id);
   // preferences wiring (current user)
@@ -9038,11 +9127,15 @@ function renderSettings(){
   if(_g('setRenumber')) _g('setRenumber').onclick=()=>runKeyRenumber();
   if(_g('setProvision')) _g('setProvision').onclick=async()=>{
     if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
+    const run=async()=>{ try{ await provisionWorkflow(); renderAll(); toast('Default workflow added'); }
+      catch(e){ toast('Couldn\u2019t set up the workflow: '+((e&&e.message)||'error')); } };
     if(store.statuses().length){
-      if(!confirm('This workspace already has '+store.statuses().length+' statuses. Add the default flow anyway?')) return;
+      confirmDelete({ title:'Add default workflow',
+        lead:'This workspace already has <b>'+store.statuses().length+' statuses</b>. Add the default flow anyway? Existing statuses are kept.',
+        confirmLabel:'Add default flow', tone:'primary', warn:'', onConfirm:run });
+      return;
     }
-    try{ await provisionWorkflow(); renderAll(); toast('Default workflow added'); }
-    catch(e){ toast('Couldn\u2019t set up the workflow: '+((e&&e.message)||'error')); }
+    run();
   };
   if(_g('setExport')) _g('setExport').onclick=()=>downloadJSON('cadence-data.json', store.exportData());
   if(_g('setExportCsv')) _g('setExportCsv').onclick=()=>{ const flds=Object.keys(REPORT_FIELDS);
@@ -9511,8 +9604,14 @@ function renderReleases(){
   el.querySelectorAll('.rel-move').forEach(sel=>sel.onchange=()=>{ store.setTaskRelease(sel.dataset.id, sel.value||null); renderReleases(); });
   el.querySelectorAll('.rel-date-in').forEach(inp=>inp.onchange=()=>{ store.updateRelease(inp.dataset.id,{date:inp.value||null}); });
 }
-function doMarkReleased(id){ if(!confirm('Mark this version as released?')) return; store.markReleased(id); renderReleases(); toast('Released'); }
-function doRemoveRelease(id){ if(!confirm('Delete this release? Its tickets are unassigned.')) return; store.removeRelease(id); renderReleases(); }
+function doMarkReleased(id){
+  confirmDelete({ title:'Release version', lead:'Mark this version as <b>released</b>? Its open tickets stay linked and it moves to the released list.',
+    confirmLabel:'Mark released', tone:'primary', warn:'',
+    onConfirm:()=>{ store.markReleased(id); renderReleases(); toast('Released'); } }); }
+function doRemoveRelease(id){
+  confirmDelete({ title:'Delete release', lead:'Delete this release? Its tickets are <b>unassigned</b> from it (the tickets themselves stay).',
+    confirmLabel:'Delete release',
+    onConfirm:()=>{ store.removeRelease(id); renderReleases(); toast('Release deleted'); } }); }
 
 /* ---------- Backlog / Sprint planning ---------- */
 function _blInit(){ if(document.getElementById('blCss')) return; const st=document.createElement('style'); st.id='blCss'; st.textContent=`
@@ -9574,8 +9673,14 @@ function renderBacklog(){
   el.querySelectorAll('.bl-move').forEach(sel=>sel.onchange=e=>{ store.setTaskSprint(sel.dataset.id, e.target.value||null); renderBacklog(); });
 }
 function doStartSprint(id){ store.startSprint(id); renderBacklog(); toast('Sprint started'); }
-function doCompleteSprint(id){ if(!confirm('Complete this sprint? Unfinished tickets go back to the backlog.')) return; store.completeSprint(id); renderBacklog(); toast('Sprint completed'); }
-function doRemoveSprint(id){ if(!confirm('Delete this sprint? Its tickets return to the backlog.')) return; store.removeSprint(id); renderBacklog(); }
+function doCompleteSprint(id){
+  confirmDelete({ title:'Complete sprint', lead:'Complete this sprint? <b>Unfinished tickets go back to the backlog.</b>',
+    confirmLabel:'Complete sprint', tone:'primary', warn:'',
+    onConfirm:()=>{ store.completeSprint(id); renderBacklog(); toast('Sprint completed'); } }); }
+function doRemoveSprint(id){
+  confirmDelete({ title:'Delete sprint', lead:'Delete this sprint? Its tickets <b>return to the backlog</b>.',
+    confirmLabel:'Delete sprint',
+    onConfirm:()=>{ store.removeSprint(id); renderBacklog(); toast('Sprint deleted'); } }); }
 
 /* ---------- Projects (dedicated tab) ---------- */
 function projectStats(pid){
@@ -10993,9 +11098,15 @@ async function loadWorkspace(){
   // "Master admin" and "admin of the PM tool" are DIFFERENT things — don't conflate them.
   if(sb && ME){ try{
     const [pr,ac]=await Promise.all([
-      sb.from('profiles').select('is_master_admin').eq('id',ME.id).maybeSingle(),
+      sb.from('profiles').select('is_master_admin, status').eq('id',ME.id).maybeSingle(),
       sb.from('tool_access').select('role').eq('user_id',ME.id).eq('tool_id','pm').maybeSingle()
     ]);
+    // Deactivated (offboarded) users are locked out even if a session lingers —
+    // mirrors ehs-core's gate so opening pm.html directly can't dodge it.
+    if(pr && pr.data && pr.data.status==='deactivated'){
+      try{ await sb.auth.signOut(); }catch(e){}
+      location.href='index.html'; return;
+    }
     IS_MASTER = !!(pr&&pr.data&&pr.data.is_master_admin);
     TOOL_ROLE = (ac&&ac.data&&ac.data.role)||null;
   }catch(e){} }
