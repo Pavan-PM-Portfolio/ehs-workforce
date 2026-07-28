@@ -2211,6 +2211,43 @@ body[data-density="compact"] .board{padding:12px 16px}
 .cal-note b{color:var(--ink-2);font-weight:700}
 @media(max-width:900px){ .cal-grid-body{grid-auto-rows:minmax(96px,auto)} .cal-f{font-size:10px} }
 .ehs-page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;margin-bottom:30px}
+.pjb-intro{color:var(--muted);font-size:13.5px;margin:-16px 0 20px}
+.pjb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.pjb-card{display:flex;align-items:center;gap:14px;text-align:left;padding:18px;border:1px solid var(--line);background:var(--surface);border-radius:6px;cursor:pointer;font-family:inherit;transition:border-color .12s,box-shadow .12s,transform .1s}
+.pjb-card:hover{border-color:var(--accent);box-shadow:0 2px 10px -4px rgba(12,90,158,.25);transform:translateY(-1px)}
+.pjb-ic{flex:none;width:40px;height:40px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.pjb-ic svg{width:20px;height:20px}
+.pjb-body{flex:1;min-width:0}
+.pjb-name{font-size:15px;font-weight:600;color:var(--ink)}
+.pjb-meta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.pjb-arr{width:18px;height:18px;color:var(--faint);flex:none}
+.pjb-back{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:0;cursor:pointer;font-family:inherit;padding:0}
+.pjb-back svg{width:15px;height:15px}
+.pjb-back:hover{text-decoration:underline}
+/* board creation wizard */
+.bw-steps{display:flex;align-items:center;gap:0;padding:14px 20px 0}
+.bw-step{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--faint)}
+.bw-step.on{color:var(--accent)}.bw-step.done{color:var(--ink-2)}
+.bw-dot{width:20px;height:20px;border-radius:999px;display:grid;place-items:center;font-size:11px;background:var(--surface-2);border:1px solid var(--line);color:inherit}
+.bw-step.on .bw-dot{background:var(--accent);color:#fff;border-color:var(--accent)}
+.bw-step.done .bw-dot{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
+.bw-sep{flex:1;height:1px;background:var(--line);margin:0 10px}
+.bw-sthint{font-size:12px;color:var(--muted);margin:2px 0 10px}
+.bw-stwrap{display:flex;flex-wrap:wrap;gap:8px}
+.bw-stx{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);background:var(--surface);border-radius:4px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:inherit}
+.bw-stx.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.bw-stdot{width:9px;height:9px;border-radius:999px;flex:none}
+.bw-order{margin-top:16px}
+.bw-ordlbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin-bottom:8px}
+.bw-ordchip{display:inline-block;padding:5px 10px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;font-size:12px;font-weight:600}
+.bw-ordarr{color:var(--faint);margin:0 6px;font-size:12px}
+.bw-plist{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.bw-prow{display:flex;gap:8px;align-items:center}
+.bw-pn{flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:13px}
+.bw-pk{width:90px;padding:9px 11px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:13px;text-transform:uppercase}
+.bw-prm{width:32px;height:36px;border:1px solid var(--line);background:var(--surface);border-radius:4px;cursor:pointer;color:var(--faint);flex:none}
+.bw-prm:hover{border-color:var(--crit);color:var(--crit)}
+.bw-addp{margin-top:2px}
 .ehs-page-head h1{font-size:16px;font-weight:600;letter-spacing:-.02em;margin:0}
 .ehs-btn{background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:4px !important;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .12s,box-shadow .12s;box-shadow:0 1px 2px rgba(12,90,158,.25),0 1px 1px rgba(0,0,0,.04)}
 .ehs-btn:hover{background:var(--accent-hover);border-color:var(--accent-hover);box-shadow:0 2px 6px rgba(12,90,158,.3)}
@@ -3487,6 +3524,21 @@ body.view-board .scroll{padding-bottom:0}
   </div>
 </div>
 
+<!-- Board creation wizard -->
+<div class="modal-wrap" id="bwWrap">
+  <div class="modal sub-modal" style="width:600px;max-width:94vw">
+    <div class="modal-h">Create board<div style="font-size:12px;font-weight:400;color:var(--muted);margin-top:3px">Set up its workflow and projects before it goes live.</div></div>
+    <div class="bw-steps" id="bwSteps"></div>
+    <div class="modal-b" id="bwBody" style="min-height:220px"></div>
+    <div class="modal-f">
+      <button class="btn" id="bwBack" type="button">Back</button>
+      <div class="sp-fspacer" style="flex:1"></div>
+      <button class="btn" id="bwCancel" type="button">Cancel</button>
+      <button class="btn primary" id="bwNext" type="button">Next</button>
+    </div>
+  </div>
+</div>
+
 <!-- Workflow editor (full screen) -->
 <div class="wf-screen" id="wfScreen">
   <header class="wf-top">
@@ -3806,8 +3858,8 @@ const store = {
   _k:'cadence_v16',
   data:null,
   load(){
-    try{ const raw=localStorage.getItem(this._k); if(raw){ this.data=JSON.parse(raw); if(!this.data.settings) this.data.settings=JSON.parse(JSON.stringify(SEED.settings)); if(!this.data.sprints) this.data.sprints=JSON.parse(JSON.stringify(SEED.sprints)); if(!this.data.releases) this.data.releases=JSON.parse(JSON.stringify(SEED.releases)); if(!this.data._sprintSeeded){ this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true; } (this.data.users||[]).forEach(u=>u.color=avColor(u.name)); STATUSES=this.data.statuses; return; } }catch(e){}
-    this.data=JSON.parse(JSON.stringify(SEED));
+    try{ const raw=localStorage.getItem(this._k); if(raw){ this.data=JSON.parse(raw); if(!this.data.settings) this.data.settings=JSON.parse(JSON.stringify(SEED.settings)); if(!this.data.sprints) this.data.sprints=JSON.parse(JSON.stringify(SEED.sprints)); if(!this.data.releases) this.data.releases=JSON.parse(JSON.stringify(SEED.releases)); if(!this.data._sprintSeeded){ this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true; } (this.data.users||[]).forEach(u=>u.color=avColor(u.name)); STATUSES=this.data.statuses; this.migrateProjectBoards(); return; } }catch(e){}
+    this.data=JSON.parse(JSON.stringify(SEED)); this.migrateProjectBoards();
     this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true;
     (this.data.users||[]).forEach(u=>u.color=avColor(u.name));
     STATUSES=this.data.statuses;
@@ -3970,6 +4022,24 @@ const store = {
   // Projects whose home board is `boardId` (or all if boardId is null/'all').
   projectsForBoard(boardId){ if(!boardId||boardId==='all') return this.projects();
     return this.projects().filter(p=>this.projectBoardId(p)===boardId); },
+  // One-time migration: projects now belong to exactly one board. Any project
+  // without a board is pinned to the workspace anchor board (the original board,
+  // e.g. Tech Delivery). Idempotent — runs once, guarded by a data flag, and only
+  // touches projects that have no board yet, so it never overrides a real choice.
+  migrateProjectBoards(){
+    if(this.data._projBoardsMigrated) return;
+    const bs=this.data.boards||[];
+    // Match boardlessAnchorId: prefer the seed board 'main', else earliest by id timestamp.
+    let anchor=null;
+    if(bs.length){ const seed=bs.find(b=>b.id==='main');
+      if(seed) anchor=seed.id;
+      else { const ord=b=>{ const m=/^b([0-9a-z]+)$/i.exec(b.id||''); return m?parseInt(m[1],36):-1; };
+        anchor=bs.slice().sort((a,b)=>ord(a)-ord(b))[0].id; } }
+    if(anchor && Array.isArray(this.data.projects)){
+      this.data.projects.forEach(p=>{ if(!p.board) p.board=anchor; });
+    }
+    this.data._projBoardsMigrated=true; this._persist();
+  },
   // users admin
   assignmentsForUser(id){ return this.data.tasks.filter(t=>t.assignee===id).length; },
   addUser(name, role){ const id='u'+Date.now().toString(36);
@@ -6166,15 +6236,14 @@ function openModal(presetType, presetParent, presetProject){
   const setSel=(id,opts)=>document.getElementById(id).innerHTML=opts;
   const isEpic=presetType==='Epic';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
-  // Project dropdown is scoped to the current board's projects (with an all-projects
-  // escape), so you pick from what's relevant to the board you're creating on.
+  // Strict model: a ticket can only use a project that belongs to its board.
+  // The dropdown lists ONLY the current board's projects — no cross-board escape.
   (function(){
     const curBd=(ui.board && store.board(ui.board))?ui.board:null;
     const boardProjs=curBd?store.projectsForBoard(curBd):store.projects();
-    const otherProjs=curBd?store.projects().filter(p=>store.projectBoardId(p)!==curBd):[];
     let html=`<option value="">Select a project\u2026</option>`;
     html+=boardProjs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
-    if(otherProjs.length){ html+=`<optgroup label="Other boards">`+otherProjs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+`</optgroup>`; }
+    if(!boardProjs.length){ html=`<option value="">No projects on this board yet</option>`; }
     setSel('ntProject', html);
   })();
   setSel('ntAssignee', `<option value="">Unassigned</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
@@ -6788,8 +6857,98 @@ function renameBoardInline(id){
   inp.onblur=()=>save(true);
 }
 function addBoardFromSide(){ if(!can('board_create')){ toast('You don\u2019t have permission to create boards'); return; }
-  const id=store.addBoard('New board'); ui.board=id; setView('board'); bsTab='boards'; openBoardSettings();
-  setTimeout(()=>renameBoardSettingRow(id),30); }
+  openBoardWizard();
+}
+
+/* ---------- Board creation wizard ----------------------------------------
+   A board is created only after its workflow (statuses + first transitions)
+   and at least one project are defined. Steps: Name → Statuses → Projects.
+   Nothing is written to the store until the final "Create board". */
+let _bw=null;   // wizard draft state
+function openBoardWizard(){
+  if(!can('board_create')){ toast('You don\u2019t have permission to create boards'); return; }
+  // seed default statuses from the workspace's existing status catalogue (todo→done spread)
+  const todo=(STATUSES.find(s=>s.cat==='todo')||STATUSES[0]||{});
+  const prog=(STATUSES.find(s=>s.cat==='progress')||{});
+  const done=(STATUSES.find(s=>s.cat==='done')||{});
+  const seedCols=[todo,prog,done].filter(s=>s&&s.id).map(s=>s.id);
+  _bw={ step:0, name:'', columns:seedCols.length?seedCols:(STATUSES.slice(0,3).map(s=>s.id)), projects:[] };
+  document.getElementById('bwWrap').classList.add('on');
+  renderBoardWizard();
+}
+function closeBoardWizard(){ const w=document.getElementById('bwWrap'); if(w) w.classList.remove('on'); _bw=null; }
+const BW_STEPS=['Name','Workflow','Projects'];
+function renderBoardWizard(){
+  if(!_bw) return;
+  const steps=document.getElementById('bwSteps');
+  steps.innerHTML=BW_STEPS.map((s,i)=>`<div class="bw-step ${i===_bw.step?'on':''} ${i<_bw.step?'done':''}"><span class="bw-dot">${i<_bw.step?'\u2713':(i+1)}</span>${s}</div>`).join('<div class="bw-sep"></div>');
+  const body=document.getElementById('bwBody');
+  const back=document.getElementById('bwBack'), next=document.getElementById('bwNext');
+  back.style.visibility=_bw.step===0?'hidden':'visible';
+  next.textContent=_bw.step===BW_STEPS.length-1?'Create board':'Next';
+
+  if(_bw.step===0){
+    body.innerHTML=`<div class="field"><label>Board name<span class="req">*</span></label>
+      <input id="bwName" placeholder="e.g. Mobile Squad" autocomplete="off" value="${esc(_bw.name)}"/></div>
+      <div class="loghint" style="margin-top:8px">Boards are containers for a team's work. Each board owns its own workflow and projects.</div>`;
+    const inp=document.getElementById('bwName'); inp.oninput=()=>{ _bw.name=inp.value; };
+    inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); bwNext(); } };
+    setTimeout(()=>inp.focus(),40);
+  } else if(_bw.step===1){
+    // status multi-select from the workspace catalogue + order = column order
+    const chips=STATUSES.map(s=>{ const on=_bw.columns.includes(s.id);
+      return `<button class="bw-stx ${on?'on':''}" data-st="${s.id}" type="button"><span class="bw-stdot" style="background:${s.color||'#999'}"></span>${esc(s.name)}</button>`; }).join('');
+    body.innerHTML=`<div class="field"><label>Statuses in this board's flow<span class="req">*</span></label>
+      <div class="bw-sthint">These become the board's columns, left to right. Pick at least two.</div>
+      <div class="bw-stwrap">${chips}</div></div>
+      <div class="bw-order" id="bwOrder"></div>`;
+    body.querySelectorAll('.bw-stx').forEach(b=>b.onclick=()=>{ const id=b.dataset.st;
+      const i=_bw.columns.indexOf(id); if(i>=0) _bw.columns.splice(i,1); else _bw.columns.push(id); renderBoardWizard(); });
+    const ord=document.getElementById('bwOrder');
+    ord.innerHTML=_bw.columns.length?('<div class="bw-ordlbl">Column order</div>'+_bw.columns.map(id=>{ const s=store.status(id)||{name:id};
+      return `<span class="bw-ordchip">${esc(s.name)}</span>`; }).join('<span class="bw-ordarr">\u2192</span>')):'';
+  } else {
+    // projects for this board
+    const rows=_bw.projects.map((p,i)=>`<div class="bw-prow">
+      <input class="bw-pn" data-i="${i}" placeholder="Project name" value="${esc(p.name)}"/>
+      <input class="bw-pk" data-i="${i}" placeholder="KEY" maxlength="10" value="${esc(p.key)}"/>
+      <button class="bw-prm" data-i="${i}" type="button" title="Remove">\u2715</button></div>`).join('');
+    body.innerHTML=`<div class="field"><label>Projects on this board<span class="req">*</span></label>
+      <div class="bw-sthint">Every ticket on this board belongs to one of these projects. Add at least one.</div>
+      <div class="bw-plist">${rows}</div>
+      <button class="btn bw-addp" id="bwAddP" type="button">+ Add project</button></div>`;
+    body.querySelectorAll('.bw-pn').forEach(inp=>inp.oninput=()=>{ const i=+inp.dataset.i; _bw.projects[i].name=inp.value;
+      if(!_bw.projects[i]._kt){ _bw.projects[i].key=inp.value.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase(); const kf=body.querySelector('.bw-pk[data-i="'+i+'"]'); if(kf) kf.value=_bw.projects[i].key; } });
+    body.querySelectorAll('.bw-pk').forEach(inp=>inp.oninput=()=>{ const i=+inp.dataset.i; _bw.projects[i]._kt=true; inp.value=inp.value.toUpperCase().replace(/[^A-Z0-9]/g,''); _bw.projects[i].key=inp.value; });
+    body.querySelectorAll('.bw-prm').forEach(b=>b.onclick=()=>{ _bw.projects.splice(+b.dataset.i,1); renderBoardWizard(); });
+    document.getElementById('bwAddP').onclick=()=>{ _bw.projects.push({name:'',key:'',_kt:false}); renderBoardWizard();
+      setTimeout(()=>{ const ins=document.querySelectorAll('.bw-pn'); if(ins.length) ins[ins.length-1].focus(); },30); };
+    if(!_bw.projects.length){ _bw.projects.push({name:'',key:'',_kt:false}); renderBoardWizard(); }
+  }
+}
+function bwBack(){ if(_bw && _bw.step>0){ _bw.step--; renderBoardWizard(); } }
+function bwNext(){
+  if(!_bw) return;
+  if(_bw.step===0){ if(!_bw.name.trim()){ toast('Give the board a name'); return; } _bw.step=1; return renderBoardWizard(); }
+  if(_bw.step===1){ if(_bw.columns.length<2){ toast('Pick at least two statuses for the flow'); return; } _bw.step=2; return renderBoardWizard(); }
+  // final: validate projects (>=1 named, unique keys) then create everything
+  const projs=_bw.projects.map(p=>({name:(p.name||'').trim(), key:(p.key||'').trim().toUpperCase()})).filter(p=>p.name);
+  if(!projs.length){ toast('Add at least one project'); return; }
+  for(const p of projs){ if(!p.key){ p.key=p.name.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase()||'PRJ'; } }
+  // key uniqueness (against existing + within the batch)
+  const seen={}; for(const p of projs){ if(seen[p.key]){ toast('Duplicate key "'+p.key+'" in your projects'); return; } seen[p.key]=1;
+    const clash=store.projects().find(x=>String(x.key||'').toUpperCase()===p.key); if(clash){ toast('Key "'+p.key+'" is already used by '+clash.name); return; } }
+  // create board with the chosen columns
+  const bid=store.addBoard(_bw.name.trim());
+  const bd=store.board(bid); if(bd){ bd.columns=_bw.columns.slice(); }
+  // create projects on this board
+  projs.forEach(p=>{ const pid=store.addProject(p.name, bid); store.updateProject(pid,{key:p.key}); });
+  store._persist();
+  closeBoardWizard();
+  ui.board=bid; setView('board');
+  if(window.renderBoardSwitch) renderBoardSwitch();
+  toast('Board created');
+}
 let bsTab='boards';
 function openBoardSettings(){ ui.view='boardsettings'; setView('boardsettings'); }
 function closeBoardSettings(){ renderAll(); fillFilters(); }
@@ -6838,8 +6997,7 @@ function renderBoardSettings(){
   };
   const add=document.getElementById('bsAdd');
   if(add) add.onclick=()=>{
-    if(bsTab==='boards'){ if(!can('board_create')){ toast('You don\u2019t have permission to create boards'); return; }
-      const id=store.addBoard('New board'); ui.board=id; renderBoardSettings(); renderBoardSwitch(); renameBoardSettingRow(id); }
+    if(bsTab==='boards'){ openBoardWizard(); }
     else if(bsTab==='columns'){ if(!can('board_columns')){ toast('You don\u2019t have permission to edit columns'); return; }
       store.addStatus('New status');
       const nid=store.statuses()[store.statuses().length-1].id;
@@ -9923,27 +10081,42 @@ function ehsSearchBox(id,ph,val){
 function renderProjects(){
   if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page project selection → reflect in URL
   const el=document.getElementById('projectswrap');
-  // Board scope: show all projects, or only those whose home board is the selected one.
   if(ui.projBoard!=='all' && !store.board(ui.projBoard)) ui.projBoard='all';
+
+  // Board-first: with no board chosen, Projects opens on a grid of BOARDS. Each board
+  // owns a set of projects, so you pick the board first, then drill into its projects.
+  if(ui.projBoard==='all'){
+    const boards=store.boards();
+    const projOf=bid=>store.projectsForBoard(bid);
+    const tksOf=bid=>store.standardTasks().filter(t=>(t.board||boardlessAnchorId())===bid);
+    const cards=boards.map(b=>{ const ps=projOf(b.id); const tk=tksOf(b.id);
+      return `<button class="pjb-card" data-board="${b.id}" type="button">
+        <div class="pjb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></div>
+        <div class="pjb-body"><div class="pjb-name">${esc(b.name)}</div>
+          <div class="pjb-meta">${ps.length} project${ps.length!==1?'s':''} \u00b7 ${tk.length} ticket${tk.length!==1?'s':''}</div></div>
+        <svg class="pjb-arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </button>`; }).join('');
+    el.innerHTML=`<div class="ehs-page-head"><h1>Projects</h1></div>
+      <div class="pjb-intro">Pick a board to see the projects that belong to it.</div>
+      <div class="pjb-grid">${cards||'<div class="ehs-empty"><p>No boards yet.</p></div>'}</div>`;
+    el.querySelectorAll('.pjb-card').forEach(c=>c.onclick=()=>{ ui.projBoard=c.dataset.board; ui.pjSel=null; renderProjects(); });
+    return;
+  }
+
+  // A board is selected → show that board's projects (with a back link to the board grid).
   const projects=store.projectsForBoard(ui.projBoard);
-  const allK=store.standardTasks();
+  const allK=store.standardTasks().filter(t=>(t.board||boardlessAnchorId())===ui.projBoard);
   const kidsOf=pid=>allK.filter(t=>t.project===pid);
-  // Tickets whose project is missing or points at a project that no longer exists.
-  // These were counted in the strip but belonged to no row in the rail, which is
-  // why the totals never reconciled.
   const orphans=allK.filter(t=>!t.project || !store.project(t.project));
   const addFn=()=>openProjModal();
 
-  const _pjBoardVal=ui.projBoard==='all'?'All boards':((store.board(ui.projBoard)||{}).name||'All boards');
-  const _pjBoardIco='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#0C5A9E"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>';
-  const _pjBoardChip=`<button class="chip lchip ${ui.projBoard!=='all'?'active':''}" id="prBoardBtn" type="button">${_pjBoardIco}<span class="chip-lbl">Board</span><span class="chip-val">${esc(_pjBoardVal)}</span>${CHEV_SVG}</button>`;
-  const head=`<div class="ehs-page-head"><h1>Projects</h1><div style="display:flex;align-items:center;gap:10px">${_pjBoardChip}<button class="ehs-btn" id="prAddProj" type="button">Add project</button></div></div>`;
+  const _bkLink=`<button class="pjb-back" id="prBackBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>All boards</button>`;
+  const _bdName=(store.board(ui.projBoard)||{}).name||'Board';
+  const head=`<div class="ehs-page-head"><div><div>${_bkLink}</div><h1 style="margin-top:4px">${esc(_bdName)} \u2014 Projects</h1></div><button class="ehs-btn" id="prAddProj" type="button">Add project</button></div>`;
   if(!projects.length && !orphans.length){
-    el.innerHTML=head+`<div class="ehs-empty"><p>No projects yet. Add one to start tracking work.</p><button class="ehs-btn ehs-btn--sm" id="prAddCard" type="button">Add project</button></div>`;
+    el.innerHTML=head+`<div class="ehs-empty"><p>No projects on this board yet. Add one to start tracking work.</p><button class="ehs-btn ehs-btn--sm" id="prAddCard" type="button">Add project</button></div>`;
     document.getElementById('prAddProj').onclick=addFn; document.getElementById('prAddCard').onclick=addFn;
-    { const bb=document.getElementById('prBoardBtn'); if(bb) bb.onclick=e=>{ e.stopPropagation();
-      const opts=[{v:'all',t:'All boards'}].concat(store.boards().map(b=>({v:b.id,t:b.name})));
-      chipMenu(e.currentTarget, opts, ui.projBoard, v=>{ ui.projBoard=v; ui.pjSel=null; renderProjects(); }); }; }
+    { const bk=document.getElementById('prBackBtn'); if(bk) bk.onclick=()=>{ ui.projBoard='all'; ui.pjSel=null; renderProjects(); }; }
     return;
   }
 
@@ -10035,10 +10208,7 @@ function renderProjects(){
     <section class="ehs-detail" id="pjDetail">${detail}</section></div>`;
 
   document.getElementById('prAddProj').onclick=addFn;
-  { const bb=document.getElementById('prBoardBtn');
-    if(bb) bb.onclick=e=>{ e.stopPropagation();
-      const opts=[{v:'all',t:'All boards'}].concat(store.boards().map(b=>({v:b.id,t:b.name})));
-      chipMenu(e.currentTarget, opts, ui.projBoard, v=>{ ui.projBoard=v; ui.pjSel=null; renderProjects(); }); }; }
+  { const bk=document.getElementById('prBackBtn'); if(bk) bk.onclick=()=>{ ui.projBoard='all'; ui.pjSel=null; renderProjects(); }; }
   wireEhsTable(el, renderProjects);
   el.querySelectorAll('#pjRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.pjSel=b.dataset.id||null; renderProjects(); });
   const sIn=document.getElementById('pjSearch');
@@ -10079,7 +10249,10 @@ function openProjModal(){
   // board picker: list this workspace's boards, default to the board you're on
   const bsel=document.getElementById('pjBoard');
   if(bsel){ bsel.innerHTML=store.boards().map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
-    const cur=(ui.board && store.board(ui.board))?ui.board:(store.boards()[0]||{}).id; if(cur) bsel.value=cur; }
+    // default to the board being viewed in Projects, else the current board
+    const cur=(ui.view==='projects' && ui.projBoard && ui.projBoard!=='all' && store.board(ui.projBoard))?ui.projBoard
+             :((ui.board && store.board(ui.board))?ui.board:(store.boards()[0]||{}).id);
+    if(cur) bsel.value=cur; }
   // key follows the name until the user edits it themselves
   nm.oninput=()=>{ if(_pjKeyTouched) return;
     ky.value=(nm.value.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase()); };
@@ -10956,6 +11129,13 @@ document.querySelectorAll('#navAnalytics .sub-item').forEach(it=>it.onclick=()=>
   if(pv) pv.onclick=saveProjModal;
   if(pw) pw.onclick=e=>{ if(e.target===pw) closeProjModal(); };
   document.addEventListener('keydown',e=>{ if(e.key==='Escape' && pw && pw.classList.contains('on')) closeProjModal(); });
+})();
+(function(){ const bk=document.getElementById('bwBack'), nx=document.getElementById('bwNext'), cn=document.getElementById('bwCancel'), bw=document.getElementById('bwWrap');
+  if(bk) bk.onclick=bwBack;
+  if(nx) nx.onclick=bwNext;
+  if(cn) cn.onclick=closeBoardWizard;
+  if(bw) bw.onclick=e=>{ if(e.target===bw) closeBoardWizard(); };
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && bw && bw.classList.contains('on')) closeBoardWizard(); });
 })();
 (function(){ const c=document.getElementById('sbCancel'), sv=document.getElementById('sbSave'), w=document.getElementById('subWrap');
   if(c) c.onclick=closeSubModal;
