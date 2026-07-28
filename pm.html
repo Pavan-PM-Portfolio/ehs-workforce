@@ -3479,6 +3479,8 @@ body.view-board .scroll{padding-bottom:0}
         <div class="field"><label>Project name<span class="req">*</span></label><input id="pjName" placeholder="e.g. Marketing pages" autocomplete="off"/></div>
         <div class="field"><label>Key<span class="req">*</span></label><input id="pjKey" placeholder="MKT" maxlength="10" autocomplete="off"/></div>
       </div>
+      <div class="field" style="margin-top:12px"><label>Board</label><select id="pjBoard" class="pj-board-sel"></select>
+        <div class="loghint" style="margin-top:6px">The board this project lives under. Its tickets appear on this board by default.</div></div>
       <div class="loghint">The key prefixes every ticket in this project &mdash; <b>MKT-1</b>, <b>MKT-2</b>. It fills in from the name, and must be unique.</div>
     </div>
     <div class="modal-f"><button class="btn" id="pjCancel">Cancel</button><button class="btn primary" id="pjCreate">Create project</button></div>
@@ -3956,10 +3958,18 @@ const store = {
   backlogTasks(){ return this.standardTasks().filter(t=>!t.sprint && t.status!=='done'); },
   // projects admin
   ticketsInProject(id){ return this.data.tasks.filter(t=>t.project===id).length; },
-  addProject(name){ const key=((name||'').replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase())||'PRJ'; const id='p'+Date.now().toString(36);
-    this.data.projects.push({id, name:name||'New project', key}); this._persist(); return id; },
+  addProject(name, board){ const key=((name||'').replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase())||'PRJ'; const id='p'+Date.now().toString(36);
+    this.data.projects.push({id, name:name||'New project', key, board:board||null}); this._persist(); return id; },
   updateProject(id, patch){ Object.assign(this.project(id), patch); this._persist(); },
   removeProject(id){ this.data.projects=this.data.projects.filter(p=>p.id!==id); this._persist(); },
+  // A project's effective home board: its own `board`, or the anchor board for
+  // legacy projects with none set (mirrors how boardless tickets adopt the anchor,
+  // so nothing disappears). Board-facing project views use this.
+  projectBoardId(p){ const pr=(typeof p==='string')?this.project(p):p; if(!pr) return null;
+    return pr.board || (typeof boardlessAnchorId==='function'?boardlessAnchorId():(this.boards()[0]||{}).id); },
+  // Projects whose home board is `boardId` (or all if boardId is null/'all').
+  projectsForBoard(boardId){ if(!boardId||boardId==='all') return this.projects();
+    return this.projects().filter(p=>this.projectBoardId(p)===boardId); },
   // users admin
   assignmentsForUser(id){ return this.data.tasks.filter(t=>t.assignee===id).length; },
   addUser(name, role){ const id='u'+Date.now().toString(36);
@@ -4254,7 +4264,7 @@ const ui = { view:'overview', space:null, project:'all', openTask:null, board:'m
   chat:{ open:false, channel:'ch_general', editing:null, newGroup:false, seen:{} },
   depFilter:{ mode:'all', from:'', to:'', project:'all', priority:'all', assignee:'all', verified:'all' },
   qaFilter:{ project:'all', priority:'all', qa:'all', status:'all' },
-  listBoard:'all', listGroup:'none',
+  listBoard:'all', listGroup:'none', projBoard:'all',
   report:{ kind:'summary', groupBy:'assignee', measure:'count',
     fields:['key','title','status','priority','assignee','due','logged'],
     f:{ project:'all', assignee:'all', status:'all', priority:'all', type:'all', epic:'all', hasTime:'any', overdue:'any', dateField:'none', from:'', to:'' } },
@@ -4282,19 +4292,42 @@ function tInPeriod(t, ref){
   return store.worklogs(t.id).some(w=>fInPeriod(w.date,ref));
 }
 function matchFilt(fv,tv){ if(!fv||fv==='all') return true; if(Array.isArray(fv)) return fv.length===0||fv.includes(tv); return fv===tv; }
-function filteredTasks(){
+/* The board that adopts legacy tickets with no `board` set. It must be STABLE —
+   the same board before and after any new board is created — so new boards never
+   inherit old tickets. We pick the earliest board in creation order within the
+   current workspace: the seed board (fixed id) or, failing that, the board whose
+   timestamp-based id sorts first. New boards get ids like 'b'+<later timestamp>,
+   so they always sort after and can never become the anchor. */
+function boardlessAnchorId(){
+  const bs=store.boards(); if(!bs.length) return null;
+  // Prefer the canonical seed board if present in this workspace.
+  const seed=bs.find(b=>b.id==='main'); if(seed) return seed.id;
+  // Otherwise the earliest-created board: sort by the numeric part of 'b<base36>' ids.
+  const ord=b=>{ const m=/^b([0-9a-z]+)$/i.exec(b.id||''); return m?parseInt(m[1],36):-1; };
+  return bs.slice().sort((a,b)=>ord(a)-ord(b))[0].id;
+}
+function filteredTasks(boardOverride){
   const f=ui.filters;
   const ref=(f.period&&f.period!=='all')?boardRef():null;
   /* Boards are containers: a ticket belongs to the board it was created on.
-     Tickets from before boards were scoped carry no `board`, so they fall to
-     the first board in the space — nothing disappears, and a brand-new board
-     starts genuinely empty. Cross-cutting views (QA, Deployments, Reports,
-     Overview) deliberately still read the whole space via standardTasks(). */
-  const _bd=ui.board;
-  const _firstBd=(store.boards()[0]||{}).id;
+     Tickets from before boards were scoped carry no `board`. They adopt onto the
+     workspace's ORIGINAL board only — never onto a board created later — so a
+     brand-new board always starts genuinely empty and only shows tickets created
+     on it. The anchor is the earliest board in creation order: seed boards keep
+     their fixed id, and every board created afterwards is pushed to the end, so
+     index 0 is stable and a new board can never become the adopter.
+     Cross-cutting views (QA, Deployments, Reports, Overview) still read the whole
+     space via standardTasks().
+     `boardOverride` lets a view (e.g. List) choose its own board scope: pass a
+     board id to scope to that board, or 'all' to include every board in the
+     workspace. When omitted, the current board view (ui.board) is used. */
+  const _bd = (boardOverride===undefined) ? ui.board : (boardOverride==='all' ? null : boardOverride);
+  const _anchorBd=boardlessAnchorId();
   return store.standardTasks().filter(t=>{
     if(t.archived) return false;
-    if(_bd && (t.board || _firstBd) !== _bd) return false;
+    // The board a ticket shows on: its own board if set, else the anchor board.
+    const homeBd = t.board || _anchorBd;
+    if(_bd && homeBd !== _bd) return false;
     if(ui.project!=='all' && t.project!==ui.project) return false;
     if(f.epic!=='all'){ if(f.epic==='none'){ if(t.parent) return false; } else if(t.parent!==f.epic) return false; }
     if(!matchFilt(f.assignee, t.assignee)) return false;
@@ -4525,7 +4558,22 @@ function renderBoard(){ try{ wireBoardSlide(); requestAnimationFrame(updBoardSli
   const bd=activeBoard();
   if(!bd){ board.className='board'; board.innerHTML=`<div class="empty" style="margin:40px auto"><div class="big">No board yet</div>This workspace hasn’t been set up. An admin needs to load data (Settings → reset), or check the console for a setup error.</div>`; return; }
   const tasks=filteredTasks();
-  const cols=store.boardColumns(bd);
+  // Part A — a board always shows a column for EVERY status its tickets actually
+  // use, so nothing a ticket on this board can ever end up invisible. Start from the
+  // board's configured columns, then append every other status present on this
+  // board's tickets. Statuses that exist in the global list keep their name/colour
+  // and global ordering; any status id that isn't in the global list (orphaned or
+  // workspace-specific) still gets a synthetic column so its tickets show. Result:
+  // "Not on this board" is effectively never populated for tickets created here.
+  const cfgCols=store.boardColumns(bd);
+  const cfgIds=new Set(cfgCols.map(s=>s.id));
+  const usedIds=[...new Set(tasks.map(t=>t.status).filter(Boolean))].filter(id=>!cfgIds.has(id));
+  // known statuses first (in global order), then any unknown ids as synthetic cols
+  const knownExtra=STATUSES.filter(s=>usedIds.includes(s.id));
+  const knownExtraIds=new Set(knownExtra.map(s=>s.id));
+  const unknownExtra=usedIds.filter(id=>!knownExtraIds.has(id))
+    .map(id=>({id, name:(store.status(id)||{}).name||id, cat:'todo', color:'#71717A'}));
+  const cols=cfgCols.concat(knownExtra, unknownExtra);
   const shownIds=cols.map(s=>s.id);
   const hidden=tasks.filter(t=>!shownIds.includes(t.status)).length;
   const hiddenCol = hidden?`<div class="col" style="border-style:dashed;opacity:.7"><div class="col-h"><span class="t" style="color:var(--muted)">Not on this board</span><span class="c">${hidden}</span></div><div class="col-body"><div style="padding:8px 4px;font-size:11px;color:var(--faint)">${hidden} ticket${hidden!==1?'s':''} in statuses this board doesn't show.</div></div></div>`:'';
@@ -4575,8 +4623,10 @@ function listColDef(id){ if(id&&id.indexOf('cf:')===0){ const fid=id.slice(3); c
 function listAllCols(){ return LIST_COL_ORDER.map(id=>({id,label:LIST_COLS[id].label})).concat(store.fields().map(f=>({id:'cf:'+f.id,label:f.name}))); }
 function renderList(){
   const wrap=document.getElementById('listwrap');
-  let tasks=filteredTasks();
-  if(ui.listBoard!=='all'){ const bd=store.board(ui.listBoard); if(bd) tasks=tasks.filter(t=>(bd.columns||[]).includes(t.status)); }
+  // List View has its own board scope (ui.listBoard), independent of the board view.
+  // Scope by which board each ticket BELONGS to (so reporting is per-board correct),
+  // not by status/column membership.
+  let tasks=filteredTasks(ui.listBoard==='all' ? 'all' : ui.listBoard);
   let cols=store.listCols().filter(id=>listColDef(id)); if(!cols.length) cols=['key','title'];
   const LGROUPS={none:'None',assignee:'Assignee',epic:'Epic',priority:'Priority',type:'Type'};
   const boardOpts=[{v:'all',t:'All boards'}].concat(store.boards().map(b=>({v:b.id,t:b.name})));
@@ -4709,7 +4759,7 @@ function openCardMenu(anchor, id){
   const menu=document.getElementById('cardMenu'); const t=store.task(id); if(!t) return;
   const arrow='<svg class="cm-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
   const boardMenu=()=>{
-    const cur=t.board || (store.boards()[0]||{}).id;
+    const cur=t.board || boardlessAnchorId();
     const BK='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>';
     const CK='<svg class="cm-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
     menu.innerHTML=`<button class="cm-item cm-back" data-back="1">${BK}Move to board</button><div class="cm-sep"></div>`
@@ -5128,6 +5178,9 @@ async function submitEpic(){
       due:null, start:null, estimate:0, resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(),
       updatedAt:today(), resolvedAt:null, desc:'' };
     store._applyResolution(t); store.addTask(t); n++;
+    // Part B — keep the board able to show every ticket created on it.
+    if(t.board){ const bd=store.board(t.board);
+      if(bd && t.status && !(bd.columns||[]).includes(t.status)) store.toggleBoardColumn(bd, t.status, true); }
   }
   closeEpicModal(); refreshViews();
   toast('Epic created'+(n?' with '+n+' task'+(n!==1?'s':''):''));
@@ -6106,12 +6159,24 @@ function typeNtKey(){
   if(out._t) clearInterval(out._t); out.textContent=''; let i=0;
   out._t=setInterval(()=>{ out.textContent=full.slice(0,++i); if(i>=full.length){ clearInterval(out._t); out._t=null; } }, 55);
 }
+let _ntBoardOverride=null;
 function openModal(presetType, presetParent, presetProject){
   if(!can('ticket_create')){ toast('You don\u2019t have permission to create tickets'); return; }
+  _ntBoardOverride=null;                 // ticket adopts current board unless a project overrides it
   const setSel=(id,opts)=>document.getElementById(id).innerHTML=opts;
   const isEpic=presetType==='Epic';
   document.getElementById('ntCreate').textContent = isEpic?'Create epic':'Create ticket';
-  setSel('ntProject', `<option value="">Select a project\u2026</option>`+store.projects().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''));
+  // Project dropdown is scoped to the current board's projects (with an all-projects
+  // escape), so you pick from what's relevant to the board you're creating on.
+  (function(){
+    const curBd=(ui.board && store.board(ui.board))?ui.board:null;
+    const boardProjs=curBd?store.projectsForBoard(curBd):store.projects();
+    const otherProjs=curBd?store.projects().filter(p=>store.projectBoardId(p)!==curBd):[];
+    let html=`<option value="">Select a project\u2026</option>`;
+    html+=boardProjs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+    if(otherProjs.length){ html+=`<optgroup label="Other boards">`+otherProjs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+`</optgroup>`; }
+    setSel('ntProject', html);
+  })();
   setSel('ntAssignee', `<option value="">Unassigned</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   if(curPrefs().autoAssign){ const mu=myUid(); if(mu&&store.user(mu)) document.getElementById('ntAssignee').value=mu; }
   setSel('ntReporter', `<option value="">Select a reporter\u2026</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
@@ -6119,12 +6184,18 @@ function openModal(presetType, presetParent, presetProject){
   setSel('ntType', `<option value="">Select a type\u2026</option>`+store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
   setSel('ntStatus', `<option value="">Select a status\u2026</option>`+STATUSES.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join(''));
   fillParentOptions();
-  document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject'); };
+  document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject');
+    // Auto-follow the project's home board (overridable): if the chosen project lives
+    // on a different board than the one we're on, the ticket adopts that board.
+    const pv=document.getElementById('ntProject').value;
+    if(pv){ const hb=store.projectBoardId(store.project(pv)); if(hb) _ntBoardOverride=hb; }
+  };
   document.getElementById('ntType').onchange=toggleEpicField;
   toggleEpicField();
   ['ntTitle','ntDesc','ntDue','ntStart','ntEstimate'].forEach(id=>document.getElementById(id).value='');
   ['ntType','ntPriority','ntStatus','ntProject','ntReporter'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
-  if(presetProject){ document.getElementById('ntProject').value=presetProject; fillParentOptions(); }
+  if(presetProject){ document.getElementById('ntProject').value=presetProject; fillParentOptions();
+    const hb=store.projectBoardId(store.project(presetProject)); if(hb) _ntBoardOverride=hb; }
   if(presetType){ document.getElementById('ntType').value=presetType; }
   if(presetParent){ const pp=document.getElementById('ntParent'); if(pp) pp.value=presetParent; }
   toggleEpicField();
@@ -6295,7 +6366,8 @@ async function createTask(){
   let allocated;
   try{ allocated=await allocateKey(pid); }
   finally{ if(btn) btn.disabled=false; }
-  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), board:(isEpic?null:(ui.board||null)), project:pid, key:allocated, title,
+  const _tkBoard = isEpic ? null : (_ntBoardOverride || ui.board || null);
+  const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), board:_tkBoard, project:pid, key:allocated, title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
     reporter:document.getElementById('ntReporter').value||null,
@@ -6306,7 +6378,14 @@ async function createTask(){
     resolution:'Unresolved', createdAt:today(), createdTs:new Date().toISOString(), updatedAt:today(), resolvedAt:null,
     desc:document.getElementById('ntDesc').value.trim() };
   store._applyResolution(t);
-  store.addTask(t); closeModal(); refreshViews(); toast(`${t.key} created`); openPanel(t.id);
+  store.addTask(t);
+  // Part B — if this ticket was created on a board and its status isn't yet one of
+  // that board's columns, add it so the ticket is immediately visible there. A new
+  // board thus grows to fit the work put on it, instead of hiding off-column tickets.
+  if(t.board){ const bd=store.board(t.board);
+    if(bd && t.status && !(bd.columns||[]).includes(t.status)){ store.toggleBoardColumn(bd, t.status, true); }
+  }
+  closeModal(); refreshViews(); toast(`${t.key} created`); openPanel(t.id);
 }
 
 /* ============================================================
@@ -8408,7 +8487,13 @@ function renderAll(){ _inRenderAll=true; document.body.classList.toggle('view-bo
   _inRenderAll=false;
   try{ urlSync(); }catch(e){} }
 
-function setView(v){ if(!IS_ADMIN){ if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } } ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
+function setView(v){ if(!IS_ADMIN){ if(v!=='settings' && !canView(v)){ v = canView('overview')?'overview':(['board','list','epics','reports','team'].find(canView)||'overview'); } }
+  // Entering List View: scope it to the board you were just looking at, so the list
+  // is board-specific by default (switchable via its own Board selector).
+  if(v==='list' && ui.view!=='list'){ if(ui.board && store.board(ui.board)) ui.listBoard=ui.board; }
+  // Same for Projects: default its board scope to the board you're on.
+  if(v==='projects' && ui.view!=='projects'){ if(ui.board && store.board(ui.board)) ui.projBoard=ui.board; }
+  ui.view=v; document.body.classList.toggle('view-board', v==='board'); renderAll(); document.getElementById('scroll').scrollTop=0; saveSpot(); }
 
 /* ---------- Side card ---------- */
 function renderSideCard(){
@@ -9838,7 +9923,9 @@ function ehsSearchBox(id,ph,val){
 function renderProjects(){
   if(!_inRenderAll){ try{ urlSync(); }catch(e){} }   // in-page project selection → reflect in URL
   const el=document.getElementById('projectswrap');
-  const projects=store.projects();
+  // Board scope: show all projects, or only those whose home board is the selected one.
+  if(ui.projBoard!=='all' && !store.board(ui.projBoard)) ui.projBoard='all';
+  const projects=store.projectsForBoard(ui.projBoard);
   const allK=store.standardTasks();
   const kidsOf=pid=>allK.filter(t=>t.project===pid);
   // Tickets whose project is missing or points at a project that no longer exists.
@@ -9847,10 +9934,17 @@ function renderProjects(){
   const orphans=allK.filter(t=>!t.project || !store.project(t.project));
   const addFn=()=>openProjModal();
 
-  const head=`<div class="ehs-page-head"><h1>Projects</h1><button class="ehs-btn" id="prAddProj" type="button">Add project</button></div>`;
+  const _pjBoardVal=ui.projBoard==='all'?'All boards':((store.board(ui.projBoard)||{}).name||'All boards');
+  const _pjBoardIco='<svg class="chip-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#0C5A9E"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>';
+  const _pjBoardChip=`<button class="chip lchip ${ui.projBoard!=='all'?'active':''}" id="prBoardBtn" type="button">${_pjBoardIco}<span class="chip-lbl">Board</span><span class="chip-val">${esc(_pjBoardVal)}</span>${CHEV_SVG}</button>`;
+  const head=`<div class="ehs-page-head"><h1>Projects</h1><div style="display:flex;align-items:center;gap:10px">${_pjBoardChip}<button class="ehs-btn" id="prAddProj" type="button">Add project</button></div></div>`;
   if(!projects.length && !orphans.length){
     el.innerHTML=head+`<div class="ehs-empty"><p>No projects yet. Add one to start tracking work.</p><button class="ehs-btn ehs-btn--sm" id="prAddCard" type="button">Add project</button></div>`;
-    document.getElementById('prAddProj').onclick=addFn; document.getElementById('prAddCard').onclick=addFn; return;
+    document.getElementById('prAddProj').onclick=addFn; document.getElementById('prAddCard').onclick=addFn;
+    { const bb=document.getElementById('prBoardBtn'); if(bb) bb.onclick=e=>{ e.stopPropagation();
+      const opts=[{v:'all',t:'All boards'}].concat(store.boards().map(b=>({v:b.id,t:b.name})));
+      chipMenu(e.currentTarget, opts, ui.projBoard, v=>{ ui.projBoard=v; ui.pjSel=null; renderProjects(); }); }; }
+    return;
   }
 
   // ---- selection: null = every project, '__none' = the unfiled bucket ----
@@ -9941,6 +10035,10 @@ function renderProjects(){
     <section class="ehs-detail" id="pjDetail">${detail}</section></div>`;
 
   document.getElementById('prAddProj').onclick=addFn;
+  { const bb=document.getElementById('prBoardBtn');
+    if(bb) bb.onclick=e=>{ e.stopPropagation();
+      const opts=[{v:'all',t:'All boards'}].concat(store.boards().map(b=>({v:b.id,t:b.name})));
+      chipMenu(e.currentTarget, opts, ui.projBoard, v=>{ ui.projBoard=v; ui.pjSel=null; renderProjects(); }); }; }
   wireEhsTable(el, renderProjects);
   el.querySelectorAll('#pjRail .ehs-li').forEach(b=>b.onclick=()=>{ ui.pjSel=b.dataset.id||null; renderProjects(); });
   const sIn=document.getElementById('pjSearch');
@@ -9978,6 +10076,10 @@ function openProjModal(){
   _pjKeyTouched=false;
   const nm=document.getElementById('pjName'), ky=document.getElementById('pjKey');
   nm.value=''; ky.value='';
+  // board picker: list this workspace's boards, default to the board you're on
+  const bsel=document.getElementById('pjBoard');
+  if(bsel){ bsel.innerHTML=store.boards().map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+    const cur=(ui.board && store.board(ui.board))?ui.board:(store.boards()[0]||{}).id; if(cur) bsel.value=cur; }
   // key follows the name until the user edits it themselves
   nm.oninput=()=>{ if(_pjKeyTouched) return;
     ky.value=(nm.value.replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase()); };
@@ -9996,7 +10098,8 @@ function saveProjModal(){
   const key=document.getElementById('pjKey').value.trim().toUpperCase();
   { const clash=store.projects().find(p=>String(p.key||'').toUpperCase()===key);
     if(clash){ return reqFail(document.getElementById('pjKey'), '\u201c'+key+'\u201d is already used by '+clash.name); } }
-  const id=store.addProject(name);
+  const board=(document.getElementById('pjBoard')||{}).value||null;
+  const id=store.addProject(name, board);
   store.updateProject(id,{key});
   closeProjModal();
   ui.pjSel=id;                       // land on the project you just made
