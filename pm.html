@@ -3858,8 +3858,8 @@ const store = {
   _k:'cadence_v16',
   data:null,
   load(){
-    try{ const raw=localStorage.getItem(this._k); if(raw){ this.data=JSON.parse(raw); if(!this.data.settings) this.data.settings=JSON.parse(JSON.stringify(SEED.settings)); if(!this.data.sprints) this.data.sprints=JSON.parse(JSON.stringify(SEED.sprints)); if(!this.data.releases) this.data.releases=JSON.parse(JSON.stringify(SEED.releases)); if(!this.data._sprintSeeded){ this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true; } (this.data.users||[]).forEach(u=>u.color=avColor(u.name)); STATUSES=this.data.statuses; this.migrateProjectBoards(); return; } }catch(e){}
-    this.data=JSON.parse(JSON.stringify(SEED)); this.migrateProjectBoards();
+    try{ const raw=localStorage.getItem(this._k); if(raw){ this.data=JSON.parse(raw); if(!this.data.settings) this.data.settings=JSON.parse(JSON.stringify(SEED.settings)); if(!this.data.sprints) this.data.sprints=JSON.parse(JSON.stringify(SEED.sprints)); if(!this.data.releases) this.data.releases=JSON.parse(JSON.stringify(SEED.releases)); if(!this.data._sprintSeeded){ this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true; } (this.data.users||[]).forEach(u=>u.color=avColor(u.name)); STATUSES=this.data.statuses; this.migrateProjectBoards(); this.mergeDuplicateStatuses(); this.reconcileTaskBoards(); return; } }catch(e){}
+    this.data=JSON.parse(JSON.stringify(SEED)); this.migrateProjectBoards(); this.mergeDuplicateStatuses(); this.reconcileTaskBoards();
     this.data.tasks.filter(t=>t.type!=='Epic').slice(0,14).forEach(t=>t.sprint='sp1'); this.data._sprintSeeded=true;
     (this.data.users||[]).forEach(u=>u.color=avColor(u.name));
     STATUSES=this.data.statuses;
@@ -4039,6 +4039,89 @@ const store = {
       this.data.projects.forEach(p=>{ if(!p.board) p.board=anchor; });
     }
     this.data._projBoardsMigrated=true; this._persist();
+  },
+  // Heal every ticket's stored board to match its project's board — the project is the
+  // source of truth, so this keeps the stored data in step with what the board view
+  // shows and stops tickets from being stranded on a stale board. Runs every load
+  // (cheap, idempotent) so any drift is corrected automatically.
+  reconcileTaskBoards(){
+    if(!Array.isArray(this.data.tasks)) return;
+    let changed=false;
+    this.data.tasks.forEach(t=>{
+      if(t.type==='Epic') return;               // epics aren't board-bound
+      if(!t.project) return;                     // no project → leave its board as-is
+      const pr=this.project(t.project); if(!pr) return;
+      const pb=pr.board; if(!pb) return;
+      if(t.board!==pb){ t.board=pb; changed=true; }
+    });
+    // Collapse duplicate-name statuses onto the board's real columns. A ticket whose
+    // status ISN'T one of its board's columns but shares a normalized name with one
+    // that IS gets remapped to the board's column status — this removes the phantom
+    // duplicate columns (e.g. a global "Backlog" ticket on a board whose column is
+    // "Back Log"). Normalization ignores case and spacing so near-identical names match.
+    const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    this.data.tasks.forEach(t=>{
+      if(t.type==='Epic' || !t.status) return;
+      const bd=this.board(t.board); if(!bd) return;
+      const cols=(bd.columns||[]);
+      if(cols.includes(t.status)) return;                 // already a real column
+      const tName=norm((this.status(t.status)||{}).name); if(!tName) return;
+      const match=cols.map(id=>this.status(id)).filter(Boolean).find(s=>norm(s.name)===tName);
+      if(match){ t.status=match.id; changed=true; }
+    });
+    if(changed) this._persist();
+  },
+  /* ROOT-CAUSE cleanup: merge duplicate status DEFINITIONS. If the workspace has
+     two+ statuses whose names normalize to the same thing (e.g. "Back Log" and
+     "Backlog"), keep one canonical status and repoint every reference — ticket
+     statuses, board columns, and board transitions (both sides) — to it, then
+     delete the duplicates. Runs once on load (guarded by a flag) so prod data is
+     cleaned permanently, not just hidden at render time. The canonical winner is
+     the status that's actually used as a board column (so we keep the "real" one),
+     else the earliest-defined. */
+  mergeDuplicateStatuses(){
+    if(this.data._statusDupesMerged) return;
+    const sts=this.data.statuses||[]; if(sts.length<2) return;
+    const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    // group status ids by normalized name
+    const groups={};
+    sts.forEach(s=>{ const n=norm(s.name); (groups[n]=groups[n]||[]).push(s); });
+    // which status ids are used as a board column (preferred canonical)
+    const colIds=new Set();
+    (this.data.boards||[]).forEach(b=>(b.columns||[]).forEach(id=>colIds.add(id)));
+    const remap={};                                   // dupId -> canonicalId
+    Object.values(groups).forEach(list=>{
+      if(list.length<2) return;                       // no duplicates for this name
+      // pick canonical: prefer one that's a board column, else the first in list
+      const canonical = list.find(s=>colIds.has(s.id)) || list[0];
+      list.forEach(s=>{ if(s.id!==canonical.id) remap[s.id]=canonical.id; });
+    });
+    const dupIds=Object.keys(remap);
+    if(!dupIds.length){ this.data._statusDupesMerged=true; this._persist(); return; }
+    // 1) tickets
+    (this.data.tasks||[]).forEach(t=>{ if(t.status && remap[t.status]) t.status=remap[t.status]; });
+    // 2) board columns (dedupe after remap) + 3) transitions (keys and values)
+    (this.data.boards||[]).forEach(b=>{
+      if(Array.isArray(b.columns)){
+        const seen=new Set(); const out=[];
+        b.columns.forEach(id=>{ const c=remap[id]||id; if(!seen.has(c)){ seen.add(c); out.push(c); } });
+        b.columns=out;
+      }
+      if(b.transitions && typeof b.transitions==='object'){
+        const nt={};
+        Object.keys(b.transitions).forEach(from=>{
+          const cf=remap[from]||from;
+          const tos=(b.transitions[from]||[]).map(to=>remap[to]||to);
+          nt[cf]=[...new Set([...(nt[cf]||[]), ...tos])].filter(to=>to!==cf);
+        });
+        b.transitions=nt;
+      }
+    });
+    // 4) delete the duplicate status definitions
+    this.data.statuses=sts.filter(s=>!remap[s.id]);
+    STATUSES=this.data.statuses;
+    this.data._statusDupesMerged=true;
+    this._persist();
   },
   // users admin
   assignmentsForUser(id){ return this.data.tasks.filter(t=>t.assignee===id).length; },
@@ -4376,6 +4459,17 @@ function boardlessAnchorId(){
   const ord=b=>{ const m=/^b([0-9a-z]+)$/i.exec(b.id||''); return m?parseInt(m[1],36):-1; };
   return bs.slice().sort((a,b)=>ord(a)-ord(b))[0].id;
 }
+/* Single source of truth for which board a ticket lives on.
+   In the strict model a ticket belongs to a project and a project belongs to one
+   board, so the PROJECT decides the board. The ticket's own `board` field can drift
+   out of sync (old data), so we derive from the project first, then fall back to the
+   ticket's stored board, then the workspace anchor. This keeps board membership
+   consistent everywhere (board view, list, projects, reports). */
+function taskBoardId(t){
+  if(!t) return null;
+  if(t.project){ const pb=store.projectBoardId(store.project(t.project)); if(pb) return pb; }
+  return t.board || boardlessAnchorId();
+}
 function filteredTasks(boardOverride){
   const f=ui.filters;
   const ref=(f.period&&f.period!=='all')?boardRef():null;
@@ -4392,11 +4486,11 @@ function filteredTasks(boardOverride){
      board id to scope to that board, or 'all' to include every board in the
      workspace. When omitted, the current board view (ui.board) is used. */
   const _bd = (boardOverride===undefined) ? ui.board : (boardOverride==='all' ? null : boardOverride);
-  const _anchorBd=boardlessAnchorId();
   return store.standardTasks().filter(t=>{
     if(t.archived) return false;
-    // The board a ticket shows on: its own board if set, else the anchor board.
-    const homeBd = t.board || _anchorBd;
+    // The board a ticket shows on is decided by its project (source of truth),
+    // falling back to the ticket's stored board, then the anchor.
+    const homeBd = taskBoardId(t);
     if(_bd && homeBd !== _bd) return false;
     if(ui.project!=='all' && t.project!==ui.project) return false;
     if(f.epic!=='all'){ if(f.epic==='none'){ if(t.parent) return false; } else if(t.parent!==f.epic) return false; }
@@ -4537,9 +4631,10 @@ function cardHTML(t){
     </div></div>`;
 }
 
-function boardColsHTML(cols, tasks){
+function boardColsHTML(cols, tasks, canon){
+  const _c = canon || (x=>x);
   return cols.map(s=>{
-    const col=tasks.filter(t=>t.status===s.id);
+    const col=tasks.filter(t=>_c(t.status)===s.id);
     const mins=col.reduce((a,t)=>a+taskTotals(t.id).total,0);
     return `<div class="col" data-status="${s.id}">
       <div class="col-h">
@@ -4643,21 +4738,33 @@ function renderBoard(){ try{ wireBoardSlide(); requestAnimationFrame(updBoardSli
   const knownExtraIds=new Set(knownExtra.map(s=>s.id));
   const unknownExtra=usedIds.filter(id=>!knownExtraIds.has(id))
     .map(id=>({id, name:(store.status(id)||{}).name||id, cat:'todo', color:'#71717A'}));
-  const cols=cfgCols.concat(knownExtra, unknownExtra);
+  const rawCols=cfgCols.concat(knownExtra, unknownExtra);
+  // Dedupe columns that resolve to the same status NAME (ignoring case/spacing). Duplicate
+  // status definitions (e.g. "Back Log" and "Backlog") otherwise render as two identical
+  // columns. Keep the first occurrence as the canonical column and remember which status
+  // ids map onto it, so every ticket in any of the duplicates shows under the one column.
+  const _norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const cols=[]; const _seenName={}; const _stMap={};   // _stMap: status id -> canonical column id
+  rawCols.forEach(s=>{ const n=_norm(s.name);
+    if(_seenName[n]!==undefined){ _stMap[s.id]=_seenName[n]; }      // fold into the kept column
+    else { _seenName[n]=s.id; _stMap[s.id]=s.id; cols.push(s); }
+  });
+  // Any ticket status that maps onto a canonical column via a duplicate is treated as that column.
+  const canon=st=> _stMap[st] || st;
   const shownIds=cols.map(s=>s.id);
-  const hidden=tasks.filter(t=>!shownIds.includes(t.status)).length;
+  const hidden=tasks.filter(t=>!shownIds.includes(canon(t.status))).length;
   const hiddenCol = hidden?`<div class="col" style="border-style:dashed;opacity:.7"><div class="col-h"><span class="t" style="color:var(--muted)">Not on this board</span><span class="c">${hidden}</span></div><div class="col-body"><div style="padding:8px 4px;font-size:11px;color:var(--faint)">${hidden} ticket${hidden!==1?'s':''} in statuses this board doesn't show.</div></div></div>`:'';
   const g=ui.groupBy||'none';
   board.classList.toggle('grouped', g!=='none');
   if(g==='none'){
-    board.innerHTML = boardColsHTML(cols, tasks) + hiddenCol;
+    board.innerHTML = boardColsHTML(cols, tasks, canon) + hiddenCol;
   } else {
     const groups={}; tasks.forEach(t=>{ const k=groupValue(t,g); (groups[k]=groups[k]||[]).push(t); });
     const keys=orderGroupKeys(g, Object.keys(groups));
     board.innerHTML = keys.map(k=>`<div class="swimlane">
       <div class="swim-h">${groupHeaderHTML(g,k)}<span class="swim-count">${groups[k].length}</span></div>
-      <div class="swim-cols">${boardColsHTML(cols, groups[k])}</div></div>`).join('')
-      + (hidden?`<div class="swimlane"><div class="swim-h" style="color:var(--muted)">Not on this board<span class="swim-count">${hidden}</span></div><div class="swim-cols">${boardColsHTML(cols, tasks.filter(t=>!shownIds.includes(t.status)))}</div></div>`:'');
+      <div class="swim-cols">${boardColsHTML(cols, groups[k], canon)}</div></div>`).join('')
+      + (hidden?`<div class="swimlane"><div class="swim-h" style="color:var(--muted)">Not on this board<span class="swim-count">${hidden}</span></div><div class="swim-cols">${boardColsHTML(cols, tasks.filter(t=>!shownIds.includes(canon(t.status))), canon)}</div></div>`:'');
   }
   attachCardEvents(board);
   attachDnD(board);
@@ -6122,14 +6229,35 @@ function keyPrefix(pid){ return projPrefix(pid); }
 async function allocateKey(pid){
   const prefix = projPrefix(pid);
   const space  = (typeof ui!=='undefined' && ui.space) || 'ws_main';
+  // The set of keys already in use for this prefix, so we can never mint a duplicate
+  // even if the DB counter is behind the actual tickets (e.g. after an import or a
+  // counter that was never seeded). collision-proofing applies to BOTH paths.
+  const takenNums = ()=>{
+    const re=new RegExp('^'+prefix.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[-_ ]?(\\d+)$','i');
+    const s=new Set();
+    store.data.tasks.forEach(t=>{ const m=(t.key||'').match(re); if(m) s.add(parseInt(m[1],10)); });
+    return s;
+  };
   if(typeof sb!=='undefined' && sb && WS){
     try{
       const {data, error} = await sb.rpc('pm_next_key', { p_ws:WS, p_space:space, p_prefix:prefix });
-      if(!error && Number.isFinite(data)) return prefix+'-'+data;
+      if(!error && Number.isFinite(data)){
+        let n=data; const taken=takenNums();
+        // if the DB counter handed back a number that's already used locally, walk
+        // forward until we find a free one (and keep calling the RPC to advance its
+        // counter so other clients don't re-hand the same numbers).
+        let guard=0;
+        while(taken.has(n) && guard<200){
+          const r=await sb.rpc('pm_next_key', { p_ws:WS, p_space:space, p_prefix:prefix });
+          if(r && !r.error && Number.isFinite(r.data) && r.data>n){ n=r.data; } else { n=n+1; }
+          guard++;
+        }
+        return prefix+'-'+n;
+      }
       __dbg.warn('[key] allocator unavailable, falling back locally', error);
     }catch(e){ __dbg.warn('[key] allocator threw, falling back locally', e); }
   }
-  return computeNextKey(pid);          // offline / local mode
+  return computeNextKey(pid);          // offline / local mode (already collision-proof)
 }
 
 /* ---- One-time key migration ---------------------------------------------
@@ -6251,7 +6379,15 @@ function openModal(presetType, presetParent, presetProject){
   setSel('ntReporter', `<option value="">Select a reporter\u2026</option>`+store.activeUsers().map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join(''));
   setSel('ntPriority', `<option value="">Select a priority\u2026</option>`+store.priorities().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
   setSel('ntType', `<option value="">Select a type\u2026</option>`+store.types().map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(''));
-  setSel('ntStatus', `<option value="">Select a status\u2026</option>`+STATUSES.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join(''));
+  // Status options are scoped to the CURRENT BOARD's columns, so a new ticket can only
+  // start in a status that's actually a column on this board. Picking a global status
+  // that isn't a board column is what created phantom duplicate columns before.
+  (function(){
+    const curBd=(ui.board && store.board(ui.board))?store.board(ui.board):null;
+    const cols = curBd ? store.boardColumns(curBd) : STATUSES;
+    const list = (cols && cols.length) ? cols : STATUSES;
+    setSel('ntStatus', `<option value="">Select a status\u2026</option>`+list.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join(''));
+  })();
   fillParentOptions();
   document.getElementById('ntProject').onchange=()=>{ fillParentOptions(); typeNtKey(); ntBtnDisplay('ntParent'); ntBtnDisplay('ntProject');
     // Auto-follow the project's home board (overridable): if the chosen project lives
@@ -6435,7 +6571,11 @@ async function createTask(){
   let allocated;
   try{ allocated=await allocateKey(pid); }
   finally{ if(btn) btn.disabled=false; }
-  const _tkBoard = isEpic ? null : (_ntBoardOverride || ui.board || null);
+  // Board a ticket lands on: in the strict model a project belongs to one board, so
+  // the project's home board is the source of truth. Fall back to the board override,
+  // then the board currently in view.
+  const _projBoard = (!isEpic && pid) ? store.projectBoardId(store.project(pid)) : null;
+  const _tkBoard = isEpic ? null : (_projBoard || _ntBoardOverride || ui.board || null);
   const t={ id:newTaskId(isEpic?'e':'t'), ws:(ui.space||'ws_main'), board:_tkBoard, project:pid, key:allocated, title,
     type, status:statusId,
     priority:document.getElementById('ntPriority').value, assignee:document.getElementById('ntAssignee').value||null,
@@ -6454,6 +6594,9 @@ async function createTask(){
   if(t.board){ const bd=store.board(t.board);
     if(bd && t.status && !(bd.columns||[]).includes(t.status)){ store.toggleBoardColumn(bd, t.status, true); }
   }
+  // Make sure the new ticket is actually visible: if it landed on a board other than
+  // the one in view, follow it there so it never "disappears" after creation.
+  if(!isEpic && t.board && ui.board && t.board!==ui.board && store.board(t.board)){ ui.board=t.board; }
   closeModal(); refreshViews(); toast(`${t.key} created`); openPanel(t.id);
 }
 
@@ -10088,7 +10231,7 @@ function renderProjects(){
   if(ui.projBoard==='all'){
     const boards=store.boards();
     const projOf=bid=>store.projectsForBoard(bid);
-    const tksOf=bid=>store.standardTasks().filter(t=>(t.board||boardlessAnchorId())===bid);
+    const tksOf=bid=>store.standardTasks().filter(t=>taskBoardId(t)===bid);
     const cards=boards.map(b=>{ const ps=projOf(b.id); const tk=tksOf(b.id);
       return `<button class="pjb-card" data-board="${b.id}" type="button">
         <div class="pjb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg></div>
@@ -10105,7 +10248,7 @@ function renderProjects(){
 
   // A board is selected → show that board's projects (with a back link to the board grid).
   const projects=store.projectsForBoard(ui.projBoard);
-  const allK=store.standardTasks().filter(t=>(t.board||boardlessAnchorId())===ui.projBoard);
+  const allK=store.standardTasks().filter(t=>taskBoardId(t)===ui.projBoard);
   const kidsOf=pid=>allK.filter(t=>t.project===pid);
   const orphans=allK.filter(t=>!t.project || !store.project(t.project));
   const addFn=()=>openProjModal();
